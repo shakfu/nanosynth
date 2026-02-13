@@ -1,0 +1,19 @@
+[build-system]
+requires = ["scikit-build-core>=0.8", "nanobind"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "nanosynth"
+version = "0.1.0"
+description = "Minimal embedded SuperCollider synthesis engine (libscsynth) wrapper"
+requires-python = ">=3.10"
+
+[tool.scikit-build]
+wheel.packages = ["src/nanosynth"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest",
+    "ruff>=0.15.1",
+]

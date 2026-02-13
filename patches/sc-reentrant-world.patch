@@ -1,0 +1,198 @@
+diff --git a/server/scsynth/SC_ComPort.cpp b/server/scsynth/SC_ComPort.cpp
+index 50c2616..9c50938 100644
+--- a/server/scsynth/SC_ComPort.cpp
++++ b/server/scsynth/SC_ComPort.cpp
+@@ -306,6 +306,11 @@ public:
+ 
+         startReceiveUDP();
+     }
++
++    ~SC_UdpInPort() {
++        boost::system::error_code ec;
++        udpSocket.close(ec);
++    }
+ };
+ 
+ 
+@@ -469,6 +474,11 @@ public:
+         startAccept();
+     }
+ 
++    ~SC_TcpInPort() {
++        boost::system::error_code ec;
++        acceptor.close(ec);
++    }
++
+     void connectionDestroyed() {
+         if (!mWorld->mRunning)
+             return;
+@@ -506,6 +516,13 @@ void stopAsioThread() {
+ 
+ bool asioThreadStarted() { return gAsioThread.joinable(); }
+ 
++void cleanupPorts(struct HiddenWorld* hw) {
++    delete hw->mUdpPort;
++    hw->mUdpPort = nullptr;
++    delete hw->mTcpPort;
++    hw->mTcpPort = nullptr;
++}
++
+ }
+ 
+ using namespace scsynth;
+@@ -540,10 +557,9 @@ SCSYNTH_DLLEXPORT_C bool World_SendPacket(World* inWorld, int inSize, char* inDa
+     return World_SendPacketWithContext(inWorld, inSize, inData, inFunc, nullptr);
+ }
+ 
+-template <typename T, typename... Args> static bool protectedOpenPort(const char* socketType, Args&&... args) noexcept {
++template <typename T, typename... Args> static T* protectedOpenPort(const char* socketType, Args&&... args) noexcept {
+     try {
+-        new T(std::forward<Args>(args)...);
+-        return true;
++        return new T(std::forward<Args>(args)...);
+     } catch (const boost::system::system_error& exc) {
+         // Special verbose message to help with common issue. Issue #3969
+         if (exc.code() == boost::system::errc::address_in_use) {
+@@ -558,16 +574,22 @@ template <typename T, typename... Args> static bool protectedOpenPort(const char
+     } catch (const std::exception& exc) {
+         scprintf("\n*** ERROR: failed to open %s socket: %s\n", socketType, exc.what());
+     } catch (...) { scprintf("\n*** ERROR: failed to open %s socket: Unknown error\n", socketType); }
+-    return false;
++    return nullptr;
+ }
+ 
+ SCSYNTH_DLLEXPORT_C int World_OpenUDP(struct World* inWorld, const char* bindTo, int inPort) {
+-    return protectedOpenPort<SC_UdpInPort>("UDP", inWorld, bindTo, inPort);
++    auto* port = protectedOpenPort<SC_UdpInPort>("UDP", inWorld, bindTo, inPort);
++    if (port)
++        inWorld->hw->mUdpPort = port;
++    return port != nullptr;
+ }
+ 
+ SCSYNTH_DLLEXPORT_C int World_OpenTCP(struct World* inWorld, const char* bindTo, int inPort, int inMaxConnections,
+                                       int inBacklog) {
+-    return protectedOpenPort<SC_TcpInPort>("TCP", inWorld, bindTo, inPort, inMaxConnections, inBacklog);
++    auto* port = protectedOpenPort<SC_TcpInPort>("TCP", inWorld, bindTo, inPort, inMaxConnections, inBacklog);
++    if (port)
++        inWorld->hw->mTcpPort = port;
++    return port != nullptr;
+ }
+ 
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////
+diff --git a/server/scsynth/SC_CoreAudio.cpp b/server/scsynth/SC_CoreAudio.cpp
+index 81e49c4..22d56eb 100644
+--- a/server/scsynth/SC_CoreAudio.cpp
++++ b/server/scsynth/SC_CoreAudio.cpp
+@@ -1637,6 +1637,7 @@ OSStatus hardwareListenerProc(AudioHardwarePropertyID inPropertyID, void* inClie
+ }
+ 
+ OSStatus AddDeviceListeners(AudioDeviceID inDevice, void* inClientData);
++OSStatus RemoveDeviceListeners(AudioDeviceID inDevice, void* inClientData);
+ 
+ bool SC_CoreAudioDriver::DriverStart() {
+     if (mWorld->mVerbosity >= 1) {
+@@ -1826,6 +1827,9 @@ bool SC_CoreAudioDriver::DriverStop() {
+     if (mWorld->mVerbosity >= 1) {
+         scprintf("->SC_CoreAudioDriver::DriverStop\n");
+     }
++
++    RemoveDeviceListeners(mOutputDevice, this);
++
+     OSStatus err = kAudioHardwareNoError;
+ 
+     auto appIOProcFunc = isClippingEnabled() ? appIOProc<true> : appIOProc<false>;
+@@ -1910,6 +1914,18 @@ OSStatus AddDeviceListeners(AudioDeviceID inDevice, void* inClientData) {
+     return (err);
+ }
+ 
++OSStatus RemoveDeviceListeners(AudioDeviceID inDevice, void* inClientData) {
++    OSStatus err = noErr;
++    AudioObjectPropertyAddress propertyAddress;
++
++    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
++    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
++    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
++
++    err = AudioObjectRemovePropertyListener(inDevice, &propertyAddress, deviceListenerProc, inClientData);
++    return err;
++}
++
+ #endif // SC_AUDIO_API_COREAUDIO
+ 
+ 
+diff --git a/server/scsynth/SC_HiddenWorld.h b/server/scsynth/SC_HiddenWorld.h
+index 57a2614..b755f46 100644
+--- a/server/scsynth/SC_HiddenWorld.h
++++ b/server/scsynth/SC_HiddenWorld.h
+@@ -43,6 +43,10 @@
+ 
+ extern HashTable<struct UnitDef, Malloc>* gUnitDefLib;
+ 
++namespace scsynth {
++class SC_UdpInPort;
++class SC_TcpInPort;
++}
+ 
+ struct TriggerMsg {
+     World* mWorld;
+@@ -152,6 +156,9 @@ struct HiddenWorld {
+     const char* mInDeviceName;
+     const char* mOutDeviceName;
+     class server_shared_memory_creator* mShmem;
++
++    scsynth::SC_UdpInPort* mUdpPort;
++    scsynth::SC_TcpInPort* mTcpPort;
+ };
+ 
+ typedef struct HiddenWorld HiddenWorld;
+diff --git a/server/scsynth/SC_World.cpp b/server/scsynth/SC_World.cpp
+index 25682d4..eabfd7b 100644
+--- a/server/scsynth/SC_World.cpp
++++ b/server/scsynth/SC_World.cpp
+@@ -81,6 +81,7 @@ namespace fs = std::filesystem;
+ 
+ InterfaceTable gInterfaceTable;
+ PrintFunc gPrint = nullptr;
++static bool gLibInitted = false;
+ 
+ extern HashTable<struct UnitDef, Malloc>* gUnitDefLib;
+ extern HashTable<struct BufGen, Malloc>* gBufGenLib;
+@@ -283,6 +284,7 @@ namespace scsynth {
+ void startAsioThread();
+ void stopAsioThread();
+ bool asioThreadStarted();
++void cleanupPorts(struct HiddenWorld* hw);
+ }
+ 
+ 
+@@ -313,7 +315,6 @@ World* World_New(WorldOptions* inOptions) {
+     World* world = nullptr;
+ 
+     try {
+-        static bool gLibInitted = false;
+         if (!gLibInitted) {
+             InterfaceTable_Init();
+             initialize_library(inOptions->mUGensPluginPath);
+@@ -926,14 +927,19 @@ void World_Cleanup(World* world, bool unload_plugins) {
+     if (!world)
+         return;
+ 
++    HiddenWorld* hw = world->hw;
++
++    if (hw)
++        scsynth::cleanupPorts(hw);
++
+     if (scsynth::asioThreadStarted()) {
+         scsynth::stopAsioThread();
+     }
+ 
+-    if (unload_plugins)
++    if (unload_plugins) {
+         deinitialize_library();
+-
+-    HiddenWorld* hw = world->hw;
++        gLibInitted = false;
++    }
+ 
+     if (hw && world->mRealTime)
+         hw->mAudioDriver->Stop();
