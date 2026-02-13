@@ -9,7 +9,7 @@ dist/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
-*.cmake
+compile_commands.json
 
 # Compiled objects
 *.o
