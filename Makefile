@@ -1,4 +1,4 @@
-.PHONY: all dev sync build sdist check clean demos help \
+.PHONY: all dev sync remake build sdist check clean demos help \
 		lint format typecheck qa test publish publish-test reset
 # .DEFAULT_GOAL := help
 
@@ -13,6 +13,8 @@ dev:
 
 sync:
 	@uv sync --reinstall-package nanosynth
+
+remake: reset sync test
 
 build: ## Build wheel (incremental via build cache)
 	@rm -rf dist/

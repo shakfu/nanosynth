@@ -293,51 +293,13 @@ else()
 	set(INSTALL_TARGETS scsynth)
 endif()
 
-if(APPLE)
-    if(scappauxresourcesdir)
-        add_custom_command(TARGET scsynth POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/${scappauxresourcesdir}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:scsynth> ${CMAKE_INSTALL_PREFIX}/${scappauxresourcesdir}
-            )
-    endif()
-elseif(WIN32)
-    if(NOT MSVC)
-      target_link_libraries(scsynth "-municode")
-      set_target_properties(scsynth libscsynth PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<CONFIG>")
-    endif(NOT MSVC)
+if(WIN32 AND NOT MSVC)
+    target_link_libraries(scsynth "-municode")
+    set_target_properties(scsynth libscsynth PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<CONFIG>")
+endif()
 
-    if(FFTW3F_FOUND)
-      file(GLOB FFTW3F_DLL "${FFTW3F_LIBRARY_DIR}/*fftw3f*.dll")
-      add_custom_command(TARGET scsynth
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FFTW3F_DLL}" $<TARGET_FILE_DIR:scsynth>
-      )
-    endif(FFTW3F_FOUND)
-
-    if(SNDFILE_FOUND)
-      file(GLOB SNDFILE_DLL "${SNDFILE_LIBRARY_DIR}/*sndfile*.dll")
-      add_custom_command(TARGET scsynth
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SNDFILE_DLL}" $<TARGET_FILE_DIR:scsynth>
-      )
-    endif(SNDFILE_FOUND)
-
-    add_custom_command(TARGET scsynth
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:scsynth> $<TARGET_FILE_DIR:sclang>
-      COMMENT "Adding scynth to target sclang"
-    )
-
-    if(SC_IDE)
-      add_custom_command(TARGET scsynth
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:scsynth> $<TARGET_FILE_DIR:SuperCollider>
-        COMMENT "Adding scynth to target SuperCollider"
-      )
-    endif(SC_IDE)
-
-
-else()
+# nanosynth: removed platform POST_BUILD copy commands (sclang/SuperCollider.app)
+if(FALSE)
 endif()
 
 if(${JACK_USE_METADATA_API})

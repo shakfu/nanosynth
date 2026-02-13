@@ -67,6 +67,11 @@ if(NANOSYNTH_EMBED_SCSYNTH)
         set(SYSTEM_PORTAUDIO OFF CACHE BOOL "" FORCE)  # build vendored portaudio
     endif()
 
+    # Windows: pthreads doesn't exist; SC plugins link ${PTHREADS_LIBRARY}
+    if(WIN32)
+        set(PTHREADS_LIBRARY "" CACHE STRING "" FORCE)
+    endif()
+
     add_subdirectory(thirdparty/supercollider EXCLUDE_FROM_ALL)
 
     target_include_directories(_scsynth PRIVATE

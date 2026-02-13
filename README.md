@@ -466,7 +466,7 @@ make reset       # clean everything including build cache
 
 ### CI
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CPython 3.10--3.13 on macOS ARM64, macOS x86_64, Linux x86_64, and Windows x86_64 using [cibuildwheel](https://cibuildwheel.pypa.io). An sdist is built separately and all artifacts are aggregated into a single downloadable archive. The workflow runs on pushes to `main`, pull requests, and manual dispatch.
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CPython 3.10--3.13 on macOS ARM64, Linux x86_64, and Windows x86_64 using [cibuildwheel](https://cibuildwheel.pypa.io). An sdist is built separately and all artifacts are aggregated into a single downloadable archive. The workflow runs on pushes to `main`, pull requests, and manual dispatch.
 
 ## Attributions
 

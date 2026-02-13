@@ -304,49 +304,8 @@ if (APPLE)
 	endif()
 endif()
 
-if (WIN32)
-	foreach(plugin ${plugins} ${supernova_plugins})
-		add_custom_command(TARGET ${plugin}
-			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:scsynth>/plugins
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${plugin}> $<TARGET_FILE_DIR:scsynth>/plugins
-			COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:sclang>/plugins
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${plugin}> $<TARGET_FILE_DIR:sclang>/plugins
-		)
-	endforeach()
-
-	if(SC_IDE)
-		foreach(plugin ${plugins} ${supernova_plugins})
-			add_custom_command(TARGET ${plugin}
-				POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:SuperCollider>/plugins
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${plugin}> $<TARGET_FILE_DIR:SuperCollider>/plugins
-			)
-		endforeach()
-	endif(SC_IDE)
-
-	if(SUPERNOVA)
-		foreach(plugin ${supernova_plugins})
-			add_custom_command(TARGET ${plugin}
-				POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:supernova>/plugins
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${plugin}> $<TARGET_FILE_DIR:supernova>/plugins
-			)
-		endforeach()
-	endif(SUPERNOVA)
-
-
-elseif(APPLE)
-	if(scappauxresourcesdir)
-		foreach(plugin ${plugins} ${supernova_plugins})
-			add_custom_command(TARGET ${plugin} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/${scappauxresourcesdir}/plugins
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${plugin}> ${CMAKE_INSTALL_PREFIX}/${scappauxresourcesdir}/plugins)
-		endforeach()
-	endif()
-
-else()
-endif()
+# nanosynth: removed platform POST_BUILD copy commands (scsynth/sclang/SuperCollider.app)
+# -- we use our own install(TARGETS) rules in the top-level CMakeLists.txt
 
 set_property(TARGET ${plugins} ${supernova_plugins} PROPERTY FOLDER UnitGenerators)
 
