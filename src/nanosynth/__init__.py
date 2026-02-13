@@ -1,5 +1,7 @@
 """nanosynth -- minimal embedded SuperCollider synthesis engine wrapper."""
 
+__version__ = "0.1.0"
+
 from .osc import OscBundle, OscMessage, find_free_port
 from .scsynth import EmbeddedProcessProtocol, Options, find_ugen_plugins_path
 from .synthdef import (

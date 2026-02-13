@@ -1,19 +1,71 @@
-[build-system]
-requires = ["scikit-build-core>=0.8", "nanobind"]
-build-backend = "scikit_build_core.build"
-
 [project]
 name = "nanosynth"
 version = "0.1.0"
 description = "Minimal embedded SuperCollider synthesis engine (libscsynth) wrapper"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Shakeeb Alireza", email = "shakfu@users.noreply.github.com" }
+]
+maintainers = [
+    { name = "Shakeeb Alireza", email = "shakfu@users.noreply.github.com" }
+]
 requires-python = ">=3.10"
+keywords = [
+    "audio",
+    "sound",
+    "supercollider",
+    "libscsynth",
+    "audio-processing",
+    "effects",
+    "nanobind",
+    "dsp",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/shakfu/nanosynth"
+Repository = "https://github.com/shakfu/nanosynth"
+Issues = "https://github.com/shakfu/nanosynth/issues"
+Changelog = "https://github.com/shakfu/nanosynth/blob/main/CHANGELOG.md"
 
 [tool.scikit-build]
 wheel.packages = ["src/nanosynth"]
+wheel.exclude = ["*.cpp"]
+sdist.include = ["thirdparty/"]
+build-dir = "build/{wheel_tag}"
 
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
     "pytest",
     "ruff>=0.15.1",
+    "twine>=6.2.0",
+    "delocate>=0.12; sys_platform == 'darwin'",
+    "auditwheel>=6.0; sys_platform == 'linux'",
+    "delvewheel>=1.9; sys_platform == 'win32'",
+    "scikit-build-core>=0.8",
+    "nanobind",
 ]
+
+[build-system]
+requires = ["scikit-build-core>=0.8", "nanobind"]
+build-backend = "scikit_build_core.build"
+

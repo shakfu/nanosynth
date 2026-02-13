@@ -1,20 +1,30 @@
-.PHONY: build build-scsynth clean help install-scsynth \
-		lint format typecheck qa test
-.DEFAULT_GOAL := help
+.PHONY: all dev sync build sdist check clean demos help \
+		lint format typecheck qa test publish publish-test reset
+# .DEFAULT_GOAL := help
+
+all: dev
 
 help: ## This help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build: ## Build wheel via uv
-	@uv build
+dev:
+	@uv sync
+	@uv pip install -e .
 
-build-scsynth: ## Build wheel with embedded libscsynth
-	@uv build \
-		-C cmake.define.NANOSYNTH_EMBED_SCSYNTH=ON
+sync:
+	@uv sync --reinstall-package nanosynth
 
-install-scsynth: ## Install editable with embedded libscsynth
-	@uv pip install -e . \
-		-C cmake.define.NANOSYNTH_EMBED_SCSYNTH=ON
+build: ## Build wheel (incremental via build cache)
+	@rm -rf dist/
+	@uv build --wheel --no-build-isolation
+	@case $$(uname -s) in \
+		Darwin) uv run delocate-wheel -v dist/*.whl ;; \
+		Linux)  uv run auditwheel repair -w dist/ dist/*.whl ;; \
+	esac
+	@uv run twine check dist/*
+
+sdist: ## Build source distribution
+	@uv build --sdist
 
 test: ## Run tests via uv
 	@uv run pytest tests/
@@ -30,7 +40,22 @@ typecheck:
 
 qa: test lint typecheck format
 
-clean: ## Clean-out transitory files
-	rm -rf build/ dist/ *.egg-info/ .pytest_cache/ __pycache__
-	find . -name '*.pyc' -delete
-	find . -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
+demos: ## Run demo scripts sequentially
+	@for f in demos/*.py; do echo "--- $$f ---"; uv run python "$$f"; done
+
+check: ## Validate dist/ with twine
+	@uv run twine check dist/*
+
+publish: check ## Upload dist/ to PyPI
+	@uv run twine upload dist/*
+
+publish-test: check ## Upload dist/ to TestPyPI
+	@uv run twine upload --repository testpypi dist/*
+
+clean: ## Clean transitory files (preserves build cache)
+	@rm -rf dist/ *.egg-info/ .pytest_cache/ __pycache__
+	@find . -name '*.pyc' -delete
+	@find . -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
+
+reset: clean ## Clean everything including build cache
+	@rm -rf build/

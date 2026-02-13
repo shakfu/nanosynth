@@ -18,107 +18,101 @@ endif()
 install(TARGETS _osc DESTINATION nanosynth)
 
 # --- Option to embed libscsynth as a nanobind extension ---
-option(NANOSYNTH_EMBED_SCSYNTH "Build _scsynth extension with embedded libscsynth" OFF)
+option(NANOSYNTH_EMBED_SCSYNTH "Build _scsynth extension with embedded libscsynth" ON)
 
 if(NANOSYNTH_EMBED_SCSYNTH)
-    set(SC_SOURCE_DIR "" CACHE PATH "Path to pre-built SuperCollider source directory (legacy)")
-    set(SC_BUILD_DIR "" CACHE PATH "Path to pre-built SuperCollider build directory (legacy)")
-
     nanobind_add_module(_scsynth src/nanosynth/_scsynth.cpp)
 
-    if(SC_SOURCE_DIR AND SC_BUILD_DIR)
-        # ---- Mode B: Pre-built SC tree (legacy) ----
-        message(STATUS "Using pre-built SuperCollider: ${SC_SOURCE_DIR}")
-        target_include_directories(_scsynth PRIVATE
-            ${SC_SOURCE_DIR}/include/server
-            ${SC_SOURCE_DIR}/include/common
-            ${SC_SOURCE_DIR}/include/plugin_interface
-            ${SC_SOURCE_DIR}/common
-        )
-        target_link_libraries(_scsynth PRIVATE
-            ${SC_BUILD_DIR}/server/scsynth/libscsynth.a
-            ${SC_BUILD_DIR}/external_libraries/libtlsf.a
-        )
-    else()
-        # ---- Mode A: FetchContent (default) ----
-        message(STATUS "Fetching SuperCollider via FetchContent ...")
-        include(FetchContent)
+    # --- Vendored libsndfile (static, tailored -- no external codec deps) ---
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(BUILD_PROGRAMS    OFF CACHE BOOL "" FORCE)
+    set(BUILD_EXAMPLES    OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING     OFF CACHE BOOL "" FORCE)
+    set(ENABLE_EXTERNAL_LIBS OFF CACHE BOOL "" FORCE)  # no ogg/vorbis/FLAC
+    set(ENABLE_MPEG       OFF CACHE BOOL "" FORCE)     # no mpg123/lame
+    set(INSTALL_MANPAGES  OFF CACHE BOOL "" FORCE)
+    set(INSTALL_PKGCONFIG_MODULE OFF CACHE BOOL "" FORCE)
 
-        # Override SC options before FetchContent_MakeAvailable (add_subdirectory)
-        set(SC_QT            OFF CACHE BOOL "" FORCE)
-        set(SC_IDE           OFF CACHE BOOL "" FORCE)
-        set(SUPERNOVA        OFF CACHE BOOL "" FORCE)
-        set(NO_X11           ON  CACHE BOOL "" FORCE)
-        set(ENABLE_TESTSUITE OFF CACHE BOOL "" FORCE)
-        set(SC_HIDAPI        OFF CACHE BOOL "" FORCE)
-        set(SC_ABLETON_LINK  OFF CACHE BOOL "" FORCE)
-        set(INSTALL_HELP     OFF CACHE BOOL "" FORCE)
-        set(SC_BUILD_SCLANG  OFF CACHE BOOL "" FORCE)
-        set(SC_BUILD_EDITORS OFF CACHE BOOL "" FORCE)
-        set(LIBSCSYNTH       OFF CACHE BOOL "" FORCE)   # static libscsynth
+    add_subdirectory(thirdparty/libsndfile EXCLUDE_FROM_ALL)
 
-        FetchContent_Declare(supercollider
-            GIT_REPOSITORY https://github.com/supercollider/supercollider.git
-            GIT_TAG        Version-3.14.1
-            GIT_SHALLOW    ON
-            GIT_SUBMODULES external_libraries/nova-simd external_libraries/nova-tt
-            PATCH_COMMAND  sh "${CMAKE_CURRENT_SOURCE_DIR}/patches/apply_sc_patches.sh" "${CMAKE_CURRENT_SOURCE_DIR}/patches"
-            EXCLUDE_FROM_ALL
-        )
-        FetchContent_MakeAvailable(supercollider)
+    # Point SC's FindSndfile at our vendored build so it doesn't find
+    # a system dylib. SC does target_link_libraries(libscsynth ${SNDFILE_LIBRARIES})
+    # so passing the CMake target name works -- CMake resolves it at build time.
+    set(SNDFILE_LIBRARY "sndfile" CACHE STRING "" FORCE)
+    set(SNDFILE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/libsndfile/include"
+        CACHE PATH "" FORCE)
 
-        target_include_directories(_scsynth PRIVATE
-            ${supercollider_SOURCE_DIR}/include/server
-            ${supercollider_SOURCE_DIR}/include/common
-            ${supercollider_SOURCE_DIR}/include/plugin_interface
-            ${supercollider_SOURCE_DIR}/common
-        )
+    # --- Vendored SuperCollider (static libscsynth) ---
+    set(SC_QT            OFF CACHE BOOL "" FORCE)
+    set(SC_IDE           OFF CACHE BOOL "" FORCE)
+    set(SUPERNOVA        OFF CACHE BOOL "" FORCE)
+    set(NO_X11           ON  CACHE BOOL "" FORCE)
+    set(ENABLE_TESTSUITE OFF CACHE BOOL "" FORCE)
+    set(SC_HIDAPI        OFF CACHE BOOL "" FORCE)
+    set(SC_ABLETON_LINK  OFF CACHE BOOL "" FORCE)
+    set(INSTALL_HELP     OFF CACHE BOOL "" FORCE)
+    set(SC_BUILD_SCLANG  OFF CACHE BOOL "" FORCE)
+    set(SC_BUILD_EDITORS OFF CACHE BOOL "" FORCE)
+    set(LIBSCSYNTH       OFF CACHE BOOL "" FORCE)   # static libscsynth
+    set(SYSTEM_YAMLCPP   ON  CACHE BOOL "" FORCE)   # skip bundled yaml-cpp (sclang only)
 
-        # Link against real CMake targets from SC
-        target_link_libraries(_scsynth PRIVATE libscsynth tlsf)
+    # Prevent SC's macOS POST_BUILD commands from copying plugins/scsynth
+    # into a SuperCollider.app bundle inside the wheel staging area.
+    set(scappauxresourcesdir "" CACHE STRING "" FORCE)
+    set(scappbindir          "" CACHE STRING "" FORCE)
 
-        # --- UGen plugins ---
-        set(SCSYNTH_PLUGIN_TARGETS
-            BinaryOpUGens ChaosUGens DelayUGens DemandUGens DynNoiseUGens
-            FilterUGens GendynUGens GrainUGens IOUGens LFUGens
-            MulAddUGens NoiseUGens OscUGens PanUGens PhysicalModelingUGens
-            ReverbUGens TestUGens TriggerUGens UnaryOpUGens UnpackFFTUGens
-            FFT_UGens PV_ThirdParty ML_UGens DiskIO_UGens
-        )
-        # Ensure plugins are built alongside _scsynth (needed with EXCLUDE_FROM_ALL)
-        add_dependencies(_scsynth ${SCSYNTH_PLUGIN_TARGETS})
-
-        # Install plugin shared libraries into the wheel
-        foreach(plugin_target ${SCSYNTH_PLUGIN_TARGETS})
-            install(TARGETS ${plugin_target}
-                LIBRARY DESTINATION nanosynth/plugins
-                RUNTIME DESTINATION nanosynth/plugins
-            )
-        endforeach()
-
-        # Copy plugins to source tree so editable installs can find them.
-        # scikit-build-core editable mode only extracts Python extensions
-        # to site-packages, not data files like .scx plugins.
-        # We attach to _scsynth POST_BUILD since it depends on all plugins.
-        add_custom_command(TARGET _scsynth POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory
-                "${CMAKE_CURRENT_SOURCE_DIR}/src/nanosynth/plugins"
-        )
-        foreach(plugin_target ${SCSYNTH_PLUGIN_TARGETS})
-            add_custom_command(TARGET _scsynth POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                    "$<TARGET_FILE:${plugin_target}>"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/src/nanosynth/plugins/"
-            )
-        endforeach()
+    # Audio API: CoreAudio on macOS, vendored PortAudio on Linux/Windows
+    if(NOT APPLE)
+        set(AUDIOAPI         "portaudio" CACHE STRING "" FORCE)
+        set(SYSTEM_PORTAUDIO OFF CACHE BOOL "" FORCE)  # build vendored portaudio
     endif()
 
-    # ---- Common to both modes ----
+    add_subdirectory(thirdparty/supercollider EXCLUDE_FROM_ALL)
 
-    # libsndfile (dynamic)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(SNDFILE REQUIRED IMPORTED_TARGET sndfile)
-    target_link_libraries(_scsynth PRIVATE PkgConfig::SNDFILE)
+    target_include_directories(_scsynth PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/server
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/plugin_interface
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/common
+    )
+
+    # Link against CMake targets from vendored deps
+    target_link_libraries(_scsynth PRIVATE libscsynth tlsf sndfile)
+
+    # --- UGen plugins ---
+    set(SCSYNTH_PLUGIN_TARGETS
+        BinaryOpUGens ChaosUGens DelayUGens DemandUGens DynNoiseUGens
+        FilterUGens GendynUGens GrainUGens IOUGens LFUGens
+        MulAddUGens NoiseUGens OscUGens PanUGens PhysicalModelingUGens
+        ReverbUGens TestUGens TriggerUGens UnaryOpUGens UnpackFFTUGens
+        FFT_UGens PV_ThirdParty ML_UGens DiskIO_UGens
+    )
+    # Ensure plugins are built alongside _scsynth (needed with EXCLUDE_FROM_ALL)
+    add_dependencies(_scsynth ${SCSYNTH_PLUGIN_TARGETS})
+
+    # Install plugin shared libraries into the wheel
+    foreach(plugin_target ${SCSYNTH_PLUGIN_TARGETS})
+        install(TARGETS ${plugin_target}
+            LIBRARY DESTINATION nanosynth/plugins
+            RUNTIME DESTINATION nanosynth/plugins
+        )
+    endforeach()
+
+    # Copy plugins to source tree so editable installs can find them.
+    # scikit-build-core editable mode only extracts Python extensions
+    # to site-packages, not data files like .scx plugins.
+    # We attach to _scsynth POST_BUILD since it depends on all plugins.
+    add_custom_command(TARGET _scsynth POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/nanosynth/plugins"
+    )
+    foreach(plugin_target ${SCSYNTH_PLUGIN_TARGETS})
+        add_custom_command(TARGET _scsynth POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                "$<TARGET_FILE:${plugin_target}>"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/nanosynth/plugins/"
+        )
+    endforeach()
 
     # macOS system frameworks required by libscsynth
     if(APPLE)

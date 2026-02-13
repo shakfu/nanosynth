@@ -104,6 +104,5 @@ class TestBootStatus:
 
 
 class TestScynthImport:
-    @pytest.mark.xfail(reason="requires build with NANOSYNTH_EMBED_SCSYNTH=ON")
     def test_import_scsynth(self):
         from nanosynth import _scsynth  # noqa: F401

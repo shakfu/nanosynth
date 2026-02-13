@@ -1,3 +1,5 @@
+.DS_Store
+
 # Build directories
 build/
 cmake-build-*/
@@ -44,6 +46,12 @@ uv.lock
 Thumbs.db
 
 # Testing
-.pytest_cache/
+.*_cache/
 htmlcov/
 .coverage
+
+# agent
+.claude
+CLAUDE.md
+AGENTS.md
+GEMINI.md
