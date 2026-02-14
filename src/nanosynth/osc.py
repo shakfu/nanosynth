@@ -217,7 +217,7 @@ class OscMessage:
                     try:
                         value = class_.from_datagram(value)
                         break
-                    except Exception:
+                    except (ValueError, IndexError, struct.error):
                         pass
                 array_stack[-1].append(value)
             elif type_tag == "T":

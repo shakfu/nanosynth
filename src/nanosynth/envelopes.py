@@ -82,9 +82,13 @@ class Envelope(UGenSerializable):
         offset: UGenOperable | float = 0.0,
     ) -> None:
         if len(amplitudes) <= 1:
-            raise ValueError(amplitudes)
+            raise ValueError(
+                f"amplitudes must have at least 2 values, got {len(amplitudes)}"
+            )
         if not (len(durations) == (len(amplitudes) - 1)):
-            raise ValueError(durations, amplitudes)
+            raise ValueError(
+                f"durations length ({len(durations)}) must equal amplitudes length - 1 ({len(amplitudes) - 1})"
+            )
         if isinstance(curves, (int, float, str, EnvelopeShape, UGenOperable)):
             curves = [curves]
         elif curves is None:

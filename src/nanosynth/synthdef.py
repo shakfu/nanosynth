@@ -436,7 +436,9 @@ def ugen(
         )
 
     if is_multichannel and fixed_channel_count:
-        raise ValueError
+        raise ValueError(
+            "is_multichannel and fixed_channel_count are mutually exclusive"
+        )
     return wrap
 
 
@@ -672,7 +674,9 @@ class UGenVector(UGenOperable, SequenceABC["UGenOperable"]):
             elif isinstance(x, SupportsFloat):
                 values_.append(ConstantProxy(float(x)))
             else:
-                raise ValueError(x)
+                raise ValueError(
+                    f"Expected UGen, UGenScalar, UGenVector, or float, got {type(x).__name__}: {x!r}"
+                )
         self._values = tuple(values_)
 
     @overload
@@ -732,13 +736,17 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
             if isinstance(value, UGenSerializable):
                 serialized = value.serialize()
                 if any(isinstance(x, UGenVector) for x in serialized):
-                    raise ValueError(key, serialized)
+                    raise ValueError(
+                        f"Unexpected UGenVector in serialized input '{key}'"
+                    )
                 value = cast(SequenceABC[SupportsFloat | UGenScalar], serialized)
             if isinstance(value, SequenceABC) and not isinstance(
                 value, (str, UGenScalar)
             ):
                 if key not in self._unexpanded_keys:
-                    raise ValueError(key, value)
+                    raise ValueError(
+                        f"Sequence input for '{key}' requires unexpanded=True in param()"
+                    )
                 iterator: Iterable[tuple[int | None, SupportsFloat | UGenScalar]] = (
                     (i, v) for i, v in enumerate(value)
                 )
@@ -752,10 +760,14 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
                 elif isinstance(x, SupportsFloat):
                     inputs.append(float(x))
                 else:
-                    raise ValueError(key, x)
+                    raise ValueError(
+                        f"Invalid input type for '{key}': expected float or UGenScalar, got {type(x).__name__}"
+                    )
                 input_keys.append((key, i) if i is not None else key)
         if kwargs:
-            raise ValueError(type(self).__name__, kwargs)
+            raise ValueError(
+                f"{type(self).__name__} received unknown parameters: {', '.join(kwargs)}"
+            )
         self._inputs = tuple(inputs)
         self._input_keys = tuple(input_keys)
         self._uuid: uuid.UUID | None = None
@@ -1025,9 +1037,13 @@ class BinaryOpUGen(UGen):
         left = kwargs["left"]
         right = kwargs["right"]
         if not isinstance(left, (SupportsFloat, UGenScalar)):
-            raise ValueError(left)
+            raise ValueError(
+                f"Left operand must be float or UGenScalar, got {type(left).__name__}"
+            )
         if not isinstance(right, (SupportsFloat, UGenScalar)):
-            raise ValueError(right)
+            raise ValueError(
+                f"Right operand must be float or UGenScalar, got {type(right).__name__}"
+            )
         result = process(
             float(left) if isinstance(left, SupportsFloat) else left,
             float(right) if isinstance(right, SupportsFloat) else right,
@@ -1184,7 +1200,7 @@ class SynthDef:
             index = control.special_index
             for parameter in control.parameters:
                 if parameter.name is None:
-                    raise ValueError(parameter)
+                    raise ValueError(f"Parameter has no name: {parameter!r}")
                 mapping[parameter.name] = (parameter, index)
                 index += len(parameter)
         return mapping
@@ -1420,7 +1436,7 @@ class SynthDefBuilder:
         lag: float | None = None,
     ) -> OutputProxy | Parameter:
         if name in self._parameters:
-            raise ValueError(name, value)
+            raise ValueError(f"Duplicate parameter name: '{name}'")
         with self:
             parameter = Parameter(
                 lag=lag, name=name, rate=ParameterRate.from_expr(rate), value=value

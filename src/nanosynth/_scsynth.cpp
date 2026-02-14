@@ -174,10 +174,11 @@ static nb::capsule py_world_new(
 
     // Return World* as an opaque capsule. The destructor cleans up strings.
     // World cleanup is handled explicitly via world_cleanup / world_wait_for_quit.
-    return nb::capsule(world, "World", [](void* p) noexcept {
+    return nb::capsule(world, "World", [strings](void* p) noexcept {
         // Note: we do NOT call World_Cleanup here because the user should
         // explicitly manage the world lifecycle. If they forget, the world
         // was already cleaned up by world_wait_for_quit or world_cleanup.
+        delete strings;
         (void)p;
     });
 }

@@ -16,7 +16,8 @@ Requires:
 import os
 import time
 
-from nanosynth import OscMessage, Options, find_ugen_plugins_path
+from nanosynth import OscMessage, Options
+from nanosynth.scsynth import _options_to_world_kwargs
 from nanosynth._scsynth import (
     world_new,
     world_open_udp,
@@ -26,34 +27,6 @@ from nanosynth._scsynth import (
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import Out, Pan2, SinOsc, XLine
-
-
-def _options_kwargs():
-    opts = Options(verbosity=0)
-    kwargs = {
-        "num_audio_bus_channels": opts.audio_bus_channel_count,
-        "num_input_bus_channels": opts.input_bus_channel_count,
-        "num_output_bus_channels": opts.output_bus_channel_count,
-        "num_control_bus_channels": opts.control_bus_channel_count,
-        "block_size": opts.block_size,
-        "num_buffers": opts.buffer_count,
-        "max_nodes": opts.maximum_node_count,
-        "max_graph_defs": opts.maximum_synthdef_count,
-        "max_wire_bufs": opts.wire_buffer_count,
-        "num_rgens": opts.random_number_generator_count,
-        "max_logins": opts.maximum_logins,
-        "realtime_memory_size": opts.memory_size,
-        "load_graph_defs": 0,
-        "memory_locking": False,
-        "realtime": True,
-        "verbosity": opts.verbosity,
-        "rendezvous": False,
-        "shared_memory_id": opts.port,
-    }
-    plugins = find_ugen_plugins_path()
-    if plugins:
-        kwargs["ugen_plugins_path"] = str(plugins)
-    return kwargs
 
 
 def send(world, *args):
@@ -108,7 +81,9 @@ def main():
     print(f"SynthDef '{sweep_def.name}' compiled: {len(sweep_bytes)} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(**_options_kwargs())
+    world = world_new(
+        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
+    )
     world_open_udp(world, "127.0.0.1", 57110)
     print("Embedded scsynth booted.")
 

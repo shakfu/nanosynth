@@ -9,7 +9,10 @@ import platform
 import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
+
+if TYPE_CHECKING:
+    from nanosynth.osc import OscArgument
 
 logger = logging.getLogger(__name__)
 
@@ -294,6 +297,21 @@ class EmbeddedProcessProtocol:
                 self.thread.join()
         self.status = BootStatus.OFFLINE
         EmbeddedProcessProtocol._active_world = False
+
+    def send_packet(self, data: bytes) -> bool:
+        """Send a raw OSC packet to the engine."""
+        if self.status != BootStatus.ONLINE or self._world is None:
+            raise RuntimeError("Server is not running")
+        from nanosynth._scsynth import world_send_packet
+
+        result: bool = world_send_packet(self._world, data)
+        return result
+
+    def send_msg(self, address: str | int, *args: "OscArgument") -> bool:
+        """Send an OSC message to the engine."""
+        from nanosynth.osc import OscMessage
+
+        return self.send_packet(OscMessage(address, *args).to_datagram())
 
     def quit(self) -> None:
         label = self.name or hex(id(self))

@@ -73,6 +73,12 @@ if(NANOSYNTH_EMBED_SCSYNTH)
         set(PTHREADS_LIBRARY "" CACHE STRING "" FORCE)
     endif()
 
+    # Disable SC's ccache integration on Windows: Strawberry Perl's
+    # ccache is incompatible with modern MSVC and crashes cl.exe.
+    if(WIN32)
+        set(USE_CCACHE OFF CACHE BOOL "" FORCE)
+    endif()
+
     add_subdirectory(thirdparty/supercollider EXCLUDE_FROM_ALL)
 
     target_include_directories(_scsynth PRIVATE
