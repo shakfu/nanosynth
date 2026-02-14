@@ -29,9 +29,21 @@ from nanosynth.synthdef import (
 )
 from nanosynth.ugens import (
     LPF,
+    DecodeB2,
+    Drand,
+    Dseq,
+    Dser,
+    Dseries,
+    Dshuf,
+    Dwhite,
+    Duty,
+    In,
+    InFeedback,
     Line,
     Out,
     Pan2,
+    PanAz,
+    PanB2,
     RLPF,
     Saw,
     SinOsc,
@@ -674,3 +686,792 @@ class TestUgenDecorator:
         data = sd.compile()
         assert data[:4] == b"SCgf"
         assert b"MyOsc" in data
+
+
+# ---------------------------------------------------------------------------
+# SynthDefBuilder scope error tests
+# ---------------------------------------------------------------------------
+
+
+class TestScopeErrors:
+    def test_cross_scope_output_proxy_raises(self):
+        """Using an OutputProxy from builder A as input in builder B raises."""
+        with SynthDefBuilder():
+            sig = SinOsc.ar()
+        with pytest.raises(SynthDefError, match="different scope"):
+            with SynthDefBuilder():
+                Out.ar(bus=0, source=sig)
+
+    def test_cross_scope_arithmetic_raises(self):
+        """Arithmetic between UGens from different scopes raises."""
+        with SynthDefBuilder():
+            sig = SinOsc.ar()
+        with pytest.raises(SynthDefError, match="different scope"):
+            with SynthDefBuilder():
+                Out.ar(bus=0, source=sig * 0.5)
+
+    def test_cross_scope_parameter_raises(self):
+        """Using a parameter proxy from one builder inside another raises."""
+        with SynthDefBuilder(freq=440.0) as b1:
+            freq_proxy = b1["freq"]
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq_proxy))
+        with pytest.raises(SynthDefError, match="different scope"):
+            with SynthDefBuilder():
+                Out.ar(bus=0, source=SinOsc.ar(frequency=freq_proxy))
+
+    def test_cross_scope_chained_raises(self):
+        """A chain of UGens from scope A used in scope B raises."""
+        with SynthDefBuilder():
+            sig = LPF.ar(source=SinOsc.ar(), frequency=1000.0)
+        with pytest.raises(SynthDefError, match="different scope"):
+            with SynthDefBuilder():
+                Out.ar(bus=0, source=sig)
+
+    def test_same_scope_ok(self):
+        """Using UGens within the same scope works fine."""
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar()
+            sig = LPF.ar(source=sig, frequency=1000.0)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="same_scope")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_nested_scope_inner_to_outer_raises(self):
+        """UGen created in an inner scope cannot be used after exiting it."""
+        with SynthDefBuilder():
+            with SynthDefBuilder():
+                inner_sig = SinOsc.ar()
+            with pytest.raises(SynthDefError, match="different scope"):
+                Out.ar(bus=0, source=inner_sig)
+
+
+# ---------------------------------------------------------------------------
+# Graph optimization tests
+# ---------------------------------------------------------------------------
+
+
+class TestGraphOptimization:
+    def test_optimize_eliminates_unused_pure_ugen(self):
+        """A pure UGen with no dependents is removed by optimization."""
+        with SynthDefBuilder() as builder:
+            SinOsc.ar()  # unused pure UGen
+            Out.ar(bus=0, source=WhiteNoise.ar())
+        sd_opt = builder.build(name="opt", optimize=True)
+        # SinOsc should be eliminated -- only WhiteNoise + Out remain
+        ugen_types = [type(u).__name__ for u in sd_opt.ugens]
+        assert "SinOsc" not in ugen_types
+        assert "WhiteNoise" in ugen_types
+        assert "Out" in ugen_types
+
+    def test_no_optimize_keeps_unused_pure_ugen(self):
+        """Without optimization, unused pure UGens are retained."""
+        with SynthDefBuilder() as builder:
+            SinOsc.ar()  # unused pure UGen
+            Out.ar(bus=0, source=WhiteNoise.ar())
+        sd_no_opt = builder.build(name="noopt", optimize=False)
+        ugen_types = [type(u).__name__ for u in sd_no_opt.ugens]
+        assert "SinOsc" in ugen_types
+
+    def test_optimize_keeps_used_pure_ugen(self):
+        """A pure UGen that feeds into another UGen is NOT eliminated."""
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar()  # used -- feeds into Out
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="used", optimize=True)
+        ugen_types = [type(u).__name__ for u in sd.ugens]
+        assert "SinOsc" in ugen_types
+
+    def test_optimize_cascade_eliminates_chain(self):
+        """Optimization cascades: if A feeds only B, and B is unused, both go."""
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar()
+            LPF.ar(source=sig, frequency=1000.0)  # unused chain
+            Out.ar(bus=0, source=WhiteNoise.ar())
+        sd = builder.build(name="cascade", optimize=True)
+        ugen_types = [type(u).__name__ for u in sd.ugens]
+        assert "SinOsc" not in ugen_types
+        assert "LPF" not in ugen_types
+
+    def test_optimize_keeps_impure_ugen(self):
+        """Impure UGens (is_pure=False) are never eliminated, even if unused."""
+        with SynthDefBuilder() as builder:
+            WhiteNoise.ar()  # impure, unused
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="impure", optimize=True)
+        ugen_types = [type(u).__name__ for u in sd.ugens]
+        # WhiteNoise is not pure, so optimization should not remove it
+        assert "WhiteNoise" in ugen_types
+
+    def test_optimize_partial_chain(self):
+        """If A feeds B and C, but only B is used, A and B survive, C is eliminated."""
+        with SynthDefBuilder() as builder:
+            osc = SinOsc.ar()
+            LPF.ar(source=osc, frequency=500.0)  # unused
+            Out.ar(bus=0, source=osc)  # osc is used via Out
+        sd = builder.build(name="partial", optimize=True)
+        ugen_types = [type(u).__name__ for u in sd.ugens]
+        assert "SinOsc" in ugen_types
+        assert "LPF" not in ugen_types
+        assert "Out" in ugen_types
+
+    def test_optimize_vs_no_optimize_ugen_count(self):
+        """Optimized build has fewer UGens than non-optimized when dead code exists."""
+        with SynthDefBuilder() as b1:
+            SinOsc.ar()  # dead
+            SinOsc.ar(frequency=880.0)  # dead
+            Out.ar(bus=0, source=WhiteNoise.ar())
+        sd_opt = b1.build(name="opt", optimize=True)
+
+        with SynthDefBuilder() as b2:
+            SinOsc.ar()
+            SinOsc.ar(frequency=880.0)
+            Out.ar(bus=0, source=WhiteNoise.ar())
+        sd_noopt = b2.build(name="noopt", optimize=False)
+
+        assert len(sd_opt.ugens) < len(sd_noopt.ugens)
+
+
+# ---------------------------------------------------------------------------
+# Envelope factory method tests
+# ---------------------------------------------------------------------------
+
+
+class TestEnvelopeFactories:
+    def test_linen_structure(self):
+        """Envelope.linen() has 3 segments, no release node."""
+        env = Envelope.linen(
+            attack_time=0.1, sustain_time=2.0, release_time=0.5, level=0.8
+        )
+        assert len(env.envelope_segments) == 3
+        assert env.release_node is None
+        assert env.initial_amplitude == 0
+
+    def test_linen_amplitudes(self):
+        """Envelope.linen() amplitudes: 0 -> level -> level -> 0."""
+        env = Envelope.linen(level=0.7)
+        values = [float(x) for x in env.serialize()]
+        assert values[0] == 0.0  # initial
+        # Segment amplitudes: level, level, 0
+        # Serialization: [init, n_seg, rel_node, loop_node, amp, dur, shape, curve, ...]
+        assert values[4] == 0.7  # first target (attack -> level)
+        assert values[8] == 0.7  # second target (sustain at level)
+        assert values[12] == 0.0  # third target (release -> 0)
+
+    def test_linen_custom_curve(self):
+        """Envelope.linen() respects the curve parameter."""
+        env = Envelope.linen(curve=5)
+        values = [float(x) for x in env.serialize()]
+        # curve values at positions 7, 11, 15 (shape=5 means custom curve)
+        assert values[6] == 5.0  # shape for segment 1
+        assert values[10] == 5.0  # shape for segment 2
+
+    def test_linen_compiles_with_envgen(self):
+        """Envelope.linen() works inside EnvGen in a SynthDef."""
+        with SynthDefBuilder() as builder:
+            env = EnvGen.kr(
+                envelope=Envelope.linen(
+                    attack_time=0.1, sustain_time=1.0, release_time=0.2
+                ),
+                done_action=DoneAction.FREE_SYNTH,
+            )
+            Out.ar(bus=0, source=SinOsc.ar() * env)
+        sd = builder.build(name="linen_test")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_triangle_structure(self):
+        """Envelope.triangle() has 2 segments, no release node."""
+        env = Envelope.triangle(duration=2.0, amplitude=0.5)
+        assert len(env.envelope_segments) == 2
+        assert env.release_node is None
+        assert env.initial_amplitude == 0
+
+    def test_triangle_symmetry(self):
+        """Envelope.triangle() splits duration equally."""
+        env = Envelope.triangle(duration=4.0, amplitude=1.0)
+        values = [float(x) for x in env.serialize()]
+        # Segment durations at positions 5 and 9
+        assert values[5] == 2.0  # rise duration = total/2
+        assert values[9] == 2.0  # fall duration = total/2
+
+    def test_triangle_amplitudes(self):
+        """Envelope.triangle() amplitudes: 0 -> amplitude -> 0."""
+        env = Envelope.triangle(amplitude=0.6)
+        values = [float(x) for x in env.serialize()]
+        assert values[0] == 0.0  # initial
+        assert values[4] == 0.6  # peak
+        assert values[8] == 0.0  # end
+
+    def test_triangle_compiles_with_envgen(self):
+        """Envelope.triangle() works inside EnvGen in a SynthDef."""
+        with SynthDefBuilder() as builder:
+            env = EnvGen.kr(
+                envelope=Envelope.triangle(duration=1.0),
+                done_action=DoneAction.FREE_SYNTH,
+            )
+            Out.ar(bus=0, source=SinOsc.ar() * env)
+        sd = builder.build(name="tri_test")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_asr_structure(self):
+        """Envelope.asr() has 2 segments with release_node=1."""
+        env = Envelope.asr(attack_time=0.05, sustain=0.8, release_time=1.5)
+        assert len(env.envelope_segments) == 2
+        assert env.release_node == 1
+        assert env.initial_amplitude == 0
+
+    def test_asr_amplitudes(self):
+        """Envelope.asr() amplitudes: 0 -> sustain -> 0."""
+        env = Envelope.asr(sustain=0.9)
+        values = [float(x) for x in env.serialize()]
+        assert values[0] == 0.0  # initial
+        assert values[2] == 1.0  # release_node = 1
+        assert values[4] == 0.9  # sustain level
+        assert values[8] == 0.0  # release to 0
+
+    def test_asr_compiles_with_envgen(self):
+        """Envelope.asr() works with gate inside EnvGen."""
+        with SynthDefBuilder(gate=1.0) as builder:
+            env = EnvGen.kr(
+                envelope=Envelope.asr(attack_time=0.01, sustain=1.0, release_time=0.5),
+                gate=builder["gate"],
+                done_action=DoneAction.FREE_SYNTH,
+            )
+            Out.ar(bus=0, source=SinOsc.ar() * env)
+        sd = builder.build(name="asr_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        ugen_types = {type(u).__name__ for u in sd.ugens}
+        assert "EnvGen" in ugen_types
+
+
+# ---------------------------------------------------------------------------
+# Multi-channel expansion tests (is_multichannel UGens)
+# ---------------------------------------------------------------------------
+
+
+class TestMultiChannelUGens:
+    def test_in_ar_channel_count(self):
+        """In.ar with channel_count=2 produces a UGen with 2 outputs."""
+        with SynthDefBuilder() as builder:
+            sig = In.ar(bus=0, channel_count=2)
+            assert isinstance(sig, In)
+            assert len(sig) == 2
+            Out.ar(bus=0, source=[sig[0], sig[1]])
+        sd = builder.build(name="in_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+
+    def test_in_ar_single_channel(self):
+        """In.ar with channel_count=1 produces a single OutputProxy."""
+        with SynthDefBuilder() as builder:
+            sig = In.ar(bus=8, channel_count=1)
+            assert isinstance(sig, OutputProxy)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="in_mono")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_in_kr(self):
+        """In.kr with channel_count=4 produces a UGen with 4 outputs."""
+        with SynthDefBuilder() as builder:
+            sig = In.kr(bus=0, channel_count=4)
+            assert isinstance(sig, In)
+            assert len(sig) == 4
+            Out.kr(bus=0, source=[sig[0], sig[1], sig[2], sig[3]])
+        sd = builder.build(name="in_kr4")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_infeedback_multichannel(self):
+        """InFeedback.ar with channel_count=2 produces 2 outputs."""
+        with SynthDefBuilder() as builder:
+            sig = InFeedback.ar(bus=0, channel_count=2)
+            assert isinstance(sig, InFeedback)
+            assert len(sig) == 2
+            Out.ar(bus=0, source=[sig[0], sig[1]])
+        sd = builder.build(name="infb_test")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_panaz_multichannel(self):
+        """PanAz.ar with channel_count=4 produces a 4-output UGen."""
+        with SynthDefBuilder() as builder:
+            sig = PanAz.ar(source=SinOsc.ar(), channel_count=4)
+            assert isinstance(sig, PanAz)
+            assert len(sig) == 4
+            Out.ar(bus=0, source=[sig[0], sig[1], sig[2], sig[3]])
+        sd = builder.build(name="panaz_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        assert b"PanAz" in data
+
+    def test_panaz_channel_count_3(self):
+        """PanAz with non-default channel_count works."""
+        with SynthDefBuilder() as builder:
+            sig = PanAz.ar(source=SinOsc.ar(), channel_count=3)
+            assert len(sig) == 3
+            Out.ar(bus=0, source=[sig[0], sig[1], sig[2]])
+        sd = builder.build(name="panaz3")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_decodeb2_default_channels(self):
+        """DecodeB2 defaults to channel_count=4."""
+        with SynthDefBuilder() as builder:
+            # PanB2 produces 3 outputs (w, x, y)
+            encoded = PanB2.ar(source=SinOsc.ar(), azimuth=0.0)
+            decoded = DecodeB2.ar(w=encoded[0], x=encoded[1], y=encoded[2])
+            assert isinstance(decoded, DecodeB2)
+            assert len(decoded) == 4
+            Out.ar(bus=0, source=[decoded[0], decoded[1], decoded[2], decoded[3]])
+        sd = builder.build(name="decodeb2_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        assert b"DecodeB2" in data
+
+    def test_decodeb2_custom_channels(self):
+        """DecodeB2 with custom channel_count overrides the default."""
+        with SynthDefBuilder() as builder:
+            encoded = PanB2.ar(source=SinOsc.ar(), azimuth=0.0)
+            decoded = DecodeB2.ar(
+                w=encoded[0], x=encoded[1], y=encoded[2], channel_count=6
+            )
+            assert len(decoded) == 6
+            Out.ar(
+                bus=0,
+                source=[decoded[i] for i in range(6)],
+            )
+        sd = builder.build(name="decodeb2_6ch")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_multichannel_indexing(self):
+        """Multi-channel UGens support integer and slice indexing."""
+        with SynthDefBuilder() as builder:
+            sig = In.ar(bus=0, channel_count=4)
+            # Integer index
+            assert isinstance(sig[0], OutputProxy)
+            # Slice
+            sliced = sig[1:3]
+            assert isinstance(sliced, UGenVector)
+            assert len(sliced) == 2
+            Out.ar(bus=0, source=[sig[0], sig[1], sig[2], sig[3]])
+        builder.build(name="idx_test")
+
+
+# ---------------------------------------------------------------------------
+# compile_synthdefs with multiple SynthDefs
+# ---------------------------------------------------------------------------
+
+
+class TestCompileSynthdefs:
+    def test_three_synthdefs(self):
+        """compile_synthdefs handles three SynthDefs."""
+        with SynthDefBuilder() as b1:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd1 = b1.build(name="alpha")
+
+        with SynthDefBuilder() as b2:
+            Out.ar(bus=0, source=Saw.ar())
+        sd2 = b2.build(name="beta")
+
+        with SynthDefBuilder() as b3:
+            Out.ar(bus=0, source=WhiteNoise.ar())
+        sd3 = b3.build(name="gamma")
+
+        data = compile_synthdefs(sd1, sd2, sd3)
+        assert data[:4] == b"SCgf"
+        count = struct.unpack(">H", data[8:10])[0]
+        assert count == 3
+
+    def test_names_present_in_compiled_output(self):
+        """All SynthDef names appear in the compiled binary."""
+        with SynthDefBuilder() as b1:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd1 = b1.build(name="first")
+
+        with SynthDefBuilder() as b2:
+            Out.ar(bus=0, source=Saw.ar())
+        sd2 = b2.build(name="second")
+
+        data = compile_synthdefs(sd1, sd2)
+        assert b"first" in data
+        assert b"second" in data
+
+    def test_anonymous_names(self):
+        """compile_synthdefs with use_anonymous_names=True uses MD5 hashes."""
+        with SynthDefBuilder() as b1:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd1 = b1.build(name="named")
+
+        with SynthDefBuilder() as b2:
+            Out.ar(bus=0, source=Saw.ar())
+        sd2 = b2.build(name="also_named")
+
+        data = compile_synthdefs(sd1, sd2, use_anonymous_names=True)
+        assert b"named" not in data
+        # Anonymous names are 32-char MD5 hashes
+        assert sd1.anonymous_name.encode() in data
+        assert sd2.anonymous_name.encode() in data
+
+    def test_single_synthdef_matches_compile(self):
+        """compile_synthdefs(sd) produces the same bytes as sd.compile()."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=440.0))
+        sd = builder.build(name="solo")
+        assert compile_synthdefs(sd) == sd.compile()
+
+    def test_different_graphs_produce_different_output(self):
+        """Two SynthDefs with different UGen graphs produce different bytes."""
+        with SynthDefBuilder() as b1:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd1 = b1.build(name="x")
+
+        with SynthDefBuilder() as b2:
+            Out.ar(bus=0, source=LPF.ar(source=Saw.ar(), frequency=800.0))
+        sd2 = b2.build(name="x")
+
+        # Same name, different graph
+        assert sd1.compile() != sd2.compile()
+
+
+# ---------------------------------------------------------------------------
+# Demand-rate UGen tests
+# ---------------------------------------------------------------------------
+
+
+class TestDemandUGens:
+    def test_dseq_compiles(self):
+        """Dseq.dr inside Duty.kr compiles to valid SCgf."""
+        with SynthDefBuilder() as builder:
+            freq = Duty.kr(
+                duration=0.5,
+                level=Dseq.dr(repeats=2, sequence=[440.0, 550.0, 660.0]),
+            )
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        sd = builder.build(name="dseq_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        ugen_types = {type(u).__name__ for u in sd.ugens}
+        assert "Dseq" in ugen_types
+        assert "Duty" in ugen_types
+
+    def test_drand_compiles(self):
+        """Drand.dr inside Duty.kr compiles to valid SCgf."""
+        with SynthDefBuilder() as builder:
+            freq = Duty.kr(
+                duration=0.25,
+                level=Drand.dr(repeats=8, sequence=[440.0, 550.0, 660.0, 880.0]),
+            )
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        sd = builder.build(name="drand_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        ugen_types = {type(u).__name__ for u in sd.ugens}
+        assert "Drand" in ugen_types
+
+    def test_dseries_compiles(self):
+        """Dseries.dr compiles correctly."""
+        with SynthDefBuilder() as builder:
+            freq = Duty.kr(
+                duration=0.5,
+                level=Dseries.dr(start=200.0, step=100.0, length=5),
+            )
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        sd = builder.build(name="dseries_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        assert b"Dseries" in data
+
+    def test_dwhite_compiles(self):
+        """Dwhite.dr compiles correctly."""
+        with SynthDefBuilder() as builder:
+            freq = Duty.kr(
+                duration=0.25,
+                level=Dwhite.dr(minimum=200.0, maximum=800.0, length=10),
+            )
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        sd = builder.build(name="dwhite_test")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_dser_compiles(self):
+        """Dser.dr (like Dseq but truncates) compiles correctly."""
+        with SynthDefBuilder() as builder:
+            freq = Duty.kr(
+                duration=0.5,
+                level=Dser.dr(repeats=3, sequence=[440.0, 550.0]),
+            )
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        sd = builder.build(name="dser_test")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_dshuf_compiles(self):
+        """Dshuf.dr (shuffled sequence) compiles correctly."""
+        with SynthDefBuilder() as builder:
+            freq = Duty.kr(
+                duration=0.25,
+                level=Dshuf.dr(repeats=2, sequence=[440.0, 550.0, 660.0]),
+            )
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        sd = builder.build(name="dshuf_test")
+        assert sd.compile()[:4] == b"SCgf"
+
+    def test_duty_ar(self):
+        """Duty.ar (audio-rate demand reading) compiles correctly."""
+        with SynthDefBuilder() as builder:
+            sig = Duty.ar(
+                duration=0.01,
+                level=Dseq.dr(repeats=1, sequence=[0.5, -0.5, 0.3, -0.3]),
+            )
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="duty_ar_test")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+
+    def test_demand_rate_is_demand(self):
+        """Dseq.dr() has calculation_rate == DEMAND."""
+        with SynthDefBuilder() as builder:
+            d = Dseq.dr(repeats=1, sequence=[1.0, 2.0])
+            assert d.ugen.calculation_rate == CalculationRate.DEMAND
+            freq = Duty.kr(duration=0.5, level=d)
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+        builder.build(name="rate_test")
+
+    def test_nested_demand_ugens(self):
+        """Demand UGens can be nested (Dseq reading from Drand)."""
+        with SynthDefBuilder() as builder:
+            # Use Drand to select durations, Dseq for pitches
+            dur = Drand.dr(repeats=16, sequence=[0.125, 0.25, 0.5])
+            freq = Dseq.dr(repeats=4, sequence=[440.0, 550.0, 660.0, 880.0])
+            sig = Duty.ar(duration=dur, level=freq)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="nested_demand")
+        data = sd.compile()
+        assert data[:4] == b"SCgf"
+        ugen_types = {type(u).__name__ for u in sd.ugens}
+        assert "Drand" in ugen_types
+        assert "Dseq" in ugen_types
+
+
+# ---------------------------------------------------------------------------
+# @synthdef decorator extended coverage
+# ---------------------------------------------------------------------------
+
+
+class TestSynthdefDecoratorExtended:
+    def test_trigger_rate_parameter(self):
+        """@synthdef('trigger') produces a TrigControl."""
+
+        @synthdef("trigger")
+        def trig_test(trig=0):
+            Out.ar(bus=0, source=SinOsc.ar() * trig)
+
+        ugen_types = {type(u).__name__ for u in trig_test.ugens}
+        assert "TrigControl" in ugen_types
+
+    def test_multiple_rates(self):
+        """@synthdef with mixed rates produces corresponding control types."""
+
+        @synthdef("ar", "kr", "trigger")
+        def multi_rate(audio_in=0, ctrl_in=440, trig_in=0):
+            Out.ar(bus=0, source=SinOsc.ar(frequency=ctrl_in) * audio_in * trig_in)
+
+        ugen_types = {type(u).__name__ for u in multi_rate.ugens}
+        assert "AudioControl" in ugen_types
+        assert "TrigControl" in ugen_types
+        # ctrl_in is kr without lag, so it's a regular Control
+        assert "Control" in ugen_types
+
+    def test_lag_parameter(self):
+        """@synthdef(('kr', 0.1)) produces a LagControl."""
+
+        @synthdef(("kr", 0.1))
+        def lag_test(freq=440):
+            Out.ar(bus=0, source=SinOsc.ar(frequency=freq))
+
+        ugen_types = {type(u).__name__ for u in lag_test.ugens}
+        assert "LagControl" in ugen_types
+
+    def test_no_default_gets_zero(self):
+        """Parameters without defaults get value 0.0."""
+
+        @synthdef()
+        def zero_default(a, b):
+            Out.ar(bus=0, source=SinOsc.ar(frequency=a) * b)
+
+        for name in ("a", "b"):
+            param_obj, _ = zero_default.parameters[name]
+            assert param_obj.value == (0.0,)
+
+    def test_complex_synthdef(self):
+        """@synthdef with envelope, filter, and multiple parameters."""
+
+        @synthdef()
+        def complex_sd(freq=440, cutoff=2000, amp=0.3, gate=1):
+            sig = Saw.ar(frequency=freq)
+            sig = LPF.ar(source=sig, frequency=cutoff)
+            env = EnvGen.kr(
+                envelope=Envelope.adsr(),
+                gate=gate,
+                done_action=DoneAction.FREE_SYNTH,
+            )
+            Out.ar(bus=0, source=Pan2.ar(source=sig * env * amp))
+
+        assert isinstance(complex_sd, SynthDef)
+        data = complex_sd.compile()
+        assert data[:4] == b"SCgf"
+        assert b"complex_sd" in data
+        ugen_types = {type(u).__name__ for u in complex_sd.ugens}
+        assert "Saw" in ugen_types
+        assert "LPF" in ugen_types
+        assert "EnvGen" in ugen_types
+        assert "Pan2" in ugen_types
+
+    def test_decorator_name_matches_function(self):
+        """The SynthDef name always matches the function name."""
+
+        @synthdef()
+        def my_custom_name(x=1):
+            Out.ar(bus=0, source=SinOsc.ar(frequency=x))
+
+        assert my_custom_name.name == "my_custom_name"
+
+    def test_excess_rate_args_ignored(self):
+        """Extra rate args beyond the parameter count are silently ignored."""
+
+        @synthdef("ar", "kr", "trigger", "kr")  # 4 rate args, only 2 params
+        def two_params(a=0, b=0):
+            Out.ar(bus=0, source=SinOsc.ar(frequency=a) * b)
+
+        assert isinstance(two_params, SynthDef)
+        ugen_types = {type(u).__name__ for u in two_params.ugens}
+        assert "AudioControl" in ugen_types
+
+
+# ---------------------------------------------------------------------------
+# dump_ugens tests
+# ---------------------------------------------------------------------------
+
+
+class TestDumpUgens:
+    def test_basic_output(self):
+        """dump_ugens() returns a string with SynthDef name header."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        output = sd.dump_ugens()
+        assert output.startswith("SynthDef: test")
+
+    def test_contains_ugen_names(self):
+        """dump_ugens() output contains all UGen type names."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        output = sd.dump_ugens()
+        assert "SinOsc" in output
+        assert "Out" in output
+
+    def test_contains_rate_tokens(self):
+        """dump_ugens() output shows rate tokens (ar, kr)."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        output = sd.dump_ugens()
+        assert ".ar" in output
+
+    def test_control_shows_parameter_names(self):
+        """dump_ugens() shows parameter names for Control UGens."""
+        with SynthDefBuilder(frequency=440.0, amplitude=0.5) as builder:
+            Out.ar(
+                bus=0,
+                source=SinOsc.ar(frequency=builder["frequency"]) * builder["amplitude"],
+            )
+        sd = builder.build(name="test")
+        output = sd.dump_ugens()
+        assert "amplitude" in output
+        assert "frequency" in output
+
+    def test_binary_op_shows_operator(self):
+        """dump_ugens() shows operator name for BinaryOpUGen."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar() * 0.5)
+        sd = builder.build(name="test")
+        output = sd.dump_ugens()
+        assert "MULTIPLICATION" in output
+
+    def test_multichannel_shows_output_count(self):
+        """dump_ugens() shows output count for multi-output UGens."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=Pan2.ar(source=SinOsc.ar()))
+        sd = builder.build(name="test")
+        output = sd.dump_ugens()
+        assert "2 outputs" in output
+
+    def test_complex_graph(self):
+        """dump_ugens() works on a complex graph with envelope."""
+        with SynthDefBuilder(freq=440.0, gate=1.0) as builder:
+            sig = SinOsc.ar(frequency=builder["freq"])
+            env = EnvGen.kr(
+                envelope=Envelope.adsr(),
+                gate=builder["gate"],
+                done_action=DoneAction.FREE_SYNTH,
+            )
+            Out.ar(bus=0, source=Pan2.ar(source=sig * env))
+        sd = builder.build(name="complex")
+        output = sd.dump_ugens()
+        assert "SynthDef: complex" in output
+        assert "Control" in output
+        assert "SinOsc" in output
+        assert "EnvGen" in output
+        assert "Pan2" in output
+        # Should have numbered lines
+        assert "  0:" in output
+
+    def test_anonymous_synthdef_name(self):
+        """dump_ugens() shows MD5 hash for anonymous SynthDef."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build()
+        output = sd.dump_ugens()
+        assert f"SynthDef: {sd.anonymous_name}" in output
+
+
+# ---------------------------------------------------------------------------
+# SynthDef.send() / .play() tests
+# ---------------------------------------------------------------------------
+
+
+class TestSynthDefSendPlay:
+    def test_send_calls_server(self):
+        """send() calls server.send_synthdef()."""
+        from unittest.mock import MagicMock
+
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        server = MagicMock()
+        sd.send(server)
+        server.send_synthdef.assert_called_once_with(sd)
+
+    def test_play_returns_node_id(self):
+        """play() sends the SynthDef and returns a node ID."""
+        from unittest.mock import MagicMock
+
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        server = MagicMock()
+        server.synth.return_value = 1000
+        node_id = sd.play(server, frequency=440.0)
+        assert node_id == 1000
+        server.send_synthdef.assert_called_once_with(sd)
+        server.synth.assert_called_once_with(
+            "test", target=1, action=0, frequency=440.0
+        )
+
+    def test_play_custom_target_action(self):
+        """play() forwards target and action to server.synth()."""
+        from unittest.mock import MagicMock
+
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        server = MagicMock()
+        server.synth.return_value = 1001
+        sd.play(server, target=2, action=1)
+        server.synth.assert_called_once_with("test", target=2, action=1)

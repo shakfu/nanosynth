@@ -6,14 +6,14 @@ Remaining improvement tasks, grouped by category.
 
 ## Architecture / Usability
 
-- [ ] **High-level `Server` / `Engine` class.** Wrap the full boot-send-quit lifecycle so users don't need to understand OSC encoding, world lifecycle, or `_scsynth` imports. Subsumes `EmbeddedProcessProtocol` + `_options_to_world_kwargs`.
-- [ ] **`SynthDef.send()` / `SynthDef.load()` convenience methods.** After compiling a SynthDef, users must manually encode a `/d_recv` OSC message. A convenience method to send to a running engine would be natural.
+- [x] **High-level `Server` class.** Wraps boot-send-quit lifecycle, node ID allocation, SynthDef dispatch, and common OSC commands (`synth`, `group`, `free`, `set`).
+- [x] **`SynthDef.send()` / `SynthDef.play()` convenience methods.** Send a compiled SynthDef to a running server, or send and create a synth in one call.
 
-- [ ] **SynthDef graph pretty-printer.** `synthdef.dump()` or `synthdef.graph()` to print the UGen graph (like SC's `SynthDef.dumpUGens`). Data is already in `synthdef._ugens`.
+- [x] **SynthDef graph pretty-printer.** `SynthDef.dump_ugens()` prints the UGen graph (like SC's `SynthDef.dumpUGens`), showing UGen types, rates, inputs, operator names, and multi-output counts.
 
-- [ ] **Async engine protocol.** An `asyncio`-based alternative to the thread-based `EmbeddedProcessProtocol`. Could coexist with the current implementation.
+- [ ] **Async engine protocol.** An `asyncio`-based alternative to the thread-based `EmbeddedProcessProtocol`. Could coexist with the current implementation. Deferred until bidirectional OSC is implemented.
 
-- [ ] **`Envelope` as a first-class serializable type.** Give `Envelope` a dedicated serialization path rather than the generic `UGenSerializable` interface.
+- [x] **`Envelope.compile()` dedicated serialization path.** Produces `tuple[float, ...]` directly, bypassing UGenVector/ConstantProxy. `serialize()` retained for UGen graph wiring.
 
 ---
 
@@ -25,13 +25,6 @@ Remaining improvement tasks, grouped by category.
 
 ## Test Coverage Gaps
 
-- [ ] **`SynthDefBuilder` scope errors.** No tests verify that using a UGen from one builder scope inside another raises `SynthDefError`.
-- [ ] **Graph optimization in isolation.** `_optimize` and `_eliminate` are only tested indirectly via `build(optimize=True)`.
-- [ ] **Envelope factory methods.** No tests for `Envelope.linen`, `Envelope.triangle`, `Envelope.asr`. Only `adsr` and `percussive` are exercised.
-- [ ] **Multi-channel expansion.** No tests for UGens with `is_multichannel=True` (e.g., `In`, `PanAz`, `DecodeB2`).
-- [ ] **`compile_synthdefs` with multiple SynthDefs.** `compile_synthdefs` accepts `*synthdefs` but tests only ever compile a single SynthDef.
-- [ ] **Demand-rate UGens.** No tests for demand-rate (`dr`) calculation rate UGens (e.g., `Dseq`, `Duty`).
-- [ ] **`@synthdef` decorator coverage.** Limited test coverage compared to the `SynthDefBuilder` context manager.
 - [ ] **Integration tests.** No tests verify that a compiled SynthDef produces audio when loaded into the embedded engine. Audio hardware in CI is tricky, but worth noting.
 
 ---

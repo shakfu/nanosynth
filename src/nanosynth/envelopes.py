@@ -216,7 +216,16 @@ class Envelope(UGenSerializable):
         durations = [duration, duration]
         return Envelope(amplitudes=amplitudes, durations=durations)
 
-    def serialize(self, **kwargs: Any) -> UGenVector:
+    def serialize(self) -> UGenVector:
+        """Serialize envelope for UGen graph wiring.
+
+        Returns a UGenVector containing the envelope specification in
+        SuperCollider's wire format: [initial_amplitude, num_segments,
+        release_node, loop_node, (amplitude, duration, shape, curve)...].
+
+        Inputs may be OutputProxy references when envelope parameters
+        are driven by other UGens.
+        """
         result: list[UGenOperable | float] = []
         result.append(self.initial_amplitude)
         result.append(len(self.envelope_segments))
@@ -239,6 +248,41 @@ class Envelope(UGenSerializable):
         if len(expanded) == 1:
             return expanded[0]
         return UGenVector(*expanded)
+
+    def compile(self) -> tuple[float, ...]:
+        """Compile envelope to SCgf-compatible float sequence.
+
+        Returns the same values as serialize() but as plain floats,
+        without wrapping in UGenVector/ConstantProxy. Only works
+        when all envelope parameters are numeric (not UGen outputs).
+
+        Raises:
+            TypeError: If any parameter is a UGen (cannot flatten to float).
+        """
+        result: list[float] = []
+
+        def _to_float(value: UGenOperable | float | int) -> float:
+            if isinstance(value, UGenOperable):
+                raise TypeError(
+                    f"Cannot compile envelope with UGen input: {value!r}. "
+                    "Use serialize() for UGen graph wiring instead."
+                )
+            return float(value)
+
+        result.append(_to_float(self.initial_amplitude))
+        result.append(float(len(self.envelope_segments)))
+        result.append(-99.0 if self.release_node is None else float(self.release_node))
+        result.append(-99.0 if self.loop_node is None else float(self.loop_node))
+        for amplitude, duration, curve in self._envelope_segments:
+            result.append(_to_float(amplitude))
+            result.append(_to_float(duration))
+            if isinstance(curve, EnvelopeShape):
+                result.append(float(int(curve)))
+                result.append(0.0)
+            else:
+                result.append(float(int(EnvelopeShape.CUSTOM)))
+                result.append(_to_float(curve))
+        return tuple(result)
 
     @property
     def amplitudes(self) -> tuple[UGenOperable | float, ...]:

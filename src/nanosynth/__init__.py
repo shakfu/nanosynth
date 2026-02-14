@@ -16,6 +16,7 @@ from .synthdef import (
     ugen,
 )
 from .envelopes import EnvGen, Envelope
+from .server import Server
 from .ugens import *  # noqa: F403
 from .ugens import __all__ as _ugen_names
 
@@ -29,6 +30,7 @@ __all__ = [
     "OscMessage",
     "Options",
     "Param",
+    "Server",
     "SynthDef",
     "SynthDefBuilder",
     "UGen",

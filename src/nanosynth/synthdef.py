@@ -353,7 +353,7 @@ def ugen(
 class UGenSerializable:
     __slots__ = ()
 
-    def serialize(self, **kwargs: Any) -> "UGenVector":
+    def serialize(self) -> "UGenVector":
         raise NotImplementedError
 
 
@@ -1162,6 +1162,60 @@ class SynthDef:
     @property
     def ugens(self) -> SequenceABC[UGen]:
         return self._ugens
+
+    # -- High-level convenience methods ----------------------------------------
+
+    def send(self, server: "Any") -> None:
+        """Send this SynthDef to a running server."""
+        server.send_synthdef(self)
+
+    def play(
+        self,
+        server: "Any",
+        target: int = 1,
+        action: int = 0,
+        **params: float,
+    ) -> int:
+        """Send this SynthDef (if needed) and create a synth. Returns node ID."""
+        self.send(server)
+        result: int = server.synth(
+            self.effective_name, target=target, action=action, **params
+        )
+        return result
+
+    def dump_ugens(self) -> str:
+        """Return a human-readable representation of the UGen graph."""
+        lines: list[str] = [f"SynthDef: {self.effective_name}"]
+        for i, u in enumerate(self._ugens):
+            type_name = type(u).__name__
+            rate = u.calculation_rate.token
+            if isinstance(u, Control):
+                param_names = [p.name or "?" for p in u.parameters]
+                line = f"  {i}: {type_name}.{rate} - [{', '.join(param_names)}]"
+            else:
+                parts: list[str] = []
+                for input_, key in zip(u._inputs, u._input_keys):
+                    if isinstance(key, tuple):
+                        key_str = key[0]
+                    else:
+                        key_str = key
+                    if isinstance(input_, OutputProxy):
+                        src_name = type(input_.ugen).__name__
+                        parts.append(f"{key_str}: {src_name}[{input_.index}]")
+                    else:
+                        parts.append(f"{key_str}: {input_}")
+                if isinstance(u, BinaryOpUGen):
+                    op_name = u.operator.name
+                    line = f"  {i}: {type_name}.{rate}({op_name}, {', '.join(parts)})"
+                elif isinstance(u, UnaryOpUGen):
+                    op_name = u.operator.name
+                    line = f"  {i}: {type_name}.{rate}({op_name}, {', '.join(parts)})"
+                else:
+                    line = f"  {i}: {type_name}.{rate}({', '.join(parts)})"
+                if len(u) > 1:
+                    line += f" -> {len(u)} outputs"
+            lines.append(line)
+        return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
