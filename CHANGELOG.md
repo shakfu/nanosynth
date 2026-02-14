@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `PseudoUGen` base class for virtual UGens that compose other UGens (`Mix`, `Changed`, `CompanderD`, `LinLin`, `Silence`, `Splay`)
 - `_postprocess_kwargs` hook on `UGen.__init__` for transforming parameters at construction time (dynamic channel counts, Default resolution, rate forcing)
 - `GREATER_THAN` and `LESS_THAN` binary operators with corresponding `__gt__`/`__lt__` on `UGenOperable`
+- Demo scripts: `14_spectral.py` (FFT/PV spectral processing), `15_gendy.py` (stochastic synthesis), `16_klank_splay.py` (resonant filter banks), `17_freqshift.py` (Bode frequency shifting)
+
+### Fixed
+
+- `LocalBuf` crash: `SynthDefBuilder.build()` now runs a `_cleanup_local_bufs` pass that automatically inserts a `MaxLocalBufs` UGen when `LocalBuf` instances are present in the graph (e.g. from `FFT`'s auto-allocated buffer). Without this, scsynth would crash with `LocalBuf tried to allocate too many local buffers`
 
 ## [0.1.1]
 

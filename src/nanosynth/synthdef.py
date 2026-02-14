@@ -1416,6 +1416,37 @@ class SynthDefBuilder:
             )
         return sort_bundles
 
+    def _cleanup_local_bufs(self, ugens: list[UGen]) -> list[UGen]:
+        """Insert MaxLocalBufs for any LocalBuf UGens in the graph.
+
+        SuperCollider requires a MaxLocalBufs UGen to be present whenever
+        LocalBuf UGens are used (e.g. by FFT). This pass counts LocalBuf
+        instances, inserts a MaxLocalBufs just before the first one, and
+        wires them together.
+        """
+        from .ugens.bufio import LocalBuf, MaxLocalBufs
+
+        filtered: list[UGen] = []
+        local_bufs: list[UGen] = []
+        for ugen in ugens:
+            if isinstance(ugen, MaxLocalBufs):
+                continue  # remove existing MaxLocalBufs; we'll rebuild
+            if isinstance(ugen, LocalBuf):
+                local_bufs.append(ugen)
+            filtered.append(ugen)
+        if local_bufs:
+            max_local_bufs = cast(
+                OutputProxy,
+                MaxLocalBufs.ir(maximum=len(local_bufs)),  # type: ignore[attr-defined]
+            )
+            for local_buf in local_bufs:
+                inputs: list[OutputProxy | float] = list(local_buf._inputs[:2])
+                inputs.append(max_local_bufs)
+                local_buf._inputs = tuple(inputs)
+            index = filtered.index(local_bufs[0])
+            filtered[index:index] = [max_local_bufs.ugen]
+        return filtered
+
     def _optimize(self, ugens: list[UGen]) -> list[UGen]:
         sort_bundles = self._initiate_topological_sort(ugens)
         for ugen in ugens:
@@ -1517,6 +1548,7 @@ class SynthDefBuilder:
                 controls, control_mapping = self._build_control_mapping(parameters)
                 ugens = controls + ugens
                 ugens = self._remap_controls(ugens, control_mapping)
+                ugens = self._cleanup_local_bufs(ugens)
                 ugens = self._sort_topologically(ugens)
                 if optimize:
                     ugens = self._optimize(ugens)
