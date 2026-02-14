@@ -10,7 +10,6 @@ Requires:
   - nanosynth built with embedded libscsynth (NANOSYNTH_EMBED_SCSYNTH=ON)
 """
 
-import os
 import time
 
 from nanosynth import OscMessage, Options
@@ -129,10 +128,6 @@ def main():
     send(world, "/quit")
     world_wait_for_quit(world, False)
     print("Done.")
-    import sys
-
-    sys.stdout.flush()
-    os._exit(0)
 
 
 if __name__ == "__main__":

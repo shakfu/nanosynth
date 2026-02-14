@@ -7,8 +7,17 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include <mutex>
 #include <string>
+
+#ifdef __APPLE__
+#include <unistd.h>
+
+static void _force_exit_on_teardown() {
+    _exit(0);
+}
+#endif
 
 #include "SC_WorldOptions.h"
 
@@ -176,6 +185,19 @@ static nb::capsule py_world_new(
         delete strings;
         throw std::runtime_error("World_New failed");
     }
+
+#ifdef __APPLE__
+    // Register a C-level atexit handler that calls _exit(0) to prevent
+    // CoreAudio static destructor crashes on macOS. Registered after
+    // World_New so it runs before CoreAudio's destructors in the
+    // reverse-order atexit chain. Python atexit handlers still run
+    // normally (they execute during Py_FinalizeEx, before C atexit).
+    static bool exit_guard_registered = false;
+    if (!exit_guard_registered) {
+        std::atexit(_force_exit_on_teardown);
+        exit_guard_registered = true;
+    }
+#endif
 
     // Pack World* and WorldStrings* into a single handle so the capsule
     // destructor (a plain function pointer) can clean up both.

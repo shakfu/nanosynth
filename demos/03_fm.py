@@ -13,7 +13,6 @@ Requires:
   - SC_PLUGIN_PATH set to the SuperCollider plugins directory
 """
 
-import os
 import time
 
 from nanosynth import OscMessage, Options
@@ -141,10 +140,6 @@ def main():
     send(world, "/quit")
     world_wait_for_quit(world, False)
     print("Done.")
-    import sys
-
-    sys.stdout.flush()
-    os._exit(0)  # skip C++ global destructors (CoreAudio teardown crash)
 
 
 if __name__ == "__main__":
