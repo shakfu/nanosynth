@@ -133,6 +133,7 @@ def _create_fn(
     exec(text, globals_, namespace)
     value = namespace["__create_fn__"](**locals_)
     value.__qualname__ = f"{cls.__qualname__}.{value.__name__}"
+    value.__module__ = cls.__module__
     if decorator:
         value = decorator(value)
     setattr(cls, name, value)
