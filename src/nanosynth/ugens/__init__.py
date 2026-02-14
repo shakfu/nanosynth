@@ -1,5 +1,11 @@
 """UGen definitions for nanosynth, organized by category."""
 
+from .basic import (
+    Mix,
+    MulAdd,
+    Sum3,
+    Sum4,
+)
 from .beq import (
     BAllPass,
     BBandPass,
@@ -16,10 +22,12 @@ from .bufio import (
     BufRd,
     BufWr,
     ClearBuf,
+    LocalBuf,
     MaxLocalBufs,
     PlayBuf,
     RecordBuf,
     ScopeOut,
+    ScopeOut2,
 )
 from .chaos import (
     CuspL,
@@ -79,6 +87,7 @@ from .demand import (
     Dbrown,
     Dbufrd,
     Dbufwr,
+    Demand,
     DemandEnvGen,
     Dgeom,
     Dibrown,
@@ -95,11 +104,18 @@ from .demand import (
     Dunique,
     Duty,
     Dwhite,
+    Dwrand,
     Dxrand,
+)
+from .diskio import (
+    DiskIn,
+    DiskOut,
+    VDiskIn,
 )
 from .dynamics import (
     Amplitude,
     Compander,
+    CompanderD,
     Limiter,
     Normalizer,
 )
@@ -116,6 +132,7 @@ from .envelopes import (
 from .ffsinosc import (
     Blip,
     FSinOsc,
+    Klank,
     Pulse,
     Saw,
 )
@@ -125,6 +142,7 @@ from .filters import (
     BPZ2,
     BRF,
     BRZ2,
+    Changed,
     Decay,
     Decay2,
     DetectSilence,
@@ -159,11 +177,21 @@ from .filters import (
     TwoPole,
     TwoZero,
 )
+from .gendyn import (
+    Gendy1,
+    Gendy2,
+    Gendy3,
+)
 from .granular import (
     GrainBuf,
     GrainIn,
     PitchShift,
     Warp1,
+)
+from .hilbert import (
+    FreqShift,
+    Hilbert,
+    HilbertFIR,
 )
 from .info import (
     BlockSize,
@@ -190,6 +218,7 @@ from .info import (
 from .inout import (
     In,
     InFeedback,
+    LocalIn,
     LocalOut,
     OffsetOut,
     Out,
@@ -203,8 +232,28 @@ from .lines import (
     DC,
     K2A,
     LinExp,
+    LinLin,
     Line,
+    Silence,
     XLine,
+)
+from .mac import (
+    KeyState,
+    MouseButton,
+    MouseX,
+    MouseY,
+)
+from .ml import (
+    BeatTrack,
+    BeatTrack2,
+    KeyTrack,
+    Loudness,
+    MFCC,
+    Onsets,
+    Pitch,
+    SpecCentroid,
+    SpecFlatness,
+    SpecPcile,
 )
 from .noise import (
     BrownNoise,
@@ -271,6 +320,7 @@ from .panning import (
     PanB,
     PanB2,
     Rotate2,
+    Splay,
     XFade2,
 )
 from .physical import (
@@ -278,6 +328,46 @@ from .physical import (
     Pluck,
     Spring,
     TBall,
+)
+from .pv import (
+    FFT,
+    IFFT,
+    PV_Add,
+    PV_BinScramble,
+    PV_BinShift,
+    PV_BinWipe,
+    PV_BrickWall,
+    PV_ChainUGen,
+    PV_ConformalMap,
+    PV_Conj,
+    PV_Copy,
+    PV_CopyPhase,
+    PV_Diffuser,
+    PV_Div,
+    PV_HainsworthFoote,
+    PV_JensenAndersen,
+    PV_LocalMax,
+    PV_MagAbove,
+    PV_MagBelow,
+    PV_MagClip,
+    PV_MagDiv,
+    PV_MagFreeze,
+    PV_MagMul,
+    PV_MagNoise,
+    PV_MagShift,
+    PV_MagSmear,
+    PV_MagSquared,
+    PV_Max,
+    PV_Min,
+    PV_Mul,
+    PV_PhaseShift,
+    PV_PhaseShift270,
+    PV_PhaseShift90,
+    PV_RandComb,
+    PV_RandWipe,
+    PV_RectComb,
+    PV_RectComb2,
+    RunningSum,
 )
 from .reverb import FreeVerb
 from .safety import (
@@ -295,9 +385,12 @@ from .triggers import (
     Peak,
     PeakFollower,
     Phasor,
+    Poll,
     RunningMax,
     RunningMin,
     Schmidt,
+    SendPeakRMS,
+    SendReply,
     SendTrig,
     Sweep,
     TDelay,
@@ -309,6 +402,11 @@ from .triggers import (
 )
 
 __all__ = [
+    # basic
+    "Mix",
+    "MulAdd",
+    "Sum3",
+    "Sum4",
     # beq
     "BAllPass",
     "BBandPass",
@@ -324,10 +422,12 @@ __all__ = [
     "BufRd",
     "BufWr",
     "ClearBuf",
+    "LocalBuf",
     "MaxLocalBufs",
     "PlayBuf",
     "RecordBuf",
     "ScopeOut",
+    "ScopeOut2",
     # chaos
     "CuspL",
     "CuspN",
@@ -383,6 +483,7 @@ __all__ = [
     "Dbrown",
     "Dbufrd",
     "Dbufwr",
+    "Demand",
     "DemandEnvGen",
     "Dgeom",
     "Dibrown",
@@ -399,10 +500,16 @@ __all__ = [
     "Dunique",
     "Duty",
     "Dwhite",
+    "Dwrand",
     "Dxrand",
+    # diskio
+    "DiskIn",
+    "DiskOut",
+    "VDiskIn",
     # dynamics
     "Amplitude",
     "Compander",
+    "CompanderD",
     "Limiter",
     "Normalizer",
     # envelopes
@@ -417,6 +524,7 @@ __all__ = [
     # ffsinosc
     "Blip",
     "FSinOsc",
+    "Klank",
     "Pulse",
     "Saw",
     # filters
@@ -425,6 +533,7 @@ __all__ = [
     "BPZ2",
     "BRF",
     "BRZ2",
+    "Changed",
     "Decay",
     "Decay2",
     "DetectSilence",
@@ -458,11 +567,19 @@ __all__ = [
     "Slope",
     "TwoPole",
     "TwoZero",
+    # gendyn
+    "Gendy1",
+    "Gendy2",
+    "Gendy3",
     # granular
     "GrainBuf",
     "GrainIn",
     "PitchShift",
     "Warp1",
+    # hilbert
+    "FreqShift",
+    "Hilbert",
+    "HilbertFIR",
     # info
     "BlockSize",
     "BufChannels",
@@ -487,6 +604,7 @@ __all__ = [
     # inout
     "In",
     "InFeedback",
+    "LocalIn",
     "LocalOut",
     "OffsetOut",
     "Out",
@@ -499,8 +617,26 @@ __all__ = [
     "DC",
     "K2A",
     "LinExp",
+    "LinLin",
     "Line",
+    "Silence",
     "XLine",
+    # mac
+    "KeyState",
+    "MouseButton",
+    "MouseX",
+    "MouseY",
+    # ml
+    "BeatTrack",
+    "BeatTrack2",
+    "KeyTrack",
+    "Loudness",
+    "MFCC",
+    "Onsets",
+    "Pitch",
+    "SpecCentroid",
+    "SpecFlatness",
+    "SpecPcile",
     # noise
     "BrownNoise",
     "ClipNoise",
@@ -564,12 +700,52 @@ __all__ = [
     "PanB",
     "PanB2",
     "Rotate2",
+    "Splay",
     "XFade2",
     # physical
     "Ball",
     "Pluck",
     "Spring",
     "TBall",
+    # pv
+    "FFT",
+    "IFFT",
+    "PV_Add",
+    "PV_BinScramble",
+    "PV_BinShift",
+    "PV_BinWipe",
+    "PV_BrickWall",
+    "PV_ChainUGen",
+    "PV_ConformalMap",
+    "PV_Conj",
+    "PV_Copy",
+    "PV_CopyPhase",
+    "PV_Diffuser",
+    "PV_Div",
+    "PV_HainsworthFoote",
+    "PV_JensenAndersen",
+    "PV_LocalMax",
+    "PV_MagAbove",
+    "PV_MagBelow",
+    "PV_MagClip",
+    "PV_MagDiv",
+    "PV_MagFreeze",
+    "PV_MagMul",
+    "PV_MagNoise",
+    "PV_MagShift",
+    "PV_MagSmear",
+    "PV_MagSquared",
+    "PV_Max",
+    "PV_Min",
+    "PV_Mul",
+    "PV_PhaseShift",
+    "PV_PhaseShift270",
+    "PV_PhaseShift90",
+    "PV_RandComb",
+    "PV_RandWipe",
+    "PV_RectComb",
+    "PV_RectComb2",
+    "RunningSum",
     # reverb
     "FreeVerb",
     # safety
@@ -586,9 +762,12 @@ __all__ = [
     "Peak",
     "PeakFollower",
     "Phasor",
+    "Poll",
     "RunningMax",
     "RunningMin",
     "Schmidt",
+    "SendPeakRMS",
+    "SendReply",
     "SendTrig",
     "Sweep",
     "TDelay",

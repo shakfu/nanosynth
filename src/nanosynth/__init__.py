@@ -7,7 +7,9 @@ from .osc import OscBundle, OscMessage, find_free_port
 from .scsynth import EmbeddedProcessProtocol, Options, find_ugen_plugins_path
 from .compiler import compile_synthdefs
 from .synthdef import (
+    Default,
     Param,
+    PseudoUGen,
     SynthDef,
     SynthDefBuilder,
     UGen,
@@ -22,6 +24,7 @@ from .ugens import __all__ as _ugen_names
 
 __all__ = [
     "CalculationRate",
+    "Default",
     "DoneAction",
     "EmbeddedProcessProtocol",
     "EnvGen",
@@ -30,6 +33,7 @@ __all__ = [
     "OscMessage",
     "Options",
     "Param",
+    "PseudoUGen",
     "Server",
     "SynthDef",
     "SynthDefBuilder",

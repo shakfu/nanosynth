@@ -1,6 +1,17 @@
 """Demand-rate UGens."""
 
-from ..synthdef import UGen, param, ugen
+from collections.abc import Sequence
+from typing import Any
+
+from ..enums import CalculationRate
+from ..synthdef import (
+    UGen,
+    UGenOperable,
+    UGenRecursiveInput,
+    UGenScalarInput,
+    param,
+    ugen,
+)
 
 
 @ugen(dr=True)
@@ -24,6 +35,25 @@ class Dbufwr(UGen):
     buffer_id = param(0.0)
     phase = param(0.0)
     loop = param(1.0)
+
+
+@ugen(ar=True, kr=True)
+class Demand(UGen):
+    trigger = param(0)
+    reset = param(0)
+    source = param(unexpanded=True)
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, Any]]:
+        source = kwargs["source"]
+        if not isinstance(source, Sequence):
+            kwargs["source"] = [source]  # type: ignore[list-item]
+        self._channel_count = len(kwargs["source"])  # type: ignore[arg-type]
+        return calculation_rate, kwargs
 
 
 @ugen(ar=True, kr=True)
@@ -137,6 +167,38 @@ class Dwhite(UGen):
     minimum = param(0.0)
     maximum = param(0.0)
     length = param(float("inf"))
+
+
+@ugen(dr=True)
+class Dwrand(UGen):
+    repeats = param(1)
+    length = param()
+    weights = param(unexpanded=True)
+    sequence = param(unexpanded=True)
+
+    @classmethod
+    def dr(
+        cls,
+        *,
+        repeats: UGenScalarInput = 1,
+        sequence: Sequence[UGenScalarInput],
+        weights: Sequence[UGenScalarInput],
+    ) -> UGenOperable:
+        if not isinstance(sequence, Sequence):
+            sequence = [sequence]
+        seq = tuple(float(x) for x in sequence)  # type: ignore[arg-type]
+        if not isinstance(weights, Sequence):
+            weights = [weights]
+        wts = tuple(float(x) for x in weights)  # type: ignore[arg-type]
+        wts = wts[: len(seq)]
+        wts += (0.0,) * (len(seq) - len(wts))
+        return cls._new_expanded(
+            calculation_rate=CalculationRate.DEMAND,
+            repeats=repeats,
+            length=len(seq),
+            sequence=seq,
+            weights=wts,
+        )
 
 
 @ugen(dr=True)

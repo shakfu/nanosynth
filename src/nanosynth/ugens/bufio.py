@@ -1,6 +1,15 @@
 """Buffer I/O UGens."""
 
-from ..synthdef import UGen, param, ugen
+from typing import Any
+
+from ..enums import CalculationRate
+from ..synthdef import (
+    Default,
+    UGen,
+    UGenRecursiveInput,
+    param,
+    ugen,
+)
 
 
 @ugen(ar=True, kr=True, is_multichannel=True)
@@ -22,6 +31,20 @@ class BufWr(UGen):
 @ugen(ir=True, is_width_first=True)
 class ClearBuf(UGen):
     buffer_id = param()
+
+
+@ugen(ir=True, is_width_first=True)
+class LocalBuf(UGen):
+    channel_count = param(1)
+    frame_count = param(1)
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, Any]]:
+        return CalculationRate.SCALAR, kwargs
 
 
 @ugen(ir=True)
@@ -56,3 +79,21 @@ class RecordBuf(UGen):
 class ScopeOut(UGen):
     buffer_id = param()
     source = param(unexpanded=True)
+
+
+@ugen(ar=True, kr=True)
+class ScopeOut2(UGen):
+    scope_id = param()
+    max_frames = param(4096)
+    scope_frames = param(Default())
+    source = param(unexpanded=True)
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, Any]]:
+        if isinstance(kwargs["scope_frames"], Default):
+            kwargs["scope_frames"] = kwargs["max_frames"]
+        return calculation_rate, kwargs

@@ -1,13 +1,13 @@
 # nanosynth
 
-A Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind). Define SynthDefs in Python, compile them to SuperCollider's SCgf binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
+nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind).  It makes it possible to define SynthDefs in Python, compile them to SuperCollider's SCgf binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
 
 ## Features
 
 - **Embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
 - **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()` for automatic node cleanup
 - **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's SCgf binary format
-- **290+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, and more
+- **340+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, phase vocoder, machine listening, stochastic synthesis, and more
 - **Envelope system** -- `Envelope` class with factory methods (`adsr`, `asr`, `linen`, `percussive`, `triangle`) and the `EnvGen` UGen
 - **OSC codec** -- pure-Python `OscMessage`/`OscBundle` encode/decode with optional C++ acceleration via nanobind
 - **`@synthdef` decorator** -- shorthand for defining SynthDefs as plain functions with parameter rate/lag annotations
@@ -450,26 +450,33 @@ Organized by category:
 
 | Category | UGens |
 |---|---|
-| **Oscillators** | `SinOsc`, `Saw`, `Pulse`, `Blip`, `LFSaw`, `LFPulse`, `LFTri`, `LFCub`, `LFPar`, `VarSaw`, `SyncSaw`, `Impulse`, `FSinOsc`, `LFGauss`, `Vibrato`, `Osc`, `OscN`, `COsc`, `VOsc`, `VOsc3` |
-| **Filters** | `LPF`, `HPF`, `BPF`, `BRF`, `RLPF`, `RHPF`, `MoogFF`, `Lag`, `Lag2`, `Lag3`, `Decay`, `Decay2`, `Ringz`, `Formlet`, `Median`, `LeakDC`, `OnePole`, `OneZero`, `TwoPole`, `TwoZero`, `FOS`, `SOS`, `MidEQ`, `Slew`, `Slope` |
+| **Oscillators** | `SinOsc`, `Saw`, `Pulse`, `Blip`, `Klank`, `LFSaw`, `LFPulse`, `LFTri`, `LFCub`, `LFPar`, `VarSaw`, `SyncSaw`, `Impulse`, `FSinOsc`, `LFGauss`, `Vibrato`, `Osc`, `OscN`, `COsc`, `VOsc`, `VOsc3` |
+| **Filters** | `LPF`, `HPF`, `BPF`, `BRF`, `RLPF`, `RHPF`, `MoogFF`, `Lag`, `Lag2`, `Lag3`, `LagUD`, `Lag2UD`, `Lag3UD`, `Ramp`, `Decay`, `Decay2`, `Ringz`, `Formlet`, `Median`, `LeakDC`, `OnePole`, `OneZero`, `TwoPole`, `TwoZero`, `APF`, `FOS`, `SOS`, `MidEQ`, `Slew`, `Slope`, `Integrator`, `DetectSilence`, `Changed` |
 | **BEQ Filters** | `BLowPass`, `BHiPass`, `BBandPass`, `BBandStop`, `BAllPass`, `BLowShelf`, `BHiShelf`, `BPeakEQ`, `BLowCut`, `BHiCut` |
-| **Noise** | `WhiteNoise`, `PinkNoise`, `BrownNoise`, `GrayNoise`, `ClipNoise`, `Dust`, `Dust2`, `Crackle`, `LFNoise0`, `LFNoise1`, `LFNoise2`, `LFDNoise0`, `LFDNoise1`, `LFDNoise3`, `Logistic` |
-| **Delays** | `DelayN`, `DelayL`, `DelayC`, `CombN`, `CombL`, `CombC`, `AllpassN`, `AllpassL`, `AllpassC`, `BufDelayN`, `BufDelayL`, `BufDelayC`, `BufCombN`, `BufCombL`, `BufCombC`, `BufAllpassN`, `BufAllpassL`, `BufAllpassC` |
+| **Noise** | `WhiteNoise`, `PinkNoise`, `BrownNoise`, `GrayNoise`, `ClipNoise`, `Dust`, `Dust2`, `Crackle`, `LFNoise0`, `LFNoise1`, `LFNoise2`, `LFDNoise0`, `LFDNoise1`, `LFDNoise3`, `LFClipNoise`, `LFDClipNoise`, `Logistic` |
+| **Stochastic** | `Gendy1`, `Gendy2`, `Gendy3` |
+| **Delays** | `DelayN`, `DelayL`, `DelayC`, `Delay1`, `Delay2`, `CombN`, `CombL`, `CombC`, `AllpassN`, `AllpassL`, `AllpassC`, `BufDelayN`, `BufDelayL`, `BufDelayC`, `BufCombN`, `BufCombL`, `BufCombC`, `BufAllpassN`, `BufAllpassL`, `BufAllpassC`, `DelTapRd`, `DelTapWr` |
 | **Envelopes** | `EnvGen`, `Linen`, `Done`, `Free`, `FreeSelf`, `FreeSelfWhenDone`, `Pause`, `PauseSelf`, `PauseSelfWhenDone` |
-| **Panning** | `Pan2`, `Pan4`, `PanAz`, `PanB`, `PanB2`, `BiPanB2`, `Balance2`, `Rotate2`, `DecodeB2`, `XFade2` |
-| **Demand** | `Dseq`, `Dser`, `Dseries`, `Drand`, `Dxrand`, `Dshuf`, `Dwhite`, `Dbrown`, `Diwhite`, `Dibrown`, `Dgeom`, `Duty`, `DemandEnvGen`, `Dbufrd`, `Dbufwr`, `Dstutter`, `Dreset`, `Dswitch`, `Dswitch1`, `Dunique` |
-| **Dynamics** | `Compander`, `Limiter`, `Normalizer`, `Amplitude` |
+| **Panning** | `Pan2`, `Pan4`, `PanAz`, `PanB`, `PanB2`, `BiPanB2`, `Balance2`, `Rotate2`, `DecodeB2`, `XFade2`, `Splay` |
+| **Demand** | `Dseq`, `Dser`, `Dseries`, `Drand`, `Dxrand`, `Dshuf`, `Dwrand`, `Dwhite`, `Dbrown`, `Diwhite`, `Dibrown`, `Dgeom`, `Demand`, `Duty`, `DemandEnvGen`, `Dbufrd`, `Dbufwr`, `Dstutter`, `Dreset`, `Dswitch`, `Dswitch1`, `Dunique` |
+| **Dynamics** | `Compander`, `CompanderD`, `Limiter`, `Normalizer`, `Amplitude` |
 | **Chaos** | `LorenzL`, `HenonN/L/C`, `GbmanN/L`, `LatoocarfianN/L/C`, `LinCongN/L/C`, `CuspN/L`, `QuadN/L/C`, `StandardN/L`, `FBSineN/L/C` |
 | **Granular** | `GrainBuf`, `GrainIn`, `PitchShift`, `Warp1` |
-| **Buffer I/O** | `PlayBuf`, `RecordBuf`, `BufRd`, `BufWr`, `ClearBuf`, `MaxLocalBufs`, `ScopeOut` |
+| **Buffer I/O** | `PlayBuf`, `RecordBuf`, `BufRd`, `BufWr`, `ClearBuf`, `LocalBuf`, `MaxLocalBufs`, `ScopeOut`, `ScopeOut2` |
+| **Disk I/O** | `DiskIn`, `DiskOut`, `VDiskIn` |
 | **Physical Modeling** | `Pluck`, `Ball`, `TBall`, `Spring` |
 | **Reverb** | `FreeVerb` |
 | **Convolution** | `Convolution`, `Convolution2`, `Convolution2L`, `Convolution3` |
-| **I/O** | `In`, `Out`, `InFeedback`, `OffsetOut`, `ReplaceOut`, `XOut`, `LocalOut` |
-| **Lines** | `Line`, `XLine`, `LinExp`, `DC`, `K2A`, `A2K`, `AmpComp`, `AmpCompA` |
-| **Triggers** | `Trig`, `Trig1`, `Latch`, `Gate`, `Schmidt`, `Sweep`, `Phasor`, `Peak`, `SendTrig`, `ToggleFF`, `TDelay`, `ZeroCrossing`, `Clip`, `Fold`, `Wrap` |
-| **Info** | `SampleRate`, `BlockSize`, `ControlRate`, `BufFrames`, `BufSampleRate`, `BufChannels`, `BufDur`, `NumOutputBuses`, `NumInputBuses`, `NumAudioBuses`, `NumBuffers`, `NodeID` |
+| **Phase Vocoder** | `FFT`, `IFFT`, `PV_Add`, `PV_BinScramble`, `PV_BinShift`, `PV_BinWipe`, `PV_BrickWall`, `PV_ConformalMap`, `PV_Conj`, `PV_Copy`, `PV_CopyPhase`, `PV_Diffuser`, `PV_Div`, `PV_HainsworthFoote`, `PV_JensenAndersen`, `PV_LocalMax`, `PV_MagAbove`, `PV_MagBelow`, `PV_MagClip`, `PV_MagDiv`, `PV_MagFreeze`, `PV_MagMul`, `PV_MagNoise`, `PV_MagShift`, `PV_MagSmear`, `PV_MagSquared`, `PV_Max`, `PV_Min`, `PV_Mul`, `PV_PhaseShift`, `PV_PhaseShift90`, `PV_PhaseShift270`, `PV_RandComb`, `PV_RandWipe`, `PV_RectComb`, `PV_RectComb2`, `RunningSum` |
+| **Machine Listening** | `BeatTrack`, `BeatTrack2`, `KeyTrack`, `Loudness`, `MFCC`, `Onsets`, `Pitch`, `SpecCentroid`, `SpecFlatness`, `SpecPcile` |
+| **Hilbert** | `FreqShift`, `Hilbert`, `HilbertFIR` |
+| **I/O** | `In`, `Out`, `InFeedback`, `LocalIn`, `LocalOut`, `OffsetOut`, `ReplaceOut`, `XOut` |
+| **Lines** | `Line`, `XLine`, `LinExp`, `LinLin`, `DC`, `K2A`, `A2K`, `AmpComp`, `AmpCompA`, `Silence` |
+| **Triggers** | `Trig`, `Trig1`, `Latch`, `Gate`, `Schmidt`, `Sweep`, `Phasor`, `Peak`, `PeakFollower`, `RunningMax`, `RunningMin`, `SendTrig`, `Poll`, `SendReply`, `SendPeakRMS`, `ToggleFF`, `TDelay`, `ZeroCrossing`, `LeastChange`, `MostChange`, `Clip`, `Fold`, `Wrap`, `InRange` |
+| **Mouse/Keyboard** | `KeyState`, `MouseButton`, `MouseX`, `MouseY` |
+| **Info** | `SampleRate`, `SampleDur`, `BlockSize`, `ControlRate`, `ControlDur`, `SubsampleOffset`, `RadiansPerSample`, `NumRunningSynths`, `BufFrames`, `BufSamples`, `BufSampleRate`, `BufRateScale`, `BufChannels`, `BufDur`, `NumOutputBuses`, `NumInputBuses`, `NumAudioBuses`, `NumControlBuses`, `NumBuffers`, `NodeID` |
 | **Random** | `Rand`, `IRand`, `ExpRand`, `LinRand`, `NRand`, `TRand`, `TIRand`, `TExpRand`, `CoinGate`, `TWindex`, `RandID`, `RandSeed`, `Hasher`, `MantissaMask` |
+| **Utility** | `MulAdd`, `Sum3`, `Sum4`, `Mix` |
 | **Safety** | `CheckBadValues`, `Sanitize` |
 
 ## Envelope Types

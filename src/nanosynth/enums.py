@@ -66,6 +66,8 @@ class BinaryOperator(enum.IntEnum):
     MULTIPLICATION = 2
     FLOAT_DIVISION = 4
     MODULO = 5
+    LESS_THAN = 8
+    GREATER_THAN = 9
 
     @classmethod
     def from_expr(cls, expr: object) -> "BinaryOperator":

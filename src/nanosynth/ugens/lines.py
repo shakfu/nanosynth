@@ -1,6 +1,14 @@
 """Line and level UGens."""
 
-from ..synthdef import UGen, param, ugen
+from ..synthdef import (
+    PseudoUGen,
+    UGen,
+    UGenOperable,
+    UGenRecursiveInput,
+    UGenVector,
+    param,
+    ugen,
+)
 
 
 @ugen(kr=True, is_pure=True)
@@ -42,12 +50,57 @@ class LinExp(UGen):
     output_maximum = param(2)
 
 
+class LinLin(PseudoUGen):
+    """Linear-to-linear mapping pseudo-UGen."""
+
+    @staticmethod
+    def ar(
+        *,
+        source: UGenRecursiveInput,
+        input_minimum: UGenRecursiveInput = 0.0,
+        input_maximum: UGenRecursiveInput = 1.0,
+        output_minimum: UGenRecursiveInput = 1.0,
+        output_maximum: UGenRecursiveInput = 2.0,
+    ) -> UGenOperable:
+        from .basic import MulAdd
+
+        scale = (output_maximum - output_minimum) / (input_maximum - input_minimum)  # type: ignore[operator]
+        offset = output_minimum - (scale * input_minimum)
+        return MulAdd.new(source=source, multiplier=scale, addend=offset)  # type: ignore[attr-defined,no-any-return]
+
+    @staticmethod
+    def kr(
+        *,
+        source: UGenRecursiveInput,
+        input_minimum: UGenRecursiveInput = 0.0,
+        input_maximum: UGenRecursiveInput = 1.0,
+        output_minimum: UGenRecursiveInput = 1.0,
+        output_maximum: UGenRecursiveInput = 2.0,
+    ) -> UGenOperable:
+        from .basic import MulAdd
+
+        scale = (output_maximum - output_minimum) / (input_maximum - input_minimum)  # type: ignore[operator]
+        offset = output_minimum - (scale * input_minimum)
+        return MulAdd.new(source=source, multiplier=scale, addend=offset)  # type: ignore[attr-defined,no-any-return]
+
+
 @ugen(ar=True, kr=True, has_done_flag=True)
 class Line(UGen):
     start = param(0.0)
     stop = param(1.0)
     duration = param(1.0)
     done_action = param(0)
+
+
+class Silence(PseudoUGen):
+    """Audio-rate silence pseudo-UGen."""
+
+    @classmethod
+    def ar(cls, channel_count: int = 1) -> UGenOperable:
+        silence = DC.ar(source=0)  # type: ignore[attr-defined]
+        if channel_count == 1:
+            return silence  # type: ignore[no-any-return]
+        return UGenVector(*([silence] * channel_count))
 
 
 @ugen(ar=True, kr=True, has_done_flag=True)

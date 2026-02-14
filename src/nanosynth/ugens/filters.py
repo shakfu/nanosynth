@@ -1,6 +1,6 @@
 """Filter UGens."""
 
-from ..synthdef import UGen, param, ugen
+from ..synthdef import PseudoUGen, UGen, UGenOperable, UGenRecursiveInput, param, ugen
 
 
 @ugen(ar=True, kr=True, is_pure=True)
@@ -8,6 +8,28 @@ class APF(UGen):
     source = param()
     frequency = param(440.0)
     radius = param(0.8)
+
+
+class Changed(PseudoUGen):
+    """Triggers when a value changes."""
+
+    @classmethod
+    def ar(
+        cls,
+        *,
+        source: UGenRecursiveInput,
+        threshold: UGenRecursiveInput = 0,
+    ) -> UGenOperable:
+        return abs(HPZ1.ar(source=source)) > threshold  # type: ignore[attr-defined,no-any-return]
+
+    @classmethod
+    def kr(
+        cls,
+        *,
+        source: UGenRecursiveInput,
+        threshold: UGenRecursiveInput = 0,
+    ) -> UGenOperable:
+        return abs(HPZ1.kr(source=source)) > threshold  # type: ignore[attr-defined,no-any-return]
 
 
 @ugen(ar=True, kr=True, is_pure=True)

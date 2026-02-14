@@ -1,6 +1,19 @@
 """Panning UGens."""
 
-from ..synthdef import UGen, param, ugen
+import math
+from collections.abc import Sequence
+
+from ..enums import CalculationRate
+from ..synthdef import (
+    PseudoUGen,
+    UGen,
+    UGenOperable,
+    UGenRecursiveInput,
+    UGenRecursiveParams,
+    UGenVector,
+    param,
+    ugen,
+)
 
 
 @ugen(ar=True, kr=True, channel_count=2, fixed_channel_count=True)
@@ -71,6 +84,116 @@ class Rotate2(UGen):
     x = param()
     y = param()
     position = param(0)
+
+
+class Splay(PseudoUGen):
+    """Stereo signal spreader."""
+
+    _ordered_keys = ("spread", "level", "center", "normalize", "source")
+    _unexpanded_keys = ("source",)
+
+    @classmethod
+    def _new_expanded(
+        cls,
+        calculation_rate: CalculationRate | None = None,
+        **kwargs: UGenRecursiveInput,
+    ) -> UGenOperable:
+        from .basic import Mix
+
+        def recurse(all_expanded_params: UGenRecursiveParams) -> UGenOperable:
+            if (
+                not isinstance(all_expanded_params, dict)
+                and len(all_expanded_params) == 1
+            ):
+                all_expanded_params = all_expanded_params[0]
+            if isinstance(all_expanded_params, dict):
+                return cls._new_single(
+                    calculation_rate=calculation_rate,
+                    **all_expanded_params,  # type: ignore[arg-type]
+                )
+            return UGenVector(*(recurse(ep) for ep in all_expanded_params))
+
+        return Mix.multichannel(
+            recurse(
+                UGen._expand_params(
+                    kwargs, unexpanded_keys=frozenset(cls._unexpanded_keys)
+                )
+            ),
+            2,
+        )
+
+    @classmethod
+    def _new_single(
+        cls,
+        *,
+        calculation_rate: CalculationRate | None = None,
+        center: UGenRecursiveInput = 0,
+        level: UGenRecursiveInput = 1,
+        normalize: bool = True,
+        source: Sequence[UGenRecursiveInput] | UGenRecursiveInput,
+        spread: UGenRecursiveInput = 1,
+        **kwargs: UGenRecursiveInput,
+    ) -> UGenOperable:
+        from .basic import Mix
+
+        if not isinstance(source, Sequence):
+            source = [source]
+        n = len(source)
+        if n == 1:
+            positions: list[UGenRecursiveInput] = [center]
+        else:
+            positions = [
+                (i * (2 / (n - 1)) - 1) * spread + center  # type: ignore[operator]
+                for i in range(n)
+            ]
+        if normalize:
+            if calculation_rate == CalculationRate.AUDIO:
+                level = level * math.sqrt(1 / n)  # type: ignore[operator]
+            else:
+                level = level / n  # type: ignore[operator]
+        if calculation_rate == CalculationRate.AUDIO:
+            panners = Pan2.ar(source=source, position=positions)  # type: ignore[attr-defined]
+        else:
+            panners = Pan2.kr(source=source, position=positions)  # type: ignore[attr-defined]
+        return Mix.multichannel(panners, 2) * level
+
+    @classmethod
+    def ar(
+        cls,
+        *,
+        source: UGenRecursiveInput,
+        center: UGenRecursiveInput = 0,
+        level: UGenRecursiveInput = 1,
+        normalize: bool = True,
+        spread: UGenRecursiveInput = 1,
+    ) -> UGenOperable:
+        return cls._new_expanded(
+            calculation_rate=CalculationRate.AUDIO,
+            center=center,
+            level=level,
+            normalize=normalize,
+            source=source,
+            spread=spread,
+        )
+
+    @classmethod
+    def kr(
+        cls,
+        *,
+        source: UGenRecursiveInput,
+        center: UGenRecursiveInput = 0,
+        level: UGenRecursiveInput = 1,
+        normalize: bool = True,
+        spread: UGenRecursiveInput = 1,
+    ) -> UGenOperable:
+        return cls._new_expanded(
+            calculation_rate=CalculationRate.CONTROL,
+            center=center,
+            level=level,
+            normalize=normalize,
+            source=source,
+            spread=spread,
+        )
 
 
 @ugen(ar=True, kr=True)

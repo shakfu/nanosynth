@@ -65,8 +65,15 @@ class Missing:
 MISSING = Missing()
 
 
+class Default:
+    """Sentinel for parameters whose default is computed from other parameters."""
+
+    def __repr__(self) -> str:
+        return "Default()"
+
+
 class Param(NamedTuple):
-    default: "Missing | float | None" = MISSING
+    default: "Missing | Default | float | None" = MISSING
     unexpanded: bool = False
 
 
@@ -77,6 +84,8 @@ def _format_value(value: object) -> str:
         value_repr = 'float("-inf")'
     elif isinstance(value, Missing):
         value_repr = "Missing()"
+    elif isinstance(value, Default):
+        value_repr = "Default()"
     elif isinstance(value, enum.Enum):
         value_repr = f"{type(value).__name__}.{value.name}"
     else:
@@ -87,6 +96,7 @@ def _format_value(value: object) -> str:
 def _get_fn_globals() -> dict[str, Any]:
     return {
         "CalculationRate": CalculationRate,
+        "Default": Default,
         "Missing": Missing,
         "SupportsFloat": SupportsFloat,
         "UGenRecursiveInput": UGenRecursiveInput,
@@ -296,7 +306,7 @@ def _process_class(
 
 
 def param(
-    default: Missing | float | None = MISSING,
+    default: Missing | Default | float | None = MISSING,
     *,
     unexpanded: bool = False,
 ) -> Param:
@@ -354,6 +364,13 @@ class UGenSerializable:
     __slots__ = ()
 
     def serialize(self) -> "UGenVector":
+        raise NotImplementedError
+
+
+class PseudoUGen:
+    """Base class for virtual UGens that compose other UGens."""
+
+    def __init__(self) -> None:
         raise NotImplementedError
 
 
@@ -507,6 +524,20 @@ class UGenOperable:
             float_operator=operator.mod,
         )
 
+    def __gt__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.GREATER_THAN,
+        )
+
+    def __lt__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.LESS_THAN,
+        )
+
     def __neg__(self) -> "UGenOperable":
         return _compute_unary_op(
             source=self,
@@ -649,6 +680,9 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
         special_index: SupportsInt = 0,
         **kwargs: UGenRecursiveInput | None,
     ) -> None:
+        calculation_rate, kwargs = self._postprocess_kwargs(
+            calculation_rate=calculation_rate, **kwargs
+        )
         self._calculation_rate = CalculationRate.from_expr(calculation_rate)
         self._special_index = int(special_index)
         input_keys: list[str | tuple[str, int]] = []
@@ -841,6 +875,14 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
         if not self._is_pure:
             return
         self._eliminate(sort_bundles)
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, UGenRecursiveInput | None]]:
+        return calculation_rate, kwargs
 
     @property
     def calculation_rate(self) -> CalculationRate:

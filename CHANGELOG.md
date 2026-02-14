@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **~80 new UGen classes** (290 -> 346 total), achieving full parity with supriya's UGen surface:
+  - **Phase vocoder** (`pv.py`): `FFT`, `IFFT`, `PV_ChainUGen`, and 34 `PV_*` analysis/resynthesis UGens, plus `RunningSum`
+  - **Machine listening** (`ml.py`): `BeatTrack`, `BeatTrack2`, `KeyTrack`, `Loudness`, `MFCC`, `Onsets`, `Pitch`, `SpecCentroid`, `SpecFlatness`, `SpecPcile`
+  - **Stochastic synthesis** (`gendyn.py`): `Gendy1`, `Gendy2`, `Gendy3`
+  - **Hilbert transforms** (`hilbert.py`): `FreqShift`, `Hilbert`, `HilbertFIR`
+  - **Mouse/keyboard** (`mac.py`): `KeyState`, `MouseButton`, `MouseX`, `MouseY`
+  - **Disk I/O** (`diskio.py`): `DiskIn`, `DiskOut`, `VDiskIn`
+  - **Utility** (`basic.py`): `MulAdd`, `Sum3`, `Sum4`, `Mix` (signal mixer with Sum3/Sum4 tree optimization)
+  - **Additions to existing modules**: `LocalBuf`, `ScopeOut2` (bufio); `Demand`, `Dwrand` (demand); `Poll`, `SendReply`, `SendPeakRMS` (triggers); `LocalIn` (inout); `Klank` (ffsinosc); `LinLin`, `Silence` (lines); `Changed` (filters); `CompanderD` (dynamics); `Splay` (panning)
+- `Default` sentinel class in `synthdef.py` for parameters whose defaults are computed from other parameters at construction time (used by `FFT`, `Gendy1-3`, `ScopeOut2`)
+- `PseudoUGen` base class for virtual UGens that compose other UGens (`Mix`, `Changed`, `CompanderD`, `LinLin`, `Silence`, `Splay`)
+- `_postprocess_kwargs` hook on `UGen.__init__` for transforming parameters at construction time (dynamic channel counts, Default resolution, rate forcing)
+- `GREATER_THAN` and `LESS_THAN` binary operators with corresponding `__gt__`/`__lt__` on `UGenOperable`
+
 ## [0.1.1]
 
 ### Added
