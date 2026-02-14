@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2]
+
 ### Added
 
 - **~80 new UGen classes** (290 -> 346 total), achieving full parity with supriya's UGen surface:
