@@ -5,6 +5,7 @@ A Python package that embeds SuperCollider's [libscsynth](https://github.com/sup
 ## Features
 
 - **Embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
+- **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()` for automatic node cleanup
 - **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's SCgf binary format
 - **290+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, and more
 - **Envelope system** -- `Envelope` class with factory methods (`adsr`, `asr`, `linen`, `percussive`, `triangle`) and the `EnvGen` UGen
@@ -351,33 +352,70 @@ compressed = builder.build(name="compressed")
 
 ### Booting the Embedded Engine and Playing Sound
 
-The embedded engine is built by default:
+The `Server` class wraps the embedded engine lifecycle. Use it as a context manager to boot on entry and shut down on exit:
 
 ```python
 import time
-from nanosynth import OscMessage, Options, EmbeddedProcessProtocol
+from nanosynth import Server, Options
 
-# Boot
-protocol = EmbeddedProcessProtocol()
-protocol.boot(Options(verbosity=0))
+with Server(Options(verbosity=0)) as server:
+    # Send the SynthDef we defined above
+    synthdef.send(server)
+    time.sleep(0.1)
 
-# Helper to send OSC messages to the engine
-from nanosynth._scsynth import world_send_packet
+    # Create a synth -- returns a node ID
+    node = server.synth("sine", frequency=440.0, amplitude=0.3)
+    time.sleep(2.0)
+    server.free(node)
 
-def send(*args):
-    world_send_packet(protocol._world, OscMessage(*args).to_datagram())
+# Engine shuts down automatically on context exit
+```
 
-# Create default group and load SynthDef
-send("/g_new", 1, 0, 0)
-send("/d_recv", synthdef.compile())
-time.sleep(0.1)
+Or use `SynthDef.play()` to send and create a synth in one call:
 
-# Play a synth
-send("/s_new", "sine", 1000, 0, 1, "frequency", 440.0, "amplitude", 0.3)
-time.sleep(2.0)
+```python
+with Server() as server:
+    node = synthdef.play(server, frequency=880.0, amplitude=0.2)
+    time.sleep(2.0)
+```
 
-# Cleanup
-protocol.quit()
+### Managed Nodes (Automatic Cleanup)
+
+`managed_synth()` and `managed_group()` create nodes that are automatically freed on context exit, even if an exception occurs:
+
+```python
+import time
+from nanosynth import Server
+
+with Server() as server:
+    synthdef.send(server)
+    time.sleep(0.1)
+
+    with server.managed_synth("sine", frequency=440.0, amplitude=0.3) as node:
+        print(f"Playing node {node}...")
+        time.sleep(2.0)
+    # node freed automatically here
+
+    # Group multiple voices and free them together
+    with server.managed_group(target=1) as group:
+        server.synth("sine", target=group, frequency=261.63, amplitude=0.2)
+        server.synth("sine", target=group, frequency=329.63, amplitude=0.2)
+        server.synth("sine", target=group, frequency=392.00, amplitude=0.2)
+        time.sleep(2.0)
+    # entire group freed here
+```
+
+### Debugging SynthDef Graphs
+
+`SynthDef.dump_ugens()` prints a human-readable UGen graph (like SuperCollider's `SynthDef.dumpUGens`):
+
+```python
+print(synthdef.dump_ugens())
+# SynthDef: sine
+#   0: Control.kr - frequency, amplitude
+#   1: SinOsc.ar(frequency: Control[0], phase: 0.0)
+#   2: BinaryOpUGen.ar(MULTIPLICATION, a: SinOsc[0], b: Control[1])
+#   ...
 ```
 
 ### OSC Codec
@@ -466,7 +504,9 @@ make reset       # clean everything including build cache
 
 ### CI
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CPython 3.10--3.13 on macOS ARM64, Linux x86_64, and Windows x86_64 using [cibuildwheel](https://cibuildwheel.pypa.io). An sdist is built separately and all artifacts are aggregated into a single downloadable archive. The workflow runs on pushes to `main`, pull requests, and manual dispatch.
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CPython 3.10--3.14 on macOS ARM64, Linux x86_64, and Windows x86_64 using [cibuildwheel](https://cibuildwheel.pypa.io). A `qa` job runs lint, format check, typecheck, and tests on every push. An sdist is built separately and all artifacts are aggregated into a single downloadable archive.
+
+A separate release workflow (`.github/workflows/release.yml`) publishes to PyPI on tag push via trusted publisher, with manual dispatch for TestPyPI.
 
 ## Attributions
 

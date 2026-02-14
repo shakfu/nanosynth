@@ -148,16 +148,19 @@ static std::tuple<const uint8_t*, size_t, size_t> decode_blob(const uint8_t* dat
     return {blob_data, actual_length, offset + padded};
 }
 
+// Maximum recursion depth for nested OSC blob parsing to prevent stack overflow.
+static constexpr int MAX_DECODE_DEPTH = 16;
+
 // --- Forward declarations for encode/decode ---
 
 // Encode a single value. Appends type tags to `type_tags` and data to `encoded`.
 static void encode_value(nb::handle value, std::string& type_tags, std::vector<uint8_t>& encoded);
 
 // Decode a full message from raw data. Returns Python OscMessage.
-static nb::object decode_message_from_raw(const uint8_t* data, size_t len);
+static nb::object decode_message_from_raw(const uint8_t* data, size_t len, int depth = 0);
 
 // Decode a full bundle from raw data. Returns Python OscBundle.
-static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len);
+static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len, int depth = 0);
 
 
 static const uint8_t BUNDLE_PREFIX_BYTES[] = {'#','b','u','n','d','l','e','\0'};
@@ -263,7 +266,19 @@ static nb::bytes encode_message_int_address(int32_t address, nb::args contents) 
 
 // --- Decode ---
 
-static nb::tuple decode_message_clean(const uint8_t* data, size_t len) {
+// Minimum payload bytes required per type tag for aggregate bounds checking.
+static size_t min_bytes_for_tag(char tag) {
+    switch (tag) {
+        case 'i': case 'f': return 4;
+        case 'd': return 8;
+        case 's': return 4;  // at least 1 char + null + padding = 4
+        case 'b': return 4;  // at least the 4-byte size prefix
+        case 'T': case 'F': case 'N': case '[': case ']': return 0;
+        default: return 0;
+    }
+}
+
+static nb::tuple decode_message_clean(const uint8_t* data, size_t len, int depth = 0) {
     size_t offset = 0;
 
     auto [address, off1] = decode_string(data, offset, len);
@@ -271,6 +286,15 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len) {
 
     auto [type_tags, off2] = decode_string(data, offset, len);
     offset = off2;
+
+    // Pre-validate that remaining payload has enough bytes for all type tags.
+    size_t min_required = 0;
+    for (size_t i = 1; i < type_tags.size(); i++) {
+        min_required += min_bytes_for_tag(type_tags[i]);
+    }
+    if (offset + min_required > len) {
+        throw std::runtime_error("payload too small for type tags");
+    }
 
     // Use a vector of Python list handles for the array stack
     nb::list top_contents;
@@ -312,17 +336,19 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len) {
                 offset = off4;
                 nb::object parsed;
                 bool did_parse = false;
-                if (starts_with_bundle(blob_data, blob_size)) {
-                    try {
-                        parsed = decode_bundle_from_raw(blob_data, blob_size);
-                        did_parse = true;
-                    } catch (...) { PyErr_Clear(); }
-                }
-                if (!did_parse) {
-                    try {
-                        parsed = decode_message_from_raw(blob_data, blob_size);
-                        did_parse = true;
-                    } catch (...) { PyErr_Clear(); }
+                if (depth < MAX_DECODE_DEPTH) {
+                    if (starts_with_bundle(blob_data, blob_size)) {
+                        try {
+                            parsed = decode_bundle_from_raw(blob_data, blob_size, depth + 1);
+                            did_parse = true;
+                        } catch (...) { PyErr_Clear(); }
+                    }
+                    if (!did_parse) {
+                        try {
+                            parsed = decode_message_from_raw(blob_data, blob_size, depth + 1);
+                            did_parse = true;
+                        } catch (...) { PyErr_Clear(); }
+                    }
                 }
                 if (did_parse) {
                     array_stack.back().append(parsed);
@@ -361,19 +387,16 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len) {
 
 // Decode message: returns (address, contents) where blobs that parse as
 // OscBundle/OscMessage are returned as such (Python-level objects).
-static nb::object decode_message_from_raw(const uint8_t* data, size_t len) {
+static nb::object decode_message_from_raw(const uint8_t* data, size_t len, int depth) {
     // Import the Python OscMessage class and construct from decoded data
     nb::module_ osc_mod = nb::module_::import_("nanosynth.osc");
     nb::object OscMessage_cls = osc_mod.attr("OscMessage");
-    nb::object OscBundle_cls = osc_mod.attr("OscBundle");
 
-    auto result = decode_message_clean(data, len);
+    auto result = decode_message_clean(data, len, depth);
     nb::str address = nb::cast<nb::str>(result[0]);
     nb::list contents = nb::cast<nb::list>(result[1]);
 
     // Construct OscMessage(address, *contents)
-    nb::tuple args = nb::make_tuple(address);
-    // Build full args tuple
     nb::list all_args;
     all_args.append(address);
     for (size_t i = 0; i < nb::len(contents); i++) {
@@ -382,7 +405,9 @@ static nb::object decode_message_from_raw(const uint8_t* data, size_t len) {
     return OscMessage_cls(*nb::tuple(all_args));
 }
 
-static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len) {
+static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len, int depth) {
+    if (depth > MAX_DECODE_DEPTH)
+        throw std::runtime_error("OSC bundle nesting exceeds maximum depth");
     if (!starts_with_bundle(data, len))
         throw std::runtime_error("datagram is not a bundle");
 
@@ -420,9 +445,9 @@ static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len) {
             throw std::runtime_error("truncated bundle element");
         const uint8_t* element_data = data + offset;
         if (starts_with_bundle(element_data, element_len)) {
-            bundle_contents.append(decode_bundle_from_raw(element_data, element_len));
+            bundle_contents.append(decode_bundle_from_raw(element_data, element_len, depth + 1));
         } else {
-            bundle_contents.append(decode_message_from_raw(element_data, element_len));
+            bundle_contents.append(decode_message_from_raw(element_data, element_len, depth + 1));
         }
         offset += element_len;
     }

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1]
+
 ### Added
 
 - `Server` class (`nanosynth.server`) -- high-level wrapper around the embedded scsynth engine with boot/quit lifecycle, node ID allocation, SynthDef dispatch, and convenience methods (`synth`, `group`, `free`, `set`). Supports context manager usage
@@ -21,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OSC test suite now runs all 24 tests against both the C++ and pure-Python backends (48 total)
 - `EmbeddedProcessProtocol` state machine tests: initial state, quit no-op, send errors when offline, callback storage, boot-when-active guard
 - Test coverage for `SynthDefBuilder` cross-scope errors, graph optimization (`_optimize`/`_eliminate`), `Envelope.linen`/`.triangle`/`.asr` factory methods, multi-channel UGens (`In`, `PanAz`, `DecodeB2`), `compile_synthdefs` with multiple SynthDefs, demand-rate UGens (`Dseq`, `Drand`, `Duty`, etc.), and `@synthdef` decorator (trigger/audio/lag rates, complex graphs) -- 54 new tests (322 -> 376)
+- `qa` CI job: runs ruff lint, ruff format check, mypy --strict, and pytest against the source tree on every push/PR
+- Release workflow (`release.yml`): tag-triggered publish to PyPI via trusted publisher, `workflow_dispatch` for TestPyPI, auto-generated GitHub Release
+- Docstrings on `SynthDefBuilder.build()`, `.add_parameter()`, and `.__getitem__()`
+- Plugin loading validation: `_options_to_world_kwargs()` logs a warning when no UGen plugins path is found
 
 ### Fixed
 
@@ -29,9 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows CI build failure caused by Strawberry Perl's incompatible ccache crashing MSVC (`STATUS_ENTRYPOINT_NOT_FOUND`); disabled SC's ccache integration on Windows
 - nanobind 2.11 compatibility: replaced capturing lambda in `_scsynth.cpp` capsule constructor with `WorldHandle` struct and non-capturing cleanup function
 - Removed 11 `type: ignore[arg-type]` suppressions from `EnvGen` by widening `UGen.__init__`, `_new_single`, and `_new_expanded` kwargs to `UGenRecursiveInput | None`
+- OSC decoder unbounded recursion: `_osc.cpp` blob/bundle recursive parsing now enforces a maximum nesting depth of 16 levels; beyond the limit, blobs are returned as raw bytes
+- OSC decoder aggregate bounds checking: `decode_message_clean` pre-validates that the payload has enough bytes for all type tags before entering the decode loop
+- `world_send_packet` `const_cast` removal: OSC packet data is now copied into a `std::vector<char>` before passing to `World_SendPacket`, eliminating undefined behavior from casting away const on Python bytes
+- `scsynth_print_func` buffer overflow: replaced fixed 4096-byte stack buffer with a two-pass approach that dynamically allocates when the formatted message exceeds the stack buffer
 
 ### Changed
 
+- Protected `EmbeddedProcessProtocol._active_world` with `threading.Lock` to prevent race conditions on concurrent `boot()` calls
 - Cleaned up `Envelope.serialize()` and `UGenSerializable.serialize()` signatures: removed unused `**kwargs` parameter, added docstring documenting the wire format
 - Extracted 6 enum classes (`CalculationRate`, `ParameterRate`, `BinaryOperator`, `UnaryOperator`, `DoneAction`, `EnvelopeShape`) from `synthdef.py` into `enums.py`
 - Extracted SCgf binary compiler (`_compile_*`, `_encode_*`, `compile_synthdefs`) from `synthdef.py` into `compiler.py`

@@ -31,36 +31,36 @@ Remaining improvement tasks, grouped by category.
 
 ## CI / Build
 
-- [ ] **Add `make qa` CI job.** CI only runs `pytest` via cibuildwheel. A separate job running `make qa` would catch lint/type regressions.
-- [ ] **Python 3.14 classifier mismatch.** `CIBW_BUILD` includes 3.14 but `pyproject.toml` classifiers list up to 3.13. Reconcile.
+- [x] **`qa` CI job.** Runs lint, format check, typecheck, and pytest against the source tree on every push/PR.
+- [x] **Python 3.14 classifier.** Both `CIBW_BUILD` and `pyproject.toml` classifiers include 3.14.
 - [ ] **Source-tree test matrix.** No CI job runs `make test` against the source tree across Python versions (only via cibuildwheel against built wheels).
-- [ ] **Release workflow.** No automation for publishing to PyPI. Add a tag-triggered or `workflow_dispatch` job.
+- [x] **Release workflow.** Tag-triggered publish to PyPI via trusted publisher (`gh-action-pypi-publish`), with `workflow_dispatch` for TestPyPI. Creates GitHub Release with auto-generated notes.
 
 ---
 
 ## C++ Safety
 
-- [ ] **OSC decoder: unbounded recursion.** `_osc.cpp` blob parsing recursively tries to parse as bundle/message with no depth limit. Enforce a reasonable limit (e.g., 16 levels).
-- [ ] **OSC decoder: aggregate bounds checking.** Type tag loop can advance offset past buffer if many tags but undersized payload. Pre-validate aggregate data size.
-- [ ] **Remove `const_cast` in `world_send_packet`.** `const_cast<char*>(data.c_str())` is safe today but fragile. A defensive copy into `std::vector<char>` would be safer.
-- [ ] **C++ print buffer overflow.** `scsynth_print_func` uses a fixed 4096-byte stack buffer. SC can produce longer messages during verbose plugin loading. Consider dynamic allocation.
+- [x] **OSC decoder: unbounded recursion.** `_osc.cpp` blob parsing recursively tries to parse as bundle/message with no depth limit. Enforce a reasonable limit (e.g., 16 levels).
+- [x] **OSC decoder: aggregate bounds checking.** Type tag loop can advance offset past buffer if many tags but undersized payload. Pre-validate aggregate data size.
+- [x] **Remove `const_cast` in `world_send_packet`.** `const_cast<char*>(data.c_str())` is safe today but fragile. A defensive copy into `std::vector<char>` would be safer.
+- [x] **C++ print buffer overflow.** `scsynth_print_func` uses a fixed 4096-byte stack buffer. SC can produce longer messages during verbose plugin loading. Consider dynamic allocation.
 
 ---
 
 ## Documentation
 
 - [ ] **Auto-generated API reference docs.** No Sphinx/mkdocs/pdoc setup. For 290+ UGens, auto-generated docs would be valuable.
-- [ ] **Docstrings on `SynthDefBuilder` methods.** `build()`, `add_parameter()`, `__getitem__()` have no docstrings.
+- [x] **Docstrings on `SynthDefBuilder` methods.** `build()`, `add_parameter()`, `__getitem__()` now have docstrings.
 
 ---
 
 ## Concurrency
 
-- [ ] **Lock `_active_world` class variable.** `EmbeddedProcessProtocol._active_world` is unprotected global mutable state. Concurrent `boot()` calls could race.
+- [x] **Lock `_active_world` class variable.** Protected with `threading.Lock`; all reads/writes go through the lock.
 
 ---
 
 ## Misc
 
-- [ ] **`SynthDefBuilder.__getitem__` return type.** Returns `OutputProxy | Parameter` depending on parameter shape. Dual return type is inconvenient for type checkers and users.
-- [ ] **Plugin loading validation.** If `find_ugen_plugins_path()` returns `None`, the engine boots with no UGen plugins, producing silent failure. Validate and warn.
+- [x] **`SynthDefBuilder.__getitem__` return type.** Won't fix -- the `OutputProxy | Parameter` union is correct and both types satisfy `UGenRecursiveInput`/`UGenOperable`, so arithmetic and UGen constructor usage work without type errors. Narrowing to `UGenOperable` would lose type information needed by compiler internals.
+- [x] **Plugin loading validation.** Logs a warning when no UGen plugins path is found.

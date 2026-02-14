@@ -1260,6 +1260,14 @@ class SynthDefBuilder:
         _local._active_builders.pop()
 
     def __getitem__(self, item: str) -> OutputProxy | Parameter:
+        """Look up a parameter by name.
+
+        Returns an OutputProxy for scalar parameters, or the Parameter
+        itself for multi-channel parameters (sequence values).
+
+        Raises:
+            KeyError: If the parameter name does not exist.
+        """
         parameter = self._parameters[item]
         if len(parameter) == 1:
             return cast(OutputProxy, parameter[0])
@@ -1416,6 +1424,21 @@ class SynthDefBuilder:
         rate: ParameterRate | None = ParameterRate.CONTROL,
         lag: float | None = None,
     ) -> OutputProxy | Parameter:
+        """Add a named parameter to the SynthDef.
+
+        Args:
+            name: Parameter name (must be unique within this builder).
+            value: Default value. A sequence creates a multi-channel parameter.
+            rate: Parameter rate (CONTROL, AUDIO, TRIGGER, or SCALAR).
+            lag: Lag time in seconds. Produces a LagControl when set.
+
+        Returns:
+            OutputProxy for scalar parameters, or the Parameter for
+            multi-channel parameters.
+
+        Raises:
+            ValueError: If a parameter with this name already exists.
+        """
         if name in self._parameters:
             raise ValueError(f"Duplicate parameter name: '{name}'")
         with self:
@@ -1428,6 +1451,18 @@ class SynthDefBuilder:
         return parameter
 
     def build(self, name: str | None = None, optimize: bool = True) -> SynthDef:
+        """Compile the UGen graph into a SynthDef.
+
+        Performs control mapping, topological sorting, and optional dead
+        code elimination. The builder can be reused after calling build().
+
+        Args:
+            name: SynthDef name. If None, an anonymous MD5 hash is used.
+            optimize: If True, eliminate unused pure UGens from the graph.
+
+        Returns:
+            A compiled SynthDef ready for sending to a server.
+        """
         try:
             self._building = True
             with self:

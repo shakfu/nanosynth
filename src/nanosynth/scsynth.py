@@ -165,6 +165,12 @@ def _options_to_world_kwargs(options: Options) -> dict[str, Any]:
     ugen_path = options.ugen_plugins_path or find_ugen_plugins_path()
     if ugen_path:
         kwargs["ugen_plugins_path"] = str(ugen_path)
+    else:
+        logger.warning(
+            "No UGen plugins path found. The engine will boot without UGen "
+            "plugins and produce no audio. Set the SC_PLUGIN_PATH environment "
+            "variable or install nanosynth from a wheel with bundled plugins."
+        )
     if options.restricted_path is not None:
         kwargs["restricted_path"] = options.restricted_path
     if options.password:
@@ -186,6 +192,7 @@ class EmbeddedProcessProtocol:
     """Process protocol that runs scsynth in-process via libscsynth."""
 
     _active_world: bool = False
+    _active_world_lock: threading.Lock = threading.Lock()
 
     def __init__(
         self,
@@ -229,16 +236,20 @@ class EmbeddedProcessProtocol:
         self.boot_future = concurrent.futures.Future()
         self.exit_future = concurrent.futures.Future()
 
-        if EmbeddedProcessProtocol._active_world:
-            self.boot_future.set_result(False)
-            self.status = BootStatus.OFFLINE
-            raise ServerCannotBoot("An embedded scsynth World is already running")
+        with EmbeddedProcessProtocol._active_world_lock:
+            if EmbeddedProcessProtocol._active_world:
+                self.boot_future.set_result(False)
+                self.status = BootStatus.OFFLINE
+                raise ServerCannotBoot("An embedded scsynth World is already running")
+            EmbeddedProcessProtocol._active_world = True
 
         world_kwargs = _options_to_world_kwargs(options)
 
         try:
             self._world = world_new(**world_kwargs)
         except RuntimeError as exc:
+            with EmbeddedProcessProtocol._active_world_lock:
+                EmbeddedProcessProtocol._active_world = False
             self.boot_future.set_result(False)
             self.status = BootStatus.OFFLINE
             raise ServerCannotBoot(str(exc)) from exc
@@ -248,11 +259,11 @@ class EmbeddedProcessProtocol:
 
             world_cleanup(self._world)
             self._world = None
+            with EmbeddedProcessProtocol._active_world_lock:
+                EmbeddedProcessProtocol._active_world = False
             self.boot_future.set_result(False)
             self.status = BootStatus.OFFLINE
             raise ServerCannotBoot("World_OpenUDP failed")
-
-        EmbeddedProcessProtocol._active_world = True
 
         def _on_print(text: str, _label: str = label) -> None:
             self.buffer_ += text
@@ -279,7 +290,8 @@ class EmbeddedProcessProtocol:
         was_quitting = self.status == BootStatus.QUITTING
         self.status = BootStatus.OFFLINE
         self._world = None
-        EmbeddedProcessProtocol._active_world = False
+        with EmbeddedProcessProtocol._active_world_lock:
+            EmbeddedProcessProtocol._active_world = False
         self.exit_future.set_result(0)
         if was_quitting and self.on_quit_callback:
             self.on_quit_callback()
@@ -296,7 +308,8 @@ class EmbeddedProcessProtocol:
                     world_cleanup(self._world, False)
                 self.thread.join()
         self.status = BootStatus.OFFLINE
-        EmbeddedProcessProtocol._active_world = False
+        with EmbeddedProcessProtocol._active_world_lock:
+            EmbeddedProcessProtocol._active_world = False
 
     def send_packet(self, data: bytes) -> bool:
         """Send a raw OSC packet to the engine."""

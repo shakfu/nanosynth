@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #ifdef __APPLE__
 #include <unistd.h>
@@ -31,8 +32,20 @@ static nb::object g_print_func;
 static std::mutex g_print_mutex;
 
 static int scsynth_print_func(const char* fmt, va_list ap) {
-    char buf[4096];
-    int n = vsnprintf(buf, sizeof(buf), fmt, ap);
+    // First try a stack buffer; fall back to dynamic allocation for long messages
+    // (e.g. verbose plugin loading can exceed 4096 bytes).
+    char stack_buf[4096];
+    va_list ap_copy;
+    va_copy(ap_copy, ap);
+    int n = vsnprintf(stack_buf, sizeof(stack_buf), fmt, ap);
+    char* buf = stack_buf;
+    std::vector<char> heap_buf;
+    if (n >= static_cast<int>(sizeof(stack_buf))) {
+        heap_buf.resize(static_cast<size_t>(n) + 1);
+        vsnprintf(heap_buf.data(), heap_buf.size(), fmt, ap_copy);
+        buf = heap_buf.data();
+    }
+    va_end(ap_copy);
     std::lock_guard<std::mutex> lock(g_print_mutex);
     if (g_print_func.ptr() != nullptr && !g_print_func.is_none()) {
         nb::gil_scoped_acquire gil;
@@ -264,12 +277,14 @@ static void py_world_cleanup(nb::capsule& world_cap, bool unload_plugins) {
 static bool py_world_send_packet(nb::capsule& world_cap, nb::bytes data) {
     World* world = extract_world(world_cap);
     int size = static_cast<int>(data.size());
-    // World_SendPacket takes a char* but does not modify the data.
-    char* buf = const_cast<char*>(data.c_str());
+    // Defensive copy: World_SendPacket takes char* but should not modify the
+    // data. Copying into a mutable buffer avoids undefined behavior from
+    // const_cast on the immutable Python bytes object.
+    std::vector<char> buf(data.c_str(), data.c_str() + size);
     bool result;
     {
         nb::gil_scoped_release release;
-        result = World_SendPacket(world, size, buf, noop_reply_func);
+        result = World_SendPacket(world, size, buf.data(), noop_reply_func);
     }
     return result;
 }

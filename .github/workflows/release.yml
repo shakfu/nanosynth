@@ -1,38 +1,20 @@
-name: Build
+name: Release
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Upload target"
+        required: true
+        default: "testpypi"
+        type: choice
+        options:
+          - testpypi
+          - pypi
 
 jobs:
-  qa:
-    runs-on: ubuntu-latest
-    name: qa (lint + typecheck + test)
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install dependencies
-        run: uv sync
-
-      - name: Lint
-        run: uv run ruff check src/ tests/ demos/
-
-      - name: Format check
-        run: uv run ruff format --check src/ tests/ demos/
-
-      - name: Type check
-        run: uv run mypy --strict src/
-
-      - name: Test
-        run: uv run pytest tests/
-
   build-wheels:
     strategy:
       fail-fast: false
@@ -90,10 +72,12 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  aggregate:
+  publish:
     needs: [build-wheels, build-sdist]
     runs-on: ubuntu-latest
-    name: aggregate artifacts
+    name: publish
+    permissions:
+      id-token: write
 
     steps:
       - name: Download all artifacts
@@ -105,8 +89,36 @@ jobs:
       - name: List artifacts
         run: ls -lh dist/
 
-      - name: Upload combined artifacts
-        uses: actions/upload-artifact@v4
+      - name: Publish to TestPyPI
+        if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          name: all-dist
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+
+      - name: Publish to PyPI
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
+  github-release:
+    needs: [publish]
+    runs-on: ubuntu-latest
+    name: github release
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
           path: dist/
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
