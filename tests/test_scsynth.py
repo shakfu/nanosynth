@@ -1,8 +1,18 @@
 """Basic tests for scsynth module."""
 
+import sys
+from types import ModuleType
+from unittest.mock import MagicMock
+
 import pytest
 
-from nanosynth.scsynth import BootStatus, Options, _options_to_world_kwargs
+from nanosynth.scsynth import (
+    BootStatus,
+    EmbeddedProcessProtocol,
+    Options,
+    ServerCannotBoot,
+    _options_to_world_kwargs,
+)
 
 
 class TestOptions:
@@ -106,3 +116,58 @@ class TestBootStatus:
 class TestScynthImport:
     def test_import_scsynth(self):
         from nanosynth import _scsynth  # noqa: F401
+
+
+class TestEmbeddedProcessProtocol:
+    @pytest.fixture(autouse=True)
+    def _reset_active_world(self):
+        yield
+        EmbeddedProcessProtocol._active_world = False
+
+    def test_initial_state_is_offline(self):
+        proto = EmbeddedProcessProtocol()
+        assert proto.status == BootStatus.OFFLINE
+
+    def test_quit_when_offline_is_noop(self):
+        proto = EmbeddedProcessProtocol()
+        proto.quit()
+        assert proto.status == BootStatus.OFFLINE
+
+    def test_send_packet_when_offline_raises(self):
+        proto = EmbeddedProcessProtocol()
+        with pytest.raises(RuntimeError, match="not running"):
+            proto.send_packet(b"\x00")
+
+    def test_send_msg_when_offline_raises(self):
+        proto = EmbeddedProcessProtocol()
+        with pytest.raises(RuntimeError, match="not running"):
+            proto.send_msg("/test")
+
+    def test_name_stored(self):
+        proto = EmbeddedProcessProtocol(name="test-server")
+        assert proto.name == "test-server"
+
+    def test_callbacks_stored(self):
+        on_boot = MagicMock()
+        on_quit = MagicMock()
+        on_panic = MagicMock()
+        proto = EmbeddedProcessProtocol(
+            on_boot_callback=on_boot,
+            on_quit_callback=on_quit,
+            on_panic_callback=on_panic,
+        )
+        assert proto.on_boot_callback is on_boot
+        assert proto.on_quit_callback is on_quit
+        assert proto.on_panic_callback is on_panic
+
+    def test_boot_raises_when_world_already_active(self, monkeypatch):
+        mock_scsynth = ModuleType("nanosynth._scsynth")
+        mock_scsynth.set_print_func = MagicMock()  # type: ignore[attr-defined]
+        mock_scsynth.world_new = MagicMock()  # type: ignore[attr-defined]
+        mock_scsynth.world_open_udp = MagicMock(return_value=True)  # type: ignore[attr-defined]
+        monkeypatch.setitem(sys.modules, "nanosynth._scsynth", mock_scsynth)
+        EmbeddedProcessProtocol._active_world = True
+        proto = EmbeddedProcessProtocol()
+        with pytest.raises(ServerCannotBoot, match="already running"):
+            proto.boot(Options())
+        assert proto.status == BootStatus.OFFLINE

@@ -8,9 +8,8 @@ import itertools
 from collections.abc import Iterator, Sequence
 from typing import Any, SupportsFloat, cast
 
+from .enums import CalculationRate, EnvelopeShape
 from .synthdef import (
-    CalculationRate,
-    EnvelopeShape,
     OutputProxy,
     UGen,
     UGenOperable,
@@ -311,12 +310,12 @@ class EnvGen(UGen):
     ) -> None:
         super().__init__(
             calculation_rate=calculation_rate,
-            gate=gate,  # type: ignore[arg-type]
-            level_scale=level_scale,  # type: ignore[arg-type]
-            level_bias=level_bias,  # type: ignore[arg-type]
-            time_scale=time_scale,  # type: ignore[arg-type]
-            done_action=done_action,  # type: ignore[arg-type]
-            envelope=envelope,  # type: ignore[arg-type]
+            gate=gate,
+            level_scale=level_scale,
+            level_bias=level_bias,
+            time_scale=time_scale,
+            done_action=done_action,
+            envelope=envelope,
             **kwargs,
         )
 
@@ -334,8 +333,8 @@ class EnvGen(UGen):
     ) -> UGenOperable:
         return super()._new_expanded(
             calculation_rate=calculation_rate,
-            done_action=done_action,  # type: ignore[arg-type]
-            envelope=envelope,  # type: ignore[arg-type]
+            done_action=done_action,
+            envelope=envelope,
             gate=gate,
             level_bias=level_bias,
             level_scale=level_scale,

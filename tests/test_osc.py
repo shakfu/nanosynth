@@ -4,9 +4,19 @@ import struct
 
 import pytest
 
+import nanosynth.osc
 from nanosynth.osc import OscBundle, OscMessage
 
 
+@pytest.fixture(params=["native", "python"])
+def osc_backend(request, monkeypatch):
+    if request.param == "python":
+        monkeypatch.setattr("nanosynth.osc._osc_native", None)
+    elif nanosynth.osc._osc_native is None:
+        pytest.skip("C++ OSC extension not available")
+
+
+@pytest.mark.usefixtures("osc_backend")
 class TestOscMessage:
     def test_basic_int(self):
         msg = OscMessage("/test", 42)
@@ -122,6 +132,7 @@ class TestOscMessage:
             OscMessage(3.14, 1)  # type: ignore
 
 
+@pytest.mark.usefixtures("osc_backend")
 class TestOscBundle:
     def test_basic_bundle(self):
         msg = OscMessage("/test", 1)

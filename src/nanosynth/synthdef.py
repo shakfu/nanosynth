@@ -9,7 +9,6 @@ import copy
 import enum
 import hashlib
 import operator
-import struct
 import threading
 import uuid
 from collections.abc import Sequence as SequenceABC
@@ -26,122 +25,14 @@ from typing import (
     overload,
 )
 
-
-# ---------------------------------------------------------------------------
-# Enums
-# ---------------------------------------------------------------------------
-
-
-class CalculationRate(enum.IntEnum):
-    SCALAR = 0
-    CONTROL = 1
-    AUDIO = 2
-    DEMAND = 3
-
-    @classmethod
-    def from_expr(cls, expr: object) -> "CalculationRate":
-        if expr is None:
-            return cls.SCALAR
-        if isinstance(expr, cls):
-            return expr
-        if hasattr(expr, "calculation_rate"):
-            return cast("CalculationRate", expr.calculation_rate)
-        if isinstance(expr, ParameterRate):
-            return {
-                ParameterRate.AUDIO: cls.AUDIO,
-                ParameterRate.CONTROL: cls.CONTROL,
-                ParameterRate.SCALAR: cls.SCALAR,
-                ParameterRate.TRIGGER: cls.CONTROL,
-            }[expr]
-        if isinstance(expr, (int, float, SupportsFloat)):
-            return cls.SCALAR
-        if isinstance(expr, str):
-            return cls[expr.upper()]
-        if isinstance(expr, SequenceABC):
-            return max(cls.from_expr(item) for item in expr)
-        return cls(int(cast(SupportsInt, expr)))
-
-    @property
-    def token(self) -> str:
-        return {0: "ir", 1: "kr", 2: "ar", 3: "dr"}.get(self.value, "new")
-
-
-class ParameterRate(enum.IntEnum):
-    SCALAR = 0
-    TRIGGER = 1
-    AUDIO = 2
-    CONTROL = 3
-
-    @classmethod
-    def from_expr(cls, expr: object) -> "ParameterRate":
-        if expr is None:
-            return cls.CONTROL
-        if isinstance(expr, cls):
-            return expr
-        if isinstance(expr, str):
-            token_map = {"ar": cls.AUDIO, "kr": cls.CONTROL, "ir": cls.SCALAR}
-            lower = expr.lower()
-            if lower in token_map:
-                return token_map[lower]
-            return cls[expr.upper()]
-        return cls(int(cast(SupportsInt, expr)))
-
-
-class BinaryOperator(enum.IntEnum):
-    ADDITION = 0
-    SUBTRACTION = 1
-    MULTIPLICATION = 2
-    FLOAT_DIVISION = 4
-    MODULO = 5
-
-    @classmethod
-    def from_expr(cls, expr: object) -> "BinaryOperator":
-        if isinstance(expr, cls):
-            return expr
-        return cls(int(cast(SupportsInt, expr)))
-
-
-class UnaryOperator(enum.IntEnum):
-    NEGATIVE = 0
-    ABSOLUTE_VALUE = 5
-
-    @classmethod
-    def from_expr(cls, expr: object) -> "UnaryOperator":
-        if isinstance(expr, cls):
-            return expr
-        return cls(int(cast(SupportsInt, expr)))
-
-
-class DoneAction(enum.IntEnum):
-    NOTHING = 0
-    PAUSE_SYNTH = 1
-    FREE_SYNTH = 2
-    FREE_SYNTH_AND_PRECEDING_NODE = 3
-    FREE_SYNTH_AND_FOLLOWING_NODE = 4
-    FREE_SYNTH_AND_ALL_SIBLING_NODES = 13
-    FREE_SYNTH_AND_ENCLOSING_GROUP = 14
-
-
-class EnvelopeShape(enum.IntEnum):
-    STEP = 0
-    LINEAR = 1
-    EXPONENTIAL = 2
-    SINE = 3
-    WELCH = 4
-    CUSTOM = 5
-    SQUARED = 6
-    CUBED = 7
-    HOLD = 8
-
-    @classmethod
-    def from_expr(cls, expr: object) -> "EnvelopeShape":
-        if expr is None:
-            return cls.LINEAR
-        if isinstance(expr, cls):
-            return expr
-        if isinstance(expr, str):
-            return cls[expr.upper()]
-        return cls(int(cast(SupportsInt, expr)))
+from .enums import (  # noqa: F401
+    BinaryOperator,
+    CalculationRate,
+    DoneAction,
+    EnvelopeShape,
+    ParameterRate,
+    UnaryOperator,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -389,6 +280,18 @@ def _process_class(
     cls._ordered_keys = tuple(params.keys())
     cls._unexpanded_keys = frozenset(unexpanded_keys)
     cls._valid_calculation_rates = tuple(valid_calculation_rates)  # type: ignore[attr-defined]
+    if cls.__doc__ is None:
+        rate_tokens = ", ".join(r.token for r in valid_calculation_rates)
+        lines = [f"{cls.__name__} -- {rate_tokens}" if rate_tokens else cls.__name__]
+        if params:
+            lines.append("")
+            lines.append("Parameters:")
+            for name, p in params.items():
+                if isinstance(p.default, Missing):
+                    lines.append(f"    {name} (required)")
+                else:
+                    lines.append(f"    {name} (default: {p.default})")
+        cls.__doc__ = "\n".join(lines)
     return cls
 
 
@@ -448,6 +351,8 @@ def ugen(
 
 
 class UGenSerializable:
+    __slots__ = ()
+
     def serialize(self, **kwargs: Any) -> "UGenVector":
         raise NotImplementedError
 
@@ -520,6 +425,8 @@ def _compute_unary_op(
 
 class UGenOperable:
     """Mixin for UGen arithmetic operations."""
+
+    __slots__ = ()
 
     def __abs__(self) -> "UGenOperable":
         return _compute_unary_op(
@@ -611,12 +518,16 @@ class UGenOperable:
 class UGenScalar(UGenOperable):
     """A UGen scalar."""
 
+    __slots__ = ()
+
     def __iter__(self) -> Iterator["UGenOperable"]:
         yield self
 
 
 class OutputProxy(UGenScalar):
     """A UGen output proxy -- reference to a specific output of a UGen."""
+
+    __slots__ = ("ugen", "index")
 
     def __init__(self, ugen: "UGen", index: int) -> None:
         self.ugen = ugen
@@ -643,6 +554,8 @@ class OutputProxy(UGenScalar):
 class ConstantProxy(UGenScalar):
     """Wraps a float constant, exposing UGenOperable arithmetic."""
 
+    __slots__ = ("value",)
+
     def __init__(self, value: SupportsFloat) -> None:
         self.value = float(value)
 
@@ -663,6 +576,8 @@ class ConstantProxy(UGenScalar):
 
 class UGenVector(UGenOperable, SequenceABC["UGenOperable"]):
     """A sequence of UGenOperables."""
+
+    __slots__ = ("_values",)
 
     def __init__(self, *values: SupportsFloat | UGenOperable) -> None:
         values_: list[UGen | UGenScalar | "UGenVector"] = []
@@ -710,6 +625,15 @@ _local._active_builders = []
 class UGen(UGenOperable, SequenceABC["UGenOperable"]):
     """Base class for all unit generators."""
 
+    __slots__ = (
+        "_calculation_rate",
+        "_special_index",
+        "_inputs",
+        "_input_keys",
+        "_uuid",
+        "_values",
+    )
+
     _channel_count = 1
     _has_done_flag = False
     _is_output = False
@@ -723,7 +647,7 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
         *,
         calculation_rate: CalculationRate = CalculationRate.SCALAR,
         special_index: SupportsInt = 0,
-        **kwargs: Union[UGenScalarInput, UGenVectorInput],
+        **kwargs: UGenRecursiveInput | None,
     ) -> None:
         self._calculation_rate = CalculationRate.from_expr(calculation_rate)
         self._special_index = int(special_index)
@@ -747,7 +671,7 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
                     raise ValueError(
                         f"Sequence input for '{key}' requires unexpanded=True in param()"
                     )
-                iterator: Iterable[tuple[int | None, SupportsFloat | UGenScalar]] = (
+                iterator: Iterable[tuple[int | None, Any]] = (
                     (i, v) for i, v in enumerate(value)
                 )
             else:
@@ -871,7 +795,7 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
         *,
         calculation_rate: CalculationRate | None,
         special_index: int = 0,
-        **kwargs: UGenRecursiveInput,
+        **kwargs: UGenRecursiveInput | None,
     ) -> UGenOperable:
         def recurse(all_expanded_params: UGenRecursiveParams) -> UGenOperable:
             if (
@@ -889,7 +813,10 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
                 *(recurse(expanded_params) for expanded_params in all_expanded_params)
             )
 
-        return recurse(cls._expand_params(kwargs, unexpanded_keys=cls._unexpanded_keys))
+        filtered = {k: v for k, v in kwargs.items() if v is not None}
+        return recurse(
+            cls._expand_params(filtered, unexpanded_keys=cls._unexpanded_keys)
+        )
 
     @classmethod
     def _new_single(
@@ -897,7 +824,7 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
         *,
         calculation_rate: CalculationRate | None = None,
         special_index: SupportsInt = 0,
-        **kwargs: Union[UGenScalarInput, UGenVectorInput],
+        **kwargs: UGenRecursiveInput | None,
     ) -> UGenOperable:
         ugen = cls(
             calculation_rate=CalculationRate.from_expr(calculation_rate),
@@ -990,7 +917,7 @@ class BinaryOpUGen(UGen):
         *,
         calculation_rate: CalculationRate | None = None,
         special_index: SupportsInt = 0,
-        **kwargs: Union[UGenScalarInput, UGenVectorInput],
+        **kwargs: UGenRecursiveInput | None,
     ) -> UGenOperable:
         def process(
             left: UGenScalar | float,
@@ -1467,135 +1394,7 @@ class SynthDefBuilder:
         return SynthDef(ugens, name=name)
 
 
-# ---------------------------------------------------------------------------
-# SCgf binary compiler
-# ---------------------------------------------------------------------------
-
-
-def _compile_constants(synthdef: SynthDef) -> bytes:
-    return b"".join(
-        [
-            _encode_unsigned_int_32bit(len(synthdef.constants)),
-            *(_encode_float(constant) for constant in synthdef.constants),
-        ]
-    )
-
-
-def _compile_parameters(synthdef: SynthDef) -> bytes:
-    result = [
-        _encode_unsigned_int_32bit(sum(len(control) for control in synthdef.controls))
-    ]
-    for control in synthdef.controls:
-        for parameter in control.parameters:
-            for value in parameter.value:
-                result.append(_encode_float(value))
-    result.append(_encode_unsigned_int_32bit(len(synthdef.parameters)))
-    for name, (_, index) in synthdef.parameters.items():
-        result.append(_encode_string(name) + _encode_unsigned_int_32bit(index))
-    return b"".join(result)
-
-
-def _compile_synthdef(synthdef: SynthDef, name: str) -> bytes:
-    return b"".join(
-        [
-            _encode_string(name),
-            _compile_ugen_graph(synthdef),
-        ]
-    )
-
-
-def _compile_ugen(ugen: UGen, synthdef: SynthDef) -> bytes:
-    return b"".join(
-        [
-            _encode_string(type(ugen).__name__),
-            _encode_unsigned_int_8bit(ugen.calculation_rate),
-            _encode_unsigned_int_32bit(len(ugen.inputs)),
-            _encode_unsigned_int_32bit(len(ugen)),
-            _encode_unsigned_int_16bit(int(ugen.special_index)),
-            *(_compile_ugen_input_spec(input_, synthdef) for input_ in ugen.inputs),
-            *(
-                _encode_unsigned_int_8bit(ugen.calculation_rate)
-                for _ in range(len(ugen))
-            ),
-        ]
-    )
-
-
-def _compile_ugens(synthdef: SynthDef) -> bytes:
-    return b"".join(
-        [
-            _encode_unsigned_int_32bit(len(synthdef.ugens)),
-            *(_compile_ugen(ugen, synthdef) for ugen in synthdef.ugens),
-        ]
-    )
-
-
-def _compile_ugen_graph(synthdef: SynthDef) -> bytes:
-    return b"".join(
-        [
-            _compile_constants(synthdef),
-            _compile_parameters(synthdef),
-            _compile_ugens(synthdef),
-            _encode_unsigned_int_16bit(0),  # no variants
-        ]
-    )
-
-
-def _compile_ugen_input_spec(input_: OutputProxy | float, synthdef: SynthDef) -> bytes:
-    if isinstance(input_, float):
-        return _encode_unsigned_int_32bit(0xFFFFFFFF) + _encode_unsigned_int_32bit(
-            synthdef._constants.index(input_)
-        )
-    else:
-        return _encode_unsigned_int_32bit(
-            synthdef._ugens.index(input_.ugen)
-        ) + _encode_unsigned_int_32bit(input_.index)
-
-
-def _encode_string(value: str) -> bytes:
-    return struct.pack(">B", len(value)) + value.encode("ascii")
-
-
-def _encode_float(value: float) -> bytes:
-    return struct.pack(">f", value)
-
-
-def _encode_unsigned_int_8bit(value: int) -> bytes:
-    return struct.pack(">B", value)
-
-
-def _encode_unsigned_int_16bit(value: int) -> bytes:
-    return struct.pack(">H", value)
-
-
-def _encode_unsigned_int_32bit(value: int) -> bytes:
-    return struct.pack(">I", value)
-
-
-def compile_synthdefs(
-    synthdef: SynthDef,
-    *synthdefs: SynthDef,
-    use_anonymous_names: bool = False,
-) -> bytes:
-    synthdefs_ = (synthdef,) + synthdefs
-    return b"".join(
-        [
-            b"SCgf",
-            _encode_unsigned_int_32bit(2),
-            _encode_unsigned_int_16bit(len(synthdefs_)),
-            *(
-                _compile_synthdef(
-                    sd,
-                    (
-                        sd.anonymous_name
-                        if not sd.name or use_anonymous_names
-                        else sd.name
-                    ),
-                )
-                for sd in synthdefs_
-            ),
-        ]
-    )
+from .compiler import _compile_ugen_graph, compile_synthdefs  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

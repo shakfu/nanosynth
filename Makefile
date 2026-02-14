@@ -14,7 +14,7 @@ dev:
 sync:
 	@uv sync --reinstall-package nanosynth
 
-remake: reset sync test
+remake: reset sync qa
 
 build: ## Build wheel (incremental via build cache)
 	@rm -rf dist/

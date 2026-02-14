@@ -2,16 +2,15 @@
 
 __version__ = "0.1.0"
 
+from .enums import CalculationRate, DoneAction
 from .osc import OscBundle, OscMessage, find_free_port
 from .scsynth import EmbeddedProcessProtocol, Options, find_ugen_plugins_path
+from .compiler import compile_synthdefs
 from .synthdef import (
-    CalculationRate,
-    DoneAction,
     Param,
     SynthDef,
     SynthDefBuilder,
     UGen,
-    compile_synthdefs,
     param,
     synthdef,
     ugen,

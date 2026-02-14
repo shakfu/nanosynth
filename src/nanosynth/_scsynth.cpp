@@ -54,6 +54,11 @@ struct WorldStrings {
     std::string output_streams_enabled;
 };
 
+struct WorldHandle {
+    World* world;
+    WorldStrings* strings;
+};
+
 // ---------------------------------------------------------------------------
 // No-op reply function for World_SendPacket (avoids null dereference when
 // scsynth internally replies to commands like /quit or /notify).
@@ -172,14 +177,16 @@ static nb::capsule py_world_new(
         throw std::runtime_error("World_New failed");
     }
 
-    // Return World* as an opaque capsule. The destructor cleans up strings.
-    // World cleanup is handled explicitly via world_cleanup / world_wait_for_quit.
-    return nb::capsule(world, "World", [strings](void* p) noexcept {
+    // Pack World* and WorldStrings* into a single handle so the capsule
+    // destructor (a plain function pointer) can clean up both.
+    auto* handle = new WorldHandle{world, strings};
+    return nb::capsule(handle, "WorldHandle", [](void* p) noexcept {
+        auto* h = static_cast<WorldHandle*>(p);
         // Note: we do NOT call World_Cleanup here because the user should
         // explicitly manage the world lifecycle. If they forget, the world
         // was already cleaned up by world_wait_for_quit or world_cleanup.
-        delete strings;
-        (void)p;
+        delete h->strings;
+        delete h;
     });
 }
 
@@ -187,7 +194,7 @@ static World* extract_world(nb::capsule& cap) {
     if (!cap.data()) {
         throw std::runtime_error("World handle is null (already cleaned up?)");
     }
-    return static_cast<World*>(cap.data());
+    return static_cast<WorldHandle*>(cap.data())->world;
 }
 
 static bool py_world_open_udp(nb::capsule& world_cap, const std::string& bind_to, int port) {

@@ -62,10 +62,10 @@ dev = [
     "auditwheel>=6.0; sys_platform == 'linux'",
     "delvewheel>=1.9; sys_platform == 'win32'",
     "scikit-build-core>=0.8",
-    "nanobind",
+    "nanobind>=2.11,<3",
 ]
 
 [build-system]
-requires = ["scikit-build-core>=0.8", "nanobind"]
+requires = ["scikit-build-core>=0.8", "nanobind>=2.11,<3"]
 build-backend = "scikit_build_core.build"
 
