@@ -44,7 +44,8 @@ def main() -> None:
             duration_distribution=1,  # linear distribution for dur walks
             amplitude_scale=0.5,
             duration_scale=0.5,
-            frequency=freq,
+            min_frequency=freq,
+            max_frequency=freq * 2.0,
             init_cps=12,
         )
         sig = LPF.ar(source=sig, frequency=4000.0)
@@ -68,7 +69,8 @@ def main() -> None:
             duration_distribution=3,
             amplitude_scale=0.4,
             duration_scale=0.4,
-            frequency=300.0,
+            min_frequency=200.0,
+            max_frequency=400.0,
             init_cps=16,
             a=1.17,  # Lehmer parameters
             c=0.31,
@@ -88,6 +90,7 @@ def main() -> None:
     print(f"SynthDef '{gendy2_def.name}' compiled: {len(gendy2_def.compile())} bytes")
 
     # -- SynthDef 3: Gendy3 -- distinct stochastic character ------------------
+    # Gendy3 uses a single frequency (no min/max), different from Gendy1/2.
     with SynthDefBuilder(amplitude=0.2) as builder:
         sig = Gendy3.ar(
             amplitude_distribution=2,  # quadratic distribution

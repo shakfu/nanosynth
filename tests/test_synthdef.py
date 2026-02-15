@@ -23,6 +23,7 @@ from nanosynth.synthdef import (
     UGenVector,
     UnaryOpUGen,
     compile_synthdefs,
+    control,
     param,
     synthdef,
     ugen,
@@ -1727,3 +1728,250 @@ class TestExtendedOperators:
         sd = builder.build(name="test")
         ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
         assert any(o.operator == BinaryOperator.NOT_EQUAL for o in ops)
+
+
+class TestUGenOperableBoolTrap:
+    """Test that UGenOperable raises TypeError in boolean context."""
+
+    def test_output_proxy_bool_raises(self):
+        with SynthDefBuilder():
+            sig = SinOsc.ar()
+            with pytest.raises(
+                TypeError, match="Cannot use UGen expressions in boolean context"
+            ):
+                if sig:
+                    pass
+
+    def test_constant_proxy_bool_raises(self):
+        cp = ConstantProxy(1.0)
+        with pytest.raises(
+            TypeError, match="Cannot use UGen expressions in boolean context"
+        ):
+            if cp:
+                pass
+
+    def test_ugen_vector_bool_raises(self):
+        with SynthDefBuilder():
+            sig = SinOsc.ar(frequency=[440, 880])
+            with pytest.raises(
+                TypeError, match="Cannot use UGen expressions in boolean context"
+            ):
+                if sig:
+                    pass
+
+    def test_comparison_result_bool_raises(self):
+        with SynthDefBuilder():
+            sig = SinOsc.ar()
+            comparison = sig > 0
+            with pytest.raises(
+                TypeError, match="Cannot use UGen expressions in boolean context"
+            ):
+                if comparison:
+                    pass
+
+    def test_constant_proxy_eq_still_returns_bool(self):
+        """ConstantProxy.__eq__ should still return a plain bool."""
+        cp1 = ConstantProxy(1.0)
+        cp2 = ConstantProxy(1.0)
+        assert cp1 == cp2  # Should work fine, returns bool
+        assert not (cp1 == ConstantProxy(2.0))
+
+
+class TestThreadLocalGuard:
+    """Test that the centralized _get_active_builders works across threads."""
+
+    def test_builders_isolated_across_threads(self):
+        import threading
+
+        from nanosynth.synthdef import _get_active_builders
+
+        results: list[int] = []
+
+        def thread_fn() -> None:
+            builders = _get_active_builders()
+            results.append(len(builders))
+
+        t = threading.Thread(target=thread_fn)
+        t.start()
+        t.join()
+        assert results == [0]
+
+    def test_builders_accessible_in_main_thread(self):
+        from nanosynth.synthdef import _get_active_builders
+
+        builders = _get_active_builders()
+        assert isinstance(builders, list)
+
+
+class TestTopologicalSortDescendantOrdering:
+    """Test that descendants are sorted by their position in the UGen list."""
+
+    def test_sort_produces_valid_order(self):
+        """A graph with branching should sort correctly."""
+        with SynthDefBuilder(freq=440.0) as builder:
+            sig = SinOsc.ar(frequency=builder["freq"])
+            filtered = LPF.ar(source=sig, frequency=1000)
+            Out.ar(bus=0, source=filtered)
+        sd = builder.build(name="test")
+        # The topological sort should place Control before SinOsc,
+        # SinOsc before LPF, and LPF before Out
+        ugen_types = [type(u).__name__ for u in sd.ugens]
+        assert ugen_types.index("Control") < ugen_types.index("SinOsc")
+        assert ugen_types.index("SinOsc") < ugen_types.index("LPF")
+        assert ugen_types.index("LPF") < ugen_types.index("Out")
+
+    def test_fan_out_graph_sorts_correctly(self):
+        """A single source feeding multiple consumers should sort correctly."""
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar(frequency=440)
+            # Two independent consumers of the same signal
+            left = sig * 0.5
+            right = sig * 0.3
+            Out.ar(bus=0, source=left)
+            Out.ar(bus=1, source=right)
+        sd = builder.build(name="test", optimize=False)
+        # SinOsc should come before both BinaryOpUGens
+        ugen_types = [type(u).__name__ for u in sd.ugens]
+        sin_idx = ugen_types.index("SinOsc")
+        for i, u in enumerate(sd.ugens):
+            if isinstance(u, BinaryOpUGen):
+                assert i > sin_idx
+
+
+class TestServerProtocol:
+    """Test that ServerProtocol structural typing works."""
+
+    def test_protocol_isinstance_check(self):
+        from nanosynth.synthdef import ServerProtocol
+
+        class FakeServer:
+            def send_synthdef(self, synthdef: SynthDef) -> None:
+                pass
+
+            def synth(
+                self, name: str, target: int = 1, action: int = 0, **params: float
+            ) -> int:
+                return 0
+
+        assert isinstance(FakeServer(), ServerProtocol)
+
+    def test_synthdef_send_with_protocol(self):
+        from unittest.mock import MagicMock
+
+        mock_server = MagicMock(spec=["send_synthdef", "synth"])
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        sd.send(mock_server)
+        mock_server.send_synthdef.assert_called_once_with(sd)
+
+
+# ---------------------------------------------------------------------------
+# control() function tests
+# ---------------------------------------------------------------------------
+
+
+class TestControlFunction:
+    def test_control_returns_parameter(self):
+        p = control(440.0)
+        assert isinstance(p, Parameter)
+        assert p.value == (440.0,)
+
+    def test_control_default_rate_is_control(self):
+        p = control(440.0)
+        assert p.rate == ParameterRate.CONTROL
+
+    def test_control_audio_rate_string(self):
+        p = control(440.0, rate="ar")
+        assert p.rate == ParameterRate.AUDIO
+
+    def test_control_scalar_rate_string(self):
+        p = control(0, rate="ir")
+        assert p.rate == ParameterRate.SCALAR
+
+    def test_control_trigger_rate_string(self):
+        p = control(1.0, rate="tr")
+        assert p.rate == ParameterRate.TRIGGER
+
+    def test_control_rate_enum(self):
+        p = control(440.0, rate=ParameterRate.AUDIO)
+        assert p.rate == ParameterRate.AUDIO
+
+    def test_control_with_lag(self):
+        p = control(0.3, lag=0.1)
+        assert p.lag == 0.1
+
+    def test_control_sequence_value(self):
+        p = control([1.0, 2.0, 3.0])
+        assert p.value == (1.0, 2.0, 3.0)
+
+    def test_control_in_synthdefbuilder(self):
+        """control() works as a SynthDefBuilder kwarg."""
+        with SynthDefBuilder(
+            freq=control(440.0, rate="ar"),
+            amp=control(0.3, lag=0.1),
+        ) as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=builder["freq"]) * builder["amp"])
+        sd = builder.build(name="test_control")
+        params = sd.parameters
+        assert "freq" in params
+        assert "amp" in params
+        freq_param, _ = params["freq"]
+        amp_param, _ = params["amp"]
+        assert freq_param.rate == ParameterRate.AUDIO
+        assert amp_param.lag == 0.1
+
+
+# ---------------------------------------------------------------------------
+# Tuple syntax tests
+# ---------------------------------------------------------------------------
+
+
+class TestTupleSyntax:
+    def test_two_element_tuple(self):
+        """(rate, value) tuple creates parameter with correct rate."""
+        with SynthDefBuilder(freq=("ar", 440.0)) as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=builder["freq"]))
+        sd = builder.build(name="test_tuple2")
+        freq_param, _ = sd.parameters["freq"]
+        assert freq_param.rate == ParameterRate.AUDIO
+        assert freq_param.value == (440.0,)
+
+    def test_three_element_tuple(self):
+        """(rate, value, lag) tuple creates parameter with rate and lag."""
+        with SynthDefBuilder(amp=("kr", 0.5, 0.1)) as builder:
+            Out.ar(bus=0, source=SinOsc.ar() * builder["amp"])
+        sd = builder.build(name="test_tuple3")
+        amp_param, _ = sd.parameters["amp"]
+        assert amp_param.rate == ParameterRate.CONTROL
+        assert amp_param.value == (0.5,)
+        assert amp_param.lag == 0.1
+
+    def test_invalid_tuple_length(self):
+        """Tuple with wrong number of elements raises ValueError."""
+        with pytest.raises(ValueError, match="2 or 3 elements"):
+            SynthDefBuilder(freq=("ar", 440.0, 0.1, "extra"))  # type: ignore[arg-type]
+
+    def test_scalar_rate_tuple(self):
+        """(ir, value) tuple for scalar rate."""
+        with SynthDefBuilder(bus=("ir", 0.0)) as builder:
+            Out.ar(bus=builder["bus"], source=SinOsc.ar())
+        sd = builder.build(name="test_ir")
+        bus_param, _ = sd.parameters["bus"]
+        assert bus_param.rate == ParameterRate.SCALAR
+
+    def test_mixed_kwarg_styles(self):
+        """Different kwarg styles can be mixed in one builder."""
+        with SynthDefBuilder(
+            freq=control(440.0, rate="ar"),
+            amp=("kr", 0.3, 0.1),
+            bus=0.0,
+        ) as builder:
+            Out.ar(
+                bus=builder["bus"],
+                source=SinOsc.ar(frequency=builder["freq"]) * builder["amp"],
+            )
+        sd = builder.build(name="test_mixed")
+        assert "freq" in sd.parameters
+        assert "amp" in sd.parameters
+        assert "bus" in sd.parameters

@@ -92,7 +92,12 @@ class ParameterRate(enum.IntEnum):
         if isinstance(expr, cls):
             return expr
         if isinstance(expr, str):
-            token_map = {"ar": cls.AUDIO, "kr": cls.CONTROL, "ir": cls.SCALAR}
+            token_map = {
+                "ar": cls.AUDIO,
+                "kr": cls.CONTROL,
+                "ir": cls.SCALAR,
+                "tr": cls.TRIGGER,
+            }
             lower = expr.lower()
             if lower in token_map:
                 return token_map[lower]
@@ -210,6 +215,26 @@ class UnaryOperator(enum.IntEnum):
         if isinstance(expr, cls):
             return expr
         return cls(int(cast(SupportsInt, expr)))
+
+
+class AddAction(enum.IntEnum):
+    """Node placement action for synth and group creation.
+
+    Controls where a new node is placed relative to the target node
+    in the server's node tree:
+
+    - ``ADD_TO_HEAD`` (0) -- add to the head of the target group (default).
+    - ``ADD_TO_TAIL`` (1) -- add to the tail of the target group.
+    - ``ADD_BEFORE`` (2) -- add immediately before the target node.
+    - ``ADD_AFTER`` (3) -- add immediately after the target node.
+    - ``REPLACE`` (4) -- replace the target node.
+    """
+
+    ADD_TO_HEAD = 0
+    ADD_TO_TAIL = 1
+    ADD_BEFORE = 2
+    ADD_AFTER = 3
+    REPLACE = 4
 
 
 class DoneAction(enum.IntEnum):

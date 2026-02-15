@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`Synth` / `Group` proxy objects**: `Server.synth()` and `Server.group()` now return lightweight `Synth` and `Group` proxy objects instead of raw ints. Proxies support `.set(**params)`, `.free()`, context manager usage (`with server.synth(...) as node:`), and are fully int-compatible via `__int__()`, `__index__()`, `__eq__()`, and `__hash__()`. `managed_synth()` and `managed_group()` also yield proxies. Existing code comparing against ints continues to work unchanged
+- **`control()` function**: convenience constructor for SynthDef parameters with rate and lag metadata -- `control(440.0, rate="ar")` is equivalent to `Parameter(value=440.0, rate=ParameterRate.AUDIO)`. Accepts string rate tokens (`"ar"`, `"kr"`, `"ir"`, `"tr"`) or `ParameterRate` enum values
+- **Tuple syntax for `SynthDefBuilder`**: parameters can be specified as tuples -- `SynthDefBuilder(freq=("ar", 440.0))` for `(rate, value)` or `SynthDefBuilder(amp=("kr", 0.5, 0.1))` for `(rate, value, lag)`. Works alongside `float`, `Parameter`, and `control()` styles
+- **Trimmed `__all__` exports**: `from nanosynth import *` now exports ~60 names (core API + 29 common UGens) instead of 340+. The full UGen set remains available via `from nanosynth.ugens import *` or qualified imports
+
 - **Extended operators**: `BinaryOperator` expanded from 7 to 43 entries, `UnaryOperator` from 2 to 34, covering SC's full practical operator set (power, integer division, comparisons, bitwise ops, trig, pitch conversion, clipping, ring modulation, etc.)
 - **Operator methods on UGenOperable**: 16 new dunder methods (`__pow__`, `__floordiv__`, `__le__`, `__ge__`, `__and__`, `__or__`, `__xor__`, `__lshift__`, `__rshift__` and their reverse variants), `equal()`/`not_equal()` explicit comparison methods, 25 named binary methods (`min_`, `max_`, `clip2`, `fold2`, `wrap2`, `ring1`--`ring4`, `atan2`, `hypot`, etc.), and 32 named unary methods (`midicps`, `cpsmidi`, `dbamp`, `ampdb`, `tanh_`, `softclip`, `distort`, `squared`, `sqrt_`, `exp_`, `log_`, `sin_`, `cos_`, etc.)
 - **Constant folding** for new operators: `POWER`, `INTEGER_DIVISION`, `MINIMUM`, `MAXIMUM`, comparison ops, and all math-stdlib unary ops fold `float op float` at compile time
@@ -24,10 +29,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `osc.py`: `OscMessage`, `OscBundle` with public method docstrings (`to_datagram`, `from_datagram`, `to_list`), `find_free_port()`
   - `scsynth.py`: `Options` with commonly adjusted fields, `BootStatus`, `ServerCannotBoot`, `EmbeddedProcessProtocol.boot()` and `.quit()`
   - `compiler.py`: `compile_synthdefs()` with Args/Returns documenting the SCgf binary format
+- **`AddAction` enum** (`enums.py`): `ADD_TO_HEAD`, `ADD_TO_TAIL`, `ADD_BEFORE`, `ADD_AFTER`, `REPLACE` -- replaces opaque raw ints in `Server.synth()`, `Server.group()`, and their managed variants. Raw int values still accepted for backwards compatibility
+- **`ServerProtocol`** structural type (`synthdef.py`): `SynthDef.send()` and `SynthDef.play()` now accept any object satisfying `ServerProtocol` instead of `Any`, restoring type safety without circular imports
 
 ### Fixed
 
+- **Gendy1/2/3 parameter wire order** (`gendyn.py`): all three Gendy UGens had incorrect parameter ordering and counts vs the C++ plugin (`GendynUGens.cpp`). Gendy1/2 had a single `frequency` where SC expects `min_frequency`/`max_frequency`, and had four distribution parameters (`amplitude_parameter_one/two`, `duration_parameter_one/two`) where SC expects two (`amplitude_parameter`, `duration_parameter`). Wire positions 2--10 were all wrong, causing silence or garbage output. Gendy3's parameter order was also incorrect (it has a different layout from Gendy1/2 in the C++ -- single `frequency`, no min/max). All three now match their `ZIN0()` indices exactly
+- **Klank audio rate** (`ffsinosc.py`): `Klank.ar()` passed `calculation_rate=None` to `_new_expanded`, which resolved to `CalculationRate.SCALAR` -- the filter bank was computed once at init instead of processing audio samples per block. Changed to `CalculationRate.AUDIO`
+- **`ParameterRate.from_expr("tr")`**: the `"tr"` token for trigger rate was missing from the string-to-enum mapping, causing `KeyError` when using `control(rate="tr")`. Added alongside `"ar"`, `"kr"`, `"ir"`
 - `help(nanosynth)` crash: dynamically generated rate methods (`.ar`, `.kr`, `.ir`) created via `exec` in `_create_fn` had `__module__ = None`, causing `pydoc` to raise `TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'` when rendering help text. Now sets `__module__` from the owning class before applying decorators.
+- **`__bool__` trap on `UGenOperable`**: `UGenOperable.__bool__` now raises `TypeError` instead of silently returning `True`. Catches the common footgun where `if sig > 0:` always takes the truthy branch because comparison operators return `UGenOperable` objects, not booleans
+- **`Server.quit()` decoupled from protocol internals**: `Server.quit()` now delegates to `EmbeddedProcessProtocol.quit()` instead of reaching into the private `_shutdown()` method, properly setting the `QUITTING` state for clean shutdown callbacks
+- **Thread-local builder guard centralized**: replaced three inconsistent `hasattr(_local, "_active_builders")` guard patterns in `SynthDefBuilder.__init__`, `__enter__`, and `UGen.__init__` with a single `_get_active_builders()` function
+- **Topological sort descendant ordering**: `_initiate_topological_sort` had `key=lambda x: ugens.index(ugen)` which captured the loop variable, making the sort a no-op. Fixed to `key=lambda x: ugens.index(x)` to sort descendants by their position in the UGen list
 
 ## [0.1.2]
 

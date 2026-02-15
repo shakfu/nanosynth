@@ -6,27 +6,27 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 
 ## Quick Fixes
 
-- [ ] **`AddAction` enum.** The `action` parameter on `synth()` and `group()` accepts raw ints (0-4). Add an `AddAction` IntEnum (`addToHead`, `addToTail`, `addBefore`, `addAfter`, `addReplace`) and accept it in the API. Keep raw int support for backwards compat. Priority: **low**, effort: **trivial**.
+- [x] **`AddAction` enum.** `AddAction` IntEnum added to `enums.py` with `ADD_TO_HEAD`, `ADD_TO_TAIL`, `ADD_BEFORE`, `ADD_AFTER`, `REPLACE`. Accepted by `Server.synth()`, `Server.group()`, and their managed variants. Raw int still supported.
 
-- [ ] **`__bool__` trap on `UGenOperable`.** `UGenOperable.__gt__` and `__lt__` return `UGenOperable` objects (always truthy), so `if sig > 0:` silently takes the truthy branch. Add `__bool__` that raises `TypeError("Cannot use UGen expressions in boolean context; use .gt() / .lt() for signal-rate comparison")`. Priority: **medium**, effort: **trivial**.
+- [x] **`__bool__` trap on `UGenOperable`.** `UGenOperable.__bool__` raises `TypeError` to catch the `if sig > 0:` footgun.
 
-- [ ] **`Server.quit()` calls `_shutdown()` directly.** `Server.quit()` reaches into `self._protocol._shutdown()`, coupling it to `EmbeddedProcessProtocol` internals. `EmbeddedProcessProtocol.quit()` should handle the full shutdown sequence. Priority: **low**, effort: **trivial**.
+- [x] **`Server.quit()` decoupled from `_shutdown()`.** Now delegates to `EmbeddedProcessProtocol.quit()` instead of calling the private `_shutdown()` method directly.
 
-- [ ] **Centralize thread-local guard.** `synthdef.py` has inconsistent `hasattr(_local, "_active_builders")` guard patterns across `SynthDefBuilder.__init__`, `__enter__`, and `UGen.__init__`. Extract into a single `_get_active_builders() -> list[SynthDefBuilder]` function. Priority: **low**, effort: **trivial**.
+- [x] **Centralized thread-local guard.** `_get_active_builders()` function replaces three inconsistent `hasattr` guard patterns.
 
-- [ ] **Fix `_initiate_topological_sort` key lambda.** The `key=lambda x: ugens.index(ugen)` captures the loop variable `ugen`, making the sort a no-op (all elements get the same key). Should be `key=lambda x: ugens.index(x)` if the intent is to sort descendants by position. Priority: **medium**, effort: **trivial**.
+- [x] **Fixed `_initiate_topological_sort` key lambda.** `key=lambda x: ugens.index(x)` instead of the captured loop variable.
 
-- [ ] **`ServerProtocol` typing.** `SynthDef.send()` and `play()` type their `server` parameter as `Any` to avoid circular imports. A `Protocol` class would restore type safety without import issues. Priority: **low**, effort: **trivial**.
+- [x] **`ServerProtocol` typing.** `SynthDef.send()` and `play()` accept `ServerProtocol` instead of `Any`.
 
 ---
 
 ## API Design
 
-- [ ] **`Synth` / `Group` proxy objects.** `Server.synth()` returns a raw node ID int. Return a lightweight `Synth` proxy with `.set(**params)`, `.free()`, and context manager support for a more Pythonic API. Same for `Group`. Priority: **medium**, effort: **low**.
+- [x] **`Synth` / `Group` proxy objects.** `Server.synth()` and `Server.group()` return `Synth` / `Group` proxies with `.set()`, `.free()`, context manager support, and int-compatibility via `__int__()`, `__index__()`, `__eq__()`, `__hash__()`.
 
-- [ ] **`SynthDefBuilder` kwarg API for parameter metadata.** Currently requires verbose `Parameter(value=440.0, rate=ParameterRate.AUDIO, lag=0.1)` for non-default params. Consider a `param()` helper or tuple syntax for the builder context. Note: `param()` already exists for the `@ugen` decorator -- naming collision needs resolution. Priority: **medium**, effort: **low**.
+- [x] **`SynthDefBuilder` kwarg API for parameter metadata.** Added `control(value, rate, lag)` function and tuple syntax `(rate, value)` / `(rate, value, lag)` for `SynthDefBuilder` kwargs. Named `control()` to avoid collision with `param()` (used by `@ugen`).
 
-- [ ] **Flat namespace pollution.** `__init__.py` does `from .ugens import *`, exporting 340+ names. Consider exporting only the most common UGens at the top level, keeping the rest in `nanosynth.ugens`. Counter-argument: flat namespace is convenient for REPL/notebook use. Priority: **low**, effort: **trivial**.
+- [x] **Flat namespace pollution.** `__all__` trimmed to ~60 names (core API + 29 common UGens). Full UGen set available via `from nanosynth.ugens import *`.
 
 ---
 

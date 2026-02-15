@@ -7,8 +7,9 @@ import itertools
 import logging
 import threading
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, SupportsInt
 
+from .enums import AddAction
 from .osc import OscMessage
 from .scsynth import BootStatus, EmbeddedProcessProtocol, Options
 
@@ -17,6 +18,136 @@ if TYPE_CHECKING:
     from .synthdef import SynthDef
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Node proxy objects
+# ---------------------------------------------------------------------------
+
+
+class Synth:
+    """Lightweight proxy for a synth node on the server.
+
+    Wraps a node ID with convenience methods and int-compatibility.
+    Returned by ``Server.synth()`` and ``Server.managed_synth()``.
+
+    Supports ``int()`` conversion, equality with plain ints, and use as
+    a context manager (frees the node on exit)::
+
+        node = server.synth("sine", frequency=440.0)
+        node.set(frequency=880.0)
+        node.free()
+
+        with server.synth("sine") as node:
+            ...  # freed on exit
+    """
+
+    __slots__ = ("_server", "_node_id", "_name")
+
+    def __init__(self, server: Server, node_id: int, name: str) -> None:
+        self._server = server
+        self._node_id = node_id
+        self._name = name
+
+    def __repr__(self) -> str:
+        return f"<Synth {self._node_id} ({self._name})>"
+
+    def __int__(self) -> int:
+        return self._node_id
+
+    def __index__(self) -> int:
+        return self._node_id
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Synth):
+            return self._node_id == other._node_id
+        if isinstance(other, int):
+            return self._node_id == other
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self._node_id)
+
+    def __enter__(self) -> Synth:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: Any,
+    ) -> None:
+        if self._server.is_running:
+            self.free()
+
+    @property
+    def node_id(self) -> int:
+        return self._node_id
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def set(self, **params: float) -> None:
+        """Set parameter values on this synth."""
+        self._server.set(self._node_id, **params)
+
+    def free(self) -> None:
+        """Free this synth node."""
+        self._server.free(self._node_id)
+
+
+class Group:
+    """Lightweight proxy for a group node on the server.
+
+    Same shape as ``Synth`` but without a name field. Returned by
+    ``Server.group()`` and ``Server.managed_group()``.
+    """
+
+    __slots__ = ("_server", "_node_id")
+
+    def __init__(self, server: Server, node_id: int) -> None:
+        self._server = server
+        self._node_id = node_id
+
+    def __repr__(self) -> str:
+        return f"<Group {self._node_id}>"
+
+    def __int__(self) -> int:
+        return self._node_id
+
+    def __index__(self) -> int:
+        return self._node_id
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Group):
+            return self._node_id == other._node_id
+        if isinstance(other, int):
+            return self._node_id == other
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self._node_id)
+
+    def __enter__(self) -> Group:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: Any,
+    ) -> None:
+        if self._server.is_running:
+            self.free()
+
+    @property
+    def node_id(self) -> int:
+        return self._node_id
+
+    def free(self) -> None:
+        """Free this group node."""
+        self._server.free(self._node_id)
 
 
 class _ReplyEvent:
@@ -92,7 +223,7 @@ class Server:
         if not self.is_running:
             return
         self.send_msg("/quit")
-        self._protocol._shutdown()
+        self._protocol.quit()
 
     @property
     def is_running(self) -> bool:
@@ -190,85 +321,87 @@ class Server:
         self,
         name: str,
         target: int = 1,
-        action: int = 0,
+        action: AddAction | int = AddAction.ADD_TO_HEAD,
         **params: float,
-    ) -> int:
-        """Create a synth node. Returns the allocated node ID.
+    ) -> Synth:
+        """Create a synth node. Returns a Synth proxy.
 
         Args:
             name: SynthDef name.
             target: Target node for placement.
-            action: Add action (0=head, 1=tail, 2=before, 3=after, 4=replace).
+            action: Add action (AddAction enum or int 0-4).
             **params: Initial synth parameter values.
         """
         node_id = self.next_node_id()
-        args: list[OscArgument] = [name, node_id, action, target]
+        args: list[OscArgument] = [name, node_id, int(action), int(target)]
         for key, value in params.items():
             args.append(key)
             args.append(float(value))
         self.send_msg("/s_new", *args)
-        return node_id
+        return Synth(self, node_id, name)
 
-    def group(self, target: int = 0, action: int = 0) -> int:
-        """Create a group node. Returns the allocated node ID.
+    def group(
+        self, target: int = 0, action: AddAction | int = AddAction.ADD_TO_HEAD
+    ) -> Group:
+        """Create a group node. Returns a Group proxy.
 
         Args:
             target: Target node for placement.
-            action: Add action (0=head, 1=tail, 2=before, 3=after, 4=replace).
+            action: Add action (AddAction enum or int 0-4).
         """
         node_id = self.next_node_id()
-        self.send_msg("/g_new", node_id, action, target)
-        return node_id
+        self.send_msg("/g_new", node_id, int(action), int(target))
+        return Group(self, node_id)
 
-    def free(self, node_id: int) -> None:
-        """Free a node by ID."""
-        self.send_msg("/n_free", node_id)
+    def free(self, node_id: SupportsInt) -> None:
+        """Free a node by ID (accepts int or Synth/Group proxy)."""
+        self.send_msg("/n_free", int(node_id))
 
     @contextlib.contextmanager
     def managed_synth(
         self,
         name: str,
         target: int = 1,
-        action: int = 0,
+        action: AddAction | int = AddAction.ADD_TO_HEAD,
         **params: float,
-    ) -> Iterator[int]:
+    ) -> Iterator[Synth]:
         """Create a synth and free it on context exit.
 
         Usage::
 
-            with server.managed_synth("sine", frequency=440.0) as node_id:
+            with server.managed_synth("sine", frequency=440.0) as node:
                 time.sleep(1)
             # node freed automatically
         """
-        node_id = self.synth(name, target=target, action=action, **params)
+        node = self.synth(name, target=target, action=action, **params)
         try:
-            yield node_id
+            yield node
         finally:
             if self.is_running:
-                self.free(node_id)
+                self.free(node)
 
     @contextlib.contextmanager
     def managed_group(
         self,
         target: int = 0,
-        action: int = 0,
-    ) -> Iterator[int]:
+        action: AddAction | int = AddAction.ADD_TO_HEAD,
+    ) -> Iterator[Group]:
         """Create a group and free it on context exit."""
-        node_id = self.group(target=target, action=action)
+        node = self.group(target=target, action=action)
         try:
-            yield node_id
+            yield node
         finally:
             if self.is_running:
-                self.free(node_id)
+                self.free(node)
 
-    def set(self, node_id: int, **params: float) -> None:
+    def set(self, node_id: SupportsInt, **params: float) -> None:
         """Set parameter values on a running node.
 
         Args:
-            node_id: The node to modify.
+            node_id: The node to modify (int or Synth/Group proxy).
             **params: Parameter name-value pairs.
         """
-        args: list[OscArgument] = [node_id]
+        args: list[OscArgument] = [int(node_id)]
         for key, value in params.items():
             args.append(key)
             args.append(float(value))

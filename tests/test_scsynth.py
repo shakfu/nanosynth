@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from nanosynth.enums import AddAction
 from nanosynth.scsynth import (
     BootStatus,
     EmbeddedProcessProtocol,
@@ -200,3 +201,21 @@ class TestSetReplyFunc:
 
         set_reply_func(my_func)  # should not raise
         set_reply_func(None)  # cleanup
+
+
+class TestAddAction:
+    def test_values(self):
+        assert AddAction.ADD_TO_HEAD == 0
+        assert AddAction.ADD_TO_TAIL == 1
+        assert AddAction.ADD_BEFORE == 2
+        assert AddAction.ADD_AFTER == 3
+        assert AddAction.REPLACE == 4
+
+    def test_int_conversion(self):
+        assert int(AddAction.ADD_TO_HEAD) == 0
+        assert int(AddAction.REPLACE) == 4
+
+    def test_is_int_enum(self):
+        # Can be used wherever int is expected
+        assert AddAction.ADD_TO_HEAD == 0
+        assert AddAction.ADD_TO_TAIL + 1 == 2

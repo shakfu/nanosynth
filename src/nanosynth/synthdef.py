@@ -19,11 +19,13 @@ from typing import (
     Iterable,
     Iterator,
     NamedTuple,
+    Protocol,
     SupportsFloat,
     SupportsInt,
     Union,
     cast,
     overload,
+    runtime_checkable,
 )
 
 from .enums import (  # noqa: F401
@@ -34,6 +36,22 @@ from .enums import (  # noqa: F401
     ParameterRate,
     UnaryOperator,
 )
+
+
+# ---------------------------------------------------------------------------
+# Structural protocol for server interaction
+# ---------------------------------------------------------------------------
+
+
+@runtime_checkable
+class ServerProtocol(Protocol):
+    """Structural type for servers that can receive SynthDefs and create synths."""
+
+    def send_synthdef(self, synthdef: "SynthDef") -> None: ...
+
+    def synth(
+        self, name: str, target: int = ..., action: int = ..., **params: float
+    ) -> SupportsInt: ...
 
 
 # ---------------------------------------------------------------------------
@@ -461,6 +479,13 @@ class UGenOperable:
     """
 
     __slots__ = ()
+
+    def __bool__(self) -> bool:
+        raise TypeError(
+            "Cannot use UGen expressions in boolean context. "
+            "Use .equal() / .not_equal() for signal-rate comparison, "
+            "or .gt() / .lt() style methods instead of if/and/or."
+        )
 
     def __abs__(self) -> "UGenOperable":
         return _compute_unary_op(
@@ -1249,6 +1274,14 @@ _local = threading.local()
 _local._active_builders = []
 
 
+def _get_active_builders() -> list["SynthDefBuilder"]:
+    """Return the thread-local active builder stack, initializing if needed."""
+    if not hasattr(_local, "_active_builders"):
+        _local._active_builders = []
+    result: list[SynthDefBuilder] = _local._active_builders
+    return result
+
+
 class UGen(UGenOperable, SequenceABC["UGenOperable"]):
     """Base class for all unit generators.
 
@@ -1340,8 +1373,9 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
         self._inputs = tuple(inputs)
         self._input_keys = tuple(input_keys)
         self._uuid: uuid.UUID | None = None
-        if hasattr(_local, "_active_builders") and _local._active_builders:
-            builder = _local._active_builders[-1]
+        builders = _get_active_builders()
+        if builders:
+            builder = builders[-1]
             self._uuid = builder._uuid
             builder._add_ugen(self)
         for input_ in self._inputs:
@@ -1870,23 +1904,20 @@ class SynthDef:
 
     # -- High-level convenience methods ----------------------------------------
 
-    def send(self, server: "Any") -> None:
+    def send(self, server: ServerProtocol) -> None:
         """Send this SynthDef to a running server."""
         server.send_synthdef(self)
 
     def play(
         self,
-        server: "Any",
+        server: ServerProtocol,
         target: int = 1,
         action: int = 0,
         **params: float,
-    ) -> int:
-        """Send this SynthDef (if needed) and create a synth. Returns node ID."""
+    ) -> SupportsInt:
+        """Send this SynthDef (if needed) and create a synth. Returns a Synth proxy."""
         self.send(server)
-        result: int = server.synth(
-            self.effective_name, target=target, action=action, **params
-        )
-        return result
+        return server.synth(self.effective_name, target=target, action=action, **params)
 
     def dump_ugens(self) -> str:
         """Return a human-readable representation of the UGen graph."""
@@ -1951,25 +1982,49 @@ class SynthDefBuilder:
         antecedents: list[UGen]
         descendants: list[UGen]
 
-    def __init__(self, **kwargs: Parameter | SequenceABC[float] | float) -> None:
+    def __init__(
+        self,
+        **kwargs: Parameter
+        | tuple[str, float]
+        | tuple[str, float, float]
+        | SequenceABC[float]
+        | float,
+    ) -> None:
         self._building = False
         self._parameters: dict[str, Parameter] = {}
         self._ugens: list[UGen] = []
         self._uuid = uuid.uuid4()
-        if not hasattr(_local, "_active_builders"):
-            _local._active_builders = []
         for key, value in kwargs.items():
             if isinstance(value, Parameter):
                 self.add_parameter(
                     lag=value.lag, name=key, value=value.value, rate=value.rate
                 )
+            elif isinstance(value, tuple):
+                if len(value) == 2:
+                    rate_expr, val = value
+                    self.add_parameter(
+                        name=key,
+                        value=val,
+                        rate=ParameterRate.from_expr(rate_expr),
+                    )
+                elif len(value) == 3:
+                    rate_expr, val, lag = value
+                    self.add_parameter(
+                        name=key,
+                        value=val,
+                        rate=ParameterRate.from_expr(rate_expr),
+                        lag=lag,
+                    )
+                else:
+                    raise ValueError(
+                        f"Tuple parameter '{key}' must have 2 or 3 elements "
+                        f"(rate, value) or (rate, value, lag), got {len(value)}"
+                    )
             else:
                 self.add_parameter(name=key, value=value)
 
     def __enter__(self) -> "SynthDefBuilder":
-        if not hasattr(_local, "_active_builders"):
-            _local._active_builders = []
-        _local._active_builders.append(self)
+        _get_active_builders().append(self)
         return self
 
     def __exit__(
@@ -1978,7 +2033,7 @@ class SynthDefBuilder:
         exc_value: BaseException | None,
         traceback: Any,
     ) -> None:
-        _local._active_builders.pop()
+        _get_active_builders().pop()
 
     def __getitem__(self, item: str) -> OutputProxy | Parameter:
         """Look up a parameter by name.
@@ -2091,7 +2146,7 @@ class SynthDefBuilder:
                     input_sort_bundle.descendants.append(ugen)
             sort_bundle.descendants[:] = sorted(
                 sort_bundles[ugen].descendants,
-                key=lambda x: ugens.index(ugen),
+                key=lambda x: ugens.index(x),
             )
         return sort_bundles
 
@@ -2242,6 +2297,35 @@ from .compiler import _compile_ugen_graph, compile_synthdefs  # noqa: E402
 # ---------------------------------------------------------------------------
 # @synthdef decorator
 # ---------------------------------------------------------------------------
+
+
+def control(
+    value: float | SequenceABC[float] = 0.0,
+    rate: str | ParameterRate = "kr",
+    lag: float | None = None,
+) -> Parameter:
+    """Define a SynthDef parameter with rate and lag metadata.
+
+    Returns a ``Parameter`` instance suitable for passing to
+    ``SynthDefBuilder`` as a keyword argument::
+
+        SynthDefBuilder(
+            freq=control(440.0, rate="ar"),        # audio rate
+            amp=control(0.3, lag=0.1),              # control rate + lag
+            bus=control(0, rate="ir"),              # scalar rate
+        )
+
+    Args:
+        value: Default parameter value (float or sequence for multi-channel).
+        rate: Parameter rate -- ``"ar"``, ``"kr"``, ``"ir"``, ``"tr"``,
+            or a ``ParameterRate`` enum member. Defaults to ``"kr"``.
+        lag: Lag time in seconds. Produces a LagControl when set.
+    """
+    return Parameter(
+        value=value,
+        rate=ParameterRate.from_expr(rate),
+        lag=lag,
+    )
 
 
 def synthdef(*args: str | tuple[str, float]) -> Callable[..., SynthDef]:

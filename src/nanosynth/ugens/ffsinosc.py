@@ -4,6 +4,7 @@ import itertools
 from collections.abc import Sequence
 from typing import Any
 
+from ..enums import CalculationRate
 from ..synthdef import (
     UGen,
     UGenOperable,
@@ -66,7 +67,7 @@ class Klank(UGen):
             if i >= max_len - 1:
                 break
         return cls._new_expanded(
-            calculation_rate=None,
+            calculation_rate=CalculationRate.AUDIO,
             decay_scale=decay_scale,
             frequency_offset=frequency_offset,
             frequency_scale=frequency_scale,

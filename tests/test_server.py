@@ -4,8 +4,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from nanosynth.enums import AddAction
 from nanosynth.scsynth import BootStatus, Options
-from nanosynth.server import Server
+from nanosynth.server import Group, Server, Synth
 
 
 class TestServerInit:
@@ -75,7 +76,7 @@ class TestServerWithMockedProtocol:
     def test_synth_increments_id(self, server: Server) -> None:
         id1 = server.synth("s1")
         id2 = server.synth("s2")
-        assert id2 == id1 + 1
+        assert int(id2) == int(id1) + 1
 
     def test_group_returns_node_id(self, server: Server) -> None:
         node_id = server.group(target=1, action=0)
@@ -96,7 +97,18 @@ class TestServerWithMockedProtocol:
         s._protocol.status = BootStatus.OFFLINE
         s.quit()
         s._protocol.send_packet.assert_not_called()
-        s._protocol._shutdown.assert_not_called()
+        s._protocol.quit.assert_not_called()
+
+    def test_quit_calls_protocol_quit(self) -> None:
+        """quit() sends /quit and calls protocol.quit()."""
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        s.quit()
+        # Should have sent /quit message
+        s._protocol.send_packet.assert_called_once()
+        # Should delegate shutdown to protocol.quit()
+        s._protocol.quit.assert_called_once()
 
     def test_context_manager(self) -> None:
         """Context manager calls boot on enter and quit on exit."""
@@ -495,3 +507,224 @@ class TestReplyHandling:
         server._dispatch_reply(reply_msg.to_datagram())
         cb1.assert_called_once()
         cb2.assert_called_once()
+
+
+class TestAddActionIntegration:
+    """Tests for AddAction enum usage in Server methods."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_synth_accepts_add_action_enum(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.synth("test", target=1, action=AddAction.ADD_TO_TAIL)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.contents[2] == 1  # ADD_TO_TAIL = 1
+
+    def test_synth_accepts_raw_int(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.synth("test", target=1, action=0)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.contents[2] == 0  # ADD_TO_HEAD = 0
+
+    def test_group_accepts_add_action_enum(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.group(target=1, action=AddAction.ADD_AFTER)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.contents[1] == 3  # ADD_AFTER = 3
+
+    def test_managed_synth_accepts_add_action(self, server: Server) -> None:
+        with server.managed_synth("test", action=AddAction.ADD_TO_TAIL):
+            pass
+
+    def test_managed_group_accepts_add_action(self, server: Server) -> None:
+        with server.managed_group(action=AddAction.ADD_TO_HEAD):
+            pass
+
+
+class TestSynthProxy:
+    """Tests for the Synth proxy object."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_synth_returns_synth_proxy(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert isinstance(node, Synth)
+
+    def test_synth_proxy_int_conversion(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert int(node) == 1000
+
+    def test_synth_proxy_index(self, server: Server) -> None:
+        """__index__ allows use in list indexing and hex()."""
+        node = server.synth("sine")
+        assert node.__index__() == 1000
+
+    def test_synth_proxy_eq_int(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert node == 1000
+        assert not (node == 999)
+
+    def test_synth_proxy_eq_synth(self, server: Server) -> None:
+        n1 = server.synth("a")
+        n2 = server.synth("b")
+        assert n1 != n2
+        assert n1 == n1
+
+    def test_synth_proxy_hash(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert hash(node) == hash(1000)
+        s = {node}
+        assert 1000 in s
+
+    def test_synth_proxy_node_id_property(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert node.node_id == 1000
+
+    def test_synth_proxy_name_property(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert node.name == "sine"
+
+    def test_synth_proxy_repr(self, server: Server) -> None:
+        node = server.synth("sine")
+        assert "1000" in repr(node)
+        assert "sine" in repr(node)
+
+    def test_synth_proxy_set(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        node = server.synth("sine")
+        server._protocol.send_packet.reset_mock()
+        node.set(frequency=880.0)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/n_set"
+        assert msg.contents[0] == 1000
+
+    def test_synth_proxy_free(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        node = server.synth("sine")
+        server._protocol.send_packet.reset_mock()
+        node.free()
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/n_free"
+        assert msg.contents[0] == 1000
+
+    def test_synth_proxy_context_manager(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with server.synth("sine") as node:
+            assert isinstance(node, Synth)
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/n_free"
+
+    def test_synth_proxy_context_manager_skips_free_if_stopped(self) -> None:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        with s.synth("sine"):
+            s._protocol.status = BootStatus.OFFLINE
+        # send_packet called once for /s_new, but NOT for /n_free
+        assert s._protocol.send_packet.call_count == 1
+
+    def test_managed_synth_yields_synth_proxy(self, server: Server) -> None:
+        with server.managed_synth("sine") as node:
+            assert isinstance(node, Synth)
+            assert node == 1000
+
+
+class TestGroupProxy:
+    """Tests for the Group proxy object."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_group_returns_group_proxy(self, server: Server) -> None:
+        node = server.group()
+        assert isinstance(node, Group)
+
+    def test_group_proxy_int_conversion(self, server: Server) -> None:
+        node = server.group()
+        assert int(node) == 1000
+
+    def test_group_proxy_eq_int(self, server: Server) -> None:
+        node = server.group()
+        assert node == 1000
+
+    def test_group_proxy_hash(self, server: Server) -> None:
+        node = server.group()
+        assert hash(node) == hash(1000)
+
+    def test_group_proxy_repr(self, server: Server) -> None:
+        node = server.group()
+        assert "1000" in repr(node)
+
+    def test_group_proxy_free(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        node = server.group()
+        server._protocol.send_packet.reset_mock()
+        node.free()
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/n_free"
+
+    def test_group_proxy_context_manager(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with server.group() as node:
+            assert isinstance(node, Group)
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/n_free"
+
+    def test_managed_group_yields_group_proxy(self, server: Server) -> None:
+        with server.managed_group() as node:
+            assert isinstance(node, Group)
+            assert node == 1000
+
+    def test_server_free_accepts_proxy(self, server: Server) -> None:
+        """Server.free() accepts both int and proxy objects."""
+        from nanosynth.osc import OscMessage
+
+        node = server.synth("sine")
+        server._protocol.send_packet.reset_mock()
+        server.free(node)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/n_free"
+        assert msg.contents[0] == 1000
+
+    def test_server_set_accepts_proxy(self, server: Server) -> None:
+        """Server.set() accepts both int and proxy objects."""
+        from nanosynth.osc import OscMessage
+
+        node = server.synth("sine")
+        server._protocol.send_packet.reset_mock()
+        server.set(node, frequency=880.0)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/n_set"
+        assert msg.contents[0] == 1000
