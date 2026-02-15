@@ -63,6 +63,8 @@ dev = [
     "delvewheel>=1.9; sys_platform == 'win32'",
     "scikit-build-core>=0.8",
     "nanobind>=2.11,<3",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings[python]>=1.0.3",
 ]
 
 [build-system]

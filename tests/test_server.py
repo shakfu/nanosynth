@@ -227,3 +227,271 @@ class TestManagedSynth:
         msg = OscMessage.from_datagram(last_data)
         assert msg.address == "/n_free"
         assert msg.contents[0] == node_id
+
+
+class TestBufferManagement:
+    """Tests for buffer allocation, read, write, free, and context managers."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_buffer_id_starts_at_zero(self, server: Server) -> None:
+        assert server.next_buffer_id() == 0
+
+    def test_buffer_id_monotonically_increasing(self, server: Server) -> None:
+        ids = [server.next_buffer_id() for _ in range(5)]
+        assert ids == [0, 1, 2, 3, 4]
+
+    def test_alloc_buffer_sends_b_alloc(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        buf_id = server.alloc_buffer(1024, 2)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/b_alloc"
+        assert msg.contents[0] == buf_id
+        assert msg.contents[1] == 1024
+        assert msg.contents[2] == 2
+
+    def test_alloc_buffer_auto_id(self, server: Server) -> None:
+        id1 = server.alloc_buffer(512)
+        id2 = server.alloc_buffer(512)
+        assert id1 == 0
+        assert id2 == 1
+
+    def test_alloc_buffer_explicit_id(self, server: Server) -> None:
+        buf_id = server.alloc_buffer(512, buffer_id=42)
+        assert buf_id == 42
+
+    def test_alloc_buffer_tracks(self, server: Server) -> None:
+        buf_id = server.alloc_buffer(512)
+        assert buf_id in server._allocated_buffers
+
+    def test_read_buffer_sends_b_alloc_read(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        buf_id = server.read_buffer("/tmp/test.wav")
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/b_allocRead"
+        assert msg.contents[0] == buf_id
+        assert msg.contents[1] == "/tmp/test.wav"
+        assert msg.contents[2] == 0  # start_frame
+        assert msg.contents[3] == -1  # num_frames
+
+    def test_read_buffer_explicit_id(self, server: Server) -> None:
+        buf_id = server.read_buffer("/tmp/test.wav", buffer_id=10)
+        assert buf_id == 10
+        assert 10 in server._allocated_buffers
+
+    def test_write_buffer_sends_b_write(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.write_buffer(
+            5, "/tmp/out.wav", header_format="aiff", sample_format="float"
+        )
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/b_write"
+        assert msg.contents[0] == 5
+        assert msg.contents[1] == "/tmp/out.wav"
+        assert msg.contents[2] == "aiff"
+        assert msg.contents[3] == "float"
+
+    def test_free_buffer_sends_b_free(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        buf_id = server.alloc_buffer(512)
+        server.free_buffer(buf_id)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/b_free"
+        assert msg.contents[0] == buf_id
+
+    def test_free_buffer_untracks(self, server: Server) -> None:
+        buf_id = server.alloc_buffer(512)
+        assert buf_id in server._allocated_buffers
+        server.free_buffer(buf_id)
+        assert buf_id not in server._allocated_buffers
+
+    def test_zero_buffer_sends_b_zero(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.zero_buffer(3)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/b_zero"
+        assert msg.contents[0] == 3
+
+    def test_close_buffer_sends_b_close(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.close_buffer(7)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/b_close"
+        assert msg.contents[0] == 7
+
+    def test_managed_buffer_yields_id(self, server: Server) -> None:
+        with server.managed_buffer(2048, 2) as buf_id:
+            assert buf_id == 0
+            assert buf_id in server._allocated_buffers
+
+    def test_managed_buffer_frees_on_exit(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with server.managed_buffer(1024) as buf_id:
+            pass
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/b_free"
+        assert msg.contents[0] == buf_id
+        assert buf_id not in server._allocated_buffers
+
+    def test_managed_buffer_frees_on_exception(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with pytest.raises(RuntimeError):
+            with server.managed_buffer(1024) as buf_id:
+                raise RuntimeError("boom")
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/b_free"
+        assert msg.contents[0] == buf_id
+
+    def test_managed_read_buffer_yields_id(self, server: Server) -> None:
+        with server.managed_read_buffer("/tmp/test.wav") as buf_id:
+            assert buf_id == 0
+            assert buf_id in server._allocated_buffers
+
+    def test_managed_read_buffer_frees_on_exit(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with server.managed_read_buffer("/tmp/test.wav") as buf_id:
+            pass
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/b_free"
+        assert msg.contents[0] == buf_id
+
+    def test_managed_buffer_skips_free_if_stopped(self) -> None:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        with s.managed_buffer(1024):
+            s._protocol.status = BootStatus.OFFLINE
+        # send_packet called once for /b_alloc, but NOT for /b_free
+        assert s._protocol.send_packet.call_count == 1
+
+
+class TestReplyHandling:
+    """Tests for reply dispatch, on/off handlers, and wait_for_reply."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_on_registers_handler(self, server: Server) -> None:
+        cb = MagicMock()
+        server.on("/done", cb)
+        assert cb in server._reply_handlers["/done"]
+
+    def test_off_removes_handler(self, server: Server) -> None:
+        cb = MagicMock()
+        server.on("/done", cb)
+        server.off("/done", cb)
+        assert "/done" not in server._reply_handlers
+
+    def test_off_nonexistent_is_noop(self, server: Server) -> None:
+        cb = MagicMock()
+        server.off("/done", cb)  # should not raise
+
+    def test_dispatch_reply_calls_handler(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        cb = MagicMock()
+        server.on("/done", cb)
+        reply_msg = OscMessage("/done", "/b_alloc", 0)
+        server._dispatch_reply(reply_msg.to_datagram())
+        cb.assert_called_once()
+        received_msg = cb.call_args[0][0]
+        assert isinstance(received_msg, OscMessage)
+        assert received_msg.address == "/done"
+
+    def test_dispatch_reply_resolves_waiter(self, server: Server) -> None:
+        import threading
+
+        from nanosynth.osc import OscMessage
+
+        result: list[OscMessage | None] = [None]
+
+        def waiter() -> None:
+            result[0] = server.wait_for_reply("/done", timeout=2.0)
+
+        t = threading.Thread(target=waiter)
+        t.start()
+        # Give the waiter time to register
+        import time
+
+        time.sleep(0.05)
+        reply_msg = OscMessage("/done", "/b_alloc", 0)
+        server._dispatch_reply(reply_msg.to_datagram())
+        t.join(timeout=2.0)
+        assert result[0] is not None
+        assert result[0].address == "/done"
+
+    def test_wait_for_reply_timeout_returns_none(self, server: Server) -> None:
+        result = server.wait_for_reply("/nonexistent", timeout=0.05)
+        assert result is None
+
+    def test_send_msg_sync_with_mock(self, server: Server) -> None:
+        import threading
+
+        from nanosynth.osc import OscMessage
+
+        result: list[OscMessage | None] = [None]
+
+        def caller() -> None:
+            result[0] = server.send_msg_sync(
+                "/b_alloc",
+                0,
+                1024,
+                1,
+                reply_address="/done",
+                timeout=2.0,
+            )
+
+        t = threading.Thread(target=caller)
+        t.start()
+        import time
+
+        time.sleep(0.05)
+        reply_msg = OscMessage("/done", "/b_alloc", 0)
+        server._dispatch_reply(reply_msg.to_datagram())
+        t.join(timeout=2.0)
+        assert result[0] is not None
+        assert result[0].address == "/done"
+        # Verify the original message was sent
+        server._protocol.send_packet.assert_called_once()
+
+    def test_dispatch_invalid_data_does_not_raise(self, server: Server) -> None:
+        server._dispatch_reply(b"\x00\x00\x00")  # invalid OSC data
+
+    def test_multiple_handlers_all_called(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        cb1 = MagicMock()
+        cb2 = MagicMock()
+        server.on("/done", cb1)
+        server.on("/done", cb2)
+        reply_msg = OscMessage("/done", 42)
+        server._dispatch_reply(reply_msg.to_datagram())
+        cb1.assert_called_once()
+        cb2.assert_called_once()

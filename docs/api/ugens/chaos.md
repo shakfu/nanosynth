@@ -1,0 +1,3 @@
+# Chaos
+
+::: nanosynth.ugens.chaos

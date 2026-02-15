@@ -1475,3 +1475,255 @@ class TestSynthDefSendPlay:
         server.synth.return_value = 1001
         sd.play(server, target=2, action=1)
         server.synth.assert_called_once_with("test", target=2, action=1)
+
+
+# ---------------------------------------------------------------------------
+# Extended operator tests
+# ---------------------------------------------------------------------------
+
+
+from nanosynth.synthdef import UnaryOperator  # noqa: E402
+
+
+class TestExtendedOperators:
+    """Tests for extended BinaryOperator/UnaryOperator enum values and methods."""
+
+    # -- Dunder methods produce correct BinaryOpUGen ---------------------------
+
+    def test_pow_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() ** 2
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.POWER for o in ops)
+
+    def test_rpow_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = 2 ** SinOsc.ar()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.POWER for o in ops)
+
+    def test_floordiv_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() // 2
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.INTEGER_DIVISION for o in ops)
+
+    def test_rfloordiv_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = 10 // SinOsc.ar()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.INTEGER_DIVISION for o in ops)
+
+    def test_le_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() <= 0.5
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.LESS_THAN_OR_EQUAL for o in ops)
+
+    def test_ge_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() >= 0.5
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.GREATER_THAN_OR_EQUAL for o in ops)
+
+    def test_and_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() & SinOsc.ar(frequency=880)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.BITWISE_AND for o in ops)
+
+    def test_or_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() | SinOsc.ar(frequency=880)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.BITWISE_OR for o in ops)
+
+    def test_xor_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() ^ SinOsc.ar(frequency=880)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.BITWISE_XOR for o in ops)
+
+    def test_lshift_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() << 2
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.SHIFT_LEFT for o in ops)
+
+    def test_rshift_produces_binary_op(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() >> 2
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.SHIFT_RIGHT for o in ops)
+
+    # -- POWER optimizations ---------------------------------------------------
+
+    def test_pow_zero_returns_one(self):
+        with SynthDefBuilder():
+            sig = SinOsc.ar() ** 0
+            assert isinstance(sig, ConstantProxy)
+            assert float(sig) == 1.0
+
+    def test_pow_one_returns_self(self):
+        with SynthDefBuilder() as builder:
+            osc = SinOsc.ar()
+            sig = osc**1
+            assert isinstance(sig, OutputProxy)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert not any(o.operator == BinaryOperator.POWER for o in ops)
+
+    # -- Named binary methods --------------------------------------------------
+
+    def test_min(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().min_(0.5)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.MINIMUM for o in ops)
+
+    def test_max(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().max_(0.0)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.MAXIMUM for o in ops)
+
+    def test_clip2(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().clip2(0.5)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.CLIP2 for o in ops)
+
+    # -- Named unary methods ---------------------------------------------------
+
+    def test_midicps(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().midicps()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, UnaryOpUGen)]
+        assert any(o.operator == UnaryOperator.MIDICPS for o in ops)
+
+    def test_tanh(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().tanh_()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, UnaryOpUGen)]
+        assert any(o.operator == UnaryOperator.TANH for o in ops)
+
+    def test_softclip(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().softclip()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, UnaryOpUGen)]
+        assert any(o.operator == UnaryOperator.SOFTCLIP for o in ops)
+
+    def test_squared(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().squared()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, UnaryOpUGen)]
+        assert any(o.operator == UnaryOperator.SQUARED for o in ops)
+
+    def test_distort(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().distort()
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, UnaryOpUGen)]
+        assert any(o.operator == UnaryOperator.DISTORT for o in ops)
+
+    # -- Constant folding for new operators ------------------------------------
+
+    def test_pow_constant_folding(self):
+        with SynthDefBuilder():
+            result = ConstantProxy(2.0) ** ConstantProxy(3.0)
+            assert isinstance(result, ConstantProxy)
+            assert float(result) == 8.0
+
+    def test_floordiv_constant_folding(self):
+        with SynthDefBuilder():
+            result = ConstantProxy(7.0) // ConstantProxy(2.0)
+            assert isinstance(result, ConstantProxy)
+            assert float(result) == 3.0
+
+    def test_min_constant_folding(self):
+        result = ConstantProxy(3.0).min_(ConstantProxy(5.0))
+        assert isinstance(result, ConstantProxy)
+        assert float(result) == 3.0
+
+    def test_max_constant_folding(self):
+        result = ConstantProxy(3.0).max_(ConstantProxy(5.0))
+        assert isinstance(result, ConstantProxy)
+        assert float(result) == 5.0
+
+    def test_sqrt_constant_folding(self):
+
+        result = ConstantProxy(9.0).sqrt_()
+        assert isinstance(result, ConstantProxy)
+        assert abs(float(result) - 3.0) < 1e-10
+
+    def test_sin_constant_folding(self):
+
+        result = ConstantProxy(0.0).sin_()
+        assert isinstance(result, ConstantProxy)
+        assert abs(float(result)) < 1e-10
+
+    def test_le_constant_folding(self):
+        result = ConstantProxy(3.0) <= ConstantProxy(5.0)
+        assert isinstance(result, ConstantProxy)
+        assert float(result) == 1.0  # True -> 1.0
+
+    def test_ge_constant_folding(self):
+        result = ConstantProxy(3.0) >= ConstantProxy(5.0)
+        assert isinstance(result, ConstantProxy)
+        assert float(result) == 0.0  # False -> 0.0
+
+    # -- equal / not_equal methods ---------------------------------------------
+
+    def test_equal_method(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().equal(0.0)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.EQUAL for o in ops)
+
+    def test_not_equal_method(self):
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar().not_equal(0.0)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.NOT_EQUAL for o in ops)

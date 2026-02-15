@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Extended operators**: `BinaryOperator` expanded from 7 to 43 entries, `UnaryOperator` from 2 to 34, covering SC's full practical operator set (power, integer division, comparisons, bitwise ops, trig, pitch conversion, clipping, ring modulation, etc.)
+- **Operator methods on UGenOperable**: 16 new dunder methods (`__pow__`, `__floordiv__`, `__le__`, `__ge__`, `__and__`, `__or__`, `__xor__`, `__lshift__`, `__rshift__` and their reverse variants), `equal()`/`not_equal()` explicit comparison methods, 25 named binary methods (`min_`, `max_`, `clip2`, `fold2`, `wrap2`, `ring1`--`ring4`, `atan2`, `hypot`, etc.), and 32 named unary methods (`midicps`, `cpsmidi`, `dbamp`, `ampdb`, `tanh_`, `softclip`, `distort`, `squared`, `sqrt_`, `exp_`, `log_`, `sin_`, `cos_`, etc.)
+- **Constant folding** for new operators: `POWER`, `INTEGER_DIVISION`, `MINIMUM`, `MAXIMUM`, comparison ops, and all math-stdlib unary ops fold `float op float` at compile time
+- **POWER optimizations** in `BinaryOpUGen._new_single`: `x ** 0` folds to `1`, `x ** 1` folds to `x`
+- **Buffer management** on `Server`: `alloc_buffer()`, `read_buffer()`, `write_buffer()`, `free_buffer()`, `zero_buffer()`, `close_buffer()`, `next_buffer_id()`, plus `managed_buffer()` and `managed_read_buffer()` context managers. Buffer IDs are auto-allocated (monotonically from 0) or explicitly specified; allocated buffers tracked in `_allocated_buffers` set
+- **Reply handling**: C++ reply callback (`set_reply_func` in `_scsynth.cpp`) routes OSC responses from the engine back to Python; `EmbeddedProcessProtocol.set_reply_callback()` wires it at boot; `Server` gains `_dispatch_reply()` router, `on()`/`off()` for persistent handlers, `wait_for_reply()` for blocking one-shot waits, and `send_msg_sync()` for send-and-wait patterns -- all thread-safe
+- Demo script `18_operators_buffers.py`: extended operators (`midicps`, `tanh_`, `clip2`, `dbamp`, `softclip`, `distort`), managed buffer allocation, and synchronous reply handling (`send_msg_sync`)
+- **Documentation site** (mkdocs-material + mkdocstrings): auto-generated API reference from docstrings, organized by core modules and 28 UGen categories, with Getting Started guide and changelog. Served locally via `make docs-serve`, deployed to GitHub Pages via `make docs-deploy`. New `docs` dependency group in `pyproject.toml`, GitHub Actions workflow (`.github/workflows/docs.yml`) for auto-deploy on push to main
+- **Comprehensive docstrings** across all core modules:
+  - `enums.py`: all 6 enum classes (`CalculationRate`, `ParameterRate`, `BinaryOperator`, `UnaryOperator`, `DoneAction`, `EnvelopeShape`) with member descriptions and `from_expr()` methods
+  - `synthdef.py`: `SynthDef`, `SynthDefBuilder`, `UGen`, `UGenOperable`, `UnaryOpUGen`, `BinaryOpUGen`, `Parameter`, `Control`, `SynthDefError`, `UGenSerializable`; 25 named binary methods with formulas (`ring1`--`ring4`, `clip2`, `fold2`, `wrap2`, `difsqr`, `sumsqr`, etc.); 8 pitch/amplitude conversion methods with examples (`midicps`, `cpsmidi`, `dbamp`, `ampdb`); waveshaping methods (`distort`, `softclip`)
+  - `envelopes.py`: `Envelope` class with full Args section, all 5 factory methods (`adsr`, `asr`, `linen`, `percussive`, `triangle`), `EnvGen` with parameter descriptions
+  - `osc.py`: `OscMessage`, `OscBundle` with public method docstrings (`to_datagram`, `from_datagram`, `to_list`), `find_free_port()`
+  - `scsynth.py`: `Options` with commonly adjusted fields, `BootStatus`, `ServerCannotBoot`, `EmbeddedProcessProtocol.boot()` and `.quit()`
+  - `compiler.py`: `compile_synthdefs()` with Args/Returns documenting the SCgf binary format
+
 ### Fixed
 
 - `help(nanosynth)` crash: dynamically generated rate methods (`.ar`, `.kr`, `.ir`) created via `exec` in `_create_fn` had `__module__ = None`, causing `pydoc` to raise `TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'` when rendering help text. Now sets `__module__` from the owning class before applying decorators.

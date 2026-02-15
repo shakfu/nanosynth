@@ -5,9 +5,12 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 ## Features
 
 - **Embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
-- **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()` for automatic node cleanup
+- **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, buffer management, OSC reply handling, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()`/`managed_buffer()` for automatic resource cleanup
 - **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's SCgf binary format
 - **340+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, phase vocoder, machine listening, stochastic synthesis, and more
+- **Rich operator algebra** -- 43 binary and 34 unary operators on all UGen signals, including arithmetic, comparison, bitwise, power, trig, pitch conversion (`midicps`/`cpsmidi`), clipping (`clip2`/`fold2`/`wrap2`), and more. Compile-time constant folding and algebraic optimizations
+- **Buffer management** -- `alloc_buffer`, `read_buffer`, `write_buffer`, `free_buffer`, `zero_buffer`, `close_buffer`, and context managers for automatic cleanup
+- **Reply handling** -- bidirectional OSC communication with the engine: persistent handlers (`on`/`off`), blocking one-shot waits (`wait_for_reply`), and send-and-wait (`send_msg_sync`)
 - **Envelope system** -- `Envelope` class with factory methods (`adsr`, `asr`, `linen`, `percussive`, `triangle`) and the `EnvGen` UGen
 - **OSC codec** -- pure-Python `OscMessage`/`OscBundle` encode/decode with optional C++ acceleration via nanobind
 - **`@synthdef` decorator** -- shorthand for defining SynthDefs as plain functions with parameter rate/lag annotations
@@ -493,6 +496,18 @@ Envelope.triangle(duration=1.0, amplitude=1.0)
 # Custom envelope
 Envelope(amplitudes=[0, 1, 0.5, 0], durations=[0.1, 0.3, 0.6], curves=[-4])
 ```
+
+## Documentation
+
+API reference docs are auto-generated from docstrings using [mkdocs-material](https://squidfunk.github.io/mkdocs-material/) and [mkdocstrings](https://mkdocstrings.github.io/).
+
+```bash
+make docs        # build static site to site/
+make docs-serve  # serve locally at http://127.0.0.1:8000 with live reload
+make docs-deploy # deploy to GitHub Pages
+```
+
+Browse the docs at [shakfu.github.io/nanosynth](https://shakfu.github.io/nanosynth/).
 
 ## Development
 

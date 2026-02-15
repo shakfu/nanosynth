@@ -1,0 +1,3 @@
+# Panning
+
+::: nanosynth.ugens.panning

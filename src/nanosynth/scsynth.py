@@ -21,6 +21,8 @@ DEFAULT_PORT = 57110
 
 
 class BootStatus(enum.IntEnum):
+    """State machine for the embedded engine lifecycle."""
+
     OFFLINE = 0
     BOOTING = 1
     ONLINE = 2
@@ -28,12 +30,26 @@ class BootStatus(enum.IntEnum):
 
 
 class ServerCannotBoot(Exception):
+    """Raised when the embedded scsynth engine fails to start."""
+
     pass
 
 
 @dataclass(frozen=True)
 class Options:
-    """SuperCollider server options configuration."""
+    """SuperCollider server options configuration.
+
+    All fields have sensible defaults. The most commonly adjusted options:
+
+    - ``verbosity`` -- log level (0 = silent, default).
+    - ``sample_rate`` -- preferred sample rate (None = use hardware default).
+    - ``output_bus_channel_count`` / ``input_bus_channel_count`` -- number
+      of hardware I/O channels.
+    - ``memory_size`` -- real-time memory pool in KB (default 8192).
+    - ``block_size`` -- control block size in samples (default 64).
+    - ``ugen_plugins_path`` -- override UGen plugin search path (normally
+      auto-detected from the installed wheel or ``SC_PLUGIN_PATH``).
+    """
 
     audio_bus_channel_count: int = 1024
     block_size: int = 64
@@ -210,6 +226,7 @@ class EmbeddedProcessProtocol:
         self.options = Options()
         self.buffer_ = ""
         self.error_text = ""
+        self._reply_callback: Callable[[bytes], None] | None = None
         atexit.register(self.quit)
         self.boot_future: concurrent.futures.Future[bool] = concurrent.futures.Future()
         self.exit_future: concurrent.futures.Future[int] = concurrent.futures.Future()
@@ -217,6 +234,16 @@ class EmbeddedProcessProtocol:
         self.thread: threading.Thread | None = None
 
     def boot(self, options: Options) -> None:
+        """Boot the embedded scsynth engine with the given options.
+
+        Creates a World via libscsynth, opens a UDP port for OSC
+        communication, installs print and reply callbacks, and starts
+        a daemon thread that waits for engine shutdown.
+
+        Raises:
+            ServerCannotBoot: If a World is already active, or if
+                World_New or World_OpenUDP fails.
+        """
         self.options = options
         label = self.name or hex(id(self))
         logger.info(
@@ -274,6 +301,11 @@ class EmbeddedProcessProtocol:
 
         set_print_func(_on_print)
 
+        if self._reply_callback is not None:
+            from nanosynth._scsynth import set_reply_func
+
+            set_reply_func(self._reply_callback)
+
         self.status = BootStatus.ONLINE
         self.boot_future.set_result(True)
         if self.on_boot_callback:
@@ -326,7 +358,27 @@ class EmbeddedProcessProtocol:
 
         return self.send_packet(OscMessage(address, *args).to_datagram())
 
+    def set_reply_callback(self, callback: Callable[[bytes], None] | None) -> None:
+        """Set (or clear) the callback for OSC replies from the engine.
+
+        If the engine is already booted, the callback is installed immediately.
+        Otherwise it will be installed on the next boot.
+
+        Args:
+            callback: A callable receiving raw OSC bytes, or None to clear.
+        """
+        self._reply_callback = callback
+        if self.status == BootStatus.ONLINE:
+            from nanosynth._scsynth import set_reply_func
+
+            set_reply_func(callback)
+
     def quit(self) -> None:
+        """Shut down the embedded scsynth engine.
+
+        No-op if the engine is not currently online. Blocks until the
+        engine thread has joined (up to 5 seconds, then force-cleanup).
+        """
         label = self.name or hex(id(self))
         logger.info(
             f"[{self.options.ip_address}:{self.options.port}/{label}] quitting ..."

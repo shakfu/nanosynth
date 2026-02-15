@@ -171,3 +171,32 @@ class TestEmbeddedProcessProtocol:
         with pytest.raises(ServerCannotBoot, match="already running"):
             proto.boot(Options())
         assert proto.status == BootStatus.OFFLINE
+
+    def test_set_reply_callback_none_accepted(self):
+        proto = EmbeddedProcessProtocol()
+        proto.set_reply_callback(None)
+        assert proto._reply_callback is None
+
+    def test_set_reply_callback_stores(self):
+        def my_callback(data: bytes) -> None:
+            pass
+
+        proto = EmbeddedProcessProtocol()
+        proto.set_reply_callback(my_callback)
+        assert proto._reply_callback is my_callback
+
+
+class TestSetReplyFunc:
+    def test_set_reply_func_none(self):
+        from nanosynth._scsynth import set_reply_func  # type: ignore[import-untyped]
+
+        set_reply_func(None)  # should not raise
+
+    def test_set_reply_func_callable(self):
+        from nanosynth._scsynth import set_reply_func  # type: ignore[import-untyped]
+
+        def my_func(data: bytes) -> None:
+            pass
+
+        set_reply_func(my_func)  # should not raise
+        set_reply_func(None)  # cleanup

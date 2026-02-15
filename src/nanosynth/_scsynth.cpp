@@ -89,6 +89,37 @@ struct WorldHandle {
 static void noop_reply_func(struct ReplyAddress*, char*, int) {}
 
 // ---------------------------------------------------------------------------
+// Reply function redirection
+// ---------------------------------------------------------------------------
+
+static nb::object g_reply_func;
+static std::mutex g_reply_mutex;
+
+static void python_reply_func(struct ReplyAddress*, char* buf, int size) {
+    std::lock_guard<std::mutex> lock(g_reply_mutex);
+    if (g_reply_func.ptr() != nullptr && !g_reply_func.is_none()) {
+        nb::gil_scoped_acquire gil;
+        try {
+            // Copy the reply data into a Python bytes object
+            nb::bytes data(buf, static_cast<size_t>(size));
+            g_reply_func(data);
+        } catch (...) {
+            // Swallow Python exceptions to avoid crashing scsynth's
+            // internal reply path.
+        }
+    }
+}
+
+static void py_set_reply_func(nb::object func) {
+    std::lock_guard<std::mutex> lock(g_reply_mutex);
+    if (func.is_none()) {
+        g_reply_func = nb::none();
+    } else {
+        g_reply_func = func;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Module functions
 // ---------------------------------------------------------------------------
 
@@ -281,10 +312,18 @@ static bool py_world_send_packet(nb::capsule& world_cap, nb::bytes data) {
     // data. Copying into a mutable buffer avoids undefined behavior from
     // const_cast on the immutable Python bytes object.
     std::vector<char> buf(data.c_str(), data.c_str() + size);
+    // Use the Python reply callback if one is registered, otherwise noop.
+    ReplyFunc reply_fn;
+    {
+        std::lock_guard<std::mutex> lock(g_reply_mutex);
+        reply_fn = (g_reply_func.ptr() != nullptr && !g_reply_func.is_none())
+                   ? python_reply_func
+                   : noop_reply_func;
+    }
     bool result;
     {
         nb::gil_scoped_release release;
-        result = World_SendPacket(world, size, buf.data(), noop_reply_func);
+        result = World_SendPacket(world, size, buf.data(), reply_fn);
     }
     return result;
 }
@@ -351,4 +390,8 @@ NB_MODULE(_scsynth, m) {
     m.def("world_send_packet", &py_world_send_packet,
           nb::arg("world"), nb::arg("data"),
           "Send an OSC packet directly to the world. Returns True on success.");
+
+    m.def("set_reply_func", &py_set_reply_func,
+          nb::arg("func").none(),
+          "Set the reply callback for OSC responses. Pass None to clear.");
 }

@@ -1,0 +1,3 @@
+# Oscillators
+
+::: nanosynth.ugens.osc

@@ -2,6 +2,7 @@
 
 # Build directories
 build/
+site/
 cmake-build-*/
 dist/
 

@@ -1,0 +1,3 @@
+# Triggers
+
+::: nanosynth.ugens.triggers

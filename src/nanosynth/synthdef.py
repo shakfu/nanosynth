@@ -8,6 +8,7 @@ in Python and compiling them to SuperCollider's SCgf binary format.
 import copy
 import enum
 import hashlib
+import math
 import operator
 import threading
 import uuid
@@ -362,6 +363,8 @@ def ugen(
 
 
 class UGenSerializable:
+    """Protocol for objects that can be serialized into a UGen graph (e.g. Envelope)."""
+
     __slots__ = ()
 
     def serialize(self) -> "UGenVector":
@@ -442,7 +445,20 @@ def _compute_unary_op(
 
 
 class UGenOperable:
-    """Mixin for UGen arithmetic operations."""
+    """Mixin providing arithmetic and signal-processing operators on UGen signals.
+
+    All UGen outputs, constants, and vectors inherit these operators.
+    Standard Python operators (``+``, ``-``, ``*``, ``/``, ``**``, ``%``,
+    ``//``, ``<``, ``>``, ``<=``, ``>=``, ``&``, ``|``, ``^``, ``<<``,
+    ``>>``) produce BinaryOpUGen nodes in the graph. Named methods provide
+    SuperCollider-specific operations: pitch conversion (``midicps``,
+    ``cpsmidi``), amplitude conversion (``dbamp``, ``ampdb``), waveshaping
+    (``distort``, ``softclip``, ``tanh_``), clipping (``clip2``, ``fold2``,
+    ``wrap2``), ring modulation (``ring1``--``ring4``), and more.
+
+    When both operands are constants, the operation is folded at compile
+    time (no UGen is emitted).
+    """
 
     __slots__ = ()
 
@@ -546,6 +562,583 @@ class UGenOperable:
             float_operator=operator.neg,
         )
 
+    # -- Additional dunder methods ---------------------------------------------
+
+    def __pow__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.POWER,
+            float_operator=operator.pow,
+        )
+
+    def __rpow__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.POWER,
+            float_operator=operator.pow,
+        )
+
+    def __floordiv__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.INTEGER_DIVISION,
+            float_operator=operator.floordiv,
+        )
+
+    def __rfloordiv__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.INTEGER_DIVISION,
+            float_operator=operator.floordiv,
+        )
+
+    def __le__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.LESS_THAN_OR_EQUAL,
+            float_operator=operator.le,
+        )
+
+    def __ge__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.GREATER_THAN_OR_EQUAL,
+            float_operator=operator.ge,
+        )
+
+    def __and__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.BITWISE_AND,
+        )
+
+    def __rand__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.BITWISE_AND,
+        )
+
+    def __or__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.BITWISE_OR,
+        )
+
+    def __ror__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.BITWISE_OR,
+        )
+
+    def __xor__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.BITWISE_XOR,
+        )
+
+    def __rxor__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.BITWISE_XOR,
+        )
+
+    def __lshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.SHIFT_LEFT,
+        )
+
+    def __rlshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.SHIFT_LEFT,
+        )
+
+    def __rshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.SHIFT_RIGHT,
+        )
+
+    def __rrshift__(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        return _compute_binary_op(
+            left=expr,
+            right=self,
+            special_index=BinaryOperator.SHIFT_RIGHT,
+        )
+
+    # -- Explicit comparison methods (no __eq__/__ne__ to preserve hash) -------
+
+    def equal(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Signal equality test. Returns 1.0 when equal, 0.0 otherwise.
+
+        Uses an explicit method instead of ``__eq__`` to preserve Python
+        object identity semantics and hash stability.
+        """
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.EQUAL,
+        )
+
+    def not_equal(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Signal inequality test. Returns 1.0 when not equal, 0.0 otherwise."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.NOT_EQUAL,
+        )
+
+    # -- Named binary methods --------------------------------------------------
+
+    def min_(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Minimum of self and expr: ``min(a, b)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.MINIMUM,
+            float_operator=min,
+        )
+
+    def max_(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Maximum of self and expr: ``max(a, b)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.MAXIMUM,
+            float_operator=max,
+        )
+
+    def lcm(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Least common multiple."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.LCM,
+        )
+
+    def gcd(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Greatest common divisor."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.GCD,
+        )
+
+    def round_(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Round self to the nearest multiple of expr."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.ROUND,
+        )
+
+    def round_up(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Round self up to the next multiple of expr."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.ROUND_UP,
+        )
+
+    def trunc(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Truncate self to a multiple of expr."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.TRUNCATION,
+        )
+
+    def atan2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Two-argument arctangent: ``atan2(self, expr)`` in radians."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.ATAN2,
+            float_operator=math.atan2,
+        )
+
+    def hypot(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Euclidean distance: ``sqrt(self**2 + expr**2)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.HYPOT,
+            float_operator=math.hypot,
+        )
+
+    def hypotx(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Approximate hypotenuse: ``abs(self) + abs(expr) - min(abs(self), abs(expr)) / sqrt(2)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.HYPOTX,
+        )
+
+    def ring1(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Ring modulation variant: ``self * expr + self``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.RING1,
+        )
+
+    def ring2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Ring modulation variant: ``self * expr + self + expr``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.RING2,
+        )
+
+    def ring3(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Ring modulation variant: ``self * self * expr``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.RING3,
+        )
+
+    def ring4(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Ring modulation variant: ``self * self * expr - self * expr * expr``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.RING4,
+        )
+
+    def difsqr(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Difference of squares: ``self**2 - expr**2``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.DIFFERENCE_OF_SQUARES,
+        )
+
+    def sumsqr(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Sum of squares: ``self**2 + expr**2``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.SUM_OF_SQUARES,
+        )
+
+    def sqrsum(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Square of sum: ``(self + expr)**2``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.SQUARE_OF_SUM,
+        )
+
+    def sqrdif(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Square of difference: ``(self - expr)**2``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.SQUARE_OF_DIFFERENCE,
+        )
+
+    def absdif(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Absolute difference: ``abs(self - expr)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.ABSOLUTE_DIFFERENCE,
+        )
+
+    def thresh(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Threshold gate: ``self if self >= expr else 0``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.THRESHOLD,
+        )
+
+    def amclip(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Amplitude clipping: ``self * expr if expr > 0 else 0``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.AMPLITUDE_CLIPPING,
+        )
+
+    def scaleneg(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Scale negative part: ``self * expr if self < 0 else self``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.SCALE_NEGATIVE,
+        )
+
+    def clip2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Bilateral clipping: clamp self to ``[-expr, +expr]``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.CLIP2,
+        )
+
+    def excess(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Residual after clip2: ``self - clip2(self, expr)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.EXCESS,
+        )
+
+    def fold2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Bilateral folding: fold self into the range ``[-expr, +expr]``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.FOLD2,
+        )
+
+    def wrap2(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Bilateral wrapping: wrap self into the range ``[-expr, +expr)``."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.WRAP2,
+        )
+
+    # -- Named unary methods ---------------------------------------------------
+
+    def ceil_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.CEILING,
+            float_operator=math.ceil,
+        )
+
+    def floor_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.FLOOR,
+            float_operator=math.floor,
+        )
+
+    def frac(self) -> "UGenOperable":
+        """Fractional part: ``self - floor(self)``."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.FRACTIONAL_PART,
+        )
+
+    def sign(self) -> "UGenOperable":
+        """Sign function: -1, 0, or 1."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.SIGN,
+        )
+
+    def squared(self) -> "UGenOperable":
+        """Square: ``self * self``."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.SQUARED,
+            float_operator=lambda x: x * x,
+        )
+
+    def cubed(self) -> "UGenOperable":
+        """Cube: ``self * self * self``."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.CUBED,
+            float_operator=lambda x: x * x * x,
+        )
+
+    def sqrt_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.SQUARE_ROOT,
+            float_operator=math.sqrt,
+        )
+
+    def exp_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.EXPONENTIAL,
+            float_operator=math.exp,
+        )
+
+    def reciprocal(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.RECIPROCAL,
+            float_operator=lambda x: 1.0 / x,
+        )
+
+    def midicps(self) -> "UGenOperable":
+        """Convert MIDI note number to frequency in Hz (e.g. 69 -> 440.0)."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.MIDICPS,
+        )
+
+    def cpsmidi(self) -> "UGenOperable":
+        """Convert frequency in Hz to MIDI note number (e.g. 440.0 -> 69)."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.CPSMIDI,
+        )
+
+    def midiratio(self) -> "UGenOperable":
+        """Convert MIDI interval (semitones) to frequency ratio (e.g. 12 -> 2.0)."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.MIDIRATIO,
+        )
+
+    def ratiomidi(self) -> "UGenOperable":
+        """Convert frequency ratio to MIDI interval in semitones (e.g. 2.0 -> 12)."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.RATIOMIDI,
+        )
+
+    def dbamp(self) -> "UGenOperable":
+        """Convert decibels to linear amplitude (e.g. -6 -> ~0.5)."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.DBAMP,
+        )
+
+    def ampdb(self) -> "UGenOperable":
+        """Convert linear amplitude to decibels (e.g. 0.5 -> ~-6)."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.AMPDB,
+        )
+
+    def octcps(self) -> "UGenOperable":
+        """Convert decimal octave notation to frequency in Hz."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.OCTCPS,
+        )
+
+    def cpsoct(self) -> "UGenOperable":
+        """Convert frequency in Hz to decimal octave notation."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.CPSOCT,
+        )
+
+    def log_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.LOG,
+            float_operator=math.log,
+        )
+
+    def log2_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.LOG2,
+            float_operator=math.log2,
+        )
+
+    def log10_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.LOG10,
+            float_operator=math.log10,
+        )
+
+    def sin_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.SIN,
+            float_operator=math.sin,
+        )
+
+    def cos_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.COS,
+            float_operator=math.cos,
+        )
+
+    def tan_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.TAN,
+            float_operator=math.tan,
+        )
+
+    def arcsin(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.ARCSIN,
+            float_operator=math.asin,
+        )
+
+    def arccos(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.ARCCOS,
+            float_operator=math.acos,
+        )
+
+    def arctan(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.ARCTAN,
+            float_operator=math.atan,
+        )
+
+    def sinh_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.SINH,
+            float_operator=math.sinh,
+        )
+
+    def cosh_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.COSH,
+            float_operator=math.cosh,
+        )
+
+    def tanh_(self) -> "UGenOperable":
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.TANH,
+            float_operator=math.tanh,
+        )
+
+    def distort(self) -> "UGenOperable":
+        """Nonlinear distortion: ``self / (1 + abs(self))``."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.DISTORT,
+        )
+
+    def softclip(self) -> "UGenOperable":
+        """Soft clipping: linear below 0.5, asymptotic above. Keeps signal in approximately [-1, 1]."""
+        return _compute_unary_op(
+            source=self,
+            special_index=UnaryOperator.SOFTCLIP,
+        )
+
 
 class UGenScalar(UGenOperable):
     """A UGen scalar."""
@@ -646,6 +1239,8 @@ class UGenVector(UGenOperable, SequenceABC["UGenOperable"]):
 
 
 class SynthDefError(Exception):
+    """Raised for SynthDef graph construction errors (e.g. cross-scope UGen references)."""
+
     pass
 
 
@@ -655,7 +1250,22 @@ _local._active_builders = []
 
 
 class UGen(UGenOperable, SequenceABC["UGenOperable"]):
-    """Base class for all unit generators."""
+    """Base class for all unit generators.
+
+    A UGen represents a single signal-processing node in a SynthDef graph.
+    Subclasses are declared with the ``@ugen`` decorator, which generates
+    ``__init__``, rate constructors (``.ar``, ``.kr``, ``.ir``, ``.dr``),
+    and parameter accessors.
+
+    UGens are instantiated inside a ``SynthDefBuilder`` context manager and
+    automatically register themselves with the active builder. They support
+    multi-channel expansion: passing a list to any parameter produces
+    parallel UGen instances (one per list element), returned as a
+    ``UGenVector``.
+
+    Indexing a UGen (``ugen[0]``) returns an ``OutputProxy`` referencing a
+    specific output channel.
+    """
 
     __slots__ = (
         "_calculation_rate",
@@ -908,6 +1518,13 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
 
 
 class UnaryOpUGen(UGen):
+    """Applies a unary operator to a single input signal.
+
+    Created implicitly by named unary methods on ``UGenOperable`` (e.g.
+    ``sig.midicps()``, ``sig.tanh_()``). The ``special_index`` selects
+    which ``UnaryOperator`` to apply.
+    """
+
     _ordered_keys = ("source",)
     _is_pure = True
 
@@ -933,6 +1550,15 @@ class UnaryOpUGen(UGen):
 
 
 class BinaryOpUGen(UGen):
+    """Applies a binary operator to two input signals.
+
+    Created implicitly by Python operators (``+``, ``-``, ``*``, ``/``,
+    etc.) and named binary methods (``clip2``, ``ring1``, etc.) on
+    ``UGenOperable``. The ``special_index`` selects which
+    ``BinaryOperator`` to apply. Includes compile-time algebraic
+    optimizations (e.g. ``x * 0 = 0``, ``x + 0 = x``, ``x ** 1 = x``).
+    """
+
     _ordered_keys = ("left", "right")
     _is_pure = True
 
@@ -992,6 +1618,11 @@ class BinaryOpUGen(UGen):
                     return left
                 if right == -1:
                     return -left
+            if special_index == BinaryOperator.POWER:
+                if right == 0:
+                    return ConstantProxy(1)
+                if right == 1:
+                    return left
             return cls(
                 calculation_rate=max(
                     [
@@ -1035,6 +1666,15 @@ class BinaryOpUGen(UGen):
 
 
 class Parameter(UGen):
+    """A named SynthDef parameter with a default value, rate, and optional lag.
+
+    Parameters are created by ``SynthDefBuilder.add_parameter()`` or the
+    ``SynthDefBuilder(**kwargs)`` constructor. During ``build()``, they are
+    collected, sorted, and mapped to the appropriate ``Control`` UGen type
+    based on their ``rate`` (CONTROL -> Control, AUDIO -> AudioControl,
+    TRIGGER -> TrigControl, CONTROL+lag -> LagControl).
+    """
+
     def __init__(
         self,
         *,
@@ -1072,6 +1712,14 @@ class Parameter(UGen):
 
 
 class Control(UGen):
+    """A group of parameters exposed as control-rate (or scalar-rate) inputs.
+
+    Created internally by ``SynthDefBuilder.build()`` to aggregate
+    ``Parameter`` instances by rate. Subclasses ``AudioControl``,
+    ``LagControl``, and ``TrigControl`` handle audio-rate, lagged, and
+    trigger-rate parameters respectively.
+    """
+
     def __init__(
         self,
         *,
@@ -1129,6 +1777,20 @@ class TrigControl(Control):
 
 
 class SynthDef:
+    """A compiled UGen graph, ready for binary serialization and server dispatch.
+
+    Produced by ``SynthDefBuilder.build()`` or the ``@synthdef`` decorator.
+    Contains the topologically sorted UGen list, constant table, control
+    mapping, and parameter index.
+
+    Key methods:
+
+    - ``compile()`` -- serialize to SuperCollider's SCgf binary format.
+    - ``send(server)`` -- send the compiled bytes to a running server.
+    - ``play(server, **params)`` -- send and immediately create a synth.
+    - ``dump_ugens()`` -- return a human-readable graph representation.
+    """
+
     def __init__(self, ugens: SequenceABC[UGen], name: str | None = None) -> None:
         if not ugens:
             raise SynthDefError("No UGens provided")
@@ -1267,6 +1929,22 @@ class SynthDef:
 
 
 class SynthDefBuilder:
+    """Context manager for constructing SynthDef UGen graphs.
+
+    Usage::
+
+        with SynthDefBuilder(frequency=440.0, amplitude=0.3) as builder:
+            sig = SinOsc.ar(frequency=builder["frequency"])
+            Out.ar(bus=0, source=sig * builder["amplitude"])
+        synthdef = builder.build(name="my_synth")
+
+    Parameters are declared as keyword arguments (name=default_value) or
+    via ``add_parameter()``. Inside the context, UGens instantiated with
+    a matching ``_uuid`` are automatically added to the graph. On
+    ``build()``, the graph is sorted topologically, controls are mapped,
+    unused pure UGens are eliminated, and a ``SynthDef`` is returned.
+    """
+
     class SortBundle(NamedTuple):
         ugen: UGen
         width_first_antecedents: tuple[UGen, ...]

@@ -1,0 +1,3 @@
+# Dynamics
+
+::: nanosynth.ugens.dynamics

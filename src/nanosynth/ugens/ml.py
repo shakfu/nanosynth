@@ -57,7 +57,7 @@ class Onsets(UGen):
     threshold = param(0.5)
     odftype = param(3)
     relaxtime = param(1)
-    floor_ = param(0.1)
+    floor_ = param(0.1)  # type: ignore[assignment]
     mingap = param(10)
     medianspan = param(11)
     whtype = param(1)

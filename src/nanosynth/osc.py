@@ -73,7 +73,18 @@ def format_datagram(datagram: bytes | bytearray) -> str:
 
 
 class OscMessage:
-    """An OSC message."""
+    """An Open Sound Control message with an address pattern and typed arguments.
+
+    Supports encoding to and decoding from the OSC binary wire format.
+    Contents can be ints, floats, strings, bytes, bools, None, nested
+    messages/bundles, or arrays. Uses C++ acceleration when available,
+    falling back to a pure-Python implementation.
+
+    Args:
+        address: OSC address pattern (e.g. ``"/s_new"``) or integer address.
+        contents: Typed arguments (int, float, str, bytes, bool, None,
+            OscMessage, OscBundle, or sequences thereof).
+    """
 
     def __init__(self, address: int | str, *contents: OscArgument) -> None:
         if not isinstance(address, (str, int)):
@@ -165,6 +176,7 @@ class OscMessage:
         return type_tags, encoded_value
 
     def to_datagram(self) -> bytes:
+        """Encode this message to an OSC binary datagram."""
         if _osc_native is not None:
             if isinstance(self.address, str):
                 return bytes(_osc_native.encode_message(self.address, *self.contents))
@@ -189,6 +201,7 @@ class OscMessage:
 
     @classmethod
     def from_datagram(cls, datagram: bytes) -> "OscMessage":
+        """Decode an OSC binary datagram into an OscMessage."""
         if _osc_native is not None:
             address, contents = _osc_native.decode_message(datagram)
             return cls(address, *contents)
@@ -237,6 +250,7 @@ class OscMessage:
         return cls(address, *contents_list)
 
     def to_list(self) -> list[Any]:
+        """Convert to a nested list representation: ``[address, arg1, arg2, ...]``."""
         result: list[Any] = [self.address]
         for x in self.contents:
             if isinstance(x, (OscMessage, OscBundle)):
@@ -246,11 +260,21 @@ class OscMessage:
         return result
 
     def to_osc(self) -> "OscMessage":
+        """Return self (identity, for protocol compatibility with OscBundle)."""
         return self
 
 
 class OscBundle:
-    """An OSC bundle."""
+    """A timestamped collection of OSC messages and/or nested bundles.
+
+    Bundles allow multiple messages to be dispatched atomically at a
+    specified time. A ``None`` timestamp means "immediately".
+
+    Args:
+        timestamp: NTP timestamp (seconds since 1900-01-01) at which to
+            execute the contents, or ``None`` for immediate execution.
+        contents: Sequence of ``OscMessage`` and/or ``OscBundle`` instances.
+    """
 
     def __init__(
         self,
@@ -310,6 +334,7 @@ class OscBundle:
 
     @classmethod
     def from_datagram(cls, datagram: bytes) -> "OscBundle":
+        """Decode an OSC binary datagram into an OscBundle."""
         if _osc_native is not None:
             if not datagram.startswith(BUNDLE_PREFIX):
                 raise ValueError("datagram is not a bundle")
@@ -340,6 +365,7 @@ class OscBundle:
         return osc_bundle
 
     def to_datagram(self, realtime: bool = True) -> bytes:
+        """Encode this bundle to an OSC binary datagram."""
         datagram: bytes = BUNDLE_PREFIX
         datagram += self._encode_date(self.timestamp, realtime=realtime)
         for content in self.contents:
@@ -358,6 +384,7 @@ class OscBundle:
 
 
 def find_free_port() -> int:
+    """Find and return an available UDP port number."""
     with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_DGRAM)) as s:
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

@@ -1,0 +1,89 @@
+site_name: nanosynth
+site_url: https://shakfu.github.io/nanosynth/
+repo_url: https://github.com/shakfu/nanosynth
+repo_name: shakfu/nanosynth
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Light mode
+    - scheme: default
+      primary: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Dark mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: false
+            show_root_heading: true
+            members_order: source
+            docstring_style: null
+            show_signature_annotations: true
+            separate_signature: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference:
+    - api/index.md
+    - Core:
+      - SynthDef Builder: api/synthdef.md
+      - Server: api/server.md
+      - Envelopes: api/envelopes.md
+      - OSC Codec: api/osc.md
+      - Enums: api/enums.md
+      - Options: api/scsynth.md
+    - UGens:
+      - api/ugens/index.md
+      - Oscillators: api/ugens/osc.md
+      - Filters: api/ugens/filters.md
+      - BEQ Filters: api/ugens/beq.md
+      - Noise & Random: api/ugens/noise.md
+      - Delays: api/ugens/delay.md
+      - Envelopes: api/ugens/envelopes.md
+      - Panning: api/ugens/panning.md
+      - Demand: api/ugens/demand.md
+      - Dynamics: api/ugens/dynamics.md
+      - Chaos: api/ugens/chaos.md
+      - Granular: api/ugens/granular.md
+      - Buffer I/O: api/ugens/bufio.md
+      - Disk I/O: api/ugens/diskio.md
+      - Physical Modeling: api/ugens/physical.md
+      - Reverb: api/ugens/reverb.md
+      - Convolution: api/ugens/convolution.md
+      - Phase Vocoder: api/ugens/pv.md
+      - Machine Listening: api/ugens/ml.md
+      - Stochastic: api/ugens/gendyn.md
+      - Hilbert: api/ugens/hilbert.md
+      - I/O: api/ugens/inout.md
+      - Lines: api/ugens/lines.md
+      - Triggers: api/ugens/triggers.md
+      - Mouse/Keyboard: api/ugens/mac.md
+      - Info: api/ugens/info.md
+      - Utility: api/ugens/basic.md
+      - Safety: api/ugens/safety.md
+      - Band-limited: api/ugens/ffsinosc.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - admonition
+  - toc:
+      permalink: true

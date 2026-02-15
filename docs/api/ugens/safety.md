@@ -1,0 +1,3 @@
+# Safety
+
+::: nanosynth.ugens.safety

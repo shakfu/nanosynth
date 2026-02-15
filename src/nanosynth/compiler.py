@@ -114,6 +114,21 @@ def compile_synthdefs(
     *synthdefs: SynthDef,
     use_anonymous_names: bool = False,
 ) -> bytes:
+    """Compile one or more SynthDefs to SuperCollider's SCgf binary format.
+
+    The output is a complete SCgf version-2 file containing the constant
+    table, parameter index, and UGen graph for each SynthDef.
+
+    Args:
+        synthdef: First SynthDef (required).
+        synthdefs: Additional SynthDefs to include in the same binary.
+        use_anonymous_names: If True, use MD5-hash names instead of
+            the SynthDef's ``name`` attribute.
+
+    Returns:
+        The SCgf binary bytes, suitable for sending to scsynth via
+        ``/d_recv`` or writing to a ``.scsyndef`` file.
+    """
     synthdefs_ = (synthdef,) + synthdefs
     return b"".join(
         [

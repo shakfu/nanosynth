@@ -1,5 +1,6 @@
 .PHONY: all dev sync remake build sdist check clean demos help \
-		lint format typecheck qa test publish publish-test reset
+		lint format typecheck qa test publish publish-test reset \
+		docs docs-serve docs-deploy
 # .DEFAULT_GOAL := help
 
 all: dev
@@ -53,6 +54,15 @@ publish: check ## Upload dist/ to PyPI
 
 publish-test: check ## Upload dist/ to TestPyPI
 	@uv run twine upload --repository testpypi dist/*
+
+docs: ## Build documentation site
+	@uv run mkdocs build
+
+docs-serve: ## Serve docs locally with live reload
+	@uv run mkdocs serve
+
+docs-deploy: ## Deploy docs to GitHub Pages
+	@uv run mkdocs gh-deploy --force
 
 clean: ## Clean transitory files (preserves build cache)
 	@rm -rf dist/ *.egg-info/ .pytest_cache/ __pycache__

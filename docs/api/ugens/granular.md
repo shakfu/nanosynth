@@ -1,0 +1,3 @@
+# Granular
+
+::: nanosynth.ugens.granular

@@ -66,7 +66,32 @@ def _expand_deep(item: list[Any]) -> list[list[Any]]:
 
 
 class Envelope(UGenSerializable):
-    """An envelope specification for use with EnvGen."""
+    """An envelope specification for use with ``EnvGen``.
+
+    Defines an amplitude envelope as a sequence of breakpoints with
+    configurable interpolation curves. Used to shape the amplitude,
+    frequency, or any other parameter of a synth over time.
+
+    Args:
+        amplitudes: Breakpoint values. Must have at least 2 elements.
+            The first element is the initial value; subsequent elements
+            are target values for each segment.
+        durations: Duration of each segment in seconds. Length must be
+            ``len(amplitudes) - 1``.
+        curves: Interpolation shape per segment. Can be ``EnvelopeShape``
+            values, numeric curvature floats (positive = slow start,
+            negative = fast start), or shape name strings. Cycled if
+            shorter than the number of segments.
+        release_node: Index of the sustain node. When ``EnvGen`` receives
+            a gate-off (gate=0), the envelope jumps from this node to
+            the next, enabling sustain behavior (used by ``adsr``, ``asr``).
+        loop_node: Index of the loop-back node (for looping envelopes).
+        offset: Time offset applied to the envelope start.
+
+    Factory methods ``adsr``, ``asr``, ``linen``, ``percussive``, and
+    ``triangle`` create common envelope shapes without manual breakpoint
+    specification.
+    """
 
     def __init__(
         self,
@@ -148,6 +173,13 @@ class Envelope(UGenSerializable):
         curve: float = -4.0,
         bias: float = 0.0,
     ) -> "Envelope":
+        """Attack-Decay-Sustain-Release envelope.
+
+        Rises from 0 to ``peak`` over ``attack_time``, decays to
+        ``peak * sustain`` over ``decay_time``, holds at sustain until
+        gate-off, then releases to 0 over ``release_time``. Requires
+        ``EnvGen`` with a gate parameter for sustain/release behavior.
+        """
         amplitudes = [x + bias for x in [0, peak, peak * sustain, 0]]
         durations = [attack_time, decay_time, release_time]
         curves = [curve]
@@ -167,6 +199,11 @@ class Envelope(UGenSerializable):
         release_time: float = 1.0,
         curve: float = -4.0,
     ) -> "Envelope":
+        """Attack-Sustain-Release envelope.
+
+        Rises from 0 to ``sustain`` over ``attack_time``, holds until
+        gate-off, then releases to 0 over ``release_time``.
+        """
         amplitudes = [0, sustain, 0]
         durations = [attack_time, release_time]
         curves = [curve]
@@ -187,6 +224,13 @@ class Envelope(UGenSerializable):
         level: float = 1.0,
         curve: float | int = 1,
     ) -> "Envelope":
+        """Linear envelope with fixed sustain duration.
+
+        Rises from 0 to ``level`` over ``attack_time``, holds at ``level``
+        for ``sustain_time``, then falls to 0 over ``release_time``. Unlike
+        ``adsr``/``asr``, this is not gate-controlled -- the total duration
+        is fixed.
+        """
         amplitudes = [0, level, level, 0]
         durations = [attack_time, sustain_time, release_time]
         curves: list[float | int] = [curve]
@@ -200,6 +244,12 @@ class Envelope(UGenSerializable):
         amplitude: UGenOperable | float = 1.0,
         curve: EnvelopeShape | UGenOperable | float | str = -4.0,
     ) -> "Envelope":
+        """Percussive (attack-release) envelope with no sustain.
+
+        Rises from 0 to ``amplitude`` over ``attack_time``, then
+        immediately decays to 0 over ``release_time``. Commonly used
+        with ``DoneAction.FREE_SYNTH`` to auto-free the synth when done.
+        """
         amplitudes = [0, amplitude, 0]
         durations = [attack_time, release_time]
         curves = [curve]
@@ -211,6 +261,11 @@ class Envelope(UGenSerializable):
         duration: float = 1.0,
         amplitude: float = 1.0,
     ) -> "Envelope":
+        """Symmetric triangular envelope.
+
+        Rises linearly from 0 to ``amplitude`` over ``duration / 2``,
+        then falls linearly back to 0.
+        """
         amplitudes = [0, amplitude, 0]
         duration = duration / 2.0
         durations = [duration, duration]
@@ -329,6 +384,25 @@ class Envelope(UGenSerializable):
 
 
 class EnvGen(UGen):
+    """Envelope generator UGen.
+
+    Plays back an ``Envelope`` specification as a control or audio signal.
+    Commonly used to shape amplitude, filter cutoff, or any time-varying
+    parameter.
+
+    Args:
+        gate: Gate signal. For envelopes with a ``release_node`` (e.g.
+            ``adsr``, ``asr``), the envelope sustains while gate > 0 and
+            releases when gate transitions to 0. For fixed envelopes
+            (``linen``, ``percussive``), gate is typically left at 1.
+        level_scale: Scales the envelope output.
+        level_bias: Offset added to the envelope output.
+        time_scale: Scales all segment durations.
+        done_action: Action to take when the envelope finishes (see
+            ``DoneAction``). ``DoneAction.FREE_SYNTH`` is the most common.
+        envelope: An ``Envelope`` instance. Serialized automatically.
+    """
+
     _ordered_keys = (
         "gate",
         "level_scale",
