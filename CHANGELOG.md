@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3]
+
 ### Added
 
 - **`Synth` / `Group` proxy objects**: `Server.synth()` and `Server.group()` now return lightweight `Synth` and `Group` proxy objects instead of raw ints. Proxies support `.set(**params)`, `.free()`, context manager usage (`with server.synth(...) as node:`), and are fully int-compatible via `__int__()`, `__index__()`, `__eq__()`, and `__hash__()`. `managed_synth()` and `managed_group()` also yield proxies. Existing code comparing against ints continues to work unchanged
