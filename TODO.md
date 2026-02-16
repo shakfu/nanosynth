@@ -57,8 +57,6 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 
 ## Code Quality
 
-- [ ] **Split `synthdef.py` (~2150 lines).** Contains type aliases, `@ugen` decorator system, `UGenOperable`, proxy classes, `UGen`, operator UGens, parameter/control classes, `SynthDef`, `SynthDefBuilder`, and `@synthdef` decorator. Could split into `types.py`, `ugen.py`, `operators.py`, `parameters.py`, and `synthdef.py`. Counter-argument: circular imports are likely; monolithic structure avoids that. Priority: **low**, effort: **medium**.
-
 ---
 
 ## Test Coverage
