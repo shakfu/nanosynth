@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5]
+
 ### Added
 
 - **Embedded supernova**: `EmbeddedSupernovaProtocol` runs SuperCollider's parallel DSP engine (supernova) in-process via nanobind (`_supernova.cpp`), as a drop-in replacement for `EmbeddedProcessProtocol`. Same `Server` API -- just pass `protocol=EmbeddedSupernovaProtocol()`. Supernova schedules independent nodes across CPU cores when placed in `ParGroup`s, providing parallel DSP execution that scsynth cannot. C++ wrapper (`_supernova.cpp`, ~400 lines) wraps supernova's C++ classes directly (no C API exists), synthesizing `server_arguments` from Python kwargs, implementing a custom reply endpoint for in-process OSC responses, and managing the event loop on a daemon thread. Supernova plugins (24 `_supernova` variants) are compiled with `SUPERNOVA` defined and bundled alongside scsynth plugins. Build gated by `NANOSYNTH_EMBED_SUPERNOVA=ON` CMake option

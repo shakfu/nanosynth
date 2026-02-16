@@ -224,7 +224,7 @@ class EmbeddedSupernovaProtocol:
         logger.info(
             f"[{self.options.ip_address}:{self.options.port}/{label}] quitting ..."
         )
-        if self.status != BootStatus.ONLINE:
+        if self.status != BootStatus.ONLINE or self._server is None:
             logger.info(
                 f"[{self.options.ip_address}:{self.options.port}/{label}] "
                 "... already quit!"

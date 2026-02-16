@@ -1,6 +1,6 @@
 [project]
 name = "nanosynth"
-version = "0.1.4"
+version = "0.1.5"
 description = "Minimal embedded SuperCollider synthesis engine (libscsynth) wrapper"
 readme = "README.md"
 license = "MIT"
@@ -59,6 +59,7 @@ dev = [
     "nanobind>=2.11,<3",
     "mkdocs-material>=9.7.1",
     "mkdocstrings[python]>=1.0.3",
+    "pytest-cov>=7.0.0",
 ]
 
 [build-system]

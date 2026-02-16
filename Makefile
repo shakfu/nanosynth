@@ -30,7 +30,7 @@ sdist: ## Build source distribution
 	@uv build --sdist
 
 test: ## Run tests via uv
-	@uv run pytest tests/
+	@uv run pytest tests/  --cov=nanosynth --cov-report term-missing:skip-covered
 
 lint:
 	@uv run ruff check --fix src/ tests/ demos/
