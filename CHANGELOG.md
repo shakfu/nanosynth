@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ParGroup support**: `ParGroup` proxy class (subclass of `Group`) and `Server.par_group()` / `Server.managed_par_group()` for creating parallel groups via `/p_new`. ParGroups evaluate their child nodes in parallel across CPU cores
+
+- **SynthDef disk I/O**: `SynthDef.save(path)` writes compiled SCgf bytes to a `.scsyndef` file (with optional `use_anonymous_name` flag). `Server.load_synthdef(path)` loads a `.scsyndef` file into the engine via `/d_load`, resolving to an absolute path for the engine
+
+## [0.1.4]
+
+### Added
+
 - **Patterns / sequencing**: `Pattern[T]` abstract base class with `__iter__`, `take(n)`, and `|` (chain) operator. Eight value patterns: `Pseq` (sequential with nested pattern flattening), `Prand` (random selection), `Pwhite` (uniform random float), `Pseries` (arithmetic series), `Pgeom` (geometric series), `Pchoose` (weighted random), `Pn` (repeat a pattern N times), `Pconst` (yield until sum reaches total). `Pbind` binds keys to patterns/scalars to produce `Event` dicts, stops on shortest pattern, merges with configurable defaults, auto-derives `sustain` from `dur` and `freq` from `midinote`. `Clock` (background daemon thread with `time.monotonic()` scheduling, settable `bpm`) and `Player` (pulls events, creates synths, schedules gate release via `threading.Timer`). `Rest` sentinel class for silent beats
 
 - **MIDI input**: C++ nanobind extension (`_midi.cpp`) wrapping RtMidiIn from vendored rtmidi 6.0.0 (CoreMIDI on macOS, ALSA on Linux, WinMM on Windows; JACK disabled). Python layer (`midi.py`): frozen dataclass message types (`NoteOn`, `NoteOff`, `ControlChange`, `PitchBend`), `MidiIn` class with handler registration (`on_note_on`/`off_note_on`, `on_cc`/`off_cc`, etc.), pure-Python `_parse()` for raw MIDI bytes (velocity-0 note-on treated as note-off), context manager support, port opening by index/name/virtual. High-level helpers: `midi_note_map()` (note-on creates synth with freq/amp, note-off sends gate=0) and `midi_cc_map()` (CC values scaled to parameter range). Build integration: `NANOSYNTH_EMBED_MIDI` CMake option, rtmidi built as static library via `add_subdirectory`

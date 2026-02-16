@@ -39,7 +39,7 @@ from .patterns import (
 )
 from .proxy import Ndef, NodeProxy
 from .score import Score
-from .server import Bus, Group, Server, Synth
+from .server import Bus, Group, ParGroup, Server, Synth
 from .ugens import *  # noqa: F403
 
 # Common UGens exported via star-import. The full set remains available
@@ -87,6 +87,7 @@ __all__ = [
     "EnvGen",
     "Envelope",
     "Group",
+    "ParGroup",
     "Ndef",
     "NodeProxy",
     "OscBundle",

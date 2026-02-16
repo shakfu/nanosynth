@@ -1,14 +1,14 @@
 # nanosynth
 
-nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind). It makes it possible to define SynthDefs in Python, compile them to SuperCollider's SCgf binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
+nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind). It makes it possible to define SynthDefs in Python, compile them to SuperCollider's `SCgf` binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
 
 ## Features
 
-- **Embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
+- **Self-contained with embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
 
 - **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, buffer management, OSC reply handling, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()`/`managed_buffer()` for automatic resource cleanup
 
-- **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's SCgf binary format
+- **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's `SCgf` binary format
 
 - **340+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, phase vocoder, machine listening, stochastic synthesis, and more
 
@@ -780,7 +780,7 @@ make reset       # clean everything including build cache
 
 ### CI
 
-The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CPython 3.10--3.14 on macOS ARM64, Linux x86_64, and Windows x86_64 using [cibuildwheel](https://cibuildwheel.pypa.io). A `qa` job runs lint, format check, typecheck, and tests on every push. An sdist is built separately and all artifacts are aggregated into a single downloadable archive.
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CPython 3.10--3.14 on macOS ARM64, Linux x86_64, and Windows x86_64 using [cibuildwheel](https://cibuildwheel.pypa.io). A `qa` job runs lint, format check, typecheck, and tests on every push. A source distribution ('sdist') is built separately and all artifacts are aggregated into a single downloadable archive.
 
 A separate release workflow (`.github/workflows/release.yml`) publishes to PyPI on tag push via trusted publisher, with manual dispatch for TestPyPI.
 
@@ -792,7 +792,7 @@ A separate release workflow (`.github/workflows/release.yml`) publishes to PyPI 
 - [Strudel](https://strudel.cc) -- JavaScript port of TidalCycles for browser-based live coding.
 - [Sonic Pi](https://sonic-pi.net) -- live coding music synth built on SuperCollider.
 - [RtMidi](https://github.com/thestk/rtmidi) -- cross-platform MIDI I/O library, vendored for the `_midi` extension.
-- [nanobind](https://github.com/wjakob/nanobind) -- the C++/Python binding library used to embed libscsynth and the OSC codec.
+- [nanobind](https://github.com/wjakob/nanobind) -- the C++/Python binding library used to embed libscsynth, RtiMidi and the OSC codec.
 
 ## License
 

@@ -13,6 +13,7 @@ import operator
 import threading
 import uuid
 from collections.abc import Sequence as SequenceABC
+from pathlib import Path
 from typing import (
     Any,
     Callable,
@@ -2051,6 +2052,15 @@ class SynthDef:
     def send(self, server: ServerProtocol) -> None:
         """Send this SynthDef to a running server."""
         server.send_synthdef(self)
+
+    def save(self, path: str | Path, *, use_anonymous_name: bool = False) -> None:
+        """Write this SynthDef to a .scsyndef file.
+
+        Args:
+            path: Destination file path.
+            use_anonymous_name: If True, use the anonymous name in the binary.
+        """
+        Path(path).write_bytes(self.compile(use_anonymous_name=use_anonymous_name))
 
     def play(
         self,

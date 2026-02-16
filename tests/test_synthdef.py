@@ -1,6 +1,7 @@
 """Tests for SynthDef compilation, UGen graphs, parameters, and envelopes."""
 
 import struct
+from pathlib import Path
 
 import pytest
 
@@ -1476,6 +1477,28 @@ class TestSynthDefSendPlay:
         server.synth.return_value = 1001
         sd.play(server, target=2, action=1)
         server.synth.assert_called_once_with("test", target=2, action=1)
+
+    def test_save(self, tmp_path: Path):
+        """save() writes compiled bytes to disk."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        out = tmp_path / "test.scsyndef"
+        sd.save(out)
+        assert out.exists()
+        data = out.read_bytes()
+        assert data == sd.compile()
+        assert data[:4] == b"SCgf"
+
+    def test_save_anonymous(self, tmp_path: Path):
+        """save(use_anonymous_name=True) writes anonymous-name bytes."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        out = tmp_path / "anon.scsyndef"
+        sd.save(out, use_anonymous_name=True)
+        data = out.read_bytes()
+        assert data == sd.compile(use_anonymous_name=True)
 
 
 # ---------------------------------------------------------------------------

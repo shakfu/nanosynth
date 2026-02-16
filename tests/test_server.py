@@ -6,7 +6,7 @@ import pytest
 
 from nanosynth.enums import AddAction
 from nanosynth.scsynth import BootStatus, Options
-from nanosynth.server import Bus, Group, Server, Synth
+from nanosynth.server import Bus, Group, ParGroup, Server, Synth
 
 
 class TestServerInit:
@@ -67,6 +67,17 @@ class TestServerWithMockedProtocol:
         server.send_synthdef(sd)
         assert "test_sd" in server._synthdefs
         server._protocol.send_packet.assert_called_once()
+
+    def test_load_synthdef(self, server: Server) -> None:
+        from pathlib import Path
+
+        from nanosynth.osc import OscMessage
+
+        server.load_synthdef("/tmp/test.scsyndef")
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/d_load"
+        assert msg.contents[0] == str(Path("/tmp/test.scsyndef").resolve())
 
     def test_synth_returns_node_id(self, server: Server) -> None:
         node_id = server.synth("my_synth", frequency=440.0)
@@ -728,6 +739,70 @@ class TestGroupProxy:
         msg = OscMessage.from_datagram(data)
         assert msg.address == "/n_set"
         assert msg.contents[0] == 1000
+
+
+class TestParGroup:
+    """Tests for ParGroup proxy and Server.par_group()."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_par_group_sends_p_new(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.par_group(target=1, action=1)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/p_new"
+        assert msg.contents[0] == 1000
+        assert msg.contents[1] == 1
+        assert msg.contents[2] == 1
+
+    def test_par_group_returns_par_group_proxy(self, server: Server) -> None:
+        node = server.par_group()
+        assert isinstance(node, ParGroup)
+        assert isinstance(node, Group)
+
+    def test_par_group_proxy_repr(self, server: Server) -> None:
+        node = server.par_group()
+        assert repr(node) == "<ParGroup 1000>"
+
+    def test_par_group_proxy_int_conversion(self, server: Server) -> None:
+        node = server.par_group()
+        assert int(node) == 1000
+
+    def test_par_group_proxy_free(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        node = server.par_group()
+        server._protocol.send_packet.reset_mock()
+        node.free()
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/n_free"
+
+    def test_par_group_context_manager(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with server.par_group() as node:
+            assert isinstance(node, ParGroup)
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/n_free"
+
+    def test_managed_par_group(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        with server.managed_par_group() as node:
+            assert isinstance(node, ParGroup)
+            assert node == 1000
+        last_data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(last_data)
+        assert msg.address == "/n_free"
 
 
 class TestBusAllocation:

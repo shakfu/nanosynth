@@ -45,6 +45,8 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 
 - [ ] **Lazy / deferred graph compilation.** `SynthDefBuilder.build()` eagerly deep-copies, sorts, optimizes, and compiles. A lazy mode compiling only on first `send()` / `compile()` could benefit live-coding scenarios. Priority: **low**, effort: **low**.
 
+- [ ] **Supernova (parallel DSP engine).** SuperCollider's alternative server that distributes node graph evaluation across multiple DSP threads via "parallel groups". Supernova source was stripped during thirdparty trimming and would need to be restored from SC 3.14.1. Key blocker: supernova has no C API equivalent to scsynth's (`World_New`, `World_SendPacket`, etc.) -- its interface is a C++ class hierarchy (`nova_server`), so a new nanobind wrapper (`_supernova.cpp`) would need to be written from scratch. Trimmed boost headers (thread, lockfree, atomic) likely sufficient but need verification. Alternative: support supernova as an external process via UDP/TCP OSC (avoids the C++ wrapper problem but loses in-process zero-latency). Priority: **low**, effort: **high**.
+
 ---
 
 ## Code Generation
@@ -126,7 +128,7 @@ Not necessarily all worth implementing, but represents the gap between "compile 
 - [x] **Node proxies / live coding** (`NodeProxy`, `Ndef`). `NodeProxy` owns a private audio bus, source synth (with ASR envelope for crossfade), and monitor synth. Source swap: gate=0 on old (10ms release), create new (10ms attack). Accepts callables (auto-wrapped in SynthDefBuilder) or SynthDef objects. `Ndef` is a global named proxy registry (`__new__` returns `NodeProxy`) keyed by `(id(server), name)`. `clear_all(server)` frees all proxies for a server.
 
 - [ ] **Scope / metering** (`Stethoscope`, `ServerMeter`). Useful feedback but requires a UI story (matplotlib? terminal?). Priority: **low**, effort: **medium**.
-- [ ] **ParGroup support** (groups work, no ParGroup). Multi-core DSP optimization. Nobody is blocked by its absence. Priority: **low**, effort: **low**.
+- [x] **ParGroup support** (groups work, no ParGroup). Multi-core DSP optimization. Nobody is blocked by its absence. Priority: **low**, effort: **low**.
 - [ ] **SynthDef variants**. Niche even in SC, rarely used. Priority: **low**, effort: **low**.
 
 ---

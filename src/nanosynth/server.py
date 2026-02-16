@@ -153,6 +153,18 @@ class Group:
         self._server.free(self._node_id)
 
 
+class ParGroup(Group):
+    """Lightweight proxy for a parallel group node on the server.
+
+    A ParGroup evaluates its child nodes in parallel across CPU cores.
+    Same interface as ``Group`` but created with ``/p_new`` instead of
+    ``/g_new``.
+    """
+
+    def __repr__(self) -> str:
+        return f"<ParGroup {self._node_id}>"
+
+
 class Bus:
     """Lightweight proxy for an allocated bus on the server.
 
@@ -422,6 +434,14 @@ class Server:
         self.send_msg("/d_recv", compiled)
         self._synthdefs.add(name)
 
+    def load_synthdef(self, path: str | Path) -> None:
+        """Load a .scsyndef file into the engine via /d_load.
+
+        Args:
+            path: Path to the .scsyndef file.
+        """
+        self.send_msg("/d_load", str(Path(path).resolve()))
+
     # -- Convenience -----------------------------------------------------------
 
     def synth(
@@ -460,6 +480,21 @@ class Server:
         self.send_msg("/g_new", node_id, int(action), int(target))
         return Group(self, node_id)
 
+    def par_group(
+        self, target: int = 0, action: AddAction | int = AddAction.ADD_TO_HEAD
+    ) -> ParGroup:
+        """Create a parallel group node. Returns a ParGroup proxy.
+
+        A ParGroup evaluates its child nodes in parallel across CPU cores.
+
+        Args:
+            target: Target node for placement.
+            action: Add action (AddAction enum or int 0-4).
+        """
+        node_id = self.next_node_id()
+        self.send_msg("/p_new", node_id, int(action), int(target))
+        return ParGroup(self, node_id)
+
     def free(self, node_id: SupportsInt) -> None:
         """Free a node by ID (accepts int or Synth/Group proxy)."""
         self.send_msg("/n_free", int(node_id))
@@ -495,6 +530,20 @@ class Server:
     ) -> Iterator[Group]:
         """Create a group and free it on context exit."""
         node = self.group(target=target, action=action)
+        try:
+            yield node
+        finally:
+            if self.is_running:
+                self.free(node)
+
+    @contextlib.contextmanager
+    def managed_par_group(
+        self,
+        target: int = 0,
+        action: AddAction | int = AddAction.ADD_TO_HEAD,
+    ) -> Iterator[ParGroup]:
+        """Create a parallel group and free it on context exit."""
+        node = self.par_group(target=target, action=action)
         try:
             yield node
         finally:
