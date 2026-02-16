@@ -1,18 +1,18 @@
 name: Release
 
-on:
-  push:
-    tags: ["v*"]
-  workflow_dispatch:
-    inputs:
-      target:
-        description: "Upload target"
-        required: true
-        default: "testpypi"
-        type: choice
-        options:
-          - testpypi
-          - pypi
+on: [workflow_dispatch]
+  # push:
+  #   tags: ["v*"]
+  # workflow_dispatch:
+  #   inputs:
+  #     target:
+  #       description: "Upload target"
+  #       required: true
+  #       default: "testpypi"
+  #       type: choice
+  #       options:
+  #         - testpypi
+  #         - pypi
 
 jobs:
   build-wheels:
