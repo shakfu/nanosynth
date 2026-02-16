@@ -1975,3 +1975,166 @@ class TestTupleSyntax:
         assert "freq" in sd.parameters
         assert "amp" in sd.parameters
         assert "bus" in sd.parameters
+
+
+# ---------------------------------------------------------------------------
+# SynthDef graph introspection tests
+# ---------------------------------------------------------------------------
+
+
+class TestGraphIntrospection:
+    def test_graph_returns_synthdef_graph(self):
+        """graph() returns a SynthDefGraph with correct name."""
+        from nanosynth.synthdef import SynthDefGraph
+
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test_graph")
+        g = sd.graph()
+        assert isinstance(g, SynthDefGraph)
+        assert g.name == "test_graph"
+
+    def test_graph_node_count(self):
+        """graph() returns the correct number of nodes."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        g = sd.graph()
+        assert len(g.nodes) == len(sd.ugens)
+
+    def test_graph_constants(self):
+        """graph() captures constants from the SynthDef."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=880.0))
+        sd = builder.build(name="test")
+        g = sd.graph()
+        assert 880.0 in g.constants
+
+    def test_graph_parameters(self):
+        """graph() captures parameter names and defaults."""
+        with SynthDefBuilder(freq=440.0, amp=0.3) as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=builder["freq"]) * builder["amp"])
+        sd = builder.build(name="test")
+        g = sd.graph()
+        assert "freq" in g.parameters
+        assert g.parameters["freq"] == 440.0
+        assert "amp" in g.parameters
+        assert g.parameters["amp"] == pytest.approx(0.3)
+
+    def test_graph_sineosc_type_name(self):
+        """graph() nodes have correct type names."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        g = sd.graph()
+        type_names = [n.type_name for n in g.nodes]
+        assert "SinOsc" in type_names
+        assert "Out" in type_names
+
+    def test_graph_binary_op_type_name(self):
+        """BinaryOpUGen nodes include operator name."""
+        with SynthDefBuilder(amp=0.5) as builder:
+            Out.ar(bus=0, source=SinOsc.ar() * builder["amp"])
+        sd = builder.build(name="test")
+        g = sd.graph()
+        binop_nodes = [n for n in g.nodes if "BinaryOpUGen" in n.type_name]
+        assert len(binop_nodes) >= 1
+        assert "MULTIPLICATION" in binop_nodes[0].type_name
+
+    def test_graph_unary_op_type_name(self):
+        """UnaryOpUGen nodes include operator name."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=(-SinOsc.ar()))
+        sd = builder.build(name="test")
+        g = sd.graph()
+        unop_nodes = [n for n in g.nodes if "UnaryOpUGen" in n.type_name]
+        assert len(unop_nodes) >= 1
+        assert "NEGATIVE" in unop_nodes[0].type_name
+
+    def test_graph_control_type_name(self):
+        """Control nodes include parameter names."""
+        with SynthDefBuilder(freq=440.0) as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=builder["freq"]))
+        sd = builder.build(name="test")
+        g = sd.graph()
+        ctrl_nodes = [n for n in g.nodes if "Control" in n.type_name]
+        assert len(ctrl_nodes) >= 1
+        assert "freq" in ctrl_nodes[0].type_name
+
+    def test_graph_input_connections(self):
+        """graph() wires inputs correctly between nodes."""
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar(frequency=440.0)
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        g = sd.graph()
+        out_node = [n for n in g.nodes if n.type_name == "Out"][0]
+        # Out has bus (constant) and source (SinOsc output)
+        source_inputs = [i for i in out_node.inputs if i.source is not None]
+        assert len(source_inputs) >= 1
+        assert source_inputs[0].source is not None
+        assert "SinOsc" in source_inputs[0].source.type_name
+
+    def test_graph_constant_inputs(self):
+        """Constant inputs have source=None and value set."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=440.0))
+        sd = builder.build(name="test")
+        g = sd.graph()
+        sineosc_node = [n for n in g.nodes if n.type_name == "SinOsc"][0]
+        const_inputs = [i for i in sineosc_node.inputs if i.source is None]
+        assert len(const_inputs) >= 1
+        values = [i.value for i in const_inputs]
+        assert 440.0 in values
+
+    def test_graph_multi_output(self):
+        """Multi-output UGens have correct output_count."""
+        with SynthDefBuilder() as builder:
+            pan = Pan2.ar(source=SinOsc.ar(), position=0.0)
+            Out.ar(bus=0, source=pan)
+        sd = builder.build(name="test")
+        g = sd.graph()
+        pan_nodes = [n for n in g.nodes if n.type_name == "Pan2"]
+        assert len(pan_nodes) == 1
+        assert pan_nodes[0].output_count == 2
+
+    def test_graph_rates(self):
+        """Nodes have correct rate tokens."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        g = sd.graph()
+        sineosc_node = [n for n in g.nodes if n.type_name == "SinOsc"][0]
+        out_node = [n for n in g.nodes if n.type_name == "Out"][0]
+        assert sineosc_node.rate == "ar"
+        assert out_node.rate == "ar"
+
+    def test_to_dot_produces_valid_dot(self):
+        """to_dot() produces a string with digraph structure."""
+        with SynthDefBuilder(freq=440.0) as builder:
+            Out.ar(bus=0, source=SinOsc.ar(frequency=builder["freq"]))
+        sd = builder.build(name="test_dot")
+        dot = sd.to_dot()
+        assert dot.startswith('digraph "test_dot"')
+        assert "}" in dot
+        assert "SinOsc" in dot
+        assert "Out" in dot
+        assert "->" in dot
+
+    def test_to_dot_rankdir(self):
+        """to_dot() respects rankdir parameter."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        dot_lr = sd.to_dot(rankdir="LR")
+        assert "rankdir=LR" in dot_lr
+
+    def test_to_dot_no_labels(self):
+        """to_dot(label=False) omits edge labels and constant nodes."""
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="test")
+        dot = sd.to_dot(label=False)
+        # Should still have edges but without label attributes
+        assert "->" in dot
+        assert "dashed" not in dot

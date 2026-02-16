@@ -46,12 +46,6 @@ Repository = "https://github.com/shakfu/nanosynth"
 Issues = "https://github.com/shakfu/nanosynth/issues"
 Changelog = "https://github.com/shakfu/nanosynth/blob/main/CHANGELOG.md"
 
-[tool.scikit-build]
-wheel.packages = ["src/nanosynth"]
-wheel.exclude = ["*.cpp"]
-sdist.include = ["thirdparty/"]
-build-dir = "build/{wheel_tag}"
-
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
@@ -71,3 +65,8 @@ dev = [
 requires = ["scikit-build-core>=0.8", "nanobind>=2.11,<3"]
 build-backend = "scikit_build_core.build"
 
+[tool.scikit-build]
+wheel.packages = ["src/nanosynth"]
+wheel.exclude = ["*.cpp"]
+sdist.include = ["thirdparty/"]
+build-dir = "build/{wheel_tag}"

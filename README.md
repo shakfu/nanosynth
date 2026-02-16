@@ -11,6 +11,8 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 - **Rich operator algebra** -- 43 binary and 34 unary operators on all UGen signals, including arithmetic, comparison, bitwise, power, trig, pitch conversion (`midicps`/`cpsmidi`), clipping (`clip2`/`fold2`/`wrap2`), and more. Compile-time constant folding and algebraic optimizations
 - **Buffer management** -- `alloc_buffer`, `read_buffer`, `write_buffer`, `free_buffer`, `zero_buffer`, `close_buffer`, and context managers for automatic cleanup
 - **Reply handling** -- bidirectional OSC communication with the engine: persistent handlers (`on`/`off`), blocking one-shot waits (`wait_for_reply`), and send-and-wait (`send_msg_sync`)
+- **NRT (non-real-time) rendering** -- `Score` class for offline audio rendering to WAV/AIFF files without audio hardware. Timestamped OSC commands are serialized and rendered by the embedded engine
+- **SynthDef graph introspection** -- `SynthDef.graph()` returns a structured DAG of `UGenNode`/`UGenInput` NamedTuples for programmatic traversal. `SynthDef.to_dot()` exports to Graphviz DOT format
 - **Envelope system** -- `Envelope` class with factory methods (`adsr`, `asr`, `linen`, `percussive`, `triangle`) and the `EnvGen` UGen
 - **OSC codec** -- pure-Python `OscMessage`/`OscBundle` encode/decode with optional C++ acceleration via nanobind
 - **`@synthdef` decorator** -- shorthand for defining SynthDefs as plain functions with parameter rate/lag annotations
@@ -419,6 +421,56 @@ print(synthdef.dump_ugens())
 #   1: SinOsc.ar(frequency: Control[0], phase: 0.0)
 #   2: BinaryOpUGen.ar(MULTIPLICATION, a: SinOsc[0], b: Control[1])
 #   ...
+```
+
+### Offline (NRT) Rendering
+
+Render audio to a file without real-time audio hardware -- useful for batch processing, testing, and CI pipelines:
+
+```python
+from nanosynth import Score, SynthDefBuilder, DoneAction
+from nanosynth.envelopes import EnvGen, Envelope
+from nanosynth.ugens import Out, Pan2, SinOsc
+
+# Define a SynthDef
+with SynthDefBuilder(freq=440.0, amp=0.3) as builder:
+    sig = SinOsc.ar(frequency=builder["freq"]) * builder["amp"]
+    env = EnvGen.kr(
+        envelope=Envelope.percussive(attack_time=0.01, release_time=0.5),
+        done_action=DoneAction.FREE_SYNTH,
+    )
+    Out.ar(bus=0, source=Pan2.ar(source=sig * env))
+sd = builder.build(name="sine")
+
+# Build a Score -- a sequence of timestamped OSC commands
+score = Score()
+score.add_synthdef(0.0, sd)
+score.add_synth(0.0, "sine", freq=440.0, amp=0.3)
+score.add_synth(0.5, "sine", freq=554.37, amp=0.2)
+score.add_synth(1.0, "sine", freq=659.26, amp=0.2)
+
+# Render to a WAV file (no audio hardware needed)
+score.render("output.wav", sample_rate=44100, header_format="WAV", sample_format="int16")
+```
+
+### SynthDef Graph Introspection
+
+Walk the UGen graph programmatically or export to Graphviz DOT format:
+
+```python
+# Structured graph -- returns UGenNode/UGenInput NamedTuples
+graph = sd.graph()
+for node in graph.nodes:
+    print(f"{node.node_index}: {node.type_name}.{node.rate}")
+    for inp in node.inputs:
+        if inp.source is not None:
+            print(f"  {inp.name} <- {inp.source.type_name}[{inp.output_index}]")
+        else:
+            print(f"  {inp.name} = {inp.value}")
+
+# Export to Graphviz DOT
+dot = sd.to_dot(rankdir="LR")
+print(dot)  # pipe to `dot -Tpng -o graph.png`
 ```
 
 ### OSC Codec

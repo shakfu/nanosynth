@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **NRT (non-real-time) rendering**: `Score` class for offline audio rendering without real-time audio hardware. `Score.add()`, `add_synthdef()`, `add_synth()` build a timestamped sequence of OSC commands; `to_binary()` serializes to SC's binary command file format; `render()` invokes the embedded scsynth NRT engine to produce WAV/AIFF files. C++ binding `world_nrt_render()` wraps `World_NonRealTimeSynthesis` with configurable sample rate, format, channels, and engine options
+- **SynthDef graph introspection**: `SynthDef.graph()` returns a `SynthDefGraph` NamedTuple containing `UGenNode` and `UGenInput` structures for programmatic DAG walking. `SynthDef.to_dot()` exports the graph as a Graphviz DOT string for visualization. Handles BinaryOpUGen/UnaryOpUGen operator names, Control parameter names, multi-output UGens, and constant inputs
+
 ## [0.1.3]
 
 ### Added

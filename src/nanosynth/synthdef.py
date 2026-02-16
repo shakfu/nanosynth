@@ -1810,6 +1810,34 @@ class TrigControl(Control):
 # ---------------------------------------------------------------------------
 
 
+class UGenInput(NamedTuple):
+    """A single input to a UGen node in the graph."""
+
+    name: str
+    source: "UGenNode | None"
+    output_index: int
+    value: float | None
+
+
+class UGenNode(NamedTuple):
+    """A UGen in the graph with its connections."""
+
+    node_index: int
+    type_name: str
+    rate: str
+    inputs: tuple[UGenInput, ...]
+    output_count: int
+
+
+class SynthDefGraph(NamedTuple):
+    """Structured representation of a SynthDef's UGen graph."""
+
+    name: str
+    nodes: tuple[UGenNode, ...]
+    constants: tuple[float, ...]
+    parameters: dict[str, float]
+
+
 class SynthDef:
     """A compiled UGen graph, ready for binary serialization and server dispatch.
 
@@ -1823,6 +1851,8 @@ class SynthDef:
     - ``send(server)`` -- send the compiled bytes to a running server.
     - ``play(server, **params)`` -- send and immediately create a synth.
     - ``dump_ugens()`` -- return a human-readable graph representation.
+    - ``graph()`` -- return a structured ``SynthDefGraph`` for introspection.
+    - ``to_dot()`` -- export the graph as a Graphviz DOT string.
     """
 
     def __init__(self, ugens: SequenceABC[UGen], name: str | None = None) -> None:
@@ -1901,6 +1931,120 @@ class SynthDef:
     @property
     def ugens(self) -> SequenceABC[UGen]:
         return self._ugens
+
+    # -- Graph introspection ---------------------------------------------------
+
+    def graph(self) -> SynthDefGraph:
+        """Return a structured representation of the UGen graph."""
+        ugen_index_map: dict[int, int] = {}
+        for i, u in enumerate(self._ugens):
+            ugen_index_map[id(u)] = i
+
+        nodes: list[UGenNode] = []
+        for i, u in enumerate(self._ugens):
+            type_name = type(u).__name__
+            if isinstance(u, BinaryOpUGen):
+                type_name = f"BinaryOpUGen({u.operator.name})"
+            elif isinstance(u, UnaryOpUGen):
+                type_name = f"UnaryOpUGen({u.operator.name})"
+            elif isinstance(u, Control):
+                param_names = [p.name or "?" for p in u.parameters]
+                type_name = f"{type(u).__name__}[{','.join(param_names)}]"
+
+            rate = u.calculation_rate.token
+            ugen_inputs: list[UGenInput] = []
+
+            for input_, key in zip(u._inputs, u._input_keys):
+                key_str = key[0] if isinstance(key, tuple) else key
+                if isinstance(input_, OutputProxy):
+                    src_idx = ugen_index_map.get(id(input_.ugen))
+                    src_node = nodes[src_idx] if src_idx is not None else None
+                    ugen_inputs.append(
+                        UGenInput(
+                            name=key_str,
+                            source=src_node,
+                            output_index=input_.index,
+                            value=None,
+                        )
+                    )
+                else:
+                    ugen_inputs.append(
+                        UGenInput(
+                            name=key_str,
+                            source=None,
+                            output_index=0,
+                            value=float(input_),
+                        )
+                    )
+
+            node = UGenNode(
+                node_index=i,
+                type_name=type_name,
+                rate=rate,
+                inputs=tuple(ugen_inputs),
+                output_count=len(u),
+            )
+            nodes.append(node)
+
+        params: dict[str, float] = {}
+        for name, (param_obj, _idx) in self._parameters.items():
+            params[name] = param_obj.value[0] if len(param_obj.value) == 1 else 0.0
+
+        return SynthDefGraph(
+            name=self.effective_name,
+            nodes=tuple(nodes),
+            constants=self._constants,
+            parameters=params,
+        )
+
+    def to_dot(self, *, rankdir: str = "TB", label: bool = True) -> str:
+        """Export the UGen graph as a Graphviz DOT string."""
+        g = self.graph()
+        lines: list[str] = []
+        lines.append(f'digraph "{g.name}" {{')
+        lines.append(f"  rankdir={rankdir};")
+        lines.append('  node [shape=box, fontname="monospace", fontsize=10];')
+        lines.append('  edge [fontname="monospace", fontsize=8];')
+
+        for node in g.nodes:
+            node_label = f"{node.type_name}.{node.rate}"
+            if node.output_count > 1:
+                node_label += f" [{node.output_count}ch]"
+            lines.append(f'  n{node.node_index} [label="{node_label}"];')
+
+        for node in g.nodes:
+            for inp in node.inputs:
+                if inp.source is not None:
+                    edge_label = inp.name
+                    if inp.source.output_count > 1:
+                        edge_label += f"[{inp.output_index}]"
+                    if label:
+                        lines.append(
+                            f"  n{inp.source.node_index} -> n{node.node_index}"
+                            f' [label="{edge_label}"];'
+                        )
+                    else:
+                        lines.append(
+                            f"  n{inp.source.node_index} -> n{node.node_index};"
+                        )
+                elif label and inp.value is not None:
+                    const_id = f"c{node.node_index}_{inp.name}"
+                    val_str = (
+                        str(int(inp.value))
+                        if inp.value == int(inp.value)
+                        else str(inp.value)
+                    )
+                    lines.append(
+                        f"  {const_id} [shape=plaintext,"
+                        f' label="{val_str}", fontsize=8];'
+                    )
+                    lines.append(
+                        f"  {const_id} -> n{node.node_index}"
+                        f' [label="{inp.name}", style=dashed];'
+                    )
+
+        lines.append("}")
+        return "\n".join(lines)
 
     # -- High-level convenience methods ----------------------------------------
 

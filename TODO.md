@@ -39,9 +39,9 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 
 - [ ] **Async engine protocol.** An `asyncio`-based alternative to the thread-based `EmbeddedProcessProtocol`. Could coexist with the current implementation.
 
-- [ ] **NRT rendering.** SuperCollider supports offline rendering via `World_NonRealTimeSynthesis`. Unlocks deterministic output, batch processing, and CI testing without audio hardware. Needs a C++ binding and a Python `Score` / `nrt_render()` API. Priority: **high**, effort: **medium-high**.
+- [x] **NRT rendering.** `Score` class with `add()`, `add_synthdef()`, `add_synth()`, `to_binary()`, `render()`. C++ `world_nrt_render()` binding calls `World_NonRealTimeSynthesis`. Supports WAV/AIFF output with configurable sample rate, format, and channel count.
 
-- [ ] **SynthDef graph introspection.** `dump_ugens()` produces strings, but there's no structured API to walk the UGen graph, query input sources, compute signal flow paths, or export to DOT/Graphviz. Add `SynthDef.graph()` returning a DAG structure and `to_dot()` for visualization. Priority: **medium**, effort: **low-medium**.
+- [x] **SynthDef graph introspection.** `SynthDef.graph()` returns a `SynthDefGraph` with `UGenNode` / `UGenInput` NamedTuples for structured DAG walking. `SynthDef.to_dot()` exports to Graphviz DOT format. Handles BinaryOpUGen/UnaryOpUGen operator names, Control parameter names, multi-output UGens, and constant inputs.
 
 - [ ] **Lazy / deferred graph compilation.** `SynthDefBuilder.build()` eagerly deep-copies, sorts, optimizes, and compiles. A lazy mode compiling only on first `send()` / `compile()` could benefit live-coding scenarios. Priority: **low**, effort: **low**.
 

@@ -12,13 +12,17 @@ from .synthdef import (
     PseudoUGen,
     SynthDef,
     SynthDefBuilder,
+    SynthDefGraph,
     UGen,
+    UGenInput,
+    UGenNode,
     control,
     param,
     synthdef,
     ugen,
 )
 from .envelopes import EnvGen, Envelope
+from .score import Score
 from .server import Group, Server, Synth
 from .ugens import *  # noqa: F403
 
@@ -69,12 +73,16 @@ __all__ = [
     "OscMessage",
     "Options",
     "Param",
+    "Score",
     "PseudoUGen",
     "Server",
     "Synth",
     "SynthDef",
     "SynthDefBuilder",
+    "SynthDefGraph",
     "UGen",
+    "UGenInput",
+    "UGenNode",
     "compile_synthdefs",
     "control",
     "find_free_port",

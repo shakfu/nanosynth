@@ -329,6 +329,103 @@ static bool py_world_send_packet(nb::capsule& world_cap, nb::bytes data) {
 }
 
 // ---------------------------------------------------------------------------
+// NRT (Non-Real-Time) rendering
+// ---------------------------------------------------------------------------
+
+static void py_world_nrt_render(
+    const std::string& cmd_filename,
+    const std::string& output_filename,
+    uint32_t sample_rate,
+    std::optional<std::string> input_filename,
+    std::optional<std::string> header_format,
+    std::optional<std::string> sample_format,
+    uint32_t num_output_bus_channels,
+    uint32_t num_input_bus_channels,
+    uint32_t block_size,
+    uint32_t num_buffers,
+    uint32_t max_nodes,
+    uint32_t max_graph_defs,
+    uint32_t realtime_memory_size,
+    uint32_t preferred_hardware_buffer_size,
+    int verbosity,
+    std::optional<std::string> ugen_plugins_path,
+    uint32_t num_audio_bus_channels,
+    uint32_t num_control_bus_channels,
+    uint32_t max_wire_bufs,
+    uint32_t num_rgens
+) {
+    // Allocate string storage that outlives World_New
+    auto* strings = new WorldStrings();
+
+    WorldOptions opts;
+    opts.mRealTime = false;
+    opts.mPreferredSampleRate = sample_rate;
+    opts.mNumOutputBusChannels = num_output_bus_channels;
+    opts.mNumInputBusChannels = num_input_bus_channels;
+    opts.mBufLength = block_size;
+    opts.mNumBuffers = num_buffers;
+    opts.mMaxNodes = max_nodes;
+    opts.mMaxGraphDefs = max_graph_defs;
+    opts.mRealTimeMemorySize = realtime_memory_size;
+    opts.mPreferredHardwareBufferFrameSize = preferred_hardware_buffer_size;
+    opts.mVerbosity = verbosity;
+    opts.mNumAudioBusChannels = num_audio_bus_channels;
+    opts.mNumControlBusChannels = num_control_bus_channels;
+    opts.mMaxWireBufs = max_wire_bufs;
+    opts.mNumRGens = num_rgens;
+    opts.mLoadGraphDefs = 0;
+    opts.mRendezvous = false;
+
+    // NRT-specific file paths -- store in WorldStrings for lifetime
+    // cmd_filename and output_filename are required; use a temporary
+    // std::string member to keep the c_str() alive.
+    strings->password = cmd_filename;  // repurpose unused field
+    opts.mNonRealTimeCmdFilename = strings->password.c_str();
+
+    strings->restricted_path = output_filename;  // repurpose unused field
+    opts.mNonRealTimeOutputFilename = strings->restricted_path.c_str();
+
+    if (input_filename.has_value()) {
+        strings->in_device_name = *input_filename;
+        opts.mNonRealTimeInputFilename = strings->in_device_name.c_str();
+    }
+    if (header_format.has_value()) {
+        strings->out_device_name = *header_format;
+        opts.mNonRealTimeOutputHeaderFormat = strings->out_device_name.c_str();
+    }
+    if (sample_format.has_value()) {
+        strings->input_streams_enabled = *sample_format;
+        opts.mNonRealTimeOutputSampleFormat = strings->input_streams_enabled.c_str();
+    }
+    if (ugen_plugins_path.has_value()) {
+        strings->ugen_plugins_path = *ugen_plugins_path;
+        opts.mUGensPluginPath = strings->ugen_plugins_path.c_str();
+    }
+
+    World* world;
+    {
+        nb::gil_scoped_release release;
+        world = World_New(&opts);
+    }
+
+    if (!world) {
+        delete strings;
+        throw std::runtime_error("World_New failed for NRT rendering");
+    }
+
+    try {
+        nb::gil_scoped_release release;
+        // World_NonRealTimeSynthesis calls World_Cleanup internally
+        World_NonRealTimeSynthesis(world, &opts);
+    } catch (const std::exception& e) {
+        delete strings;
+        throw std::runtime_error(std::string("NRT rendering failed: ") + e.what());
+    }
+
+    delete strings;
+}
+
+// ---------------------------------------------------------------------------
 // Module definition
 // ---------------------------------------------------------------------------
 
@@ -394,4 +491,27 @@ NB_MODULE(_scsynth, m) {
     m.def("set_reply_func", &py_set_reply_func,
           nb::arg("func").none(),
           "Set the reply callback for OSC responses. Pass None to clear.");
+
+    m.def("world_nrt_render", &py_world_nrt_render,
+          nb::arg("cmd_filename"),
+          nb::arg("output_filename"),
+          nb::arg("sample_rate") = 44100u,
+          nb::arg("input_filename") = nb::none(),
+          nb::arg("header_format") = nb::none(),
+          nb::arg("sample_format") = nb::none(),
+          nb::arg("num_output_bus_channels") = 2u,
+          nb::arg("num_input_bus_channels") = 0u,
+          nb::arg("block_size") = 64u,
+          nb::arg("num_buffers") = 1024u,
+          nb::arg("max_nodes") = 1024u,
+          nb::arg("max_graph_defs") = 1024u,
+          nb::arg("realtime_memory_size") = 8192u,
+          nb::arg("preferred_hardware_buffer_size") = 8192u,
+          nb::arg("verbosity") = 0,
+          nb::arg("ugen_plugins_path") = nb::none(),
+          nb::arg("num_audio_bus_channels") = 1024u,
+          nb::arg("num_control_bus_channels") = 16384u,
+          nb::arg("max_wire_bufs") = 64u,
+          nb::arg("num_rgens") = 64u,
+          "Render a binary OSC command file to an audio file (non-real-time).");
 }
