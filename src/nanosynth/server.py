@@ -10,7 +10,7 @@ import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, SupportsInt
+from typing import TYPE_CHECKING, Any, SupportsInt, Union
 
 from .enums import AddAction
 from .osc import OscMessage
@@ -18,7 +18,12 @@ from .scsynth import BootStatus, EmbeddedProcessProtocol, Options
 
 if TYPE_CHECKING:
     from .osc import OscArgument
+    from .supernova import EmbeddedSupernovaProtocol
     from .synthdef import SynthDef
+
+    ServerProtocol = Union[EmbeddedProcessProtocol, EmbeddedSupernovaProtocol]
+else:
+    ServerProtocol = EmbeddedProcessProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -290,9 +295,14 @@ class Server:
             ...
     """
 
-    def __init__(self, options: Options | None = None) -> None:
+    def __init__(
+        self,
+        options: Options | None = None,
+        *,
+        protocol: ServerProtocol | None = None,
+    ) -> None:
         self._options = options or Options()
-        self._protocol = EmbeddedProcessProtocol()
+        self._protocol: ServerProtocol = protocol or EmbeddedProcessProtocol()
         self._node_id_counter = itertools.count(1000)
         self._buffer_id_counter = itertools.count(0)
         self._allocated_buffers: set[int] = set()
@@ -333,10 +343,16 @@ class Server:
         self.send_msg("/g_new", 1, 0, 0)
 
     def quit(self) -> None:
-        """Shut down the embedded scsynth engine."""
+        """Shut down the embedded engine."""
         if not self.is_running:
             return
-        self.send_msg("/quit")
+        # Send /quit OSC for scsynth (triggers internal shutdown).
+        # Supernova handles shutdown via terminate() in its quit() method,
+        # so sending /quit would cause a double-shutdown crash.
+        from .supernova import EmbeddedSupernovaProtocol
+
+        if not isinstance(self._protocol, EmbeddedSupernovaProtocol):
+            self.send_msg("/quit")
         self._protocol.quit()
 
     @property

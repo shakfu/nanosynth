@@ -5,6 +5,7 @@ __version__ = "0.1.4"
 from .enums import AddAction, CalculationRate, DoneAction
 from .osc import OscBundle, OscMessage, find_free_port
 from .scsynth import EmbeddedProcessProtocol, Options, find_ugen_plugins_path
+from .supernova import EmbeddedSupernovaProtocol
 from .compiler import compile_synthdefs
 from .synthdef import (
     Default,
@@ -84,6 +85,7 @@ __all__ = [
     "Default",
     "DoneAction",
     "EmbeddedProcessProtocol",
+    "EmbeddedSupernovaProtocol",
     "EnvGen",
     "Envelope",
     "Group",

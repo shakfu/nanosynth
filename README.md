@@ -1,12 +1,12 @@
 # nanosynth
 
-nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind). It makes it possible to define SynthDefs in Python, compile them to SuperCollider's `SCgf` binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
+nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) and [supernova](https://doc.sccode.org/Guides/Supernova-Internals.html) synthesis engines in-process using [nanobind](https://github.com/wjakob/nanobind). It makes it possible to define SynthDefs in Python, compile them to SuperCollider's `SCgf` binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
 
 ## Features
 
-- **Self-contained with embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
+- **Self-contained with embedded synthesis engines** -- both libscsynth and supernova run in-process as Python extensions (vendored and built from source), no separate process required. supernova is SuperCollider's parallel DSP engine -- it distributes independent synth nodes across CPU cores via `ParGroup`s, while scsynth runs everything on a single audio thread
 
-- **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, buffer management, OSC reply handling, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()`/`managed_buffer()` for automatic resource cleanup
+- **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, buffer management, OSC reply handling, and convenience methods (`synth`, `group`, `par_group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()`/`managed_par_group()`/`managed_buffer()` for automatic resource cleanup. Same API for both engines -- just pass `protocol=EmbeddedSupernovaProtocol()` to use supernova
 
 - **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's `SCgf` binary format
 
@@ -46,7 +46,7 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 
 - [uv](https://github.com/astral-sh/uv) (package manager)
 
-- For embedded scsynth: SuperCollider 3.14.1, libsndfile, and PortAudio are vendored and built from source automatically. Audio backend: CoreAudio on macOS, PortAudio (ALSA) on Linux, PortAudio (WASAPI) on Windows -- no system-level audio dependencies beyond the compiler toolchain.
+- For embedded engines: SuperCollider 3.14.1 (both scsynth and supernova), libsndfile, and PortAudio are vendored and built from source automatically. Audio backend: CoreAudio on macOS, PortAudio (ALSA) on Linux, PortAudio (WASAPI) on Windows -- no system-level audio dependencies beyond the compiler toolchain.
 
 ## Installation
 
@@ -57,14 +57,17 @@ pip install nanosynth
 Or build from source:
 
 ```sh
-# Editable install with embedded libscsynth
+# Editable install with embedded scsynth + supernova
 uv pip install -e .
 
 # Build wheel (incremental -- reuses cmake build cache in build/)
 make build
 
-# Install without the audio engine (OSC codec + SynthDef compiler only)
-uv pip install -e . -C cmake.define.NANOSYNTH_EMBED_SCSYNTH=OFF
+# Install without supernova (scsynth only)
+uv pip install -e . -C cmake.define.NANOSYNTH_EMBED_SUPERNOVA=OFF
+
+# Install without any audio engine (OSC codec + SynthDef compiler only)
+uv pip install -e . -C cmake.define.NANOSYNTH_EMBED_SCSYNTH=OFF -C cmake.define.NANOSYNTH_EMBED_SUPERNOVA=OFF
 ```
 
 ## Quick Start
@@ -72,7 +75,8 @@ uv pip install -e . -C cmake.define.NANOSYNTH_EMBED_SCSYNTH=OFF
 ### Run the Audio Demos
 
 ```sh
-make demos
+make demos            # scsynth demos
+make demos-supernova  # supernova demos
 ```
 
 ### Define a SynthDef and Play It
@@ -175,6 +179,46 @@ with Server(Options(verbosity=0)) as server:
         time.sleep(2.0)
     # bus freed automatically
 ```
+
+### Supernova (Parallel DSP)
+
+Use supernova instead of scsynth to distribute independent synth nodes across CPU cores. The API is identical -- just pass a different protocol:
+
+```python
+import time
+from nanosynth import AddAction, EmbeddedSupernovaProtocol, Options, Server
+from nanosynth.envelopes import EnvGen, Envelope
+from nanosynth.synthdef import DoneAction, SynthDefBuilder
+from nanosynth.ugens import Out, Pan2, SinOsc
+
+with SynthDefBuilder(frequency=440.0, amplitude=0.3) as builder:
+    sig = SinOsc.ar(frequency=builder["frequency"]) * builder["amplitude"]
+    env = EnvGen.kr(
+        envelope=Envelope.linen(attack_time=0.5, sustain_time=2.0, release_time=0.5),
+        done_action=DoneAction.FREE_SYNTH,
+    )
+    Out.ar(bus=0, source=Pan2.ar(source=sig * env))
+
+voice = builder.build(name="voice")
+
+# Boot supernova instead of scsynth
+with Server(
+    Options(verbosity=0, load_synthdefs=False),
+    protocol=EmbeddedSupernovaProtocol(),
+) as server:
+    voice.send(server)
+    time.sleep(0.1)
+
+    # ParGroup: children execute in parallel across CPU cores
+    par = server.par_group(target=1, action=AddAction.ADD_TO_HEAD)
+
+    for freq in [261.63, 329.63, 392.00, 523.25]:
+        server.synth("voice", target=par, frequency=freq, amplitude=0.15)
+
+    time.sleep(3.0)
+```
+
+With scsynth, all voices execute sequentially on one audio thread. With supernova, voices inside a `ParGroup` are distributed across cores -- providing a measurable speedup for dense polyphony and independent effect chains.
 
 ### Recording
 
@@ -766,16 +810,18 @@ Browse the docs at [shakfu.github.io/nanosynth](https://shakfu.github.io/nanosyn
 ## Development
 
 ```bash
-make dev         # uv sync + editable install
-make build       # build wheel (incremental via build cache)
-make sdist       # build source distribution
-make test        # run tests
-make lint        # ruff check --fix
-make format      # ruff format
-make typecheck   # mypy --strict
-make qa          # all of the above
-make clean       # remove transitory files (preserves build cache)
-make reset       # clean everything including build cache
+make dev              # uv sync + editable install
+make build            # build wheel (incremental via build cache)
+make sdist            # build source distribution
+make test             # run tests
+make lint             # ruff check --fix
+make format           # ruff format
+make typecheck        # mypy --strict
+make qa               # all of the above
+make demos            # run scsynth demo scripts
+make demos-supernova  # run supernova demo scripts
+make clean            # remove transitory files (preserves build cache)
+make reset            # clean everything including build cache
 ```
 
 ### CI
@@ -788,6 +834,7 @@ A separate release workflow (`.github/workflows/release.yml`) publishes to PyPI 
 
 - [SuperCollider](https://supercollider.github.io) -- the audio synthesis engine and programming language that nanosynth embeds.
 - [supriya](https://github.com/supriya-project/supriya) -- the inspiration for nanosynth; its UGen system and SynthDef compiler were the basis for this project's graph compilation pipeline.
+- [sc3](https://github.com/shakfu/sc3) - Another SuperCollider library for Python with less features than supriya.
 - [TidalCycles](https://tidalcycles.org) -- live coding pattern language for music, built on SuperCollider.
 - [Strudel](https://strudel.cc) -- JavaScript port of TidalCycles for browser-based live coding.
 - [Sonic Pi](https://sonic-pi.net) -- live coding music synth built on SuperCollider.

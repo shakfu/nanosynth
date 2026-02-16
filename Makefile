@@ -1,4 +1,4 @@
-.PHONY: all dev sync remake build sdist check clean demos help \
+.PHONY: all dev sync remake build sdist check clean demos demos-supernova help \
 		lint format typecheck qa test publish publish-test reset \
 		docs docs-serve docs-deploy
 # .DEFAULT_GOAL := help
@@ -43,8 +43,11 @@ typecheck:
 
 qa: test lint typecheck format
 
-demos: ## Run demo scripts sequentially
-	@for f in demos/*.py; do echo "--- $$f ---"; uv run python "$$f"; done
+demos: ## Run scsynth demo scripts sequentially
+	@for f in demos/scsynth/*.py; do echo "--- $$f ---"; uv run python "$$f"; done
+
+demos-supernova: ## Run supernova demo scripts sequentially
+	@for f in demos/supernova/*.py; do echo "--- $$f ---"; uv run python "$$f"; done
 
 check: ## Validate dist/ with twine
 	@uv run twine check dist/*

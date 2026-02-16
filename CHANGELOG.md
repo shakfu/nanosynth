@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **ParGroup support**: `ParGroup` proxy class (subclass of `Group`) and `Server.par_group()` / `Server.managed_par_group()` for creating parallel groups via `/p_new`. ParGroups evaluate their child nodes in parallel across CPU cores
+- **Embedded supernova**: `EmbeddedSupernovaProtocol` runs SuperCollider's parallel DSP engine (supernova) in-process via nanobind (`_supernova.cpp`), as a drop-in replacement for `EmbeddedProcessProtocol`. Same `Server` API -- just pass `protocol=EmbeddedSupernovaProtocol()`. Supernova schedules independent nodes across CPU cores when placed in `ParGroup`s, providing parallel DSP execution that scsynth cannot. C++ wrapper (`_supernova.cpp`, ~400 lines) wraps supernova's C++ classes directly (no C API exists), synthesizing `server_arguments` from Python kwargs, implementing a custom reply endpoint for in-process OSC responses, and managing the event loop on a daemon thread. Supernova plugins (24 `_supernova` variants) are compiled with `SUPERNOVA` defined and bundled alongside scsynth plugins. Build gated by `NANOSYNTH_EMBED_SUPERNOVA=ON` CMake option
+
+- **ParGroup support**: `ParGroup` proxy class (subclass of `Group`) and `Server.par_group()` / `Server.managed_par_group()` for creating parallel groups via `/p_new`. ParGroups evaluate their child nodes in parallel across CPU cores (supernova only; scsynth treats them as regular groups)
 
 - **SynthDef disk I/O**: `SynthDef.save(path)` writes compiled SCgf bytes to a `.scsyndef` file (with optional `use_anonymous_name` flag). `Server.load_synthdef(path)` loads a `.scsyndef` file into the engine via `/d_load`, resolving to an absolute path for the engine
+
+- Demo scripts reorganized into `demos/scsynth/` (21 demos) and `demos/supernova/` (6 demos). Supernova demos: `01_sine.py` (basic sine wave), `02_parallel_voices.py` (24 voices in ParGroup), `03_fx_chain.py` (delay + reverb effect chain), `04_parallel_fx.py` (three independent effect chains on private buses in a ParGroup), `05_nested_pargroups.py` (nested ParGroups with left/right voice banks and sequential fx group), `06_dense_polyphony.py` (64 simultaneous voices stress test)
 
 ## [0.1.4]
 

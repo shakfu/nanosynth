@@ -46,7 +46,14 @@ if(NANOSYNTH_EMBED_SCSYNTH)
     # --- Vendored SuperCollider (static libscsynth) ---
     set(SC_QT            OFF CACHE BOOL "" FORCE)
     set(SC_IDE           OFF CACHE BOOL "" FORCE)
-    set(SUPERNOVA        OFF CACHE BOOL "" FORCE)
+    # Enable supernova build if _supernova extension is requested
+    option(NANOSYNTH_EMBED_SUPERNOVA "Build _supernova extension with embedded supernova" ON)
+    if(NANOSYNTH_EMBED_SUPERNOVA)
+        set(SUPERNOVA    ON  CACHE BOOL "" FORCE)
+        set(FFT_GREEN    ON  CACHE BOOL "" FORCE)   # Green FFT, avoid FFTW3 dep
+    else()
+        set(SUPERNOVA    OFF CACHE BOOL "" FORCE)
+    endif()
     set(NO_X11           ON  CACHE BOOL "" FORCE)
     set(ENABLE_TESTSUITE OFF CACHE BOOL "" FORCE)
     set(SC_HIDAPI        OFF CACHE BOOL "" FORCE)
@@ -62,10 +69,15 @@ if(NANOSYNTH_EMBED_SCSYNTH)
     set(scappauxresourcesdir "" CACHE STRING "" FORCE)
     set(scappbindir          "" CACHE STRING "" FORCE)
 
-    # Audio API: CoreAudio on macOS, vendored PortAudio on Linux/Windows
+    # Audio API: CoreAudio on macOS (scsynth), vendored PortAudio on Linux/Windows.
+    # supernova always uses PortAudio (CoreAudio backend not implemented for supernova).
     if(NOT APPLE)
         set(AUDIOAPI         "portaudio" CACHE STRING "" FORCE)
-        set(SYSTEM_PORTAUDIO OFF CACHE BOOL "" FORCE)  # build vendored portaudio
+    endif()
+    # Build vendored PortAudio when needed: always on non-Apple,
+    # also on Apple when supernova is enabled (supernova uses PortAudio on all platforms).
+    if(NOT APPLE OR NANOSYNTH_EMBED_SUPERNOVA)
+        set(SYSTEM_PORTAUDIO OFF CACHE BOOL "" FORCE)
     endif()
 
     # Windows: pthreads doesn't exist; SC plugins link ${PTHREADS_LIBRARY}
@@ -149,6 +161,84 @@ if(NANOSYNTH_EMBED_SCSYNTH)
     endif()
 
     install(TARGETS _scsynth DESTINATION nanosynth)
+
+    # --- _supernova: embedded supernova (parallel DSP engine) ---
+    if(NANOSYNTH_EMBED_SUPERNOVA)
+        nanobind_add_module(_supernova src/nanosynth/_supernova.cpp)
+
+        # Mark libsupernova for embedded build (skips boost::program_options)
+        target_compile_definitions(libsupernova PUBLIC NANOSYNTH_EMBEDDED)
+
+        target_include_directories(_supernova PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/server
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/common
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/plugin_interface
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/common
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/server/supernova
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/server/scsynth
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/external_libraries
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/external_libraries/nova-simd
+            ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/external_libraries/nova-tt
+        )
+
+        target_link_libraries(_supernova PRIVATE libsupernova tlsf sndfile)
+
+        # Supernova UGen plugins: SC builds separate _supernova variants with
+        # SUPERNOVA defined, so server_type() returns sc_server_supernova.
+        set(SUPERNOVA_PLUGIN_TARGETS
+            BinaryOpUGens_supernova ChaosUGens_supernova DelayUGens_supernova
+            DemandUGens_supernova DynNoiseUGens_supernova FilterUGens_supernova
+            GendynUGens_supernova GrainUGens_supernova IOUGens_supernova
+            LFUGens_supernova MulAddUGens_supernova NoiseUGens_supernova
+            OscUGens_supernova PanUGens_supernova PhysicalModelingUGens_supernova
+            ReverbUGens_supernova TestUGens_supernova TriggerUGens_supernova
+            UnaryOpUGens_supernova UnpackFFTUGens_supernova
+            FFT_UGens_supernova PV_ThirdParty_supernova ML_UGens_supernova
+            DiskIO_UGens_supernova
+        )
+        add_dependencies(_supernova ${SUPERNOVA_PLUGIN_TARGETS})
+
+        # Install supernova plugins into the wheel
+        foreach(plugin_target ${SUPERNOVA_PLUGIN_TARGETS})
+            install(TARGETS ${plugin_target}
+                LIBRARY DESTINATION nanosynth/plugins
+                RUNTIME DESTINATION nanosynth/plugins
+            )
+        endforeach()
+
+        # Copy supernova plugins to source tree for editable installs
+        foreach(plugin_target ${SUPERNOVA_PLUGIN_TARGETS})
+            add_custom_command(TARGET _supernova POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                    "$<TARGET_FILE:${plugin_target}>"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src/nanosynth/plugins/"
+            )
+        endforeach()
+
+        # macOS system frameworks
+        if(APPLE)
+            target_link_libraries(_supernova PRIVATE
+                "-framework CoreAudio"
+                "-framework Accelerate"
+                "-framework CoreServices"
+                "-framework Foundation"
+                "-framework AppKit"
+            )
+        endif()
+
+        # Linux: pthread and rt
+        if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            target_link_libraries(_supernova PRIVATE pthread rt)
+        endif()
+
+        if(MSVC)
+            target_compile_options(_supernova PRIVATE /W4)
+        else()
+            target_compile_options(_supernova PRIVATE -Wall -Wextra)
+        endif()
+
+        install(TARGETS _supernova DESTINATION nanosynth)
+    endif()
 endif()
 
 # --- Option to embed rtmidi as a nanobind extension ---
