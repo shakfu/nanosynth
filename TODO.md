@@ -78,7 +78,7 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 - [x] **Auto-generated API reference docs.** mkdocs-material + mkdocstrings site with 6 core module pages, 28 UGen category pages, Getting Started guide, and changelog.
 - [x] **Docstrings on `SynthDefBuilder` methods.** `build()`, `add_parameter()`, `__getitem__()` now have docstrings.
 
-- [ ] **"Concepts" documentation.** Non-obvious concepts that need explanation: multichannel expansion, calculation rates (SCALAR/CONTROL/AUDIO/DEMAND), the scope system, parameter rate system, `unexpanded` flag, `is_width_first`, optimization pass, and the `Default` sentinel. Priority: **medium**, effort: **medium**.
+- [x] **"Concepts" documentation.** Non-obvious concepts that need explanation: multichannel expansion, calculation rates (SCALAR/CONTROL/AUDIO/DEMAND), the scope system, parameter rate system, `unexpanded` flag, `is_width_first`, optimization pass, and the `Default` sentinel. Priority: **medium**, effort: **medium**.
 
 ---
 
@@ -116,10 +116,15 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 Not necessarily all worth implementing, but represents the gap between "compile SynthDefs" and "replace sclang for synthesis work". Ordered by priority:
 
 - [x] **Bus allocation** (`Bus.audio`, `Bus.control`). `Bus` proxy class with `Server.audio_bus()`, `Server.control_bus()`, `free_bus()`, `managed_audio_bus()`, `managed_control_bus()`. Audio buses start at `first_private_bus_id`, control buses at 0. `Bus.set()` for control buses, `int()` compatibility, context managers.
+
 - [x] **Recording** (`Server.record`). `Server.record(path)` / `Server.stop_recording()` / `Server.is_recording` for capturing real-time audio output to WAV/AIFF. Uses DiskOut + 65536-frame streaming buffer. Configurable channel count, bus, format. Recorder SynthDef cached by channel count.
-- [ ] **Patterns / sequencing** (`Pbind`, `Pseq`, `Prand`). Highest-impact SC feature -- without it, all scheduling is manual `time.sleep()` loops. Large design space; Python has its own idioms (generators, async). May warrant a separate package. Priority: **high**, effort: **high**.
-- [ ] **MIDI input** (`MIDIFunc`, `MIDIIn`). Enables live performance and hardware controller integration. Priority: **medium**, effort: **medium**.
-- [ ] **Node proxies / live coding** (`NodeProxy`, `Ndef`). What makes SC powerful for live coding. Complex to implement well, high value for a specific audience. Priority: **medium**, effort: **high**.
+
+- [x] **Patterns / sequencing** (`Pbind`, `Pseq`, `Prand`). `Pattern[T]` ABC with `__iter__` + `take()` + `|` chaining. Value patterns: `Pseq`, `Prand`, `Pwhite`, `Pseries`, `Pgeom`, `Pchoose`, `Pn`, `Pconst`. `Pbind` binds keys to patterns/scalars, producing `Event` dicts merged with defaults. `Clock` (daemon thread, `time.monotonic()` scheduling) and `Player` drive real-time playback. `Rest` sentinel skips synth creation. Gate release via `threading.Timer`. `midinote`-to-`freq` conversion, auto-derived `sustain`.
+
+- [x] **MIDI input** (`MidiIn`). C++ nanobind wrapper (`_midi.cpp`) around RtMidiIn with vendored rtmidi 6.0.0 (CoreMIDI/ALSA/WinMM, JACK disabled). Python layer (`midi.py`): frozen dataclass message types (`NoteOn`, `NoteOff`, `ControlChange`, `PitchBend`), `MidiIn` class with handler registration (`on_note_on`, `on_cc`, etc.), pure-Python `_parse()` for raw MIDI bytes, context manager support. High-level helpers: `midi_note_map()` (note-on -> synth, note-off -> gate=0) and `midi_cc_map()` (CC -> scaled param).
+
+- [x] **Node proxies / live coding** (`NodeProxy`, `Ndef`). `NodeProxy` owns a private audio bus, source synth (with ASR envelope for crossfade), and monitor synth. Source swap: gate=0 on old (10ms release), create new (10ms attack). Accepts callables (auto-wrapped in SynthDefBuilder) or SynthDef objects. `Ndef` is a global named proxy registry (`__new__` returns `NodeProxy`) keyed by `(id(server), name)`. `clear_all(server)` frees all proxies for a server.
+
 - [ ] **Scope / metering** (`Stethoscope`, `ServerMeter`). Useful feedback but requires a UI story (matplotlib? terminal?). Priority: **low**, effort: **medium**.
 - [ ] **ParGroup support** (groups work, no ParGroup). Multi-core DSP optimization. Nobody is blocked by its absence. Priority: **low**, effort: **low**.
 - [ ] **SynthDef variants**. Niche even in SC, rarely used. Priority: **low**, effort: **low**.
@@ -129,4 +134,5 @@ Not necessarily all worth implementing, but represents the gap between "compile 
 ## Misc
 
 - [x] **`SynthDefBuilder.__getitem__` return type.** Won't fix -- the `OutputProxy | Parameter` union is correct.
+
 - [x] **Plugin loading validation.** Logs a warning when no UGen plugins path is found.

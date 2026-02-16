@@ -1,6 +1,6 @@
 # nanosynth
 
-nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind).  It makes it possible to define SynthDefs in Python, compile them to SuperCollider's SCgf binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
+nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://github.com/supercollider/supercollider) synthesis engine in-process using [nanobind](https://github.com/wjakob/nanobind). It makes it possible to define SynthDefs in Python, compile them to SuperCollider's SCgf binary format, boot the embedded audio engine, and control it via OSC -- all without leaving Python.
 
 ## Features
 
@@ -17,6 +17,12 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 - **Non-real-time (NRT) rendering** -- `Score` class for offline audio rendering to WAV/AIFF files without audio hardware. Timestamped OSC commands are serialized and rendered by the embedded engine
 
 - **Bus allocation** -- `Bus` proxy class with `Server.audio_bus()`, `Server.control_bus()`, `managed_audio_bus()`, `managed_control_bus()`. Eliminates hardcoded magic bus numbers in effect chains. `int()` compatible for passing as synth parameters
+
+- **Pattern sequencing** -- `Pbind`, `Pseq`, `Prand`, `Pwhite`, `Pseries`, `Pgeom`, `Pchoose`, `Pn`, `Pconst`, `Rest`, `Clock`, and `Player` for musical event scheduling. Patterns are reusable iterables; `Pbind` produces event streams that drive synth creation with automatic gate release. `Clock` provides tempo-driven playback with drift-free scheduling
+
+- **MIDI input** -- `MidiIn` class for receiving MIDI from hardware controllers (via embedded RtMidi: CoreMIDI on macOS, ALSA on Linux, WinMM on Windows). Parsed message types (`NoteOn`, `NoteOff`, `ControlChange`, `PitchBend`) with handler registration. High-level helpers: `midi_note_map()` for polyphonic note-to-synth mapping, `midi_cc_map()` for CC-to-parameter control
+
+- **NodeProxy / Ndef** -- live coding with hot-swappable synth definitions. `NodeProxy` owns a private audio bus, a source synth (with ASR envelope for crossfade), and a monitor synth. Swap the source seamlessly while audio plays. `Ndef` is a global named proxy registry for concise live-coding workflows
 
 - **Server recording** -- `Server.record(path)` captures real-time audio output to WAV/AIFF via DiskOut. `stop_recording()` finalizes the file. Configurable channel count, bus, and format
 
@@ -224,6 +230,111 @@ score.add_synth(1.0, "sine", freq=659.26, amp=0.2)
 
 # Render to a WAV file (no audio hardware needed)
 score.render("output.wav", sample_rate=44100, header_format="WAV", sample_format="int16")
+```
+
+### Pattern Sequencing
+
+Replace manual `time.sleep()` loops with musical patterns. `Pbind` binds keys to patterns or scalars to produce event streams; `Clock` drives playback at a given tempo:
+
+```python
+import time
+from nanosynth import Options, Server
+from nanosynth.patterns import Clock, Pbind, Prand, Pseq, Pwhite, Rest
+
+with Server(Options(verbosity=0)) as server:
+    # (assume a "default" SynthDef with freq, amp, gate params is loaded)
+    clock = Clock(bpm=140)
+
+    # Ascending melody
+    melody = Pbind(
+        instrument="default",
+        freq=Pseq([261.63, 293.66, 329.63, 392.00, 440.00]),
+        dur=Pseq([0.5, 0.5, 0.5, 0.5, 1.0]),
+        amp=0.2,
+    )
+    melody.play(clock, server)
+    time.sleep(3.0)
+
+    # Randomized melody with rests and dynamic amplitude
+    rand_melody = Pbind(
+        instrument="default",
+        freq=Prand([261.63, 329.63, 392.00, 440.00], repeats=8),
+        dur=Pseq([0.25, 0.25, Rest(0.5), 0.5], repeats=2),
+        amp=Pwhite(0.1, 0.25, repeats=8),
+    )
+    player = rand_melody.play(clock, server)
+    time.sleep(4.0)
+
+    player.stop()
+    clock.stop()
+```
+
+Available patterns: `Pseq` (sequential), `Prand` (random choice), `Pwhite` (uniform random float), `Pseries` (arithmetic series), `Pgeom` (geometric series), `Pchoose` (weighted random), `Pn` (repeat N times), `Pconst` (yield until sum reaches total). Patterns support chaining with `|` and preview with `.take(n)`.
+
+### MIDI Input
+
+Connect hardware MIDI controllers. Requires the `_midi` C extension (built by default with `NANOSYNTH_EMBED_MIDI=ON`):
+
+```python
+import time
+from nanosynth import Options, Server
+from nanosynth.midi import MidiIn, midi_note_map, midi_cc_map
+
+# List available MIDI ports
+print(MidiIn.list_ports())
+
+with Server(Options(verbosity=0)) as server:
+    # (assume a gated SynthDef "synth" is loaded)
+
+    with MidiIn(port=0) as midi:
+        # Polyphonic note mapping: note-on creates synth, note-off sends gate=0
+        cleanup_notes = midi_note_map(midi, server, "synth")
+
+        # Map CC1 (mod wheel) to a parameter on an existing synth
+        # cleanup_cc = midi_cc_map(midi, server, some_synth,
+        #                          cc_map={1: "cutoff"}, range_min=200.0, range_max=8000.0)
+
+        # Or register handlers directly
+        midi.on_note_on(lambda msg: print(f"Note {msg.note} vel {msg.velocity}"))
+        midi.on_cc(lambda msg: print(f"CC {msg.control} = {msg.value}"))
+
+        input("Press Enter to quit...")
+        cleanup_notes()
+```
+
+### NodeProxy / Ndef (Live Coding)
+
+Hot-swap synth definitions while audio plays. `NodeProxy` manages a private audio bus, source synth, and monitor synth -- swapping replaces only the source with a crossfade:
+
+```python
+import time
+from nanosynth import Options, Server
+from nanosynth.proxy import Ndef, NodeProxy
+from nanosynth.ugens import LFNoise1, LPF, Saw, SinOsc
+
+with Server(Options(verbosity=0)) as server:
+    # NodeProxy: manual usage
+    proxy = NodeProxy(server)
+    proxy.source = lambda: SinOsc.ar(frequency=440) * 0.2
+    proxy.play()
+    time.sleep(2.0)
+
+    # Hot-swap to saw wave (crossfades automatically)
+    proxy.source = lambda: Saw.ar(frequency=330) * 0.15
+    time.sleep(2.0)
+
+    proxy.clear()
+
+    # Ndef: concise named proxy registry
+    Ndef(server, "pad", lambda: SinOsc.ar(frequency=220) * 0.2)
+    Ndef(server, "pad").play()
+    time.sleep(1.5)
+
+    # Hot-swap via Ndef
+    Ndef(server, "pad", lambda: Saw.ar(frequency=165) * 0.15)
+    time.sleep(1.5)
+
+    Ndef.clear_all(server)
 ```
 
 ## Synthesis Techniques
@@ -680,6 +791,7 @@ A separate release workflow (`.github/workflows/release.yml`) publishes to PyPI 
 - [TidalCycles](https://tidalcycles.org) -- live coding pattern language for music, built on SuperCollider.
 - [Strudel](https://strudel.cc) -- JavaScript port of TidalCycles for browser-based live coding.
 - [Sonic Pi](https://sonic-pi.net) -- live coding music synth built on SuperCollider.
+- [RtMidi](https://github.com/thestk/rtmidi) -- cross-platform MIDI I/O library, vendored for the `_midi` extension.
 - [nanobind](https://github.com/wjakob/nanobind) -- the C++/Python binding library used to embed libscsynth and the OSC codec.
 
 ## License

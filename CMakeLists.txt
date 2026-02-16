@@ -150,3 +150,31 @@ if(NANOSYNTH_EMBED_SCSYNTH)
 
     install(TARGETS _scsynth DESTINATION nanosynth)
 endif()
+
+# --- Option to embed rtmidi as a nanobind extension ---
+option(NANOSYNTH_EMBED_MIDI "Build _midi extension with embedded rtmidi" ON)
+
+if(NANOSYNTH_EMBED_MIDI)
+    # Build rtmidi as a static library
+    set(RTMIDI_BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(RTMIDI_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(RTMIDI_API_JACK OFF CACHE BOOL "" FORCE)  # CoreMIDI/ALSA/WinMM only
+    set(RTMIDI_TARGETNAME_UNINSTALL "rtmidi_uninstall" CACHE STRING "" FORCE)
+
+    add_subdirectory(thirdparty/rtmidi-6.0.0 EXCLUDE_FROM_ALL)
+
+    nanobind_add_module(_midi src/nanosynth/_midi.cpp)
+    target_include_directories(_midi PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/rtmidi-6.0.0
+    )
+    target_link_libraries(_midi PRIVATE rtmidi)
+
+    if(MSVC)
+        target_compile_options(_midi PRIVATE /W4)
+    else()
+        target_compile_options(_midi PRIVATE -Wall -Wextra)
+    endif()
+
+    install(TARGETS _midi DESTINATION nanosynth)
+endif()

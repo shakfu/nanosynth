@@ -39,6 +39,7 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Concepts: concepts.md
   - API Reference:
     - api/index.md
     - Core:

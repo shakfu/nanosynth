@@ -2,7 +2,7 @@
 
 Boost.Sync, part of collection of the [Boost C++ Libraries](https://github.com/boostorg), implements thread synchronization primitives.
 
-### Directories
+## Directories
 
 * **build** - Boost.Sync build scripts
 * **doc** - QuickBook documentation sources

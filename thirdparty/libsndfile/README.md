@@ -145,7 +145,7 @@ You can pass additional options with `/D<parameter>=<value>` when you run
   This option is `ON` by default.
 * `ENABLE_PACKAGE_CONFIG` - generate and install [package config file](https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#config-file-packages).
 * `INSTALL_PKGCONFIG_MODULE` - generate and install [pkg-config module](https://people.freedesktop.org/~dbn/pkg-config-guide.html).
-* `INSTALL_MANPAGES` - install [man pages](https://en.wikipedia.org/wiki/Man_page) for programs. This option is `ON` by  default
+* `INSTALL_MANPAGES` - install [man pages](https://en.wikipedia.org/wiki/Man_page) for programs. This option is `ON` by default
 * `ENABLE_STATIC_RUNTIME` - enable static runtime on Windows platform (MSVC and
   MinGW), `OFF` by default.
 
@@ -190,7 +190,7 @@ First you need to add `FindOgg.cmake`, `FindVorbis.cmake`, `FindFLAC.cmake` and
 `cmake`) and add it to `CMAKE_MODULE_PATH`:
 
     project(SomeApplication)
-    
+
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 Now you can search `libsndfile` library from your `CMakeLists.txt`
