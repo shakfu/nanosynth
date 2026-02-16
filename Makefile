@@ -41,7 +41,7 @@ format:
 typecheck:
 	@uv run mypy --strict src/
 
-qa: test lint typecheck format
+qa: lint test typecheck format
 
 demos: ## Run scsynth demo scripts sequentially
 	@for f in demos/scsynth/*.py; do echo "--- $$f ---"; uv run python "$$f"; done

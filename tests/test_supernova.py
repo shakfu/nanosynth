@@ -393,9 +393,10 @@ class TestServerWithSupernovaProtocol:
         proto.status = BootStatus.ONLINE
         server = Server(protocol=proto)
 
-        with patch.object(server, "send_msg") as mock_send, patch.object(
-            proto, "quit"
-        ) as mock_quit:
+        with (
+            patch.object(server, "send_msg") as mock_send,
+            patch.object(proto, "quit") as mock_quit,
+        ):
             server.quit()
             # /quit should NOT be sent for supernova
             mock_send.assert_not_called()
@@ -410,9 +411,10 @@ class TestServerWithSupernovaProtocol:
         proto.status = BootStatus.ONLINE
         server = Server(protocol=proto)
 
-        with patch.object(server, "send_msg") as mock_send, patch.object(
-            proto, "quit"
-        ) as mock_quit:
+        with (
+            patch.object(server, "send_msg") as mock_send,
+            patch.object(proto, "quit") as mock_quit,
+        ):
             server.quit()
             mock_send.assert_called_once_with("/quit")
             mock_quit.assert_called_once()

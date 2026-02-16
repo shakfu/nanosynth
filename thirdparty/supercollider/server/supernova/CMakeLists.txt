@@ -242,20 +242,22 @@ if(WIN32)
       )
     endif(SNDFILE_FOUND)
 
-    add_custom_command(TARGET supernova
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:supernova> $<TARGET_FILE_DIR:scsynth>
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:supernova> $<TARGET_FILE_DIR:sclang>
-      COMMENT "Copying supernova to targets scsynth and sclang"
-    )
+    if(TARGET scsynth AND TARGET sclang)
+      add_custom_command(TARGET supernova
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:supernova> $<TARGET_FILE_DIR:scsynth>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:supernova> $<TARGET_FILE_DIR:sclang>
+        COMMENT "Copying supernova to targets scsynth and sclang"
+      )
+    endif()
 
-    if(SC_IDE)
+    if(SC_IDE AND TARGET SuperCollider)
       add_custom_command(TARGET supernova
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:supernova> $<TARGET_FILE_DIR:SuperCollider>
         COMMENT "Copying supernova to target SuperCollider"
       )
-    endif(SC_IDE)
+    endif()
 
     install(TARGETS supernova
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
