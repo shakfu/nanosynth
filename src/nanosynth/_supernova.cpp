@@ -4,6 +4,18 @@
 // Mirrors _scsynth.cpp but wraps supernova's C++ class hierarchy instead of
 // scsynth's C API (World_New, World_SendPacket, etc.).
 
+// MSVC: prevent Windows min/max macros from breaking std::numeric_limits<>::max()
+// and other STL uses of min/max in supernova and Boost headers.
+#ifdef _MSC_VER
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+// SC function attribute macros (PURE, HOT, etc.) -- must be included before
+// supernova headers because Windows SDK defines PURE as "= 0" which breaks
+// supernova's utils.hpp where PURE is used as __attribute__((pure)).
+#include "function_attributes.h"
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/optional.h>
