@@ -139,12 +139,16 @@ class Score:
             if found is not None:
                 plugins_path = str(found)
 
-        with tempfile.NamedTemporaryFile(suffix=".osc", delete=True) as cmd_file:
-            cmd_file.write(binary_data)
-            cmd_file.flush()
+        # Write to a temp file and close it before calling the C++ renderer.
+        # On Windows, NamedTemporaryFile with delete=True holds an exclusive
+        # lock that prevents the engine from opening the file.
+        cmd_fd, cmd_path = tempfile.mkstemp(suffix=".osc")
+        try:
+            with open(cmd_fd, "wb") as cmd_file:
+                cmd_file.write(binary_data)
 
             _scsynth.world_nrt_render(
-                cmd_filename=cmd_file.name,
+                cmd_filename=cmd_path,
                 output_filename=str(output_path),
                 sample_rate=sample_rate,
                 input_filename=str(input_path) if input_path else None,
@@ -165,3 +169,5 @@ class Score:
                 max_wire_bufs=opts.wire_buffer_count,
                 num_rgens=opts.random_number_generator_count,
             )
+        finally:
+            Path(cmd_path).unlink(missing_ok=True)

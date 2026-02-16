@@ -37,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - README restructured: Quick Start now leads with the `Server`-based workflow (define, boot, play), followed by managed nodes, effect chains with `AddAction`, and NRT rendering. Synthesis technique examples moved to a dedicated section. SynthDef compilation without engine, graph introspection, and OSC codec moved to Advanced Features
 
+### Fixed
+
+- **Windows NRT render crash** (`score.py`): `Score.render()` used `tempfile.NamedTemporaryFile(delete=True)` for the binary command file, which on Windows holds an exclusive file lock preventing the C++ engine from opening it -- causing an access violation (0xC0000005) in `World_New`. Replaced with `tempfile.mkstemp()` so the file is closed before `world_nrt_render` reads it, with manual cleanup in a `finally` block
+
 ## [0.1.3]
 
 ### Added
