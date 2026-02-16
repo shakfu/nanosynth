@@ -12,24 +12,13 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import LFTri, Out, Pan2, SinOsc
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef: additive with LFO-morphing harmonics -----------------------
     with SynthDefBuilder(frequency=200.0, amplitude=0.3) as builder:
         freq = builder["frequency"]
@@ -59,26 +48,17 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig))
 
     synthdef = builder.build(name="additive")
-    synthdef_bytes = synthdef.compile()
-    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef_bytes)} bytes")
+    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        synthdef.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", synthdef_bytes)
-    time.sleep(0.1)
+        print("Playing additive synthesis with morphing harmonics (6.5s)...")
+        server.synth("additive", frequency=150.0, amplitude=0.4)
+        time.sleep(7.0)
 
-    print("Playing additive synthesis with morphing harmonics (6.5s)...")
-    send(world, "/s_new", "additive", 1000, 0, 1, "frequency", 150.0, "amplitude", 0.4)
-    time.sleep(7.0)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

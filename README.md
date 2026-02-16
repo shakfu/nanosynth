@@ -5,23 +5,37 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 ## Features
 
 - **Embedded synthesis engine** -- libscsynth runs in-process as a Python extension (vendored and built from source), no separate scsynth process required
+
 - **High-level `Server` class** -- boot/quit lifecycle, node ID allocation, SynthDef dispatch, buffer management, OSC reply handling, and convenience methods (`synth`, `group`, `free`, `set`). Context manager support and `managed_synth()`/`managed_group()`/`managed_buffer()` for automatic resource cleanup
+
 - **Pythonic SynthDef builder** -- define UGen graphs using a context manager and operator overloading, compiled to SuperCollider's SCgf binary format
+
 - **340+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, phase vocoder, machine listening, stochastic synthesis, and more
+
 - **Rich operator algebra** -- 43 binary and 34 unary operators on all UGen signals, including arithmetic, comparison, bitwise, power, trig, pitch conversion (`midicps`/`cpsmidi`), clipping (`clip2`/`fold2`/`wrap2`), and more. Compile-time constant folding and algebraic optimizations
+
+- **Non-real-time (NRT) rendering** -- `Score` class for offline audio rendering to WAV/AIFF files without audio hardware. Timestamped OSC commands are serialized and rendered by the embedded engine
+
 - **Buffer management** -- `alloc_buffer`, `read_buffer`, `write_buffer`, `free_buffer`, `zero_buffer`, `close_buffer`, and context managers for automatic cleanup
+
 - **Reply handling** -- bidirectional OSC communication with the engine: persistent handlers (`on`/`off`), blocking one-shot waits (`wait_for_reply`), and send-and-wait (`send_msg_sync`)
-- **NRT (non-real-time) rendering** -- `Score` class for offline audio rendering to WAV/AIFF files without audio hardware. Timestamped OSC commands are serialized and rendered by the embedded engine
+
 - **SynthDef graph introspection** -- `SynthDef.graph()` returns a structured DAG of `UGenNode`/`UGenInput` NamedTuples for programmatic traversal. `SynthDef.to_dot()` exports to Graphviz DOT format
+
 - **Envelope system** -- `Envelope` class with factory methods (`adsr`, `asr`, `linen`, `percussive`, `triangle`) and the `EnvGen` UGen
+
 - **OSC codec** -- pure-Python `OscMessage`/`OscBundle` encode/decode with optional C++ acceleration via nanobind
+
 - **`@synthdef` decorator** -- shorthand for defining SynthDefs as plain functions with parameter rate/lag annotations
+
 - **Full type safety** -- passes `mypy --strict`, complete type annotations throughout
 
 ## Requirements
 
 - Python 3.10+
+
 - [uv](https://github.com/astral-sh/uv) (package manager)
+
 - For embedded scsynth: SuperCollider 3.14.1, libsndfile, and PortAudio are vendored and built from source automatically. Audio backend: CoreAudio on macOS, PortAudio (ALSA) on Linux, PortAudio (WASAPI) on Windows -- no system-level audio dependencies beyond the compiler toolchain.
 
 ## Installation
@@ -51,15 +65,18 @@ uv pip install -e . -C cmake.define.NANOSYNTH_EMBED_SCSYNTH=OFF
 make demos
 ```
 
-### Defining and Compiling a SynthDef
+### Define a SynthDef and Play It
 
-No embedded engine required -- you can define UGen graphs and compile them to SCgf bytes for use with any SuperCollider server:
+The `Server` class manages the embedded engine lifecycle. Define a SynthDef, boot the server, and play:
 
 ```python
-from nanosynth import SynthDefBuilder, DoneAction, compile_synthdefs
+import time
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
+from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import Out, Pan2, SinOsc
 
+# Define a SynthDef
 with SynthDefBuilder(frequency=440.0, amplitude=0.3) as builder:
     sig = SinOsc.ar(frequency=builder["frequency"])
     sig = sig * builder["amplitude"]
@@ -71,8 +88,112 @@ with SynthDefBuilder(frequency=440.0, amplitude=0.3) as builder:
     Out.ar(bus=0, source=Pan2.ar(source=sig))
 
 synthdef = builder.build(name="sine")
-scgf_bytes = synthdef.compile()
+
+# Boot the server, send the SynthDef, create a synth
+with Server(Options(verbosity=0)) as server:
+    synthdef.send(server)
+    time.sleep(0.1)
+
+    node = server.synth("sine", frequency=440.0, amplitude=0.3)
+    print(f"Playing 440 Hz sine (node {node}) for 2 seconds...")
+    time.sleep(2.0)
+    server.free(node)
+
+# Engine shuts down automatically on context exit
 ```
+
+Or use `SynthDef.play()` to send and create a synth in one call:
+
+```python
+with Server() as server:
+    node = synthdef.play(server, frequency=880.0, amplitude=0.2)
+    time.sleep(2.0)
+```
+
+### Managed Nodes (Automatic Cleanup)
+
+`managed_synth()` and `managed_group()` create nodes that are automatically freed on context exit, even if an exception occurs:
+
+```python
+import time
+from nanosynth import Server
+
+with Server() as server:
+    synthdef.send(server)
+    time.sleep(0.1)
+
+    with server.managed_synth("sine", frequency=440.0, amplitude=0.3) as node:
+        print(f"Playing node {node}...")
+        time.sleep(2.0)
+    # node freed automatically here
+
+    # Group multiple voices and free them together
+    with server.managed_group(target=1) as group:
+        server.synth("sine", target=group, frequency=261.63, amplitude=0.2)
+        server.synth("sine", target=group, frequency=329.63, amplitude=0.2)
+        server.synth("sine", target=group, frequency=392.00, amplitude=0.2)
+        time.sleep(2.0)
+    # entire group freed here
+```
+
+### Effect Chains with Groups
+
+Use `AddAction` to control node execution order for effect processing:
+
+```python
+import time
+from nanosynth import AddAction, Options, Server
+
+with Server(Options(verbosity=0)) as server:
+    src_def.send(server)
+    delay_def.send(server)
+    time.sleep(0.1)
+
+    # Source group executes first, effect group after
+    src_group = server.group(target=1, action=AddAction.ADD_TO_HEAD)
+    fx_group = server.group(target=int(src_group), action=AddAction.ADD_AFTER)
+
+    # Effect synth reads from source group's output bus
+    server.synth("comb_delay", target=int(fx_group), delay_time=0.375, mix=0.4)
+
+    # Source synths in the source group
+    server.synth("perc_src", target=int(src_group), frequency=440.0)
+    time.sleep(2.0)
+```
+
+### Offline (NRT) Rendering
+
+Render audio to a file without real-time audio hardware -- useful for batch processing, testing, and CI pipelines:
+
+```python
+from nanosynth import Score, SynthDefBuilder, DoneAction
+from nanosynth.envelopes import EnvGen, Envelope
+from nanosynth.ugens import Out, Pan2, SinOsc
+
+# Define a SynthDef
+with SynthDefBuilder(freq=440.0, amp=0.3) as builder:
+    sig = SinOsc.ar(frequency=builder["freq"]) * builder["amp"]
+    env = EnvGen.kr(
+        envelope=Envelope.percussive(attack_time=0.01, release_time=0.5),
+        done_action=DoneAction.FREE_SYNTH,
+    )
+    Out.ar(bus=0, source=Pan2.ar(source=sig * env))
+sd = builder.build(name="sine")
+
+# Build a Score -- a sequence of timestamped OSC commands
+score = Score()
+score.add_synthdef(0.0, sd)
+score.add_synth(0.0, "sine", freq=440.0, amp=0.3)
+score.add_synth(0.5, "sine", freq=554.37, amp=0.2)
+score.add_synth(1.0, "sine", freq=659.26, amp=0.2)
+
+# Render to a WAV file (no audio hardware needed)
+score.render("output.wav", sample_rate=44100, header_format="WAV", sample_format="int16")
+```
+
+## Synthesis Techniques
+
+The following examples show SynthDef definitions for various synthesis techniques. Each can be played using the `Server` class as shown above.
 
 ### Using the `@synthdef` Decorator
 
@@ -355,59 +476,24 @@ with SynthDefBuilder(amplitude=0.5) as builder:
 compressed = builder.build(name="compressed")
 ```
 
-### Booting the Embedded Engine and Playing Sound
+## Advanced Features
 
-The `Server` class wraps the embedded engine lifecycle. Use it as a context manager to boot on entry and shut down on exit:
+### SynthDef Compilation (No Engine Required)
 
-```python
-import time
-from nanosynth import Server, Options
-
-with Server(Options(verbosity=0)) as server:
-    # Send the SynthDef we defined above
-    synthdef.send(server)
-    time.sleep(0.1)
-
-    # Create a synth -- returns a node ID
-    node = server.synth("sine", frequency=440.0, amplitude=0.3)
-    time.sleep(2.0)
-    server.free(node)
-
-# Engine shuts down automatically on context exit
-```
-
-Or use `SynthDef.play()` to send and create a synth in one call:
+SynthDef graphs can be compiled to SuperCollider's SCgf binary format without booting the audio engine -- useful for generating SynthDefs for any SuperCollider server:
 
 ```python
-with Server() as server:
-    node = synthdef.play(server, frequency=880.0, amplitude=0.2)
-    time.sleep(2.0)
-```
+from nanosynth import SynthDefBuilder, compile_synthdefs
+from nanosynth.ugens import Out, Pan2, SinOsc
 
-### Managed Nodes (Automatic Cleanup)
+with SynthDefBuilder(frequency=440.0) as builder:
+    Out.ar(bus=0, source=Pan2.ar(source=SinOsc.ar(frequency=builder["frequency"])))
 
-`managed_synth()` and `managed_group()` create nodes that are automatically freed on context exit, even if an exception occurs:
+synthdef = builder.build(name="sine")
+scgf_bytes = synthdef.compile()
 
-```python
-import time
-from nanosynth import Server
-
-with Server() as server:
-    synthdef.send(server)
-    time.sleep(0.1)
-
-    with server.managed_synth("sine", frequency=440.0, amplitude=0.3) as node:
-        print(f"Playing node {node}...")
-        time.sleep(2.0)
-    # node freed automatically here
-
-    # Group multiple voices and free them together
-    with server.managed_group(target=1) as group:
-        server.synth("sine", target=group, frequency=261.63, amplitude=0.2)
-        server.synth("sine", target=group, frequency=329.63, amplitude=0.2)
-        server.synth("sine", target=group, frequency=392.00, amplitude=0.2)
-        time.sleep(2.0)
-    # entire group freed here
+# Or compile multiple SynthDefs into a single SCgf blob
+blob = compile_synthdefs(synthdef1, synthdef2, synthdef3)
 ```
 
 ### Debugging SynthDef Graphs
@@ -421,36 +507,6 @@ print(synthdef.dump_ugens())
 #   1: SinOsc.ar(frequency: Control[0], phase: 0.0)
 #   2: BinaryOpUGen.ar(MULTIPLICATION, a: SinOsc[0], b: Control[1])
 #   ...
-```
-
-### Offline (NRT) Rendering
-
-Render audio to a file without real-time audio hardware -- useful for batch processing, testing, and CI pipelines:
-
-```python
-from nanosynth import Score, SynthDefBuilder, DoneAction
-from nanosynth.envelopes import EnvGen, Envelope
-from nanosynth.ugens import Out, Pan2, SinOsc
-
-# Define a SynthDef
-with SynthDefBuilder(freq=440.0, amp=0.3) as builder:
-    sig = SinOsc.ar(frequency=builder["freq"]) * builder["amp"]
-    env = EnvGen.kr(
-        envelope=Envelope.percussive(attack_time=0.01, release_time=0.5),
-        done_action=DoneAction.FREE_SYNTH,
-    )
-    Out.ar(bus=0, source=Pan2.ar(source=sig * env))
-sd = builder.build(name="sine")
-
-# Build a Score -- a sequence of timestamped OSC commands
-score = Score()
-score.add_synthdef(0.0, sd)
-score.add_synth(0.0, "sine", freq=440.0, amp=0.3)
-score.add_synth(0.5, "sine", freq=554.37, amp=0.2)
-score.add_synth(1.0, "sine", freq=659.26, amp=0.2)
-
-# Render to a WAV file (no audio hardware needed)
-score.render("output.wav", sample_rate=44100, header_format="WAV", sample_format="int16")
 ```
 
 ### SynthDef Graph Introspection

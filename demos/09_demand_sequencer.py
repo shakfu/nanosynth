@@ -12,14 +12,7 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import (
@@ -36,11 +29,7 @@ from nanosynth.ugens import (
 )
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef 1: deterministic bass sequence (Dseq) -----------------------
     with SynthDefBuilder(amplitude=0.3) as builder:
         # E1 - G1 - A1 - B1 bass pattern, 4 repeats
@@ -68,8 +57,7 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=-0.3))
 
     bass_def = builder.build(name="bass_seq")
-    bass_bytes = bass_def.compile()
-    print(f"SynthDef '{bass_def.name}' compiled: {len(bass_bytes)} bytes")
+    print(f"SynthDef '{bass_def.name}' compiled: {len(bass_def.compile())} bytes")
 
     # -- SynthDef 2: random melodic voice (Drand) -----------------------------
     with SynthDefBuilder(amplitude=0.2) as builder:
@@ -103,30 +91,21 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=0.3))
 
     melody_def = builder.build(name="melody_seq")
-    melody_bytes = melody_def.compile()
-    print(f"SynthDef '{melody_def.name}' compiled: {len(melody_bytes)} bytes")
+    print(f"SynthDef '{melody_def.name}' compiled: {len(melody_def.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        bass_def.send(server)
+        melody_def.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", bass_bytes)
-    send(world, "/d_recv", melody_bytes)
-    time.sleep(0.1)
+        print("Playing demand-rate sequencer (8s)...")
+        print("  Bass (left): Dseq deterministic pattern")
+        print("  Melody (right): Drand random pentatonic")
+        server.synth("bass_seq", amplitude=0.35)
+        server.synth("melody_seq", amplitude=0.25)
+        time.sleep(9.0)
 
-    print("Playing demand-rate sequencer (8s)...")
-    print("  Bass (left): Dseq deterministic pattern")
-    print("  Melody (right): Drand random pentatonic")
-    send(world, "/s_new", "bass_seq", 1000, 0, 1, "amplitude", 0.35)
-    send(world, "/s_new", "melody_seq", 1001, 0, 1, "amplitude", 0.25)
-    time.sleep(9.0)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

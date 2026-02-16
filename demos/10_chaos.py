@@ -15,14 +15,7 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import (
@@ -38,11 +31,7 @@ from nanosynth.ugens import (
 )
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef 1: Henon map ------------------------------------------------
     with SynthDefBuilder(amplitude=0.2) as builder:
         # Sweep the 'a' parameter from stable to chaotic
@@ -61,8 +50,7 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=-0.5))
 
     henon_def = builder.build(name="henon")
-    henon_bytes = henon_def.compile()
-    print(f"SynthDef '{henon_def.name}' compiled: {len(henon_bytes)} bytes")
+    print(f"SynthDef '{henon_def.name}' compiled: {len(henon_def.compile())} bytes")
 
     # -- SynthDef 2: Lorenz attractor -----------------------------------------
     with SynthDefBuilder(amplitude=0.15) as builder:
@@ -87,8 +75,7 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=0.0))
 
     lorenz_def = builder.build(name="lorenz")
-    lorenz_bytes = lorenz_def.compile()
-    print(f"SynthDef '{lorenz_def.name}' compiled: {len(lorenz_bytes)} bytes")
+    print(f"SynthDef '{lorenz_def.name}' compiled: {len(lorenz_def.compile())} bytes")
 
     # -- SynthDef 3: FBSine (feedback sine) -----------------------------------
     with SynthDefBuilder(amplitude=0.15) as builder:
@@ -114,37 +101,28 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=0.5))
 
     fbsine_def = builder.build(name="fbsine")
-    fbsine_bytes = fbsine_def.compile()
-    print(f"SynthDef '{fbsine_def.name}' compiled: {len(fbsine_bytes)} bytes")
+    print(f"SynthDef '{fbsine_def.name}' compiled: {len(fbsine_def.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        henon_def.send(server)
+        lorenz_def.send(server)
+        fbsine_def.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", henon_bytes)
-    send(world, "/d_recv", lorenz_bytes)
-    send(world, "/d_recv", fbsine_bytes)
-    time.sleep(0.1)
+        # Play each in sequence
+        print("1. Henon map: 'a' sweeping 1.0 -> 1.4 (stable to chaotic)...")
+        server.synth("henon", amplitude=0.25)
+        time.sleep(5.0)
 
-    # Play each in sequence
-    print("1. Henon map: 'a' sweeping 1.0 -> 1.4 (stable to chaotic)...")
-    send(world, "/s_new", "henon", 1000, 0, 1, "amplitude", 0.25)
-    time.sleep(5.0)
+        print("2. Lorenz attractor: 'r' wandering around 28 (strange attractor)...")
+        server.synth("lorenz", amplitude=0.2)
+        time.sleep(6.0)
 
-    print("2. Lorenz attractor: 'r' wandering around 28 (strange attractor)...")
-    send(world, "/s_new", "lorenz", 1001, 0, 1, "amplitude", 0.2)
-    time.sleep(6.0)
+        print("3. FBSine: feedback 0.01 -> 1.5 (tonal to chaotic)...")
+        server.synth("fbsine", amplitude=0.2)
+        time.sleep(6.0)
 
-    print("3. FBSine: feedback 0.01 -> 1.5 (tonal to chaotic)...")
-    send(world, "/s_new", "fbsine", 1002, 0, 1, "amplitude", 0.2)
-    time.sleep(6.0)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

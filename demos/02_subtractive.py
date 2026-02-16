@@ -7,29 +7,17 @@ Two self-freeing SynthDefs:
 
 Requires:
   - nanosynth built with embedded libscsynth (NANOSYNTH_EMBED_SCSYNTH=ON)
-  - SC_PLUGIN_PATH set to the SuperCollider plugins directory
 """
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import LFNoise1, LPF, Out, Pan2, RLPF, Saw, WhiteNoise, XLine
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef 1: saw -> sweeping LPF (self-freeing) -----------------------
     with SynthDefBuilder(frequency=110.0, amplitude=0.4) as builder:
         sig = Saw.ar(frequency=builder["frequency"])
@@ -44,8 +32,7 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig))
 
     saw_def = builder.build(name="filtered_saw")
-    saw_bytes = saw_def.compile()
-    print(f"SynthDef '{saw_def.name}' compiled: {len(saw_bytes)} bytes")
+    print(f"SynthDef '{saw_def.name}' compiled: {len(saw_def.compile())} bytes")
 
     # -- SynthDef 2: noise -> resonant LPF with LFO --------------------------
     with SynthDefBuilder(amplitude=0.15) as builder:
@@ -64,35 +51,24 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig))
 
     noise_def = builder.build(name="resonant_noise")
-    noise_bytes = noise_def.compile()
-    print(f"SynthDef '{noise_def.name}' compiled: {len(noise_bytes)} bytes")
+    print(f"SynthDef '{noise_def.name}' compiled: {len(noise_def.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        saw_def.send(server)
+        noise_def.send(server)
+        time.sleep(0.1)
 
-    # Create default group (group 1 inside root group 0)
-    send(world, "/g_new", 1, 0, 0)
+        # Play filtered saw
+        print("Playing filtered saw (3s sweep)...")
+        server.synth("filtered_saw")
+        time.sleep(1.5)
 
-    send(world, "/d_recv", saw_bytes)
-    send(world, "/d_recv", noise_bytes)
-    time.sleep(0.1)
+        # Layer resonant noise on top
+        print("Layering resonant noise (3s)...")
+        server.synth("resonant_noise")
+        time.sleep(3.5)
 
-    # Play filtered saw
-    print("Playing filtered saw (3s sweep)...")
-    send(world, "/s_new", "filtered_saw", 1000, 0, 1)
-    time.sleep(1.5)
-
-    # Layer resonant noise on top
-    print("Layering resonant noise (3s)...")
-    send(world, "/s_new", "resonant_noise", 1001, 0, 1)
-    time.sleep(3.5)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

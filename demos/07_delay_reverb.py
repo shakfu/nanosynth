@@ -15,14 +15,7 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import AddAction, Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import (
@@ -37,15 +30,11 @@ from nanosynth.ugens import (
 )
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
 # First private audio bus (after hardware I/O buses)
 EFFECT_BUS = 16
 
 
-def main():
+def main() -> None:
     # -- SynthDef 1: percussive source -> effect bus --------------------------
     with SynthDefBuilder(frequency=440.0, amplitude=0.4) as builder:
         sig = Saw.ar(frequency=builder["frequency"])
@@ -60,8 +49,7 @@ def main():
         Out.ar(bus=EFFECT_BUS, source=sig)
 
     src_def = builder.build(name="perc_src")
-    src_bytes = src_def.compile()
-    print(f"SynthDef '{src_def.name}' compiled: {len(src_bytes)} bytes")
+    print(f"SynthDef '{src_def.name}' compiled: {len(src_def.compile())} bytes")
 
     # -- SynthDef 2: comb delay effect (reads effect bus) ---------------------
     with SynthDefBuilder(delay_time=0.375, decay_time=3.0, mix=0.5) as builder:
@@ -96,8 +84,7 @@ def main():
         Out.ar(bus=0, source=[left * wet, right * wet])
 
     delay_def = builder.build(name="comb_delay")
-    delay_bytes = delay_def.compile()
-    print(f"SynthDef '{delay_def.name}' compiled: {len(delay_bytes)} bytes")
+    print(f"SynthDef '{delay_def.name}' compiled: {len(delay_def.compile())} bytes")
 
     # -- SynthDef 3: reverb tail (reads hardware out, adds reverb) ------------
     with SynthDefBuilder(room=0.85, damp=0.4, mix=0.3) as builder:
@@ -119,77 +106,62 @@ def main():
         Out.ar(bus=0, source=[left, right])
 
     verb_def = builder.build(name="reverb")
-    verb_bytes = verb_def.compile()
-    print(f"SynthDef '{verb_def.name}' compiled: {len(verb_bytes)} bytes")
+    print(f"SynthDef '{verb_def.name}' compiled: {len(verb_def.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        src_def.send(server)
+        delay_def.send(server)
+        verb_def.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)  # source group
-    send(world, "/g_new", 2, 3, 1)  # effect group (after source group)
+        # Create source and effect groups with correct execution order
+        src_group = server.group(target=1, action=AddAction.ADD_TO_HEAD)
+        fx_group = server.group(target=int(src_group), action=AddAction.ADD_AFTER)
 
-    send(world, "/d_recv", src_bytes)
-    send(world, "/d_recv", delay_bytes)
-    send(world, "/d_recv", verb_bytes)
-    time.sleep(0.1)
-
-    # Start persistent effect synths in the effect group
-    send(
-        world,
-        "/s_new",
-        "comb_delay",
-        100,
-        0,
-        2,
-        "delay_time",
-        0.375,
-        "decay_time",
-        4.0,
-        "mix",
-        0.4,
-    )
-    send(world, "/s_new", "reverb", 101, 3, 2, "room", 0.8, "damp", 0.5, "mix", 0.25)
-
-    # Fire percussive notes in the source group
-    melody = [
-        (329.63, 0.375),  # E4
-        (392.00, 0.375),  # G4
-        (440.00, 0.375),  # A4
-        (523.25, 0.375),  # C5
-        (440.00, 0.375),  # A4
-        (392.00, 0.375),  # G4
-        (329.63, 0.750),  # E4 (held longer)
-        (293.66, 0.750),  # D4
-    ]
-
-    print("Playing percussive melody through delay + reverb...")
-    node_id = 1000
-    for freq, dur in melody:
-        send(
-            world,
-            "/s_new",
-            "perc_src",
-            node_id,
-            0,
-            1,
-            "frequency",
-            freq,
-            "amplitude",
-            0.5,
+        # Start persistent effect synths in the effect group
+        server.synth(
+            "comb_delay",
+            target=int(fx_group),
+            delay_time=0.375,
+            decay_time=4.0,
+            mix=0.4,
         )
-        time.sleep(dur)
-        node_id += 1
+        server.synth(
+            "reverb",
+            target=int(fx_group),
+            action=AddAction.ADD_AFTER,  # after fx group, not inside it
+            room=0.8,
+            damp=0.5,
+            mix=0.25,
+        )
 
-    # Let the delay tail ring out
-    print("Letting delay tail ring out (4s)...")
-    time.sleep(4.0)
+        # Fire percussive notes in the source group
+        melody = [
+            (329.63, 0.375),  # E4
+            (392.00, 0.375),  # G4
+            (440.00, 0.375),  # A4
+            (523.25, 0.375),  # C5
+            (440.00, 0.375),  # A4
+            (392.00, 0.375),  # G4
+            (329.63, 0.750),  # E4 (held longer)
+            (293.66, 0.750),  # D4
+        ]
 
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
+        print("Playing percussive melody through delay + reverb...")
+        for freq, dur in melody:
+            server.synth(
+                "perc_src",
+                target=int(src_group),
+                frequency=freq,
+                amplitude=0.5,
+            )
+            time.sleep(dur)
+
+        # Let the delay tail ring out
+        print("Letting delay tail ring out (4s)...")
+        time.sleep(4.0)
+
     print("Done.")
 
 

@@ -12,23 +12,12 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.synthdef import SynthDefBuilder
 from nanosynth.ugens import Dust, Out, Pan2, Pluck, WhiteNoise
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef: plucked string with random triggers ------------------------
     with SynthDefBuilder(
         frequency=440.0, decay=4.0, coef=0.3, density=2.0, amplitude=0.5
@@ -46,57 +35,34 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig))
 
     synthdef = builder.build(name="pluck")
-    synthdef_bytes = synthdef.compile()
-    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef_bytes)} bytes")
+    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        synthdef.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", synthdef_bytes)
-    time.sleep(0.1)
+        # Layer several plucked strings at different pitches
+        print("Playing layered plucked strings (5s)...")
+        nodes = []
+        for freq in [196.00, 261.63, 329.63]:
+            node = server.synth(
+                "pluck",
+                frequency=freq,
+                decay=3.0,
+                coef=0.2,
+                density=1.5,
+                amplitude=0.35,
+            )
+            nodes.append(node)
+            time.sleep(0.2)
 
-    # Layer several plucked strings at different pitches
-    notes = [
-        (196.00, -0.3, 1000),  # G3, panned left
-        (261.63, 0.0, 1001),  # C4, center
-        (329.63, 0.3, 1002),  # E4, panned right
-    ]
-    print("Playing layered plucked strings (5s)...")
-    for freq, pan, node_id in notes:
-        send(
-            world,
-            "/s_new",
-            "pluck",
-            node_id,
-            0,
-            1,
-            "frequency",
-            freq,
-            "decay",
-            3.0,
-            "coef",
-            0.2,
-            "density",
-            1.5,
-            "amplitude",
-            0.35,
-        )
-        time.sleep(0.2)
+        time.sleep(5.0)
 
-    time.sleep(5.0)
+        # Free nodes
+        for node in nodes:
+            server.free(node)
 
-    # Free nodes and quit
-    for _, _, node_id in notes:
-        send(world, "/n_free", node_id)
-    time.sleep(0.1)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

@@ -11,24 +11,13 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import Dust, HPF, LeakDC, Out, Pan2, Ringz
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef: resonant chime bank ----------------------------------------
     with SynthDefBuilder(density=1.5, decay=2.0, amplitude=0.3) as builder:
         trig = Dust.ar(density=builder["density"])
@@ -67,55 +56,20 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig))
 
     synthdef = builder.build(name="chime_bank")
-    synthdef_bytes = synthdef.compile()
-    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef_bytes)} bytes")
+    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        synthdef.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", synthdef_bytes)
-    time.sleep(0.1)
+        # Layer two instances panned apart for stereo spread
+        print("Playing resonant chime texture (8s)...")
+        server.synth("chime_bank", density=1.2, decay=2.5, amplitude=0.4)
+        time.sleep(0.5)
+        server.synth("chime_bank", density=0.8, decay=3.0, amplitude=0.3)
+        time.sleep(8.5)
 
-    # Layer two instances panned apart for stereo spread
-    print("Playing resonant chime texture (8s)...")
-    send(
-        world,
-        "/s_new",
-        "chime_bank",
-        1000,
-        0,
-        1,
-        "density",
-        1.2,
-        "decay",
-        2.5,
-        "amplitude",
-        0.4,
-    )
-    time.sleep(0.5)
-    send(
-        world,
-        "/s_new",
-        "chime_bank",
-        1001,
-        0,
-        1,
-        "density",
-        0.8,
-        "decay",
-        3.0,
-        "amplitude",
-        0.3,
-    )
-    time.sleep(8.5)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

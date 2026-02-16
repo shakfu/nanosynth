@@ -16,24 +16,13 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import LFNoise2, MoogFF, Out, Pulse
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef: detuned stereo pad with MoogFF -----------------------------
     with SynthDefBuilder(
         frequency=220.0,
@@ -78,61 +67,40 @@ def main():
         Out.ar(bus=0, source=[left, right])
 
     synthdef = builder.build(name="stereo_pad")
-    synthdef_bytes = synthdef.compile()
-    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef_bytes)} bytes")
+    print(f"SynthDef '{synthdef.name}' compiled: {len(synthdef.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        synthdef.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", synthdef_bytes)
-    time.sleep(0.1)
+        # Play a chord progression: Am -> F -> C -> G
+        chords = [
+            (220.00, "Am"),  # A3
+            (174.61, "F"),  # F3
+            (261.63, "C"),  # C4
+            (196.00, "G"),  # G3
+        ]
 
-    # Play a chord progression: Am -> F -> C -> G
-    chords = [
-        (220.00, "Am"),  # A3
-        (174.61, "F"),  # F3
-        (261.63, "C"),  # C4
-        (196.00, "G"),  # G3
-    ]
+        print("Playing pad chord progression...")
+        for freq, name in chords:
+            print(f"  {name} ({freq:.0f} Hz)...")
+            node = server.synth(
+                "stereo_pad",
+                frequency=freq,
+                detune=0.7,
+                cutoff=1000.0,
+                resonance=2.0,
+                amplitude=0.25,
+            )
+            time.sleep(3.0)
+            # Release the gate
+            node.set(gate=0.0)
+            time.sleep(1.0)
 
-    print("Playing pad chord progression...")
-    node_id = 1000
-    for freq, name in chords:
-        print(f"  {name} ({freq:.0f} Hz)...")
-        send(
-            world,
-            "/s_new",
-            "stereo_pad",
-            node_id,
-            0,
-            1,
-            "frequency",
-            freq,
-            "detune",
-            0.7,
-            "cutoff",
-            1000.0,
-            "resonance",
-            2.0,
-            "amplitude",
-            0.25,
-        )
-        time.sleep(3.0)
-        # Release the gate
-        send(world, "/n_set", node_id, "gate", 0.0)
-        time.sleep(1.0)
-        node_id += 1
+        # Let the last release tail finish
+        time.sleep(2.0)
 
-    # Let the last release tail finish
-    time.sleep(2.0)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 

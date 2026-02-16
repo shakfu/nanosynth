@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **NRT (non-real-time) rendering**: `Score` class for offline audio rendering without real-time audio hardware. `Score.add()`, `add_synthdef()`, `add_synth()` build a timestamped sequence of OSC commands; `to_binary()` serializes to SC's binary command file format; `render()` invokes the embedded scsynth NRT engine to produce WAV/AIFF files. C++ binding `world_nrt_render()` wraps `World_NonRealTimeSynthesis` with configurable sample rate, format, channels, and engine options
 - **SynthDef graph introspection**: `SynthDef.graph()` returns a `SynthDefGraph` NamedTuple containing `UGenNode` and `UGenInput` structures for programmatic DAG walking. `SynthDef.to_dot()` exports the graph as a Graphviz DOT string for visualization. Handles BinaryOpUGen/UnaryOpUGen operator names, Control parameter names, multi-output UGens, and constant inputs
+- Demo script `19_nrt_render.py`: offline rendering of a C major arpeggio to WAV and AIFF files
+
+### Changed
+
+- Demos 01--11 converted from low-level `_scsynth` API to high-level `Server` API (`server.synth()`, `server.group()`, `server.free()`, `node.set()`, context manager lifecycle)
+- README restructured: Quick Start now leads with the `Server`-based workflow (define, boot, play), followed by managed nodes, effect chains with `AddAction`, and NRT rendering. Synthesis technique examples moved to a dedicated section. SynthDef compilation without engine, graph introspection, and OSC codec moved to Advanced Features
 
 ## [0.1.3]
 

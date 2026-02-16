@@ -13,23 +13,12 @@ Requires:
 
 import time
 
-from nanosynth import OscMessage, Options
-from nanosynth.scsynth import _options_to_world_kwargs
-from nanosynth._scsynth import (
-    world_new,
-    world_open_udp,
-    world_send_packet,
-    world_wait_for_quit,
-)
+from nanosynth import Options, Server
 from nanosynth.synthdef import DoneAction, SynthDefBuilder
 from nanosynth.ugens import LFTri, Out, Pan2, SinOsc, XLine
 
 
-def send(world, *args):
-    world_send_packet(world, OscMessage(*args).to_datagram())
-
-
-def main():
+def main() -> None:
     # -- SynthDef 1: ring modulation with sweeping mod frequency --------------
     with SynthDefBuilder(carrier_freq=440.0, amplitude=0.3) as builder:
         carrier = SinOsc.ar(frequency=builder["carrier_freq"])
@@ -45,8 +34,7 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=-0.4))
 
     ring_def = builder.build(name="ring_mod")
-    ring_bytes = ring_def.compile()
-    print(f"SynthDef '{ring_def.name}' compiled: {len(ring_bytes)} bytes")
+    print(f"SynthDef '{ring_def.name}' compiled: {len(ring_def.compile())} bytes")
 
     # -- SynthDef 2: amplitude modulation with sweeping mod frequency ---------
     with SynthDefBuilder(carrier_freq=440.0, amplitude=0.3) as builder:
@@ -63,45 +51,23 @@ def main():
         Out.ar(bus=0, source=Pan2.ar(source=sig, position=0.4))
 
     am_def = builder.build(name="am_mod")
-    am_bytes = am_def.compile()
-    print(f"SynthDef '{am_def.name}' compiled: {len(am_bytes)} bytes")
+    print(f"SynthDef '{am_def.name}' compiled: {len(am_def.compile())} bytes")
 
     # -- Boot and play --------------------------------------------------------
-    world = world_new(
-        **_options_to_world_kwargs(Options(verbosity=0, load_synthdefs=False))
-    )
-    world_open_udp(world, "127.0.0.1", 57110)
-    print("Embedded scsynth booted.")
+    with Server(Options(verbosity=0)) as server:
+        ring_def.send(server)
+        am_def.send(server)
+        time.sleep(0.1)
 
-    send(world, "/g_new", 1, 0, 0)
-    send(world, "/d_recv", ring_bytes)
-    send(world, "/d_recv", am_bytes)
-    time.sleep(0.1)
+        # Ring mod on left, AM on right -- hear the difference
+        print("Ring modulation (left) -- sweeping mod freq 2->300 Hz (4s)...")
+        server.synth("ring_mod", carrier_freq=440.0, amplitude=0.35)
+        time.sleep(0.5)
 
-    # Ring mod on left, AM on right -- hear the difference
-    print("Ring modulation (left) -- sweeping mod freq 2->300 Hz (4s)...")
-    send(
-        world,
-        "/s_new",
-        "ring_mod",
-        1000,
-        0,
-        1,
-        "carrier_freq",
-        440.0,
-        "amplitude",
-        0.35,
-    )
-    time.sleep(0.5)
+        print("Amplitude modulation (right) -- same sweep...")
+        server.synth("am_mod", carrier_freq=440.0, amplitude=0.35)
+        time.sleep(4.5)
 
-    print("Amplitude modulation (right) -- same sweep...")
-    send(
-        world, "/s_new", "am_mod", 1001, 0, 1, "carrier_freq", 440.0, "amplitude", 0.35
-    )
-    time.sleep(4.5)
-
-    send(world, "/quit")
-    world_wait_for_quit(world, False)
     print("Done.")
 
 
