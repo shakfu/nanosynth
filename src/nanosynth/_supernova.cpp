@@ -13,6 +13,20 @@
 // CMakeLists.txt to match SC's global MSVC definitions.
 #include "function_attributes.h"
 
+#ifdef _MSC_VER
+// Include Windows headers explicitly in the correct order before
+// nanobind/Python.h and Boost.Asio.  This ensures:
+// 1. SAL annotations (IN, OUT) are defined for winsock2.h
+// 2. winsock2.h is included before winsock.h (WIN32_LEAN_AND_MEAN alone
+//    is not sufficient on SDK 10.0.26100.0)
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+// Restore PURE -- windows.h pulls in windef.h which defines PURE as "= 0"
+#undef PURE
+#define PURE /*PURE*/
+#endif
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/optional.h>
