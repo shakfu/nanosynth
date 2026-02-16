@@ -105,18 +105,24 @@ Remaining improvement tasks, grouped by category. Priority and effort estimates 
 
 ---
 
+## CLI
+
+- [ ] **`nanosynth render` command.** CLI entry point for offline (NRT) rendering. Takes a Python script that defines a `Score` object, renders it to an audio file. Usage: `nanosynth render script.py -o output.wav --sr 48000 --format WAV --sample-format int16`. Useful for batch processing, CI pipelines, and generative music workflows. Register via `[project.scripts]` in `pyproject.toml`. Priority: **medium**, effort: **low**.
+
+---
+
 ## Feature Gaps (relative to sclang)
 
-Not necessarily all worth implementing, but represents the gap between "compile SynthDefs" and "replace sclang for synthesis work":
+Not necessarily all worth implementing, but represents the gap between "compile SynthDefs" and "replace sclang for synthesis work". Ordered by priority:
 
-- [ ] Bus allocation (`Bus.audio`, `Bus.control`)
-- [ ] ParGroup support (groups work, no ParGroup)
-- [ ] Patterns / sequencing (`Pbind`, `Pseq`, `Prand` -- large design space, may be a separate package)
-- [ ] MIDI input (`MIDIFunc`, `MIDIIn`)
-- [ ] Recording (`Server.record`)
-- [ ] Scope / metering (`Stethoscope`, `ServerMeter`)
-- [ ] SynthDef variants
-- [ ] Node proxies / live coding (`NodeProxy`, `Ndef`)
+- [x] **Bus allocation** (`Bus.audio`, `Bus.control`). `Bus` proxy class with `Server.audio_bus()`, `Server.control_bus()`, `free_bus()`, `managed_audio_bus()`, `managed_control_bus()`. Audio buses start at `first_private_bus_id`, control buses at 0. `Bus.set()` for control buses, `int()` compatibility, context managers.
+- [x] **Recording** (`Server.record`). `Server.record(path)` / `Server.stop_recording()` / `Server.is_recording` for capturing real-time audio output to WAV/AIFF. Uses DiskOut + 65536-frame streaming buffer. Configurable channel count, bus, format. Recorder SynthDef cached by channel count.
+- [ ] **Patterns / sequencing** (`Pbind`, `Pseq`, `Prand`). Highest-impact SC feature -- without it, all scheduling is manual `time.sleep()` loops. Large design space; Python has its own idioms (generators, async). May warrant a separate package. Priority: **high**, effort: **high**.
+- [ ] **MIDI input** (`MIDIFunc`, `MIDIIn`). Enables live performance and hardware controller integration. Priority: **medium**, effort: **medium**.
+- [ ] **Node proxies / live coding** (`NodeProxy`, `Ndef`). What makes SC powerful for live coding. Complex to implement well, high value for a specific audience. Priority: **medium**, effort: **high**.
+- [ ] **Scope / metering** (`Stethoscope`, `ServerMeter`). Useful feedback but requires a UI story (matplotlib? terminal?). Priority: **low**, effort: **medium**.
+- [ ] **ParGroup support** (groups work, no ParGroup). Multi-core DSP optimization. Nobody is blocked by its absence. Priority: **low**, effort: **low**.
+- [ ] **SynthDef variants**. Niche even in SC, rarely used. Priority: **low**, effort: **low**.
 
 ---
 

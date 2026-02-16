@@ -23,7 +23,7 @@ from .synthdef import (
 )
 from .envelopes import EnvGen, Envelope
 from .score import Score
-from .server import Group, Server, Synth
+from .server import Bus, Group, Server, Synth
 from .ugens import *  # noqa: F403
 
 # Common UGens exported via star-import. The full set remains available
@@ -62,6 +62,7 @@ _COMMON_UGENS = [
 
 __all__ = [
     "AddAction",
+    "Bus",
     "CalculationRate",
     "Default",
     "DoneAction",

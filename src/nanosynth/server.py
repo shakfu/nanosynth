@@ -6,7 +6,10 @@ import contextlib
 import itertools
 import logging
 import threading
+import time
 from collections.abc import Callable, Iterator
+from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsInt
 
 from .enums import AddAction
@@ -150,6 +153,99 @@ class Group:
         self._server.free(self._node_id)
 
 
+class Bus:
+    """Lightweight proxy for an allocated bus on the server.
+
+    Wraps a bus ID with convenience methods and int-compatibility.
+    Returned by ``Server.audio_bus()`` and ``Server.control_bus()``.
+
+    Supports ``int()`` conversion and use as a context manager
+    (frees the bus on exit)::
+
+        bus = server.audio_bus(2)
+        # use int(bus) or bus.bus_id as a synth param
+        node = server.synth("fx", in_bus=float(int(bus)))
+        bus.free()
+    """
+
+    __slots__ = ("_server", "_bus_id", "_num_channels", "_rate")
+
+    def __init__(
+        self, server: Server, bus_id: int, num_channels: int, rate: str
+    ) -> None:
+        self._server = server
+        self._bus_id = bus_id
+        self._num_channels = num_channels
+        self._rate = rate
+
+    def __repr__(self) -> str:
+        return f"<Bus {self._bus_id} ({self._rate}, {self._num_channels}ch)>"
+
+    def __int__(self) -> int:
+        return self._bus_id
+
+    def __index__(self) -> int:
+        return self._bus_id
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Bus):
+            return self._bus_id == other._bus_id and self._rate == other._rate
+        if isinstance(other, int):
+            return self._bus_id == other
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((self._bus_id, self._rate))
+
+    @property
+    def bus_id(self) -> int:
+        """The server-side bus index."""
+        return self._bus_id
+
+    @property
+    def num_channels(self) -> int:
+        """Number of contiguous channels this bus spans."""
+        return self._num_channels
+
+    @property
+    def rate(self) -> str:
+        """Bus rate: ``"audio"`` or ``"control"``."""
+        return self._rate
+
+    def set(self, *values: float) -> None:
+        """Set control bus value(s). Only valid for control-rate buses.
+
+        Args:
+            *values: One value per channel.
+
+        Raises:
+            RuntimeError: If called on an audio-rate bus.
+        """
+        if self._rate != "control":
+            raise RuntimeError("set() is only valid for control-rate buses")
+        if len(values) == 1:
+            self._server.send_msg("/c_set", self._bus_id, values[0])
+        else:
+            args: list[OscArgument] = []
+            for i, v in enumerate(values):
+                args.append(self._bus_id + i)
+                args.append(float(v))
+            self._server.send_msg("/c_set", *args)
+
+    def free(self) -> None:
+        """Return this bus to the allocator pool."""
+        self._server.free_bus(self)
+
+
+@dataclass
+class _RecordingState:
+    """Tracks active recording state."""
+
+    path: str
+    buffer_id: int
+    synth_node_id: int
+
+
 class _ReplyEvent:
     """One-shot waiter for a single OSC reply."""
 
@@ -188,10 +284,16 @@ class Server:
         self._node_id_counter = itertools.count(1000)
         self._buffer_id_counter = itertools.count(0)
         self._allocated_buffers: set[int] = set()
+        self._audio_bus_counter = itertools.count(self._options.first_private_bus_id)
+        self._control_bus_counter = itertools.count(0)
+        self._allocated_audio_buses: set[int] = set()
+        self._allocated_control_buses: set[int] = set()
         self._synthdefs: set[str] = set()
         self._reply_handlers: dict[str, list[Callable[..., Any]]] = {}
         self._pending_replies: dict[str, list[_ReplyEvent]] = {}
         self._reply_lock = threading.Lock()
+        self._recording: _RecordingState | None = None
+        self._recorder_synthdefs: dict[int, str] = {}  # channel_count -> name
 
     def __enter__(self) -> Server:
         self.boot()
@@ -229,6 +331,11 @@ class Server:
     def is_running(self) -> bool:
         """Whether the engine is currently online."""
         return self._protocol.status == BootStatus.ONLINE
+
+    @property
+    def options(self) -> Options:
+        """The server's ``Options`` configuration."""
+        return self._options
 
     # -- Node ID allocation ----------------------------------------------------
 
@@ -461,6 +568,7 @@ class Server:
         sample_format: str = "int16",
         num_frames: int = -1,
         start_frame: int = 0,
+        leave_open: bool = False,
     ) -> None:
         """Write buffer contents to a sound file.
 
@@ -471,6 +579,8 @@ class Server:
             sample_format: Sample format (e.g. "int16", "float").
             num_frames: Number of frames to write (-1 for all).
             start_frame: Starting frame in the buffer.
+            leave_open: If True, keep the file open for streaming
+                (used by DiskOut for recording).
         """
         self.send_msg(
             "/b_write",
@@ -480,7 +590,7 @@ class Server:
             sample_format,
             num_frames,
             start_frame,
-            0,  # leave_open flag
+            1 if leave_open else 0,
         )
 
     def free_buffer(self, buffer_id: int) -> None:
@@ -526,3 +636,185 @@ class Server:
         finally:
             if self.is_running:
                 self.free_buffer(buffer_id)
+
+    # -- Bus allocation --------------------------------------------------------
+
+    def audio_bus(self, num_channels: int = 1) -> Bus:
+        """Allocate private audio bus(es). Returns a Bus proxy.
+
+        Audio buses are allocated from the private range, starting after
+        the hardware I/O buses (at ``options.first_private_bus_id``).
+
+        Args:
+            num_channels: Number of contiguous channels to allocate.
+        """
+        bus_id = next(self._audio_bus_counter)
+        # For multi-channel, advance the counter for remaining channels
+        for _ in range(num_channels - 1):
+            next(self._audio_bus_counter)
+        self._allocated_audio_buses.add(bus_id)
+        return Bus(self, bus_id, num_channels, "audio")
+
+    def control_bus(self, num_channels: int = 1) -> Bus:
+        """Allocate control bus(es). Returns a Bus proxy.
+
+        Args:
+            num_channels: Number of contiguous channels to allocate.
+        """
+        bus_id = next(self._control_bus_counter)
+        for _ in range(num_channels - 1):
+            next(self._control_bus_counter)
+        self._allocated_control_buses.add(bus_id)
+        return Bus(self, bus_id, num_channels, "control")
+
+    def free_bus(self, bus: Bus) -> None:
+        """Return a bus to the allocator pool.
+
+        Args:
+            bus: The Bus proxy to free.
+        """
+        if bus.rate == "audio":
+            self._allocated_audio_buses.discard(bus.bus_id)
+        else:
+            self._allocated_control_buses.discard(bus.bus_id)
+
+    @contextlib.contextmanager
+    def managed_audio_bus(self, num_channels: int = 1) -> Iterator[Bus]:
+        """Allocate an audio bus and free it on context exit."""
+        bus = self.audio_bus(num_channels)
+        try:
+            yield bus
+        finally:
+            self.free_bus(bus)
+
+    @contextlib.contextmanager
+    def managed_control_bus(self, num_channels: int = 1) -> Iterator[Bus]:
+        """Allocate a control bus and free it on context exit."""
+        bus = self.control_bus(num_channels)
+        try:
+            yield bus
+        finally:
+            self.free_bus(bus)
+
+    # -- Recording -------------------------------------------------------------
+
+    def _ensure_recorder_synthdef(self, num_channels: int) -> str:
+        """Build and send the recorder SynthDef for the given channel count.
+
+        Returns the SynthDef name.
+        """
+        if num_channels in self._recorder_synthdefs:
+            return self._recorder_synthdefs[num_channels]
+
+        from .synthdef import SynthDefBuilder
+        from .ugens.diskio import DiskOut
+        from .ugens.inout import In
+
+        name = f"__nanosynth_recorder_{num_channels}ch__"
+        with SynthDefBuilder(buffer_id=0.0, bus=0.0) as builder:
+            sig = In.ar(bus=builder["bus"], channel_count=num_channels)  # type: ignore[attr-defined]
+            DiskOut.ar(buffer_id=builder["buffer_id"], source=sig)  # type: ignore[attr-defined]
+        synthdef = builder.build(name=name)
+        self.send_synthdef(synthdef)
+        self._recorder_synthdefs[num_channels] = name
+        return name
+
+    def record(
+        self,
+        path: str | Path,
+        *,
+        num_channels: int | None = None,
+        bus: int = 0,
+        header_format: str = "wav",
+        sample_format: str = "int16",
+    ) -> None:
+        """Start recording server audio output to a file.
+
+        Args:
+            path: Destination file path.
+            num_channels: Number of channels to record. Defaults to
+                ``options.output_bus_channel_count``.
+            bus: Bus index to record from (default 0 = main output).
+            header_format: File format (``"wav"`` or ``"aiff"``).
+            sample_format: Sample encoding (``"int16"``, ``"int24"``,
+                ``"float"``).
+
+        Raises:
+            RuntimeError: If already recording.
+        """
+        if self._recording is not None:
+            raise RuntimeError("Already recording. Call stop_recording() first.")
+
+        if num_channels is None:
+            num_channels = self._options.output_bus_channel_count
+
+        path_str = str(path)
+
+        # 1. Allocate a disk-streaming buffer (65536 frames is SC convention)
+        buffer_id = self.alloc_buffer(65536, num_channels)
+
+        # 2. Open the buffer for writing with leave_open=True
+        self.write_buffer(
+            buffer_id,
+            path_str,
+            header_format=header_format,
+            sample_format=sample_format,
+            num_frames=-1,
+            start_frame=0,
+            leave_open=True,
+        )
+
+        # 3. Brief pause for buffer to open on the server
+        time.sleep(0.1)
+
+        # 4. Send the recorder SynthDef
+        sd_name = self._ensure_recorder_synthdef(num_channels)
+
+        # 5. Create recorder synth at tail of root group (group 0)
+        node_id = self.next_node_id()
+        self.send_msg(
+            "/s_new",
+            sd_name,
+            node_id,
+            int(AddAction.ADD_TO_TAIL),
+            0,  # target = root group
+            "buffer_id",
+            float(buffer_id),
+            "bus",
+            float(bus),
+        )
+
+        self._recording = _RecordingState(
+            path=path_str,
+            buffer_id=buffer_id,
+            synth_node_id=node_id,
+        )
+        logger.info("Recording to %s", path_str)
+
+    def stop_recording(self) -> None:
+        """Stop recording and finalize the audio file.
+
+        Safe to call when not recording (no-op).
+        """
+        if self._recording is None:
+            return
+
+        rec = self._recording
+        self._recording = None
+
+        # 1. Free the recorder synth
+        self.free(rec.synth_node_id)
+
+        # 2. Brief pause to let final samples flush
+        time.sleep(0.1)
+
+        # 3. Close and free the buffer
+        self.close_buffer(rec.buffer_id)
+        self.free_buffer(rec.buffer_id)
+
+        logger.info("Stopped recording: %s", rec.path)
+
+    @property
+    def is_recording(self) -> bool:
+        """Whether the server is currently recording."""
+        return self._recording is not None

@@ -6,7 +6,7 @@ import pytest
 
 from nanosynth.enums import AddAction
 from nanosynth.scsynth import BootStatus, Options
-from nanosynth.server import Group, Server, Synth
+from nanosynth.server import Bus, Group, Server, Synth
 
 
 class TestServerInit:
@@ -728,3 +728,328 @@ class TestGroupProxy:
         msg = OscMessage.from_datagram(data)
         assert msg.address == "/n_set"
         assert msg.contents[0] == 1000
+
+
+class TestBusAllocation:
+    """Tests for Bus class and bus allocation methods."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_audio_bus_starts_at_first_private(self, server: Server) -> None:
+        bus = server.audio_bus()
+        expected = server.options.first_private_bus_id  # 16 by default
+        assert bus.bus_id == expected
+
+    def test_audio_bus_sequential_ids(self, server: Server) -> None:
+        b1 = server.audio_bus()
+        b2 = server.audio_bus()
+        assert b2.bus_id == b1.bus_id + 1
+
+    def test_audio_bus_multi_channel_spans(self, server: Server) -> None:
+        b1 = server.audio_bus(4)
+        b2 = server.audio_bus()
+        assert b1.num_channels == 4
+        assert b2.bus_id == b1.bus_id + 4
+
+    def test_control_bus_starts_at_zero(self, server: Server) -> None:
+        bus = server.control_bus()
+        assert bus.bus_id == 0
+
+    def test_control_bus_sequential_ids(self, server: Server) -> None:
+        b1 = server.control_bus()
+        b2 = server.control_bus()
+        assert b1.bus_id == 0
+        assert b2.bus_id == 1
+
+    def test_control_bus_multi_channel(self, server: Server) -> None:
+        b1 = server.control_bus(3)
+        b2 = server.control_bus()
+        assert b1.num_channels == 3
+        assert b2.bus_id == 3
+
+    def test_bus_int_conversion(self, server: Server) -> None:
+        bus = server.audio_bus()
+        assert int(bus) == bus.bus_id
+
+    def test_bus_index(self, server: Server) -> None:
+        bus = server.audio_bus()
+        assert bus.__index__() == bus.bus_id
+
+    def test_bus_rate(self, server: Server) -> None:
+        ab = server.audio_bus()
+        cb = server.control_bus()
+        assert ab.rate == "audio"
+        assert cb.rate == "control"
+
+    def test_bus_repr(self, server: Server) -> None:
+        bus = server.audio_bus(2)
+        r = repr(bus)
+        assert "audio" in r
+        assert "2ch" in r
+
+    def test_bus_eq_int(self, server: Server) -> None:
+        bus = server.audio_bus()
+        assert bus == bus.bus_id
+
+    def test_bus_eq_bus(self, server: Server) -> None:
+        b1 = server.audio_bus()
+        b2 = server.audio_bus()
+        assert b1 != b2
+        assert b1 == b1
+
+    def test_bus_hash(self, server: Server) -> None:
+        bus = server.audio_bus()
+        s = {bus}
+        assert bus in s
+
+    def test_free_bus_removes_from_tracking(self, server: Server) -> None:
+        bus = server.audio_bus()
+        assert bus.bus_id in server._allocated_audio_buses
+        bus.free()
+        assert bus.bus_id not in server._allocated_audio_buses
+
+    def test_free_control_bus_removes_from_tracking(self, server: Server) -> None:
+        bus = server.control_bus()
+        assert bus.bus_id in server._allocated_control_buses
+        server.free_bus(bus)
+        assert bus.bus_id not in server._allocated_control_buses
+
+    def test_managed_audio_bus(self, server: Server) -> None:
+        with server.managed_audio_bus(2) as bus:
+            assert isinstance(bus, Bus)
+            assert bus.num_channels == 2
+            assert bus.bus_id in server._allocated_audio_buses
+        assert bus.bus_id not in server._allocated_audio_buses
+
+    def test_managed_control_bus(self, server: Server) -> None:
+        with server.managed_control_bus() as bus:
+            assert isinstance(bus, Bus)
+            assert bus.rate == "control"
+            assert bus.bus_id in server._allocated_control_buses
+        assert bus.bus_id not in server._allocated_control_buses
+
+    def test_control_bus_set_single(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        bus = server.control_bus()
+        bus.set(0.5)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/c_set"
+        assert msg.contents[0] == bus.bus_id
+        assert abs(msg.contents[1] - 0.5) < 0.01
+
+    def test_control_bus_set_multi(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        bus = server.control_bus(2)
+        bus.set(0.5, 0.8)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.address == "/c_set"
+        assert msg.contents[0] == bus.bus_id
+        assert abs(msg.contents[1] - 0.5) < 0.01
+        assert msg.contents[2] == bus.bus_id + 1
+        assert abs(msg.contents[3] - 0.8) < 0.01
+
+    def test_audio_bus_set_raises(self, server: Server) -> None:
+        bus = server.audio_bus()
+        with pytest.raises(RuntimeError, match="control-rate"):
+            bus.set(1.0)
+
+    def test_options_property(self, server: Server) -> None:
+        assert server.options is server._options
+        assert server.options.output_bus_channel_count == 8
+
+    def test_custom_options_bus_start(self) -> None:
+        opts = Options(output_bus_channel_count=2, input_bus_channel_count=2)
+        s = Server(options=opts)
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        bus = s.audio_bus()
+        assert bus.bus_id == 4  # 2 out + 2 in
+
+
+class TestWriteBufferLeaveOpen:
+    """Tests for the leave_open parameter on write_buffer."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def test_leave_open_false_default(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.write_buffer(0, "/tmp/out.wav")
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.contents[6] == 0  # leave_open flag
+
+    def test_leave_open_true(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.write_buffer(0, "/tmp/out.wav", leave_open=True)
+        data = server._protocol.send_packet.call_args[0][0]
+        msg = OscMessage.from_datagram(data)
+        assert msg.contents[6] == 1  # leave_open flag
+
+
+class TestRecording:
+    """Tests for server recording (record / stop_recording / is_recording)."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_sets_is_recording(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        assert server.is_recording is False
+        server.record("/tmp/test.wav")
+        assert server.is_recording is True
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_sends_correct_osc_sequence(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record("/tmp/test.wav")
+        calls = server._protocol.send_packet.call_args_list
+        messages = [OscMessage.from_datagram(c[0][0]) for c in calls]
+        addresses = [m.address for m in messages]
+        # Expected sequence: /b_alloc, /b_write, /d_recv, /s_new
+        assert addresses == ["/b_alloc", "/b_write", "/d_recv", "/s_new"]
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_allocs_buffer_65536_frames(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record("/tmp/test.wav")
+        alloc_data = server._protocol.send_packet.call_args_list[0][0][0]
+        msg = OscMessage.from_datagram(alloc_data)
+        assert msg.contents[1] == 65536  # num_frames
+        assert msg.contents[2] == 8  # default output_bus_channel_count
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_write_buffer_leave_open(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record("/tmp/test.wav")
+        write_data = server._protocol.send_packet.call_args_list[1][0][0]
+        msg = OscMessage.from_datagram(write_data)
+        assert msg.address == "/b_write"
+        assert msg.contents[1] == "/tmp/test.wav"
+        assert msg.contents[2] == "wav"
+        assert msg.contents[3] == "int16"
+        assert msg.contents[6] == 1  # leave_open = True
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_creates_synth_at_tail_of_root(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record("/tmp/test.wav")
+        synth_data = server._protocol.send_packet.call_args_list[3][0][0]
+        msg = OscMessage.from_datagram(synth_data)
+        assert msg.address == "/s_new"
+        assert "__nanosynth_recorder_" in msg.contents[0]
+        assert msg.contents[2] == 1  # ADD_TO_TAIL
+        assert msg.contents[3] == 0  # target = root group
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_custom_channels_and_format(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record(
+            "/tmp/test.aiff",
+            num_channels=2,
+            header_format="aiff",
+            sample_format="float",
+        )
+        alloc_data = server._protocol.send_packet.call_args_list[0][0][0]
+        alloc_msg = OscMessage.from_datagram(alloc_data)
+        assert alloc_msg.contents[2] == 2  # 2 channels
+
+        write_data = server._protocol.send_packet.call_args_list[1][0][0]
+        write_msg = OscMessage.from_datagram(write_data)
+        assert write_msg.contents[2] == "aiff"
+        assert write_msg.contents[3] == "float"
+
+    @patch("nanosynth.server.time.sleep")
+    def test_double_record_raises(self, mock_sleep: MagicMock, server: Server) -> None:
+        server.record("/tmp/test.wav")
+        with pytest.raises(RuntimeError, match="Already recording"):
+            server.record("/tmp/test2.wav")
+
+    @patch("nanosynth.server.time.sleep")
+    def test_stop_recording_clears_state(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        server.record("/tmp/test.wav")
+        server._protocol.send_packet.reset_mock()
+        server.stop_recording()
+        assert server.is_recording is False
+
+    @patch("nanosynth.server.time.sleep")
+    def test_stop_recording_sends_correct_osc_sequence(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record("/tmp/test.wav")
+        server._protocol.send_packet.reset_mock()
+        server.stop_recording()
+        calls = server._protocol.send_packet.call_args_list
+        messages = [OscMessage.from_datagram(c[0][0]) for c in calls]
+        addresses = [m.address for m in messages]
+        # Expected: /n_free, /b_close, /b_free
+        assert addresses == ["/n_free", "/b_close", "/b_free"]
+
+    def test_stop_recording_when_not_recording_is_noop(self, server: Server) -> None:
+        server.stop_recording()  # should not raise
+        assert server.is_recording is False
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_caches_synthdef(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        server.record("/tmp/test1.wav", num_channels=2)
+        server.stop_recording()
+        server._protocol.send_packet.reset_mock()
+        server.record("/tmp/test2.wav", num_channels=2)
+        calls = server._protocol.send_packet.call_args_list
+        from nanosynth.osc import OscMessage
+
+        messages = [OscMessage.from_datagram(c[0][0]) for c in calls]
+        addresses = [m.address for m in messages]
+        # Second record should NOT send /d_recv again
+        assert addresses == ["/b_alloc", "/b_write", "/s_new"]
+
+    @patch("nanosynth.server.time.sleep")
+    def test_record_with_path_object(
+        self, mock_sleep: MagicMock, server: Server
+    ) -> None:
+        from pathlib import Path
+
+        server.record(Path("/tmp/test.wav"))
+        assert server.is_recording is True

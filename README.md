@@ -16,6 +16,10 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 
 - **Non-real-time (NRT) rendering** -- `Score` class for offline audio rendering to WAV/AIFF files without audio hardware. Timestamped OSC commands are serialized and rendered by the embedded engine
 
+- **Bus allocation** -- `Bus` proxy class with `Server.audio_bus()`, `Server.control_bus()`, `managed_audio_bus()`, `managed_control_bus()`. Eliminates hardcoded magic bus numbers in effect chains. `int()` compatible for passing as synth parameters
+
+- **Server recording** -- `Server.record(path)` captures real-time audio output to WAV/AIFF via DiskOut. `stop_recording()` finalizes the file. Configurable channel count, bus, and format
+
 - **Buffer management** -- `alloc_buffer`, `read_buffer`, `write_buffer`, `free_buffer`, `zero_buffer`, `close_buffer`, and context managers for automatic cleanup
 
 - **Reply handling** -- bidirectional OSC communication with the engine: persistent handlers (`on`/`off`), blocking one-shot waits (`wait_for_reply`), and send-and-wait (`send_msg_sync`)
@@ -136,9 +140,9 @@ with Server() as server:
     # entire group freed here
 ```
 
-### Effect Chains with Groups
+### Effect Chains with Bus Allocation
 
-Use `AddAction` to control node execution order for effect processing:
+Use `AddAction` to control node execution order and `audio_bus()` to allocate private buses for effect routing -- no more hardcoded magic bus numbers:
 
 ```python
 import time
@@ -149,17 +153,48 @@ with Server(Options(verbosity=0)) as server:
     delay_def.send(server)
     time.sleep(0.1)
 
-    # Source group executes first, effect group after
-    src_group = server.group(target=1, action=AddAction.ADD_TO_HEAD)
-    fx_group = server.group(target=int(src_group), action=AddAction.ADD_AFTER)
+    # Allocate a private bus for routing source -> effect
+    with server.managed_audio_bus(2) as fx_bus:
+        # Source group executes first, effect group after
+        src_group = server.group(target=1, action=AddAction.ADD_TO_HEAD)
+        fx_group = server.group(target=int(src_group), action=AddAction.ADD_AFTER)
 
-    # Effect synth reads from source group's output bus
-    server.synth("comb_delay", target=int(fx_group), delay_time=0.375, mix=0.4)
+        # Effect reads from the allocated bus, writes to hardware output
+        server.synth("comb_delay", target=int(fx_group),
+                     in_bus=float(int(fx_bus)), delay_time=0.375, mix=0.4)
 
-    # Source synths in the source group
-    server.synth("perc_src", target=int(src_group), frequency=440.0)
-    time.sleep(2.0)
+        # Source writes to the allocated bus
+        server.synth("perc_src", target=int(src_group),
+                     out_bus=float(int(fx_bus)), frequency=440.0)
+        time.sleep(2.0)
+    # bus freed automatically
 ```
+
+### Recording
+
+Capture real-time audio output to a file:
+
+```python
+import time
+from nanosynth import Server
+
+with Server() as server:
+    synthdef.send(server)
+    time.sleep(0.1)
+
+    # Start recording to WAV
+    server.record("output.wav", header_format="wav", sample_format="int16")
+
+    # Play some audio
+    node = server.synth("sine", frequency=440.0, amplitude=0.3)
+    time.sleep(2.0)
+    server.free(node)
+
+    # Stop recording -- finalizes the file
+    server.stop_recording()
+```
+
+Recording options include `num_channels` (defaults to output bus count), `bus` (which bus to record from), `header_format` (`"wav"` or `"aiff"`), and `sample_format` (`"int16"`, `"int24"`, `"float"`).
 
 ### Offline (NRT) Rendering
 
