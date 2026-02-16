@@ -156,6 +156,13 @@ if(NANOSYNTH_EMBED_SCSYNTH)
 
     if(MSVC)
         target_compile_options(_scsynth PRIVATE /W4)
+        # Match SC's global MSVC definitions (add_definitions in SC's CMakeLists.txt
+        # only apply to targets within its add_subdirectory scope, not our nanobind module).
+        target_compile_definitions(_scsynth PRIVATE
+            WIN32_LEAN_AND_MEAN NOMINMAX _WIN32_WINNT=0x0600
+            _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
+            _ENABLE_ATOMIC_ALIGNMENT_FIX
+        )
     else()
         target_compile_options(_scsynth PRIVATE -Wall -Wextra)
     endif()
@@ -233,6 +240,13 @@ if(NANOSYNTH_EMBED_SCSYNTH)
 
         if(MSVC)
             target_compile_options(_supernova PRIVATE /W4)
+            # Match SC's global MSVC definitions (add_definitions in SC's CMakeLists.txt
+            # only apply to targets within its add_subdirectory scope, not our nanobind module).
+            target_compile_definitions(_supernova PRIVATE
+                WIN32_LEAN_AND_MEAN NOMINMAX _WIN32_WINNT=0x0600
+                _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
+                _ENABLE_ATOMIC_ALIGNMENT_FIX
+            )
         else()
             target_compile_options(_supernova PRIVATE -Wall -Wextra)
         endif()
