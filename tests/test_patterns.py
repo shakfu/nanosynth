@@ -420,7 +420,10 @@ class TestPlayer:
             pattern = Pbind(freq=Pseq([440]), dur=0.1)
             player = Player(pattern, clock, mock_server)
             player.play()
-            time.sleep(0.3)
+            # Poll instead of fixed sleep -- CI runners may be slow
+            deadline = time.monotonic() + 2.0
+            while not player._stopped and time.monotonic() < deadline:
+                time.sleep(0.05)
             assert player._stopped is True
         finally:
             clock.stop()
