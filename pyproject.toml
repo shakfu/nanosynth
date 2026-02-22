@@ -46,6 +46,9 @@ Repository = "https://github.com/shakfu/nanosynth"
 Issues = "https://github.com/shakfu/nanosynth/issues"
 Changelog = "https://github.com/shakfu/nanosynth/blob/main/CHANGELOG.md"
 
+[project.scripts]
+nanosynth = "nanosynth.cli:main"
+
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
