@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from nanosynth.exceptions import MidiError
 from nanosynth.midi import (
     ControlChange,
     MidiIn,
@@ -198,7 +199,7 @@ class TestMidiInConstruction:
     def test_open_by_name_not_found(self) -> None:
         with patch("nanosynth.midi._midi") as mock:
             mock.list_input_ports.return_value = ["Port A"]
-            with pytest.raises(RuntimeError, match="No MIDI port matching"):
+            with pytest.raises(MidiError, match="No MIDI port matching"):
                 MidiIn(port="Nonexistent")
 
     def test_context_manager(self) -> None:

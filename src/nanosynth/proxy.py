@@ -20,6 +20,7 @@ from collections.abc import Callable
 from typing import Any, ClassVar
 
 from .enums import AddAction, DoneAction
+from .exceptions import EngineError
 from .server import Bus, Server, Synth
 from .synthdef import SynthDef, SynthDefBuilder
 
@@ -193,7 +194,7 @@ class NodeProxy:
             RuntimeError: If no source synth is running.
         """
         if self._source_synth is None:
-            raise RuntimeError("No source synth is running")
+            raise EngineError("No source synth is running")
         self._source_synth.set(**params)
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import itertools
 import logging
+import struct
 import threading
 import time
 from collections.abc import Callable, Iterator
@@ -13,6 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsInt, Union
 
 from .enums import AddAction
+from .exceptions import EngineError, OscError
 from .osc import OscMessage
 from .scsynth import BootStatus, EmbeddedProcessProtocol, Options
 
@@ -239,7 +241,7 @@ class Bus:
             RuntimeError: If called on an audio-rate bus.
         """
         if self._rate != "control":
-            raise RuntimeError("set() is only valid for control-rate buses")
+            raise EngineError("set() is only valid for control-rate buses")
         if len(values) == 1:
             self._server.send_msg("/c_set", self._bus_id, values[0])
         else:
@@ -383,7 +385,7 @@ class Server:
         """Route an incoming OSC reply to registered handlers and waiters."""
         try:
             msg = OscMessage.from_datagram(data)
-        except Exception:
+        except (ValueError, IndexError, struct.error, OscError, RuntimeError):
             logger.debug("Failed to decode OSC reply (%d bytes)", len(data))
             return
         address = str(msg.address)
@@ -393,7 +395,7 @@ class Server:
         for handler in handlers:
             try:
                 handler(msg)
-            except Exception:
+            except Exception:  # noqa: BLE001  -- isolate user callbacks
                 logger.exception("Reply handler error for %s", address)
         for waiter in waiters:
             waiter.set(msg)
@@ -808,7 +810,7 @@ class Server:
             RuntimeError: If already recording.
         """
         if self._recording is not None:
-            raise RuntimeError("Already recording. Call stop_recording() first.")
+            raise EngineError("Already recording. Call stop_recording() first.")
 
         if num_channels is None:
             num_channels = self._options.output_bus_channel_count

@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from . import _midi  # type: ignore[attr-defined]
+from .exceptions import MidiError
 
 if TYPE_CHECKING:
     from .server import Server, Synth
@@ -158,7 +159,7 @@ class MidiIn:
                     self._handle = _midi.open_input(i, "nanosynth")
                     break
             if self._handle is None:
-                raise RuntimeError(f"No MIDI port matching {port!r}")
+                raise MidiError(f"No MIDI port matching {port!r}")
         else:
             raise TypeError(f"port must be int, str, or None, got {type(port)}")
 

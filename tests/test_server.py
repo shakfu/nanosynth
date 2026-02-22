@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from nanosynth.enums import AddAction
+from nanosynth.exceptions import EngineError
 from nanosynth.scsynth import BootStatus, Options
 from nanosynth.server import Bus, Group, ParGroup, Server, Synth
 
@@ -934,7 +935,7 @@ class TestBusAllocation:
 
     def test_audio_bus_set_raises(self, server: Server) -> None:
         bus = server.audio_bus()
-        with pytest.raises(RuntimeError, match="control-rate"):
+        with pytest.raises(EngineError, match="control-rate"):
             bus.set(1.0)
 
     def test_options_property(self, server: Server) -> None:
@@ -1073,7 +1074,7 @@ class TestRecording:
     @patch("nanosynth.server.time.sleep")
     def test_double_record_raises(self, mock_sleep: MagicMock, server: Server) -> None:
         server.record("/tmp/test.wav")
-        with pytest.raises(RuntimeError, match="Already recording"):
+        with pytest.raises(EngineError, match="Already recording"):
             server.record("/tmp/test2.wav")
 
     @patch("nanosynth.server.time.sleep")

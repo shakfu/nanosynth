@@ -29,6 +29,7 @@ from typing import (
     runtime_checkable,
 )
 
+from .exceptions import SynthDefError  # noqa: F401
 from .enums import (  # noqa: F401
     BinaryOperator,
     CalculationRate,
@@ -1262,12 +1263,6 @@ class UGenVector(UGenOperable, SequenceABC["UGenOperable"]):
 
     def __repr__(self) -> str:
         return f"<UGenVector([{', '.join(repr(x) for x in self)}])>"
-
-
-class SynthDefError(Exception):
-    """Raised for SynthDef graph construction errors (e.g. cross-scope UGen references)."""
-
-    pass
 
 
 # Thread-local storage for active builders

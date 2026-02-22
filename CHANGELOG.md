@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Integration tests** (`test_integration.py`): 19 tests verifying the full compilation-to-audio pipeline (SynthDefBuilder -> SynthDef -> SCgf binary -> engine load -> audio synthesis -> WAV output) via NRT rendering. Covers sine wave synthesis (non-silence, amplitude scaling, frequency differentiation), parameter control, diverse UGens (WhiteNoise, Saw, LPF, RLPF, Pan2), envelopes (percussive decay verification), Mix, stereo panning, `@synthdef` decorator, complex graphs (subtractive, additive, multi-SynthDef scores), and compilation roundtrip (determinism, anonymous names, optimization equivalence). No audio hardware required
+
+- **Basic UGen tests** (`test_basic_ugens.py`): 37 tests covering `MulAdd`, `Sum3`, `Sum4`, and `Mix` -- all algebraic simplification paths, rate computation and validation, zero-elision, input swapping for rate validity, multichannel expansion, recursive Mix grouping (Sum3/Sum4 tree), and SCgf compilation. Coverage of `basic.py` raised from 26% to 86%
+
+- **Adversarial compiler tests** (`test_adversarial.py`): 32 tests for edge cases -- deep UGen chains (100-deep filter cascades, 200-deep arithmetic chains), large graphs (500 parallel UGens, 100 parameters, 200+ constants), name encoding boundaries (empty, 1-char, 255-char, 256-char overflow, non-ASCII rejection), scope isolation (nested/sequential/cross-scope errors), degenerate graphs (constant-only, parameter-only, all-dead-code), topological sort edge cases (diamond dependencies, wide fan-out/fan-in, disconnected subgraphs), compilation determinism, and custom UGen type name encoding
+
+- **OSC edge case tests** (`test_osc_edge_cases.py`): 48+ tests (parametrized across native C++ and pure-Python backends) covering NTP timestamp edge cases (zero, fractional, large, immediate, non-realtime), deeply nested bundles (3-level, 5-level, mixed message/bundle), special characters in addresses (underscores, digits, dots, long, minimal, OSC wildcards), equality edge cases, `format_datagram`/`str`/`repr`, `to_list`/`to_osc`, `find_free_port`, unsupported type encoding, and empty/no-arg messages
+
+- **Concurrency stress tests** (`test_concurrency.py`): 10 tests covering SynthDefBuilder thread isolation (50 concurrent builds with unique frequencies, barrier-synchronized stack checks, nested builder isolation, cross-thread UGen rejection, 30 concurrent complex graphs with Mix/LPF/params, deterministic output under concurrency) and Server reply dispatch (20 concurrent waiters resolved via raw datagram dispatch, concurrent handler registration/unregistration, 100 concurrent dispatches, waiter timeout)
+
+- **Low-coverage UGen module tests** (`test_ugen_coverage.py`): 30 tests covering LocalIn (single/multi-channel, default cycling, scalar defaults, feedback loops with LocalOut, control rate), BiPanB2 (audio/control rate, 3-channel output), DecodeB2 (4/8 channel counts), Splay (single/multiple sources, normalize/no-normalize, spread/center, control rate), Klank (basic, explicit amplitudes, decay times, default fill, empty frequencies rejection, frequency scale/offset/decay scale), LinLin (ar/kr mapping, identity), and Silence (mono/stereo/8-channel)
+
+- **Typed exception hierarchy** (`exceptions.py`): All exceptions defined in a single module importable via `from nanosynth.exceptions import ...`. `NanosynthError` base class with `OscError` (OSC encode/decode), `EngineError` (engine lifecycle), `ServerCannotBoot` (boot failures, subclass of `EngineError`), `MidiError` (MIDI port/callback), and `SynthDefError` (graph construction) subclasses. All six exception classes exported from the top-level package
+
+### Changed
+
+- **Consolidated exceptions into `nanosynth.exceptions`**: `ServerCannotBoot` moved from `scsynth.py` and `SynthDefError` moved from `synthdef.py` into the new `exceptions.py` module. Both are re-exported from their original modules for internal use but the canonical import path is now `nanosynth.exceptions`
+
+- **Narrowed broad `except Exception` catches**: `server.py:_dispatch_reply` OSC decode catch narrowed to specific decode-failure types (`ValueError`, `IndexError`, `struct.error`, `OscError`, `RuntimeError`). `patterns.py:_release_synth` narrowed to `(EngineError, OSError)`. Handler callback catch retained as `except Exception` with explicit annotation for intentional user-callback isolation
+
+- **Replaced generic `RuntimeError` with typed exceptions**: `scsynth.py` and `supernova.py` `send_packet` raise `EngineError` instead of `RuntimeError` when the server is not running. `server.py` raises `EngineError` for bus/recording state errors. `proxy.py` raises `EngineError` for missing source synth. `midi.py` raises `MidiError` for port-not-found. `osc.py` raises `OscError` for unparseable type tags
+
 ## [0.1.5]
 
 ### Added

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from nanosynth.envelopes import EnvGen, Envelope
+from nanosynth.exceptions import SynthDefError
 from nanosynth.synthdef import (
     BinaryOpUGen,
     BinaryOperator,
@@ -19,7 +20,6 @@ from nanosynth.synthdef import (
     ParameterRate,
     SynthDef,
     SynthDefBuilder,
-    SynthDefError,
     UGen,
     UGenVector,
     UnaryOpUGen,

@@ -8,6 +8,8 @@ import time
 from collections.abc import Iterator, Sequence as SequenceABC
 from typing import Any, Union
 
+from .exceptions import OscError
+
 try:
     from . import _osc as _osc_native  # type: ignore[attr-defined]
 except ImportError:
@@ -246,7 +248,7 @@ class OscMessage:
             elif type_tag == "]":
                 array_stack.pop()
             else:
-                raise RuntimeError(f"Unable to parse type {type_tag!r}")
+                raise OscError(f"Unable to parse type {type_tag!r}")
         return cls(address, *contents_list)
 
     def to_list(self) -> list[Any]:

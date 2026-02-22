@@ -8,11 +8,11 @@ from unittest.mock import MagicMock
 import pytest
 
 from nanosynth.enums import AddAction
+from nanosynth.exceptions import EngineError, ServerCannotBoot
 from nanosynth.scsynth import (
     BootStatus,
     EmbeddedProcessProtocol,
     Options,
-    ServerCannotBoot,
     _options_to_world_kwargs,
     find_ugen_plugins_path,
 )
@@ -200,12 +200,12 @@ class TestEmbeddedProcessProtocol:
 
     def test_send_packet_when_offline_raises(self):
         proto = EmbeddedProcessProtocol()
-        with pytest.raises(RuntimeError, match="not running"):
+        with pytest.raises(EngineError, match="not running"):
             proto.send_packet(b"\x00")
 
     def test_send_msg_when_offline_raises(self):
         proto = EmbeddedProcessProtocol()
-        with pytest.raises(RuntimeError, match="not running"):
+        with pytest.raises(EngineError, match="not running"):
             proto.send_msg("/test")
 
     def test_name_stored(self):

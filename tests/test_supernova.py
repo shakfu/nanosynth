@@ -7,7 +7,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from nanosynth.scsynth import BootStatus, Options, ServerCannotBoot
+from nanosynth.exceptions import EngineError, ServerCannotBoot
+from nanosynth.scsynth import BootStatus, Options
 from nanosynth.supernova import (
     EmbeddedSupernovaProtocol,
     _options_to_supernova_kwargs,
@@ -142,12 +143,12 @@ class TestEmbeddedSupernovaProtocol:
 
     def test_send_packet_when_offline_raises(self):
         proto = EmbeddedSupernovaProtocol()
-        with pytest.raises(RuntimeError, match="not running"):
+        with pytest.raises(EngineError, match="not running"):
             proto.send_packet(b"\x00")
 
     def test_send_msg_when_offline_raises(self):
         proto = EmbeddedSupernovaProtocol()
-        with pytest.raises(RuntimeError, match="not running"):
+        with pytest.raises(EngineError, match="not running"):
             proto.send_msg("/test")
 
     def test_name_stored(self):

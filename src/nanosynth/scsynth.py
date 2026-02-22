@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
+from .exceptions import EngineError, ServerCannotBoot  # noqa: F401
+
 if TYPE_CHECKING:
     from nanosynth.osc import OscArgument
 
@@ -27,12 +29,6 @@ class BootStatus(enum.IntEnum):
     BOOTING = 1
     ONLINE = 2
     QUITTING = 3
-
-
-class ServerCannotBoot(Exception):
-    """Raised when the embedded scsynth engine fails to start."""
-
-    pass
 
 
 @dataclass(frozen=True)
@@ -346,7 +342,7 @@ class EmbeddedProcessProtocol:
     def send_packet(self, data: bytes) -> bool:
         """Send a raw OSC packet to the engine."""
         if self.status != BootStatus.ONLINE or self._world is None:
-            raise RuntimeError("Server is not running")
+            raise EngineError("Server is not running")
         from nanosynth._scsynth import world_send_packet
 
         result: bool = world_send_packet(self._world, data)

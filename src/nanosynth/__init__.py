@@ -3,6 +3,14 @@
 __version__ = "0.1.5"
 
 from .enums import AddAction, CalculationRate, DoneAction
+from .exceptions import (
+    EngineError,
+    MidiError,
+    NanosynthError,
+    OscError,
+    ServerCannotBoot,
+    SynthDefError,
+)
 from .osc import OscBundle, OscMessage, find_free_port
 from .scsynth import EmbeddedProcessProtocol, Options, find_ugen_plugins_path
 from .supernova import EmbeddedSupernovaProtocol
@@ -86,15 +94,19 @@ __all__ = [
     "DoneAction",
     "EmbeddedProcessProtocol",
     "EmbeddedSupernovaProtocol",
+    "EngineError",
     "EnvGen",
     "Envelope",
     "Group",
-    "ParGroup",
+    "MidiError",
+    "NanosynthError",
     "Ndef",
     "NodeProxy",
     "OscBundle",
+    "OscError",
     "OscMessage",
     "Options",
+    "ParGroup",
     "Param",
     "Pattern",
     "Pbind",
@@ -111,9 +123,11 @@ __all__ = [
     "Rest",
     "Score",
     "Server",
+    "ServerCannotBoot",
     "Synth",
     "SynthDef",
     "SynthDefBuilder",
+    "SynthDefError",
     "SynthDefGraph",
     "UGen",
     "UGenInput",

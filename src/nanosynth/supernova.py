@@ -6,7 +6,8 @@ import logging
 import threading
 from typing import Any, Callable
 
-from .scsynth import BootStatus, Options, ServerCannotBoot, _options_to_world_kwargs
+from .exceptions import EngineError, ServerCannotBoot
+from .scsynth import BootStatus, Options, _options_to_world_kwargs
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ class EmbeddedSupernovaProtocol:
     def send_packet(self, data: bytes) -> bool:
         """Send a raw OSC packet to the engine."""
         if self.status != BootStatus.ONLINE or self._server is None:
-            raise RuntimeError("Server is not running")
+            raise EngineError("Server is not running")
         from nanosynth._supernova import supernova_send_packet
 
         result: bool = supernova_send_packet(self._server, data)

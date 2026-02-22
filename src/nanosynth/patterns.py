@@ -32,6 +32,8 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator, Sequence
 from typing import Any, Generic, TypeVar, Union
 
+from .exceptions import EngineError
+
 T = TypeVar("T")
 
 # Type alias for events -- string keys mapping to float, str, or Rest values.
@@ -563,5 +565,5 @@ class Player:
         """Send gate=0 to release a synth's envelope."""
         try:
             self._server.set(synth, gate=0.0)
-        except Exception:
-            pass  # Server may have quit
+        except (EngineError, OSError):
+            pass  # Server may have quit or connection lost

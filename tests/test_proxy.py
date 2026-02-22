@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from nanosynth.exceptions import EngineError
 from nanosynth.proxy import Ndef, NodeProxy
 from nanosynth.scsynth import BootStatus
 from nanosynth.server import Server
@@ -141,7 +142,7 @@ class TestNodeProxy:
 
     def test_set_without_source_raises(self, server: Server) -> None:
         proxy = NodeProxy(server)
-        with pytest.raises(RuntimeError, match="No source synth"):
+        with pytest.raises(EngineError, match="No source synth"):
             proxy.set(frequency=440.0)
 
     def test_invalid_source_type_raises(self, server: Server) -> None:
