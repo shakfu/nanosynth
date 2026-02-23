@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Synchronous SynthDef loading** (`server.py`): `send_synthdef()` now waits for the engine's `/done /d_recv` reply before returning, ensuring the SynthDef is ready for immediate use. Previously the fire-and-forget `/d_recv` caused race conditions on supernova where `/s_new` could arrive before the SynthDef was loaded (e.g. NodeProxy source swaps failing with "Cannot create synth")
+- **Synchronous SynthDef loading** (`server.py`): `send_synthdef()` now waits for the engine's `/done /d_recv` reply before returning (0.1s timeout), ensuring the SynthDef is ready for immediate use. Previously the fire-and-forget `/d_recv` caused race conditions on supernova where `/s_new` could arrive before the SynthDef was loaded (e.g. NodeProxy source swaps failing with "Cannot create synth"). Falls back gracefully to fire-and-forget on timeout, so mock servers in tests are unaffected
 
 - **NRT render crash with persistent delay synths** (`score.py`): `Score.render()` would segfault during World cleanup when persistent synths (no `DoneAction.FREE_SYNTH` or explicit `/n_free`) containing delay UGens (DelayN, CombC, etc.) reading from private buses via `In.ar` were still running at end-of-score. The engine freed delay line buffers while they were still referenced. Fixed by sending `/g_freeAll 0` (free all nodes in the default group) before the end-of-score marker, ensuring clean synth teardown before World cleanup
 

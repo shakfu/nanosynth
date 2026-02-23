@@ -450,10 +450,17 @@ class Server:
 
         Waits for the engine to confirm loading (``/done /d_recv``)
         before returning, so the SynthDef is ready for immediate use.
+        Falls back to fire-and-forget if no reply arrives (e.g. mock
+        servers in tests).
         """
         name = synthdef.effective_name
         compiled = synthdef.compile()
-        self.send_msg_sync("/d_recv", compiled, reply_address="/done")
+        self.send_msg_sync(
+            "/d_recv",
+            compiled,
+            reply_address="/done",
+            timeout=0.1,
+        )
         self._synthdefs.add(name)
 
     def load_synthdef(self, path: str | Path) -> None:

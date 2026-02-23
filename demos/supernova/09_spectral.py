@@ -40,7 +40,9 @@ def main() -> None:
         sig = LPF.ar(source=sig, frequency=6000.0)
         env = EnvGen.kr(
             envelope=Envelope.linen(
-                attack_time=0.5, sustain_time=4.0, release_time=1.0,
+                attack_time=0.5,
+                sustain_time=4.0,
+                release_time=1.0,
             ),
             done_action=DoneAction.FREE_SYNTH,
         )
@@ -58,7 +60,9 @@ def main() -> None:
         sig = IFFT.ar(pv_chain=chain)
         env = EnvGen.kr(
             envelope=Envelope.linen(
-                attack_time=0.3, sustain_time=7.0, release_time=1.0,
+                attack_time=0.3,
+                sustain_time=7.0,
+                release_time=1.0,
             ),
             done_action=DoneAction.FREE_SYNTH,
         )
@@ -81,7 +85,9 @@ def main() -> None:
         sig = LPF.ar(source=sig, frequency=8000.0)
         env = EnvGen.kr(
             envelope=Envelope.linen(
-                attack_time=0.3, sustain_time=4.0, release_time=0.7,
+                attack_time=0.3,
+                sustain_time=4.0,
+                release_time=0.7,
             ),
             done_action=DoneAction.FREE_SYNTH,
         )
@@ -106,7 +112,10 @@ def main() -> None:
 
         print("2. Spectral freeze: capturing spectrum then freezing...")
         node = freeze_def.play(
-            server, frequency=330.0, freeze=0.0, amplitude=0.25,
+            server,
+            frequency=330.0,
+            freeze=0.0,
+            amplitude=0.25,
         )
         time.sleep(2.0)
         print("   ...frozen!")
@@ -118,7 +127,10 @@ def main() -> None:
 
         print("3. Spectral scramble: randomizing bin positions...")
         scramble_def.play(
-            server, frequency=440.0, wipe=0.6, amplitude=0.25,
+            server,
+            frequency=440.0,
+            wipe=0.6,
+            amplitude=0.25,
         )
         time.sleep(5.5)
 

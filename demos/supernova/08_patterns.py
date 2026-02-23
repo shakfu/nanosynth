@@ -25,8 +25,10 @@ def main() -> None:
         sig = SinOsc.ar(frequency=builder["freq"])
         env = EnvGen.kr(
             envelope=Envelope.adsr(
-                attack_time=0.01, decay_time=0.1,
-                sustain=0.6, release_time=0.3,
+                attack_time=0.01,
+                decay_time=0.1,
+                sustain=0.6,
+                release_time=0.3,
             ),
             gate=builder["gate"],
             done_action=DoneAction.FREE_SYNTH,
@@ -42,8 +44,10 @@ def main() -> None:
         sig = LPF.ar(source=sig, frequency=builder["freq"] * 3.0)
         env = EnvGen.kr(
             envelope=Envelope.adsr(
-                attack_time=0.005, decay_time=0.2,
-                sustain=0.4, release_time=0.2,
+                attack_time=0.005,
+                decay_time=0.2,
+                sustain=0.4,
+                release_time=0.2,
             ),
             gate=builder["gate"],
             done_action=DoneAction.FREE_SYNTH,

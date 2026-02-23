@@ -20,7 +20,10 @@ from nanosynth.ugens import LFNoise2, LPF, Out, Saw, SinOsc
 def main() -> None:
     # -- SynthDef: gated saw pad with filter drift ------------------------------
     with SynthDefBuilder(
-        frequency=220.0, cutoff=1200.0, amplitude=0.25, gate=1.0,
+        frequency=220.0,
+        cutoff=1200.0,
+        amplitude=0.25,
+        gate=1.0,
     ) as builder:
         sig = Saw.ar(frequency=builder["frequency"])
         lfo = LFNoise2.kr(frequency=0.3)
@@ -28,8 +31,10 @@ def main() -> None:
         sig = LPF.ar(source=sig, frequency=cutoff)
         env = EnvGen.kr(
             envelope=Envelope.adsr(
-                attack_time=0.8, decay_time=0.3,
-                sustain=0.6, release_time=1.5,
+                attack_time=0.8,
+                decay_time=0.3,
+                sustain=0.6,
+                release_time=1.5,
             ),
             gate=builder["gate"],
             done_action=DoneAction.FREE_SYNTH,

@@ -46,7 +46,9 @@ def main() -> None:
 
         env = EnvGen.kr(
             envelope=Envelope.linen(
-                attack_time=0.01, sustain_time=7.9, release_time=0.1,
+                attack_time=0.01,
+                sustain_time=7.9,
+                release_time=0.1,
             ),
             done_action=DoneAction.FREE_SYNTH,
         )
@@ -71,7 +73,9 @@ def main() -> None:
 
         env = EnvGen.kr(
             envelope=Envelope.linen(
-                attack_time=0.01, sustain_time=7.9, release_time=0.1,
+                attack_time=0.01,
+                sustain_time=7.9,
+                release_time=0.1,
             ),
             done_action=DoneAction.FREE_SYNTH,
         )
