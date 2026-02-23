@@ -7,6 +7,7 @@ from pathlib import Path
 
 from nanosynth.osc import OscBundle, OscMessage
 from nanosynth.score import Score
+from nanosynth.scsynth import Options
 from nanosynth.synthdef import SynthDefBuilder
 from nanosynth.ugens import Out, SinOsc
 
@@ -172,7 +173,7 @@ class TestScoreRender:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as f:
             output_path = f.name
 
-        score.render(output_path, sample_rate=44100)
+        score.render(output_path, sample_rate=44100, options=Options(verbosity=-1))
         p = Path(output_path)
         try:
             assert p.exists(), "WAV file was not created"
@@ -186,8 +187,6 @@ class TestScoreRender:
 
     def test_render_with_options(self):
         """Score.render() respects Options overrides."""
-        from nanosynth.scsynth import Options
-
         with SynthDefBuilder() as builder:
             Out.ar(bus=0, source=SinOsc.ar() * 0.1)
         sd = builder.build(name="test_opts")
@@ -197,7 +196,7 @@ class TestScoreRender:
         score.add_synth(0.0, "test_opts")
         score.add(0.2, OscMessage("/c_set", 0, 0))
 
-        opts = Options(verbosity=0, block_size=64)
+        opts = Options(verbosity=-1, block_size=64)
 
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as f:
             output_path = f.name

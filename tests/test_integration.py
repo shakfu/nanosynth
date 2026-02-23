@@ -34,7 +34,7 @@ def _render_score(score: Score, duration: float, **kwargs) -> Path:
     score.render(
         path,
         sample_rate=kwargs.get("sample_rate", 44100),
-        options=kwargs.get("options", Options(verbosity=0)),
+        options=kwargs.get("options", Options(verbosity=-1)),
     )
     return Path(path)
 

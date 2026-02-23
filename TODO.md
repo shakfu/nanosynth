@@ -26,7 +26,7 @@ Remaining improvement tasks, grouped by category and ordered by priority within 
 
 ## CI / Build
 
-- [ ] **Coverage reporting.** No codecov or equivalent integration. Coverage regressions can creep in silently. Upload coverage from the QA job and gate PRs on coverage delta. Priority: **medium**, effort: **low**.
+- [x] **Coverage reporting.** `pytest-cov` integrated into `make test`, reporting 94% overall coverage.
 
 - [ ] **Performance regression benchmarks.** No tracking of graph compilation speed or OSC encode/decode throughput. A simple `pytest-benchmark` suite for `SynthDefBuilder.build()` on a reference graph would catch regressions early. Priority: **low**, effort: **low**.
 
@@ -34,7 +34,9 @@ Remaining improvement tasks, grouped by category and ordered by priority within 
 
 ## CLI
 
-- [ ] **`nanosynth render` command.** CLI entry point for offline (NRT) rendering. Takes a Python script that defines a `Score` object, renders it to an audio file. Usage: `nanosynth render script.py -o output.wav --sr 48000 --format WAV --sample-format int16`. Useful for batch processing, CI pipelines, and generative music workflows. Register via `[project.scripts]` in `pyproject.toml`. Priority: **medium**, effort: **low**.
+- [x] **`nanosynth info` command.** CLI entry point (`[project.scripts]` in `pyproject.toml`) showing version, Python version/platform/architecture, audio backend, UGen plugin path and count, scsynth/supernova C extension status. `--list` / `-l` flag lists all 341 available UGen classes. Uses `argparse` subparsers for future extensibility.
+
+- [ ] **`nanosynth compile` command.** Compile Python-defined SynthDefs to `.scsyndef` binary files for use with standalone SuperCollider or precompilation for deployment. Priority: **low**, effort: **low**.
 
 ---
 
@@ -48,15 +50,15 @@ Remaining improvement tasks, grouped by category and ordered by priority within 
 
 ## Documentation
 
-- [ ] **MIDI usage guide.** `midi.py` has no dedicated documentation beyond docstrings. Need examples covering `MidiIn` setup, handler registration, `midi_note_map()`, and `midi_cc_map()` with a live server. Priority: **medium**, effort: **low**.
+- [x] **MIDI usage guide.** `docs/midi.md` covering port opening (index, name, virtual), message types, handler registration, `midi_note_map()`, `midi_cc_map()`, and thread safety caveats.
 
-- [ ] **Cookbook / examples page.** Beyond the getting-started guide, there's no "recipes" page showing common patterns: effect chains, multichannel routing, recording workflows, NRT rendering, pattern sequencing. Priority: **medium**, effort: **medium**.
-
-- [ ] **Threading model documentation.** The interaction between `EmbeddedProcessProtocol`'s daemon thread, OSC callbacks, `SynthDefBuilder` thread-local scopes, and `Clock`/`Player` threads is non-obvious. A short architecture section would prevent misuse. Priority: **low**, effort: **low**.
+- [x] **Threading model documentation.** `docs/threading.md` covering engine lifecycle state machine, reply dispatch, thread-local builder stacks, Clock/Player scheduling, Timer-based gate release, and a thread safety reference table.
 
 ---
 
 ## Architecture
+
+- [ ] **C/C++ SynthDef graph construction library.** A shared library exposing a C API for the SynthDef frontend -- multichannel expansion, rate inference, constant folding -- that any language can FFI into. This is the part worth sharing across languages (Python, Rust, JS/WASM, DAW plugins). Not an IR compiler: the backend (topological sort, constant deduplication, SCgf binary encoding) is trivial (~300 lines); the frontend is where the complexity lives (~1500 lines of non-trivial logic in the Python implementation). Only worth pursuing if there's a concrete non-Python consumer that needs SynthDef compilation without a Python runtime. Priority: **low**, effort: **high**.
 
 - [ ] **Async engine protocol.** An `asyncio`-based alternative to the thread-based `EmbeddedProcessProtocol`. Would enable `await server.synth(...)` and integrate cleanly with async web frameworks. Priority: **low**, effort: **medium**.
 

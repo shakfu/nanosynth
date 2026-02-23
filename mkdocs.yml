@@ -41,6 +41,8 @@ nav:
   - Getting Started: getting-started.md
   - Supernova Guide: supernova.md
   - Concepts: concepts.md
+  - MIDI Guide: midi.md
+  - Threading Model: threading.md
   - API Reference:
     - api/index.md
     - Core:

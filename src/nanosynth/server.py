@@ -446,10 +446,14 @@ class Server:
     # -- SynthDef management ---------------------------------------------------
 
     def send_synthdef(self, synthdef: SynthDef) -> None:
-        """Send a compiled SynthDef to the engine via /d_recv."""
+        """Send a compiled SynthDef to the engine via /d_recv.
+
+        Waits for the engine to confirm loading (``/done /d_recv``)
+        before returning, so the SynthDef is ready for immediate use.
+        """
         name = synthdef.effective_name
         compiled = synthdef.compile()
-        self.send_msg("/d_recv", compiled)
+        self.send_msg_sync("/d_recv", compiled, reply_address="/done")
         self._synthdefs.add(name)
 
     def load_synthdef(self, path: str | Path) -> None:

@@ -118,9 +118,12 @@ class Score:
         """
         from . import _scsynth
 
-        # Ensure end-of-score marker
+        # Free all nodes before shutdown to prevent crashes from delay
+        # UGens whose buffers are freed during World cleanup while still
+        # referenced by running synths.
         entries = list(self._entries)
         end_time = max((t for t, _ in entries), default=0.0)
+        entries.append((end_time, [OscMessage("/g_freeAll", 0)]))
         entries.append((end_time, [OscMessage("/c_set", 0, 0)]))
 
         # Build binary command data

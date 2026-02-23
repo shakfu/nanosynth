@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6]
+
 ### Added
+
+- **`nanosynth info` CLI command**: shows version, Python version/platform/architecture, audio backend (CoreAudio/PortAudio), UGen plugin path and count, and whether the scsynth and supernova C extensions loaded successfully (with error reason if not). `--list` / `-l` flag lists all available UGen classes alphabetically (341 UGens). Entry point registered via `[project.scripts]` in `pyproject.toml`. Uses `argparse` subparsers for future extensibility
+
+- **MIDI usage guide** (`docs/midi.md`): covers port opening (by index, name substring, or virtual port), MIDI message types (`NoteOn`, `NoteOff`, `ControlChange`, `PitchBend`), handler registration and removal, `midi_note_map()` for note-to-synth mapping with frequency/velocity conversion, `midi_cc_map()` for CC-to-parameter mapping with linear scaling, and thread safety considerations for callbacks running on RtMidi's polling thread
+
+- **Threading model documentation** (`docs/threading.md`): documents all background threads (engine daemon, reply callback, Clock, Timer, MIDI), the engine lifecycle state machine (`OFFLINE -> BOOTING -> ONLINE -> QUITTING`), OSC reply dispatch with locking, thread-local `SynthDefBuilder` stacks with UUID scope checking, Clock/Player scheduling with adaptive sleep, and a reference table of thread-safe vs thread-unsafe operations
 
 - **Integration tests** (`test_integration.py`): 19 tests verifying the full compilation-to-audio pipeline (SynthDefBuilder -> SynthDef -> SCgf binary -> engine load -> audio synthesis -> WAV output) via NRT rendering. Covers sine wave synthesis (non-silence, amplitude scaling, frequency differentiation), parameter control, diverse UGens (WhiteNoise, Saw, LPF, RLPF, Pan2), envelopes (percussive decay verification), Mix, stereo panning, `@synthdef` decorator, complex graphs (subtractive, additive, multi-SynthDef scores), and compilation roundtrip (determinism, anonymous names, optimization equivalence). No audio hardware required
 
@@ -22,6 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Low-coverage UGen module tests** (`test_ugen_coverage.py`): 30 tests covering LocalIn (single/multi-channel, default cycling, scalar defaults, feedback loops with LocalOut, control rate), BiPanB2 (audio/control rate, 3-channel output), DecodeB2 (4/8 channel counts), Splay (single/multiple sources, normalize/no-normalize, spread/center, control rate), Klank (basic, explicit amplitudes, decay times, default fill, empty frequencies rejection, frequency scale/offset/decay scale), LinLin (ar/kr mapping, identity), and Silence (mono/stereo/8-channel)
 
 - **Typed exception hierarchy** (`exceptions.py`): All exceptions defined in a single module importable via `from nanosynth.exceptions import ...`. `NanosynthError` base class with `OscError` (OSC encode/decode), `EngineError` (engine lifecycle), `ServerCannotBoot` (boot failures, subclass of `EngineError`), `MidiError` (MIDI port/callback), and `SynthDefError` (graph construction) subclasses. All six exception classes exported from the top-level package
+
+- **Supernova demos** (`demos/supernova/`): 5 new demos -- demand-rate sequencing with parallel voices (`07_demand_sequencer.py`), pattern sequencing via Pbind/Clock (`08_patterns.py`), FFT spectral processing (`09_spectral.py`), managed ParGroup context manager with chord progression (`10_managed_pargroup.py`), and NodeProxy/Ndef live coding (`11_nodeproxy.py`)
+
+### Fixed
+
+- **Synchronous SynthDef loading** (`server.py`): `send_synthdef()` now waits for the engine's `/done /d_recv` reply before returning, ensuring the SynthDef is ready for immediate use. Previously the fire-and-forget `/d_recv` caused race conditions on supernova where `/s_new` could arrive before the SynthDef was loaded (e.g. NodeProxy source swaps failing with "Cannot create synth")
+
+- **NRT render crash with persistent delay synths** (`score.py`): `Score.render()` would segfault during World cleanup when persistent synths (no `DoneAction.FREE_SYNTH` or explicit `/n_free`) containing delay UGens (DelayN, CombC, etc.) reading from private buses via `In.ar` were still running at end-of-score. The engine freed delay line buffers while they were still referenced. Fixed by sending `/g_freeAll 0` (free all nodes in the default group) before the end-of-score marker, ensuring clean synth teardown before World cleanup
 
 ### Changed
 
