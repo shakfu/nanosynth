@@ -22,6 +22,15 @@
 
 namespace nb = nanobind;
 
+// Dedicated exception for malformed OSC, translated to nanosynth.OscError.
+// A distinct type (not plain std::runtime_error) is essential: nanobind
+// exception translators are process-global across all nanobind modules, so a
+// broad std::runtime_error translator would also remap unrelated errors thrown
+// by the _scsynth/_supernova extensions.
+struct OscDecodeError : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
 // --- Utility: big-endian read/write ---
 
 static inline void write_be_i32(std::vector<uint8_t>& buf, int32_t v) {
@@ -120,6 +129,10 @@ static void encode_string(std::vector<uint8_t>& buf, const std::string& s) {
 static std::pair<std::string, size_t> decode_string(const uint8_t* data, size_t offset, size_t len) {
     size_t start = offset;
     while (offset < len && data[offset] != 0) offset++;
+    // A valid OSC string is null-terminated within the datagram. Reject an
+    // unterminated string instead of silently accepting it (matches the
+    // pure-Python decoder, which raises on a missing terminator).
+    if (offset >= len) throw OscDecodeError("OSC string missing null terminator");
     std::string s(reinterpret_cast<const char*>(data + start), offset - start);
     size_t actual_length = offset - start;
     size_t padded = ((actual_length + 1 + 3) / 4) * 4;
@@ -139,11 +152,11 @@ static void encode_blob(std::vector<uint8_t>& buf, const uint8_t* data, size_t s
 
 // Decode blob. Returns (blob_data, blob_size, new offset).
 static std::tuple<const uint8_t*, size_t, size_t> decode_blob(const uint8_t* data, size_t offset, size_t len) {
-    if (offset + 4 > len) throw std::runtime_error("truncated blob size");
+    if (offset + 4 > len) throw OscDecodeError("truncated blob size");
     uint32_t actual_length = read_be_u32(data + offset);
     offset += 4;
     size_t padded = ((actual_length + 3) / 4) * 4;
-    if (offset + padded > len) throw std::runtime_error("truncated blob data");
+    if (offset + padded > len) throw OscDecodeError("truncated blob data");
     const uint8_t* blob_data = data + offset;
     return {blob_data, actual_length, offset + padded};
 }
@@ -293,7 +306,7 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len, int depth
         min_required += min_bytes_for_tag(type_tags[i]);
     }
     if (offset + min_required > len) {
-        throw std::runtime_error("payload too small for type tags");
+        throw OscDecodeError("payload too small for type tags");
     }
 
     // Use a vector of Python list handles for the array stack
@@ -305,21 +318,21 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len, int depth
         char tag = type_tags[i];
         switch (tag) {
             case 'i': {
-                if (offset + 4 > len) throw std::runtime_error("truncated int");
+                if (offset + 4 > len) throw OscDecodeError("truncated int");
                 int32_t v = read_be_i32(data + offset);
                 offset += 4;
                 array_stack.back().append(nb::int_(v));
                 break;
             }
             case 'f': {
-                if (offset + 4 > len) throw std::runtime_error("truncated float");
+                if (offset + 4 > len) throw OscDecodeError("truncated float");
                 float v = read_be_f32(data + offset);
                 offset += 4;
                 array_stack.back().append(nb::float_(v));
                 break;
             }
             case 'd': {
-                if (offset + 8 > len) throw std::runtime_error("truncated double");
+                if (offset + 8 > len) throw OscDecodeError("truncated double");
                 double v = read_be_f64(data + offset);
                 offset += 8;
                 array_stack.back().append(nb::float_(v));
@@ -378,7 +391,7 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len, int depth
                 break;
             }
             default:
-                throw std::runtime_error(std::string("Unable to parse type '") + tag + "'");
+                throw OscDecodeError(std::string("Unable to parse type '") + tag + "'");
         }
     }
 
@@ -407,9 +420,9 @@ static nb::object decode_message_from_raw(const uint8_t* data, size_t len, int d
 
 static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len, int depth) {
     if (depth > MAX_DECODE_DEPTH)
-        throw std::runtime_error("OSC bundle nesting exceeds maximum depth");
+        throw OscDecodeError("OSC bundle nesting exceeds maximum depth");
     if (!starts_with_bundle(data, len))
-        throw std::runtime_error("datagram is not a bundle");
+        throw OscDecodeError("datagram is not a bundle");
 
     nb::module_ osc_mod = nb::module_::import_("nanosynth.osc");
     nb::object OscBundle_cls = osc_mod.attr("OscBundle");
@@ -417,7 +430,7 @@ static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len, int de
     size_t offset = 8; // skip "#bundle\0"
 
     // Decode timestamp
-    if (offset + 8 > len) throw std::runtime_error("truncated bundle timestamp");
+    if (offset + 8 > len) throw OscDecodeError("truncated bundle timestamp");
     uint64_t ts_raw = read_be_u64(data + offset);
     offset += 8;
 
@@ -438,14 +451,14 @@ static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len, int de
 
     nb::list bundle_contents;
     while (offset < len) {
-        if (offset + 4 > len) throw std::runtime_error("truncated bundle element size");
+        if (offset + 4 > len) throw OscDecodeError("truncated bundle element size");
         // OSC element sizes are non-negative int32 on the wire. Read as
         // unsigned and bounds-check without arithmetic that could overflow
         // size_t (offset <= len is guaranteed here, so len - offset is safe).
         uint32_t element_len = read_be_u32(data + offset);
         offset += 4;
         if (element_len > len - offset)
-            throw std::runtime_error("truncated bundle element");
+            throw OscDecodeError("truncated bundle element");
         const uint8_t* element_data = data + offset;
         if (starts_with_bundle(element_data, element_len)) {
             bundle_contents.append(decode_bundle_from_raw(element_data, element_len, depth + 1));
@@ -473,11 +486,11 @@ static nb::tuple decode_bundle_bytes(nb::bytes datagram) {
     size_t len = datagram.size();
 
     if (!starts_with_bundle(data, len))
-        throw std::runtime_error("datagram is not a bundle");
+        throw OscDecodeError("datagram is not a bundle");
 
     size_t offset = 8;
 
-    if (offset + 8 > len) throw std::runtime_error("truncated bundle timestamp");
+    if (offset + 8 > len) throw OscDecodeError("truncated bundle timestamp");
     uint64_t ts_raw = read_be_u64(data + offset);
     offset += 8;
 
@@ -493,12 +506,12 @@ static nb::tuple decode_bundle_bytes(nb::bytes datagram) {
     // Return raw element datagrams for Python-level reconstruction
     nb::list elements;
     while (offset < len) {
-        if (offset + 4 > len) throw std::runtime_error("truncated bundle element size");
+        if (offset + 4 > len) throw OscDecodeError("truncated bundle element size");
         // See decode_bundle_from_raw: read unsigned, bounds-check safely.
         uint32_t element_len = read_be_u32(data + offset);
         offset += 4;
         if (element_len > len - offset)
-            throw std::runtime_error("truncated bundle element");
+            throw OscDecodeError("truncated bundle element");
         elements.append(nb::bytes(reinterpret_cast<const char*>(data + offset), element_len));
         offset += element_len;
     }
@@ -506,8 +519,27 @@ static nb::tuple decode_bundle_bytes(nb::bytes datagram) {
     return nb::make_tuple(timestamp, elements);
 }
 
+// Map C++ decode/encode failures (thrown as std::runtime_error) to the
+// nanosynth.exceptions.OscError Python type, so both the native and
+// pure-Python codecs raise the same exception for malformed input.
+static void osc_exception_translator(const std::exception_ptr& p, void*) {
+    try {
+        std::rethrow_exception(p);
+    } catch (const OscDecodeError& e) {
+        nb::object osc_error =
+            nb::module_::import_("nanosynth.exceptions").attr("OscError");
+        PyErr_SetString(osc_error.ptr(), e.what());
+    }
+    // Only OscDecodeError is remapped; everything else (including plain
+    // std::runtime_error from other extensions) propagates for nanobind's
+    // default handling. Translators are process-global, so this must stay
+    // narrow.
+}
+
 NB_MODULE(_osc, m) {
     m.doc() = "Native OSC encode/decode for nanosynth";
+
+    nb::register_exception_translator(osc_exception_translator, nullptr);
 
     m.def("encode_message", &encode_message,
           nb::arg("address"), nb::arg("contents"),

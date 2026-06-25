@@ -81,3 +81,12 @@ build-dir = "build/{wheel_tag}"
 provider = "scikit_build_core.metadata.regex"
 input = "src/nanosynth/__init__.py"
 regex = '__version__ = "(?P<value>[^"]+)"'
+
+[tool.coverage.report]
+# Fail the suite if coverage regresses below this floor (currently ~93%).
+fail_under = 90
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+

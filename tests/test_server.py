@@ -988,17 +988,17 @@ class TestRecording:
         s._protocol.status = BootStatus.ONLINE
         return s
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_sets_is_recording(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         assert server.is_recording is False
         server.record("/tmp/test.wav")
         assert server.is_recording is True
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_sends_correct_osc_sequence(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from nanosynth.osc import OscMessage
 
@@ -1009,9 +1009,9 @@ class TestRecording:
         # Expected sequence: /b_alloc, /b_write, /d_recv, /s_new
         assert addresses == ["/b_alloc", "/b_write", "/d_recv", "/s_new"]
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_allocs_buffer_65536_frames(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from nanosynth.osc import OscMessage
 
@@ -1021,9 +1021,9 @@ class TestRecording:
         assert msg.contents[1] == 65536  # num_frames
         assert msg.contents[2] == 8  # default output_bus_channel_count
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_write_buffer_leave_open(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from nanosynth.osc import OscMessage
 
@@ -1036,9 +1036,9 @@ class TestRecording:
         assert msg.contents[3] == "int16"
         assert msg.contents[6] == 1  # leave_open = True
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_creates_synth_at_tail_of_root(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from nanosynth.osc import OscMessage
 
@@ -1050,9 +1050,9 @@ class TestRecording:
         assert msg.contents[2] == 1  # ADD_TO_TAIL
         assert msg.contents[3] == 0  # target = root group
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_custom_channels_and_format(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from nanosynth.osc import OscMessage
 
@@ -1071,24 +1071,24 @@ class TestRecording:
         assert write_msg.contents[2] == "aiff"
         assert write_msg.contents[3] == "float"
 
-    @patch("nanosynth.server.time.sleep")
-    def test_double_record_raises(self, mock_sleep: MagicMock, server: Server) -> None:
+    @patch.object(Server, "sync")
+    def test_double_record_raises(self, mock_sync: MagicMock, server: Server) -> None:
         server.record("/tmp/test.wav")
         with pytest.raises(EngineError, match="Already recording"):
             server.record("/tmp/test2.wav")
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_stop_recording_clears_state(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         server.record("/tmp/test.wav")
         server._protocol.send_packet.reset_mock()
         server.stop_recording()
         assert server.is_recording is False
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_stop_recording_sends_correct_osc_sequence(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from nanosynth.osc import OscMessage
 
@@ -1105,10 +1105,8 @@ class TestRecording:
         server.stop_recording()  # should not raise
         assert server.is_recording is False
 
-    @patch("nanosynth.server.time.sleep")
-    def test_record_caches_synthdef(
-        self, mock_sleep: MagicMock, server: Server
-    ) -> None:
+    @patch.object(Server, "sync")
+    def test_record_caches_synthdef(self, mock_sync: MagicMock, server: Server) -> None:
         server.record("/tmp/test1.wav", num_channels=2)
         server.stop_recording()
         server._protocol.send_packet.reset_mock()
@@ -1121,9 +1119,9 @@ class TestRecording:
         # Second record should NOT send /d_recv again
         assert addresses == ["/b_alloc", "/b_write", "/s_new"]
 
-    @patch("nanosynth.server.time.sleep")
+    @patch.object(Server, "sync")
     def test_record_with_path_object(
-        self, mock_sleep: MagicMock, server: Server
+        self, mock_sync: MagicMock, server: Server
     ) -> None:
         from pathlib import Path
 

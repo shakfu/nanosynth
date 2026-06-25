@@ -172,6 +172,30 @@ static void load_plugins(const std::string& plugin_path, nova::sc_ugen_factory* 
     factory->load_plugin_folder(plugin_path);
 }
 
+// Cross-engine guard. scsynth and supernova each statically embed the full
+// SuperCollider server core and share process-global singletons (the dlopen'd
+// UGen plugin registry, the global FFT init, etc.). Creating one kind after
+// the other has run in the same process crashes -- in either order, and even
+// after a clean quit. The two extension modules share no symbols, so they
+// coordinate through an environment variable. Throws (surfaced to Python as
+// ServerCannotBoot) instead of letting the process segfault.
+static void nanosynth_claim_engine(const char* kind) {
+    const char* active = std::getenv("NANOSYNTH_ACTIVE_ENGINE");
+    if (active && active[0] != '\0' && std::string(active) != kind) {
+        throw std::runtime_error(
+            std::string("cannot create a ") + kind + " engine: a " + active +
+            " engine has already been created in this process. scsynth and "
+            "supernova embed the full SuperCollider core and share "
+            "process-global state, so only one kind can run per process (even "
+            "sequentially). Use a separate process for the other engine.");
+    }
+#ifdef _WIN32
+    _putenv_s("NANOSYNTH_ACTIVE_ENGINE", kind);
+#else
+    setenv("NANOSYNTH_ACTIVE_ENGINE", kind, 1);
+#endif
+}
+
 // ---------------------------------------------------------------------------
 // Boot: construct nova_server with programmatic arguments
 // ---------------------------------------------------------------------------
@@ -201,6 +225,7 @@ static nb::capsule py_supernova_new(
     uint16_t threads,
     float safety_clip_threshold
 ) {
+    nanosynth_claim_engine("supernova");
     // Parse hardware topology for thread pinning
     nova::parse_hardware_topology();
 

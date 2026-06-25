@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`Server.sync()` round-trip barrier**: sends `/sync` with a unique id and blocks until the matching `/synced` reply, the canonical scsynth flush primitive. Returns `True` once synced or `False` on timeout. Concurrent `sync()` calls are matched by id
+
+- **Reply matchers**: `Server.wait_for_reply()` and `send_msg_sync()` accept an optional `match` predicate so a waiter accepts only a reply satisfying it (e.g. a `/done` whose first argument is the originating command). Non-matching replies leave the waiter registered instead of resolving it
+
+- **Reclaiming id allocators** (`server.py`): node ids, buffers, audio buses, and control buses are now managed by allocators that reclaim freed ids. Buffers/buses use a coalescing free-list block allocator (`_BlockAllocator`) that hands out the lowest available contiguous block, reuses freed blocks, supports explicit-id reservation, and raises `EngineError` on exhaustion. Node ids use a wrapping allocator (`_NodeIdAllocator`) bounded within scsynth's id space (not reclaimed on free, since self-freeing `DoneAction` synths are not reported to the client)
+
+- **Cross-engine process guard** (`_scsynth.cpp`, `_supernova.cpp`): scsynth and supernova each statically embed the full SuperCollider core and share process-global state (the dlopen'd UGen plugin registry, FFT init), so creating one kind after the other has run in the same process segfaults -- in either order, even after a clean quit, and even via NRT (which also creates a scsynth World). A guard in each extension's engine-creation entry point (coordinated through an environment variable, since the two modules share no symbols) now raises `ServerCannotBoot` with a clear message instead of letting the process crash. Same-kind reuse (scsynth reboot, repeated NRT renders) is unaffected
+
+- **Test hardening**: golden SCgf byte fixtures (`tests/fixtures/scgf/`, regenerable via `python tests/test_golden_scgf.py`) that freeze proven-correct compiler output and catch silent format regressions; unit tests for the allocators (reclaim, coalescing, capacity, reservation, thread-safety), `sync()`, and reply matchers; forced cross-path OSC parity tests (`test_osc_parity.py`) asserting byte-identical encode, identical decode, and identical exception types across the native and pure-Python codecs; and opt-in realtime smoke tests (`test_realtime_smoke.py`, gated by `NANOSYNTH_TEST_REALTIME=scsynth|supernova`) that boot a real engine and exercise `sync()`, buffer reclaim, and clean quit. A `--cov-fail-under`-style coverage floor (90%) is enforced via `[tool.coverage.report]`
+
 ### Fixed
+
+- **OSC codec C++/Python parity** (`_osc.cpp`, `osc.py`, `exceptions.py`): the two codecs violated their "must stay compatible" contract. They now agree on (a) **exception type** -- both raise `OscError` on malformed input (the C++ path via a nanobind exception translator scoped to a dedicated `OscDecodeError` C++ type, so it does not affect `std::runtime_error`s from the `_scsynth`/`_supernova` extensions -- nanobind translators are process-global; the Python path by wrapping `struct.error`/`IndexError`/`ValueError`), and `OscError` now also subclasses `ValueError` so `except ValueError` keeps working; (b) **string encoding** -- both use UTF-8 (Python previously used ASCII and raised on non-ASCII); and (c) **unterminated strings** -- the C++ decoder now rejects a string with no null terminator instead of silently accepting it, matching Python
+
+- **Reply waiter leak on timeout** (`server.py`): a timed-out `wait_for_reply`/`send_msg_sync` waiter was never removed from `_pending_replies`, so it lingered and could be spuriously resolved by a later unrelated reply. Timed-out waiters are now unregistered
+
+- **atexit cleanup leak** (`scsynth.py`, `supernova.py`): `atexit.register(self.quit)` ran in `__init__` and was never unregistered, so every protocol object (booted or not) leaked an atexit callback holding a strong reference. Registration now happens on `boot()` and is removed on `quit()`, so never-booted objects accumulate nothing
 
 - **OSC bundle decoder out-of-bounds read** (`_osc.cpp`): the native bundle decoders (`decode_bundle_from_raw`, `decode_bundle_bytes`) read each element's length as a signed `int32_t` and bounds-checked it with `offset + (size_t)length > len`. A malformed datagram with a negative length cast to `size_t` could wrap that addition and pass the check, then hand a negative/huge size to `nb::bytes`, causing an out-of-bounds read or oversized allocation. Lengths are now read as `uint32_t` and validated with the overflow-safe `element_len > len - offset` (`offset <= len` is guaranteed at that point)
 
@@ -20,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Release and docs CI workflows** (`.github/workflows/`): `release.yml` had its `push: tags` and `workflow_dispatch` inputs commented out while the publish steps gated on the resulting always-undefined `inputs.target` and a never-true `github.event_name == 'push'`, so no PyPI publish could ever run. Triggers are restored and the PyPI gate now keys on `startsWith(github.ref, 'refs/tags/v')`. `docs.yml` ran `uv sync --group docs` against a non-existent dependency group (mkdocs deps live in `dev`); it now runs `uv sync` and its `push: branches: [main]` trigger is restored
 
 ### Changed
+
+- **Synchronous SynthDef load matches the sub-command** (`server.py`): `send_synthdef()` now waits for a `/done` whose first argument is `/d_recv`, so a `/done` from an unrelated async command cannot resolve the wait early (still falls back to fire-and-forget on timeout for mock servers)
+
+- **Recording uses `sync()` instead of `time.sleep`** (`server.py`): `record()` and `stop_recording()` replaced their fixed `time.sleep(0.1)` pauses with `self.sync()` barriers, so the disk buffer is provably open before `DiskOut` starts and final samples are flushed before the file is closed
 
 - **Single-sourced package version**: the version was hard-coded in both `pyproject.toml` and `src/nanosynth/__init__.py` and could drift. `pyproject.toml` now declares `dynamic = ["version"]` and reads `__version__` from `src/nanosynth/__init__.py` via scikit-build-core's regex metadata provider, making `__init__.py` the single source of truth
 

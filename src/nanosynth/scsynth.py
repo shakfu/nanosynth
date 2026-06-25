@@ -223,7 +223,9 @@ class EmbeddedProcessProtocol:
         self.buffer_ = ""
         self.error_text = ""
         self._reply_callback: Callable[[bytes], None] | None = None
-        atexit.register(self.quit)
+        # atexit cleanup is (un)registered around the booted lifetime, not in
+        # __init__, so never-booted protocol objects do not accumulate atexit
+        # callbacks (each would hold a strong ref and run at interpreter exit).
         self.boot_future: concurrent.futures.Future[bool] = concurrent.futures.Future()
         self.exit_future: concurrent.futures.Future[int] = concurrent.futures.Future()
         self._world: Any = None
@@ -253,6 +255,9 @@ class EmbeddedProcessProtocol:
         self.status = BootStatus.BOOTING
         self.error_text = ""
         self.buffer_ = ""
+        # Ensure exactly one atexit cleanup for this booted instance.
+        atexit.unregister(self.quit)
+        atexit.register(self.quit)
 
         from nanosynth._scsynth import set_print_func, world_new, world_open_udp  # type: ignore[import-untyped]
 
@@ -429,6 +434,7 @@ class EmbeddedProcessProtocol:
             return
         self.status = BootStatus.QUITTING
         self._shutdown()
+        atexit.unregister(self.quit)
         logger.info(
             f"[{self.options.ip_address}:{self.options.port}/{label}] ... quit!"
         )

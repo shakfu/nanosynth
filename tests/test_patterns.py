@@ -25,6 +25,19 @@ from nanosynth.patterns import (
 )
 
 
+def _wait_until(predicate, timeout: float = 2.0, interval: float = 0.01) -> bool:
+    """Poll ``predicate`` until true or timeout. Returns the final value.
+
+    Used instead of fixed sleeps so the Player tests don't flake on slow CI.
+    """
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return predicate()
+
+
 # ---------------------------------------------------------------------------
 # Rest
 # ---------------------------------------------------------------------------
@@ -388,7 +401,8 @@ class TestPlayer:
             )
             player = Player(pattern, clock, mock_server)
             player.play()
-            time.sleep(0.5)
+            # Two finite events; wait for both synths rather than a fixed sleep.
+            _wait_until(lambda: mock_server.synth.call_count >= 2)
             player.stop()
         finally:
             clock.stop()
@@ -407,7 +421,8 @@ class TestPlayer:
             )
             player = Player(pattern, clock, mock_server)
             player.play()
-            time.sleep(0.3)
+            # The single rest event ends the (finite) pattern; wait for that.
+            _wait_until(lambda: player._stopped)
             player.stop()
         finally:
             clock.stop()
@@ -436,7 +451,8 @@ class TestPlayer:
             pattern = Pbind(freq=Pseq([440]), dur=0.5, sustain=0.1)
             player = Player(pattern, clock, mock_server)
             player.play()
-            time.sleep(0.5)
+            # Wait for the scheduled gate-release rather than a fixed sleep.
+            _wait_until(lambda: mock_server.set.called)
         finally:
             clock.stop()
 
@@ -463,7 +479,7 @@ class TestPlayer:
             )
             player = Player(pattern, clock, mock_server)
             player.play()
-            time.sleep(0.3)
+            _wait_until(lambda: mock_server.synth.call_count >= 1)
             player.stop()
         finally:
             clock.stop()

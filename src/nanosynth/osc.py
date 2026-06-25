@@ -125,11 +125,13 @@ class OscMessage:
     def _decode_string(data: bytes) -> tuple[str, bytes]:
         actual_length = data.index(b"\x00")
         padded_length = (actual_length // 4 + 1) * 4
-        return str(data[:actual_length], "ascii"), data[padded_length:]
+        return str(data[:actual_length], "utf-8"), data[padded_length:]
 
     @staticmethod
     def _encode_string(value: str) -> bytes:
-        result = bytes(value + "\x00", "ascii")
+        # UTF-8 to match the native C++ codec (real-world OSC uses UTF-8,
+        # despite the 1.0 spec nominally specifying ASCII).
+        result = value.encode("utf-8") + b"\x00"
         if len(result) % 4 != 0:
             width = (len(result) // 4 + 1) * 4
             result = result.ljust(width, b"\x00")
@@ -203,53 +205,67 @@ class OscMessage:
 
     @classmethod
     def from_datagram(cls, datagram: bytes) -> "OscMessage":
-        """Decode an OSC binary datagram into an OscMessage."""
+        """Decode an OSC binary datagram into an OscMessage.
+
+        Raises ``OscError`` on malformed input (both the native and
+        pure-Python paths).
+        """
         if _osc_native is not None:
             address, contents = _osc_native.decode_message(datagram)
             return cls(address, *contents)
-        # Fallback: pure Python
-        remainder = datagram
-        address, remainder = cls._decode_string(remainder)
-        type_tags, remainder = cls._decode_string(remainder)
-        contents_list: list[OscArgument] = []
-        array_stack: list[list[OscArgument]] = [contents_list]
-        for type_tag in type_tags[1:]:
-            if type_tag == "i":
-                value, remainder = struct.unpack(">i", remainder[:4])[0], remainder[4:]
-                array_stack[-1].append(value)
-            elif type_tag == "f":
-                value, remainder = struct.unpack(">f", remainder[:4])[0], remainder[4:]
-                array_stack[-1].append(value)
-            elif type_tag == "d":
-                value, remainder = struct.unpack(">d", remainder[:8])[0], remainder[8:]
-                array_stack[-1].append(value)
-            elif type_tag == "s":
-                value, remainder = cls._decode_string(remainder)
-                array_stack[-1].append(value)
-            elif type_tag == "b":
-                value, remainder = cls._decode_blob(remainder)
-                for class_ in (OscBundle, OscMessage):
-                    try:
-                        value = class_.from_datagram(value)
-                        break
-                    except (ValueError, IndexError, struct.error):
-                        pass
-                array_stack[-1].append(value)
-            elif type_tag == "T":
-                array_stack[-1].append(True)
-            elif type_tag == "F":
-                array_stack[-1].append(False)
-            elif type_tag == "N":
-                array_stack[-1].append(None)
-            elif type_tag == "[":
-                array: list[OscArgument] = []
-                array_stack[-1].append(array)
-                array_stack.append(array)
-            elif type_tag == "]":
-                array_stack.pop()
-            else:
-                raise OscError(f"Unable to parse type {type_tag!r}")
-        return cls(address, *contents_list)
+        # Fallback: pure Python. Wrap low-level decode failures as OscError so
+        # the contract matches the native path.
+        try:
+            remainder = datagram
+            address, remainder = cls._decode_string(remainder)
+            type_tags, remainder = cls._decode_string(remainder)
+            contents_list: list[OscArgument] = []
+            array_stack: list[list[OscArgument]] = [contents_list]
+            for type_tag in type_tags[1:]:
+                if type_tag == "i":
+                    value = struct.unpack(">i", remainder[:4])[0]
+                    remainder = remainder[4:]
+                    array_stack[-1].append(value)
+                elif type_tag == "f":
+                    value = struct.unpack(">f", remainder[:4])[0]
+                    remainder = remainder[4:]
+                    array_stack[-1].append(value)
+                elif type_tag == "d":
+                    value = struct.unpack(">d", remainder[:8])[0]
+                    remainder = remainder[8:]
+                    array_stack[-1].append(value)
+                elif type_tag == "s":
+                    value, remainder = cls._decode_string(remainder)
+                    array_stack[-1].append(value)
+                elif type_tag == "b":
+                    blob, remainder = cls._decode_blob(remainder)
+                    parsed: OscArgument = blob
+                    for class_ in (OscBundle, OscMessage):
+                        try:
+                            parsed = class_.from_datagram(blob)
+                            break
+                        except (ValueError, IndexError, struct.error):
+                            pass
+                    array_stack[-1].append(parsed)
+                elif type_tag == "T":
+                    array_stack[-1].append(True)
+                elif type_tag == "F":
+                    array_stack[-1].append(False)
+                elif type_tag == "N":
+                    array_stack[-1].append(None)
+                elif type_tag == "[":
+                    array: list[OscArgument] = []
+                    array_stack[-1].append(array)
+                    array_stack.append(array)
+                elif type_tag == "]":
+                    array_stack.pop()
+                else:
+                    raise OscError(f"Unable to parse type {type_tag!r}")
+            return cls(address, *contents_list)
+        except OscError:
+            raise
+        except (ValueError, IndexError, struct.error) as exc:
+            raise OscError(f"malformed OSC message: {exc}") from exc
 
     def to_list(self) -> list[Any]:
         """Convert to a nested list representation: ``[address, arg1, arg2, ...]``."""
@@ -336,10 +352,14 @@ class OscBundle:
 
     @classmethod
     def from_datagram(cls, datagram: bytes) -> "OscBundle":
-        """Decode an OSC binary datagram into an OscBundle."""
+        """Decode an OSC binary datagram into an OscBundle.
+
+        Raises ``OscError`` on malformed input (both the native and
+        pure-Python paths).
+        """
+        if not datagram.startswith(BUNDLE_PREFIX):
+            raise OscError("datagram is not a bundle")
         if _osc_native is not None:
-            if not datagram.startswith(BUNDLE_PREFIX):
-                raise ValueError("datagram is not a bundle")
             timestamp, element_datagrams = _osc_native.decode_bundle(datagram)
             contents: list[OscBundle | OscMessage] = []
             for elem in element_datagrams:
@@ -348,23 +368,26 @@ class OscBundle:
                 else:
                     contents.append(OscMessage.from_datagram(elem))
             return cls(timestamp=timestamp, contents=tuple(contents))
-        # Fallback: pure Python
-        if not datagram.startswith(BUNDLE_PREFIX):
-            raise ValueError("datagram is not a bundle")
-        remainder = datagram[8:]
-        timestamp, remainder = cls._decode_date(remainder)
-        contents_list: list[OscBundle | OscMessage] = []
-        while len(remainder):
-            length, remainder = struct.unpack(">i", remainder[:4])[0], remainder[4:]
-            item: OscBundle | OscMessage
-            if remainder.startswith(BUNDLE_PREFIX):
-                item = cls.from_datagram(remainder[:length])
-            else:
-                item = OscMessage.from_datagram(remainder[:length])
-            contents_list.append(item)
-            remainder = remainder[length:]
-        osc_bundle = cls(timestamp=timestamp, contents=tuple(contents_list))
-        return osc_bundle
+        # Fallback: pure Python. Wrap low-level decode failures as OscError.
+        try:
+            remainder = datagram[8:]
+            timestamp, remainder = cls._decode_date(remainder)
+            contents_list: list[OscBundle | OscMessage] = []
+            while len(remainder):
+                length = struct.unpack(">i", remainder[:4])[0]
+                remainder = remainder[4:]
+                item: OscBundle | OscMessage
+                if remainder.startswith(BUNDLE_PREFIX):
+                    item = cls.from_datagram(remainder[:length])
+                else:
+                    item = OscMessage.from_datagram(remainder[:length])
+                contents_list.append(item)
+                remainder = remainder[length:]
+            return cls(timestamp=timestamp, contents=tuple(contents_list))
+        except OscError:
+            raise
+        except (ValueError, IndexError, struct.error) as exc:
+            raise OscError(f"malformed OSC bundle: {exc}") from exc
 
     def to_datagram(self, realtime: bool = True) -> bytes:
         """Encode this bundle to an OSC binary datagram."""

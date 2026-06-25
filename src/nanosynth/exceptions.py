@@ -19,8 +19,13 @@ class NanosynthError(Exception):
     """Base class for all nanosynth-specific exceptions."""
 
 
-class OscError(NanosynthError):
-    """Raised on OSC message/bundle encoding or decoding failures."""
+class OscError(NanosynthError, ValueError):
+    """Raised on OSC message/bundle encoding or decoding failures.
+
+    Also a :class:`ValueError`, since a decode failure is a malformed-value
+    error; this keeps ``except ValueError`` working while both the native and
+    pure-Python codecs raise this single type for parity.
+    """
 
 
 class EngineError(NanosynthError):

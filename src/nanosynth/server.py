@@ -7,7 +7,6 @@ import itertools
 import logging
 import struct
 import threading
-import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,6 +27,117 @@ else:
     ServerProtocol = EmbeddedProcessProtocol
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# ID allocators
+# ---------------------------------------------------------------------------
+
+
+class _NodeIdAllocator:
+    """Monotonic node-id allocator that wraps within scsynth's id space.
+
+    Node ids are deliberately *not* reclaimed on free: a synth created with a
+    self-freeing ``DoneAction`` frees itself server-side without notifying the
+    client, so a free-list would either leak those ids or risk handing out an
+    id while its node is still alive. Instead ids cycle through a large range,
+    keeping the value bounded (no unbounded Python-int growth) while making
+    collision with a still-living node astronomically unlikely.
+    """
+
+    def __init__(self, initial: int = 1000, maximum: int = 0x07FFFFFF) -> None:
+        self._initial = initial
+        self._maximum = maximum
+        self._next = initial
+        self._lock = threading.Lock()
+
+    def allocate(self) -> int:
+        with self._lock:
+            node_id = self._next
+            nxt = node_id + 1
+            self._next = self._initial if nxt > self._maximum else nxt
+            return node_id
+
+
+class _BlockAllocator:
+    """Free-list allocator over ``[start, start + size)`` for buffers and buses.
+
+    Hands out the lowest available contiguous block, reclaims freed blocks for
+    reuse (coalescing adjacent free ranges), and raises ``EngineError`` when
+    the range is exhausted. ``allocated`` exposes the set of live base ids for
+    inspection. Thread-safe.
+    """
+
+    def __init__(self, size: int, start: int = 0, *, name: str = "id") -> None:
+        self._start = start
+        self._stop = start + size
+        self._name = name
+        # Free intervals as [lo, hi) pairs, kept sorted and coalesced.
+        self._free: list[list[int]] = [[start, self._stop]] if size > 0 else []
+        self._sizes: dict[int, int] = {}  # base -> channel count
+        self.allocated: set[int] = set()
+        self._lock = threading.Lock()
+
+    def allocate(self, count: int = 1) -> int:
+        if count < 1:
+            raise ValueError("count must be >= 1")
+        with self._lock:
+            for interval in self._free:
+                lo, hi = interval
+                if hi - lo >= count:
+                    base = lo
+                    if hi - lo == count:
+                        self._free.remove(interval)
+                    else:
+                        interval[0] = lo + count
+                    self._sizes[base] = count
+                    self.allocated.add(base)
+                    return base
+            raise EngineError(
+                f"{self._name} allocator exhausted "
+                f"(range {self._start}..{self._stop}, requested {count})"
+            )
+
+    def reserve(self, base: int, count: int = 1) -> None:
+        """Carve a specific block out of the free list (for explicit ids)."""
+        with self._lock:
+            if base in self._sizes:
+                return
+            hi = base + count
+            new_free: list[list[int]] = []
+            for lo_i, hi_i in self._free:
+                if hi_i <= base or lo_i >= hi:
+                    new_free.append([lo_i, hi_i])
+                    continue
+                if lo_i < base:
+                    new_free.append([lo_i, base])
+                if hi_i > hi:
+                    new_free.append([hi, hi_i])
+            self._free = new_free
+            self._sizes[base] = count
+            self.allocated.add(base)
+
+    def free(self, base: int) -> None:
+        with self._lock:
+            count = self._sizes.pop(base, None)
+            self.allocated.discard(base)
+            if count is None:
+                return
+            self._insert_free(base, base + count)
+
+    def _insert_free(self, lo: int, hi: int) -> None:
+        free = self._free
+        i = 0
+        while i < len(free) and free[i][0] < lo:
+            i += 1
+        free.insert(i, [lo, hi])
+        merged: list[list[int]] = []
+        for interval in free:
+            if merged and interval[0] <= merged[-1][1]:
+                merged[-1][1] = max(merged[-1][1], interval[1])
+            else:
+                merged.append(interval)
+        self._free = merged
 
 
 # ---------------------------------------------------------------------------
@@ -266,13 +376,27 @@ class _RecordingState:
 
 
 class _ReplyEvent:
-    """One-shot waiter for a single OSC reply."""
+    """One-shot waiter for a single OSC reply, with an optional matcher.
 
-    __slots__ = ("_event", "message")
+    ``match`` lets a waiter accept only a reply satisfying a predicate (e.g. a
+    ``/done`` whose first argument is the originating command), so unrelated
+    replies at the same address do not resolve it.
+    """
 
-    def __init__(self) -> None:
+    __slots__ = ("_event", "message", "_match")
+
+    def __init__(self, match: Callable[[OscMessage], bool] | None = None) -> None:
         self._event = threading.Event()
         self.message: OscMessage | None = None
+        self._match = match
+
+    def matches(self, msg: OscMessage) -> bool:
+        if self._match is None:
+            return True
+        try:
+            return self._match(msg)
+        except Exception:  # noqa: BLE001 -- a bad matcher must not wedge dispatch
+            return False
 
     def set(self, msg: OscMessage) -> None:
         self.message = msg
@@ -305,13 +429,23 @@ class Server:
     ) -> None:
         self._options = options or Options()
         self._protocol: ServerProtocol = protocol or EmbeddedProcessProtocol()
-        self._node_id_counter = itertools.count(1000)
-        self._buffer_id_counter = itertools.count(0)
-        self._allocated_buffers: set[int] = set()
-        self._audio_bus_counter = itertools.count(self._options.first_private_bus_id)
-        self._control_bus_counter = itertools.count(0)
-        self._allocated_audio_buses: set[int] = set()
-        self._allocated_control_buses: set[int] = set()
+        self._node_allocator = _NodeIdAllocator()
+        self._buffer_allocator = _BlockAllocator(
+            self._options.buffer_count, name="buffer"
+        )
+        self._audio_bus_allocator = _BlockAllocator(
+            self._options.private_audio_bus_channel_count,
+            start=self._options.first_private_bus_id,
+            name="audio bus",
+        )
+        self._control_bus_allocator = _BlockAllocator(
+            self._options.control_bus_channel_count, name="control bus"
+        )
+        # Live base-id sets, owned by the allocators and exposed for inspection.
+        self._allocated_buffers = self._buffer_allocator.allocated
+        self._allocated_audio_buses = self._audio_bus_allocator.allocated
+        self._allocated_control_buses = self._control_bus_allocator.allocated
+        self._sync_id_counter = itertools.count(1)
         self._synthdefs: set[str] = set()
         self._reply_handlers: dict[str, list[Callable[..., Any]]] = {}
         self._pending_replies: dict[str, list[_ReplyEvent]] = {}
@@ -370,8 +504,8 @@ class Server:
     # -- Node ID allocation ----------------------------------------------------
 
     def next_node_id(self) -> int:
-        """Return a unique node ID (monotonically increasing from 1000)."""
-        return next(self._node_id_counter)
+        """Return a unique node ID (cycling from 1000 within scsynth's range)."""
+        return self._node_allocator.allocate()
 
     # -- OSC -------------------------------------------------------------------
 
@@ -391,13 +525,19 @@ class Server:
         address = str(msg.address)
         with self._reply_lock:
             handlers = list(self._reply_handlers.get(address, []))
-            waiters = self._pending_replies.pop(address, [])
+            waiters = self._pending_replies.get(address, [])
+            matched = [w for w in waiters if w.matches(msg)]
+            remaining = [w for w in waiters if w not in matched]
+            if remaining:
+                self._pending_replies[address] = remaining
+            else:
+                self._pending_replies.pop(address, None)
         for handler in handlers:
             try:
                 handler(msg)
             except Exception:  # noqa: BLE001  -- isolate user callbacks
                 logger.exception("Reply handler error for %s", address)
-        for waiter in waiters:
+        for waiter in matched:
             waiter.set(msg)
 
     def on(self, address: str, callback: Callable[..., Any]) -> None:
@@ -416,15 +556,35 @@ class Server:
             if not handlers:
                 self._reply_handlers.pop(address, None)
 
-    def wait_for_reply(self, address: str, timeout: float = 5.0) -> OscMessage | None:
-        """Block until a reply arrives at *address*, or timeout.
-
-        Returns the decoded OscMessage, or None on timeout.
-        """
-        event = _ReplyEvent()
+    def _register_waiter(self, address: str, event: _ReplyEvent) -> None:
         with self._reply_lock:
             self._pending_replies.setdefault(address, []).append(event)
-        return event.wait(timeout=timeout)
+
+    def _unregister_waiter(self, address: str, event: _ReplyEvent) -> None:
+        with self._reply_lock:
+            waiters = self._pending_replies.get(address)
+            if waiters and event in waiters:
+                waiters.remove(event)
+                if not waiters:
+                    self._pending_replies.pop(address, None)
+
+    def wait_for_reply(
+        self,
+        address: str,
+        timeout: float = 5.0,
+        match: Callable[[OscMessage], bool] | None = None,
+    ) -> OscMessage | None:
+        """Block until a matching reply arrives at *address*, or timeout.
+
+        Returns the decoded OscMessage, or None on timeout. On timeout the
+        waiter is removed so it cannot be spuriously resolved by a later reply.
+        """
+        event = _ReplyEvent(match)
+        self._register_waiter(address, event)
+        result = event.wait(timeout=timeout)
+        if result is None:
+            self._unregister_waiter(address, event)
+        return result
 
     def send_msg_sync(
         self,
@@ -432,16 +592,37 @@ class Server:
         *args: OscArgument,
         reply_address: str,
         timeout: float = 5.0,
+        match: Callable[[OscMessage], bool] | None = None,
     ) -> OscMessage | None:
-        """Send a message and wait for a reply at *reply_address*.
+        """Send a message and wait for a matching reply at *reply_address*.
 
         Returns the decoded reply OscMessage, or None on timeout.
         """
-        event = _ReplyEvent()
-        with self._reply_lock:
-            self._pending_replies.setdefault(reply_address, []).append(event)
+        event = _ReplyEvent(match)
+        self._register_waiter(reply_address, event)
         self.send_msg(address, *args)
-        return event.wait(timeout=timeout)
+        result = event.wait(timeout=timeout)
+        if result is None:
+            self._unregister_waiter(reply_address, event)
+        return result
+
+    def sync(self, timeout: float = 5.0) -> bool:
+        """Block until the engine has processed all prior async commands.
+
+        Sends ``/sync`` with a unique id and waits for the matching
+        ``/synced`` reply -- the canonical scsynth round-trip barrier. Returns
+        ``True`` once synced, or ``False`` on timeout (e.g. a mock server with
+        no reply path). Concurrent ``sync()`` calls are matched by id.
+        """
+        sync_id = next(self._sync_id_counter)
+        reply = self.send_msg_sync(
+            "/sync",
+            sync_id,
+            reply_address="/synced",
+            timeout=timeout,
+            match=lambda m: bool(m.contents) and m.contents[0] == sync_id,
+        )
+        return reply is not None
 
     # -- SynthDef management ---------------------------------------------------
 
@@ -455,11 +636,14 @@ class Server:
         """
         name = synthdef.effective_name
         compiled = synthdef.compile()
+        # scsynth replies "/done /d_recv" -- match the sub-command so a /done
+        # from an unrelated async command cannot resolve this wait early.
         self.send_msg_sync(
             "/d_recv",
             compiled,
             reply_address="/done",
             timeout=0.1,
+            match=lambda m: bool(m.contents) and m.contents[0] == "/d_recv",
         )
         self._synthdefs.add(name)
 
@@ -595,8 +779,8 @@ class Server:
     # -- Buffer management -----------------------------------------------------
 
     def next_buffer_id(self) -> int:
-        """Return a unique buffer ID (monotonically increasing from 0)."""
-        return next(self._buffer_id_counter)
+        """Return a unique buffer ID, reusing freed ids (from 0)."""
+        return self._buffer_allocator.allocate()
 
     def alloc_buffer(
         self,
@@ -613,8 +797,9 @@ class Server:
         """
         if buffer_id is None:
             buffer_id = self.next_buffer_id()
+        else:
+            self._buffer_allocator.reserve(buffer_id)
         self.send_msg("/b_alloc", buffer_id, num_frames, num_channels)
-        self._allocated_buffers.add(buffer_id)
         return buffer_id
 
     def read_buffer(
@@ -634,8 +819,9 @@ class Server:
         """
         if buffer_id is None:
             buffer_id = self.next_buffer_id()
+        else:
+            self._buffer_allocator.reserve(buffer_id)
         self.send_msg("/b_allocRead", buffer_id, path, start_frame, num_frames)
-        self._allocated_buffers.add(buffer_id)
         return buffer_id
 
     def write_buffer(
@@ -672,9 +858,9 @@ class Server:
         )
 
     def free_buffer(self, buffer_id: int) -> None:
-        """Free a buffer by ID."""
+        """Free a buffer by ID and return it to the allocator pool."""
         self.send_msg("/b_free", buffer_id)
-        self._allocated_buffers.discard(buffer_id)
+        self._buffer_allocator.free(buffer_id)
 
     def zero_buffer(self, buffer_id: int) -> None:
         """Zero all samples in a buffer."""
@@ -726,11 +912,7 @@ class Server:
         Args:
             num_channels: Number of contiguous channels to allocate.
         """
-        bus_id = next(self._audio_bus_counter)
-        # For multi-channel, advance the counter for remaining channels
-        for _ in range(num_channels - 1):
-            next(self._audio_bus_counter)
-        self._allocated_audio_buses.add(bus_id)
+        bus_id = self._audio_bus_allocator.allocate(num_channels)
         return Bus(self, bus_id, num_channels, "audio")
 
     def control_bus(self, num_channels: int = 1) -> Bus:
@@ -739,10 +921,7 @@ class Server:
         Args:
             num_channels: Number of contiguous channels to allocate.
         """
-        bus_id = next(self._control_bus_counter)
-        for _ in range(num_channels - 1):
-            next(self._control_bus_counter)
-        self._allocated_control_buses.add(bus_id)
+        bus_id = self._control_bus_allocator.allocate(num_channels)
         return Bus(self, bus_id, num_channels, "control")
 
     def free_bus(self, bus: Bus) -> None:
@@ -752,9 +931,9 @@ class Server:
             bus: The Bus proxy to free.
         """
         if bus.rate == "audio":
-            self._allocated_audio_buses.discard(bus.bus_id)
+            self._audio_bus_allocator.free(bus.bus_id)
         else:
-            self._allocated_control_buses.discard(bus.bus_id)
+            self._control_bus_allocator.free(bus.bus_id)
 
     @contextlib.contextmanager
     def managed_audio_bus(self, num_channels: int = 1) -> Iterator[Bus]:
@@ -842,8 +1021,9 @@ class Server:
             leave_open=True,
         )
 
-        # 3. Brief pause for buffer to open on the server
-        time.sleep(0.1)
+        # 3. Wait for the buffer to actually open on the server before the
+        #    DiskOut synth starts writing into it.
+        self.sync()
 
         # 4. Send the recorder SynthDef
         sd_name = self._ensure_recorder_synthdef(num_channels)
@@ -883,8 +1063,8 @@ class Server:
         # 1. Free the recorder synth
         self.free(rec.synth_node_id)
 
-        # 2. Brief pause to let final samples flush
-        time.sleep(0.1)
+        # 2. Flush the freed synth's final samples before closing the file.
+        self.sync()
 
         # 3. Close and free the buffer
         self.close_buffer(rec.buffer_id)

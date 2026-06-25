@@ -134,6 +134,30 @@ static void py_set_print_func(nb::object func) {
     SetPrintFunc(scsynth_print_func);
 }
 
+// Cross-engine guard. scsynth and supernova each statically embed the full
+// SuperCollider server core and share process-global singletons (the dlopen'd
+// UGen plugin registry, the global FFT init, etc.). Creating one kind after
+// the other has run in the same process crashes -- in either order, and even
+// after a clean quit. The two extension modules share no symbols, so they
+// coordinate through an environment variable. Throws (surfaced to Python as
+// ServerCannotBoot) instead of letting the process segfault.
+static void nanosynth_claim_engine(const char* kind) {
+    const char* active = std::getenv("NANOSYNTH_ACTIVE_ENGINE");
+    if (active && active[0] != '\0' && std::string(active) != kind) {
+        throw std::runtime_error(
+            std::string("cannot create a ") + kind + " engine: a " + active +
+            " engine has already been created in this process. scsynth and "
+            "supernova embed the full SuperCollider core and share "
+            "process-global state, so only one kind can run per process (even "
+            "sequentially). Use a separate process for the other engine.");
+    }
+#ifdef _WIN32
+    _putenv_s("NANOSYNTH_ACTIVE_ENGINE", kind);
+#else
+    setenv("NANOSYNTH_ACTIVE_ENGINE", kind, 1);
+#endif
+}
+
 static nb::capsule py_world_new(
     uint32_t num_audio_bus_channels,
     uint32_t num_input_bus_channels,
@@ -164,6 +188,7 @@ static nb::capsule py_world_new(
     int shared_memory_id,
     float safety_clip_threshold
 ) {
+    nanosynth_claim_engine("scsynth");
     // Allocate string storage with the same lifetime as the capsule
     auto* strings = new WorldStrings();
 
@@ -354,6 +379,7 @@ static void py_world_nrt_render(
     uint32_t max_wire_bufs,
     uint32_t num_rgens
 ) {
+    nanosynth_claim_engine("scsynth");
     // Allocate string storage that outlives World_New
     auto* strings = new WorldStrings();
 
