@@ -30,6 +30,10 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 
 - **Direct numpy buffer exchange** -- `get_buffer_data` / `set_buffer_data` / `alloc_buffer_from_array` copy samples straight between a numpy array and a buffer's in-process memory (a `memcpy`, no OSC round-trip and no datagram-size limit). This is the payoff of running the engine in-process: cheap two-way data transfer with the numpy/scipy stack that an out-of-process SuperCollider client cannot match. Requires `nanosynth[numpy]`
 
+- **Introspection & control** -- `status()` (CPU, sample rate, node/synth/group/ugen counts), `version()`, `query_tree()` (the live node graph as a nested `NodeInfo` tree, optionally with control values), `dump_tree()`, and `reset()` (panic: free all nodes, clear the scheduler, recreate the default group)
+
+- **Node lifecycle notifications** -- `enable_notifications()` then `on_node(callback)` to observe `/n_go`/`/n_end`/`/n_off`/`/n_on`/`/n_move` as `NodeEvent`s, or `Synth.wait_free()` / `wait_for_node_free(id)` to block until a node ends -- the only way to know when a self-freeing `DoneAction` synth has actually finished
+
 - **Reply handling** -- bidirectional OSC communication with the engine: persistent handlers (`on`/`off`), blocking one-shot waits (`wait_for_reply`), and send-and-wait (`send_msg_sync`)
 
 - **SynthDef graph introspection** -- `SynthDef.graph()` returns a structured DAG of `UGenNode`/`UGenInput` NamedTuples for programmatic traversal. `SynthDef.to_dot()` exports to Graphviz DOT format
@@ -274,6 +278,52 @@ with Server() as server:
 ```
 
 `get_buffer_data` always returns a 2-D `(frames, channels)` array (mono is `(frames, 1)`); `set_buffer_data` accepts 1-D (mono) or 2-D input and coerces it to contiguous `float32`. These methods read and write the *live* buffer, so for clean results the buffer should not be in active use by a synth during the transfer (a concurrent read/write may tear or glitch -- it never crashes). Direct buffer access is available on the embedded scsynth engine only (not supernova).
+
+### Introspection and Control
+
+Query the running engine and inspect or reset its node graph:
+
+```python
+from nanosynth import Server
+
+with Server() as server:
+    status = server.status()      # CPU load, sample rate, node/synth/ugen counts
+    print(status.num_synths, status.actual_sample_rate)
+
+    version = server.version()    # program name and version
+
+    # The live node tree as a nested NodeInfo (groups, synths, control values).
+    tree = server.query_tree(controls=True)
+    for child in tree.children:
+        print(child.node_id, "group" if child.is_group else child.synthdef)
+
+    # "Panic": free all nodes, clear the scheduler, recreate the default group.
+    server.reset()
+```
+
+`status()`, `version()`, and `query_tree()` block for a reply and raise `EngineError` on timeout. `reset()` frees all nodes and resets node-id allocation but leaves loaded SynthDefs, buffers, and buses intact.
+
+### Node Lifecycle Notifications
+
+Register for node events to observe nodes being created, freed, paused, resumed, or moved. This is the only way to know when a synth that frees *itself* (via a `DoneAction` envelope) has actually finished:
+
+```python
+from nanosynth import Server
+
+with Server() as server:
+    synthdef.send(server)
+    server.enable_notifications()
+
+    # Observe every node event.
+    server.on_node(lambda e: print(e.action, e.node_id))
+
+    # ...or wait for one specific node to free itself.
+    node = server.synth("ping", frequency=440.0)  # a self-freeing percussive synth
+    if node.wait_free(timeout=3.0):
+        print("the synth finished and freed itself")
+```
+
+Each callback receives a `NodeEvent` with `action` (`"go"`, `"end"`, `"off"`, `"on"`, `"move"`), `node_id`, `parent_group_id`, `is_group`, and (for groups) `head_node_id`/`tail_node_id`. `Synth.on_free(callback)` is a one-shot convenience that fires when that specific node ends. Notifications are off by default; `enable_notifications()` waits for the engine to confirm registration so the first node's `/n_go` is not missed.
 
 ### Offline (NRT) Rendering
 

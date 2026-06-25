@@ -1,6 +1,6 @@
 [project]
 name = "nanosynth"
-dynamic = ["version"]
+version = "0.2.0"
 description = "Minimal embedded SuperCollider synthesis engine (libscsynth) wrapper"
 readme = "README.md"
 license = "MIT"
@@ -79,13 +79,6 @@ wheel.packages = ["src/nanosynth"]
 wheel.exclude = ["*.cpp"]
 sdist.include = ["thirdparty/"]
 build-dir = "build/{wheel_tag}"
-
-# Single-source the version from src/nanosynth/__init__.py (__version__),
-# so the package metadata and the runtime nanosynth.__version__ never drift.
-[tool.scikit-build.metadata.version]
-provider = "scikit_build_core.metadata.regex"
-input = "src/nanosynth/__init__.py"
-regex = '__version__ = "(?P<value>[^"]+)"'
 
 [tool.coverage.report]
 # Fail the suite if coverage regresses below this floor (currently ~93%).

@@ -1,6 +1,6 @@
 """nanosynth -- minimal embedded SuperCollider synthesis engine wrapper."""
 
-__version__ = "0.1.6"
+__version__ = "0.2.0"
 
 from .enums import AddAction, CalculationRate, DoneAction
 from .exceptions import (
@@ -48,7 +48,17 @@ from .patterns import (
 )
 from .proxy import Ndef, NodeProxy
 from .score import Score
-from .server import Bus, Group, ParGroup, Server, Synth
+from .server import (
+    Bus,
+    Group,
+    NodeEvent,
+    NodeInfo,
+    ParGroup,
+    Server,
+    ServerStatus,
+    ServerVersion,
+    Synth,
+)
 from .ugens import *  # noqa: F403
 
 # Common UGens exported via star-import. The full set remains available
@@ -101,6 +111,8 @@ __all__ = [
     "MidiError",
     "NanosynthError",
     "Ndef",
+    "NodeEvent",
+    "NodeInfo",
     "NodeProxy",
     "OscBundle",
     "OscError",
@@ -124,6 +136,8 @@ __all__ = [
     "Score",
     "Server",
     "ServerCannotBoot",
+    "ServerStatus",
+    "ServerVersion",
     "Synth",
     "SynthDef",
     "SynthDefBuilder",

@@ -5,7 +5,7 @@
 | Module | Description |
 |---|---|
 | [SynthDef Builder](synthdef.md) | `SynthDefBuilder`, `SynthDef`, `UGen` base class, `@synthdef` decorator |
-| [Server](server.md) | `Server` class -- boot/quit lifecycle, node control, buffer management |
+| [Server](server.md) | `Server` class -- boot/quit lifecycle, node control, buffer management & numpy data exchange, `sync()`, introspection (`status`/`query_tree`/`reset`), and node notifications. See the [Server Control](../server-control.md) guide |
 | [Envelopes](envelopes.md) | `Envelope` class and `EnvGen` UGen |
 | [OSC Codec](osc.md) | `OscMessage` and `OscBundle` encode/decode |
 | [Enums](enums.md) | `CalculationRate`, `DoneAction`, `BinaryOperator`, `UnaryOperator`, etc. |

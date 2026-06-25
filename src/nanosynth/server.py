@@ -8,7 +8,7 @@ import logging
 import struct
 import threading
 from collections.abc import Callable, Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsInt, Union
 
@@ -27,6 +27,16 @@ else:
     ServerProtocol = EmbeddedProcessProtocol
 
 logger = logging.getLogger(__name__)
+
+
+def _osc_int(value: Any) -> int:
+    """Coerce a decoded OSC argument to int (values are concrete at runtime)."""
+    return int(value)
+
+
+def _osc_float(value: Any) -> float:
+    """Coerce a decoded OSC argument to float."""
+    return float(value)
 
 
 def _require_numpy() -> Any:
@@ -69,6 +79,10 @@ class _NodeIdAllocator:
             nxt = node_id + 1
             self._next = self._initial if nxt > self._maximum else nxt
             return node_id
+
+    def reset(self) -> None:
+        with self._lock:
+            self._next = self._initial
 
 
 class _BlockAllocator:
@@ -227,6 +241,29 @@ class Synth:
     def free(self) -> None:
         """Free this synth node."""
         self._server.free(self._node_id)
+
+    def wait_free(self, timeout: float = 5.0) -> bool:
+        """Block until this node is freed (e.g. by a self-freeing envelope).
+
+        Returns ``True`` if it ended, ``False`` on timeout. See
+        :meth:`Server.wait_for_node_free`.
+        """
+        return self._server.wait_for_node_free(self._node_id, timeout=timeout)
+
+    def on_free(self, callback: Callable[[NodeEvent], None]) -> None:
+        """Call *callback* once, when this node is freed.
+
+        The handler unregisters itself after firing. Enables notifications.
+        """
+        server = self._server
+        node_id = self._node_id
+
+        def handler(event: NodeEvent) -> None:
+            if event.action == "end" and event.node_id == node_id:
+                server.remove_node_handler(handler)
+                callback(event)
+
+        server.on_node(handler)
 
 
 class Group:
@@ -387,6 +424,95 @@ class _RecordingState:
     synth_node_id: int
 
 
+@dataclass(frozen=True)
+class ServerStatus:
+    """Snapshot of the engine's state, from ``/status.reply``."""
+
+    num_ugens: int
+    num_synths: int
+    num_groups: int
+    num_synthdefs: int
+    average_cpu: float
+    peak_cpu: float
+    nominal_sample_rate: float
+    actual_sample_rate: float
+
+
+@dataclass(frozen=True)
+class ServerVersion:
+    """Engine version information, from ``/version.reply``."""
+
+    program: str
+    major: int
+    minor: int
+    patch: str
+    branch: str
+    commit: str
+
+
+@dataclass
+class NodeInfo:
+    """A node in the server's node tree, from ``/g_queryTree.reply``.
+
+    Groups have ``is_group=True`` and populated ``children``; synths have
+    ``is_group=False``, a ``synthdef`` name, and (if queried with controls) a
+    ``controls`` mapping of name -> value (a float, or a bus-mapping string
+    like ``"c1"``/``"a0"``).
+    """
+
+    node_id: int
+    is_group: bool
+    synthdef: str | None = None
+    controls: dict[str, float | str] = field(default_factory=dict)
+    children: list[NodeInfo] = field(default_factory=list)
+
+
+# Engine node-notification addresses -> short action names.
+_NODE_EVENT_ACTIONS = {
+    "/n_go": "go",
+    "/n_end": "end",
+    "/n_off": "off",
+    "/n_on": "on",
+    "/n_move": "move",
+}
+
+
+@dataclass(frozen=True)
+class NodeEvent:
+    """A node lifecycle notification from the engine.
+
+    ``action`` is one of ``"go"`` (created), ``"end"`` (freed), ``"off"``
+    (paused), ``"on"`` (resumed), or ``"move"``. Delivered only while
+    notifications are enabled (see :meth:`Server.enable_notifications`).
+    """
+
+    action: str
+    node_id: int
+    parent_group_id: int
+    prev_node_id: int
+    next_node_id: int
+    is_group: bool
+    head_node_id: int | None = None
+    tail_node_id: int | None = None
+
+
+def _parse_node_event(msg: OscMessage) -> NodeEvent:
+    c = msg.contents
+    is_group = bool(_osc_int(c[4]))
+    head = _osc_int(c[5]) if is_group and len(c) > 5 else None
+    tail = _osc_int(c[6]) if is_group and len(c) > 6 else None
+    return NodeEvent(
+        action=_NODE_EVENT_ACTIONS[str(msg.address)],
+        node_id=_osc_int(c[0]),
+        parent_group_id=_osc_int(c[1]),
+        prev_node_id=_osc_int(c[2]),
+        next_node_id=_osc_int(c[3]),
+        is_group=is_group,
+        head_node_id=head,
+        tail_node_id=tail,
+    )
+
+
 class _ReplyEvent:
     """One-shot waiter for a single OSC reply, with an optional matcher.
 
@@ -464,6 +590,9 @@ class Server:
         self._reply_lock = threading.Lock()
         self._recording: _RecordingState | None = None
         self._recorder_synthdefs: dict[int, str] = {}  # channel_count -> name
+        self._node_handlers: list[Callable[[NodeEvent], None]] = []
+        self._notifications_enabled = False
+        self._node_dispatch_installed = False
 
     def __enter__(self) -> Server:
         self.boot()
@@ -486,6 +615,8 @@ class Server:
     def boot(self) -> None:
         """Boot the embedded scsynth engine and create the default group."""
         self._protocol.set_reply_callback(self._dispatch_reply)
+        # A fresh World has no /notify registration; re-enable lazily on next use.
+        self._notifications_enabled = False
         self._protocol.boot(self._options)
         # Create the default group (group 1, add to head of root node 0)
         self.send_msg("/g_new", 1, 0, 0)
@@ -633,6 +764,220 @@ class Server:
             reply_address="/synced",
             timeout=timeout,
             match=lambda m: bool(m.contents) and m.contents[0] == sync_id,
+        )
+        return reply is not None
+
+    # -- Introspection & control -----------------------------------------------
+
+    def status(self, timeout: float = 5.0) -> ServerStatus:
+        """Query engine status via ``/status``.
+
+        Returns a :class:`ServerStatus` (CPU load, sample rate, and node /
+        synth / group / synthdef / ugen counts). Raises ``EngineError`` if no
+        ``/status.reply`` arrives within *timeout*.
+        """
+        reply = self.send_msg_sync(
+            "/status", reply_address="/status.reply", timeout=timeout
+        )
+        if reply is None:
+            raise EngineError("no /status.reply received (is the engine running?)")
+        c = reply.contents
+        # /status.reply: [unused, #ugens, #synths, #groups, #synthdefs,
+        #                 avgCPU, peakCPU, nominalSR, actualSR]
+        return ServerStatus(
+            num_ugens=_osc_int(c[1]),
+            num_synths=_osc_int(c[2]),
+            num_groups=_osc_int(c[3]),
+            num_synthdefs=_osc_int(c[4]),
+            average_cpu=_osc_float(c[5]),
+            peak_cpu=_osc_float(c[6]),
+            nominal_sample_rate=_osc_float(c[7]),
+            actual_sample_rate=_osc_float(c[8]),
+        )
+
+    def version(self, timeout: float = 5.0) -> ServerVersion:
+        """Query engine version via ``/version``.
+
+        Raises ``EngineError`` if no ``/version.reply`` arrives within *timeout*.
+        """
+        reply = self.send_msg_sync(
+            "/version", reply_address="/version.reply", timeout=timeout
+        )
+        if reply is None:
+            raise EngineError("no /version.reply received (is the engine running?)")
+        c = reply.contents
+        return ServerVersion(
+            program=str(c[0]),
+            major=_osc_int(c[1]),
+            minor=_osc_int(c[2]),
+            patch=str(c[3]),
+            branch=str(c[4]),
+            commit=str(c[5]),
+        )
+
+    def query_tree(
+        self,
+        group: SupportsInt = 0,
+        *,
+        controls: bool = False,
+        timeout: float = 5.0,
+    ) -> NodeInfo:
+        """Query the node tree under *group* via ``/g_queryTree``.
+
+        Returns the queried group as a :class:`NodeInfo` with nested
+        ``children``. With ``controls=True`` each synth's current control
+        values are included. Raises ``EngineError`` on timeout.
+        """
+        group_id = int(group)
+        reply = self.send_msg_sync(
+            "/g_queryTree",
+            group_id,
+            1 if controls else 0,
+            reply_address="/g_queryTree.reply",
+            timeout=timeout,
+            match=lambda m: len(m.contents) >= 2 and m.contents[1] == group_id,
+        )
+        if reply is None:
+            raise EngineError("no /g_queryTree.reply received")
+        c = list(reply.contents)
+        with_controls = bool(c[0])
+        # c[1] = queried group id, c[2] = its child count, then a depth-first
+        # flat stream of nodes.
+        root = NodeInfo(node_id=_osc_int(c[1]), is_group=True)
+        idx = 3
+        for _ in range(_osc_int(c[2])):
+            child, idx = self._parse_tree_node(c, idx, with_controls)
+            root.children.append(child)
+        return root
+
+    def _parse_tree_node(
+        self, c: list[Any], idx: int, with_controls: bool
+    ) -> tuple[NodeInfo, int]:
+        node_id = _osc_int(c[idx])
+        child_count = _osc_int(c[idx + 1])
+        idx += 2
+        if child_count == -1:
+            # Synth: synthdef name, then optional control name/value pairs.
+            synthdef = str(c[idx])
+            idx += 1
+            controls: dict[str, float | str] = {}
+            if with_controls:
+                num_controls = _osc_int(c[idx])
+                idx += 1
+                for _ in range(num_controls):
+                    name, value = c[idx], c[idx + 1]
+                    controls[str(name)] = value
+                    idx += 2
+            return NodeInfo(node_id, False, synthdef=synthdef, controls=controls), idx
+        node = NodeInfo(node_id, True)
+        for _ in range(child_count):
+            child, idx = self._parse_tree_node(c, idx, with_controls)
+            node.children.append(child)
+        return node, idx
+
+    def dump_tree(self, group: SupportsInt = 0, *, controls: bool = False) -> None:
+        """Print the node tree under *group* to the engine's console/log.
+
+        Sends ``/g_dumpTree`` (no reply); output appears in the scsynth log.
+        For programmatic access use :meth:`query_tree`.
+        """
+        self.send_msg("/g_dumpTree", int(group), 1 if controls else 0)
+
+    def reset(self) -> None:
+        """Free all nodes, clear the scheduler, and reset node-id allocation.
+
+        The engine equivalent of a "panic" / cmd-period: frees every node
+        (``/g_freeAll 0``), clears pending scheduled bundles (``/clearSched``),
+        and recreates the default group. Loaded SynthDefs, buffers, and buses
+        are left intact (``/g_freeAll`` does not free them); only the node-id
+        allocator is reset.
+        """
+        self.send_msg("/g_freeAll", 0)
+        self.send_msg("/clearSched")
+        self.send_msg("/g_new", 1, 0, 0)
+        self._node_allocator.reset()
+
+    # -- Node lifecycle notifications ------------------------------------------
+
+    def enable_notifications(self, timeout: float = 1.0) -> None:
+        """Register for node lifecycle notifications (``/notify 1``).
+
+        Once enabled, the engine sends ``/n_go``/``/n_end``/``/n_off``/
+        ``/n_on``/``/n_move`` as nodes are created, freed (including by a
+        self-freeing ``DoneAction``), paused, resumed, or moved. Idempotent.
+        Called automatically by :meth:`on_node` and :meth:`wait_for_node_free`.
+
+        Waits for the engine's ``/done /notify`` so that registration is in
+        effect before any subsequent node command -- otherwise the first
+        node's ``/n_go`` can be missed. Falls back to fire-and-forget on
+        timeout (e.g. a mock server with no reply path).
+        """
+        if not self._node_dispatch_installed:
+            for address in _NODE_EVENT_ACTIONS:
+                self.on(address, self._dispatch_node_event)
+            self._node_dispatch_installed = True
+        if self._notifications_enabled:
+            return
+        self.send_msg_sync(
+            "/notify",
+            1,
+            reply_address="/done",
+            match=lambda m: bool(m.contents) and m.contents[0] == "/notify",
+            timeout=timeout,
+        )
+        self._notifications_enabled = True
+
+    def disable_notifications(self) -> None:
+        """Unregister from node lifecycle notifications (``/notify 0``)."""
+        if not self._notifications_enabled:
+            return
+        self.send_msg("/notify", 0)
+        self._notifications_enabled = False
+
+    def _dispatch_node_event(self, msg: OscMessage) -> None:
+        try:
+            event = _parse_node_event(msg)
+        except (IndexError, ValueError, KeyError):
+            logger.debug("Malformed node notification: %s", msg.address)
+            return
+        for handler in list(self._node_handlers):
+            try:
+                handler(event)
+            except Exception:  # noqa: BLE001 -- isolate user callbacks
+                logger.exception("Node-event handler error")
+
+    def on_node(self, callback: Callable[[NodeEvent], None]) -> None:
+        """Register *callback* to receive every :class:`NodeEvent`.
+
+        Enables notifications if not already on. Callbacks run on the reply
+        thread, so they must be non-blocking.
+        """
+        self.enable_notifications()
+        with self._reply_lock:
+            self._node_handlers.append(callback)
+
+    def remove_node_handler(self, callback: Callable[[NodeEvent], None]) -> None:
+        """Remove a callback previously registered with :meth:`on_node`."""
+        with self._reply_lock:
+            try:
+                self._node_handlers.remove(callback)
+            except ValueError:
+                pass
+
+    def wait_for_node_free(self, node_id: SupportsInt, timeout: float = 5.0) -> bool:
+        """Block until *node_id* is freed (``/n_end``), or *timeout*.
+
+        Returns ``True`` if the node ended, ``False`` on timeout. Enables
+        notifications if needed. Register the wait *before* the node can free
+        itself (e.g. right after creating a self-freeing synth), or the
+        ``/n_end`` may arrive first and be missed.
+        """
+        self.enable_notifications()
+        target = int(node_id)
+        reply = self.wait_for_reply(
+            "/n_end",
+            timeout=timeout,
+            match=lambda m: bool(m.contents) and _osc_int(m.contents[0]) == target,
         )
         return reply is not None
 

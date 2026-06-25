@@ -109,6 +109,50 @@ def test_double_quit_is_safe(booted: Server) -> None:
     assert booted.is_running is False
 
 
+def test_status_query(booted: Server) -> None:
+    st = booted.status(timeout=5.0)
+    assert st.actual_sample_rate > 0
+    assert st.num_groups >= 1  # at least the default group exists
+    assert st.num_synths == 0
+
+
+def test_version_query(booted: Server) -> None:
+    v = booted.version(timeout=5.0)
+    assert v.program in ("scsynth", "supernova")
+    assert v.major >= 3
+
+
+def test_query_tree_and_reset(booted: Server) -> None:
+    tree = booted.query_tree(0, timeout=5.0)
+    assert tree.node_id == 0 and tree.is_group
+    # The default group (node 1) should be a child of the root.
+    assert any(child.node_id == 1 for child in tree.children)
+    booted.reset()
+    booted.sync(timeout=5.0)
+    assert booted.status(timeout=5.0).num_synths == 0
+
+
+def test_node_free_notification(booted: Server) -> None:
+    from nanosynth import SynthDefBuilder
+    from nanosynth.enums import DoneAction
+    from nanosynth.envelopes import EnvGen, Envelope
+    from nanosynth.ugens import Out, SinOsc
+
+    with SynthDefBuilder(freq=440.0) as b:
+        env = EnvGen.kr(
+            envelope=Envelope.percussive(attack_time=0.01, release_time=0.1),
+            done_action=DoneAction.FREE_SYNTH,
+        )
+        Out.ar(bus=0, source=SinOsc.ar(frequency=b["freq"]) * env * 0.0)  # silent
+    b.build(name="smoke_ping").send(booted)
+    booted.sync(timeout=5.0)
+
+    booted.enable_notifications()
+    node = booted.synth("smoke_ping", freq=440.0)
+    # The self-freeing envelope should fire /n_end within the release window.
+    assert node.wait_free(timeout=3.0) is True
+
+
 def test_buffer_data_round_trip(booted: Server) -> None:
     import numpy as np
 
