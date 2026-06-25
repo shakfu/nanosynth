@@ -28,6 +28,8 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 
 - **Buffer management** -- `alloc_buffer`, `read_buffer`, `write_buffer`, `free_buffer`, `zero_buffer`, `close_buffer`, and context managers for automatic cleanup
 
+- **Direct numpy buffer exchange** -- `get_buffer_data` / `set_buffer_data` / `alloc_buffer_from_array` copy samples straight between a numpy array and a buffer's in-process memory (a `memcpy`, no OSC round-trip and no datagram-size limit). This is the payoff of running the engine in-process: cheap two-way data transfer with the numpy/scipy stack that an out-of-process SuperCollider client cannot match. Requires `nanosynth[numpy]`
+
 - **Reply handling** -- bidirectional OSC communication with the engine: persistent handlers (`on`/`off`), blocking one-shot waits (`wait_for_reply`), and send-and-wait (`send_msg_sync`)
 
 - **SynthDef graph introspection** -- `SynthDef.graph()` returns a structured DAG of `UGenNode`/`UGenInput` NamedTuples for programmatic traversal. `SynthDef.to_dot()` exports to Graphviz DOT format
@@ -245,6 +247,33 @@ with Server() as server:
 ```
 
 Recording options include `num_channels` (defaults to output bus count), `bus` (which bus to record from), `header_format` (`"wav"` or `"aiff"`), and `sample_format` (`"int16"`, `"int24"`, `"float"`).
+
+### Buffer Data Exchange (numpy)
+
+Because the engine runs in-process, you can move sample data between a numpy array and a buffer's memory with a direct `memcpy` -- no OSC `/b_setn`/`/b_getn` round-trip and none of their datagram-size limits. This is the concrete advantage of the embedded engine over an out-of-process SuperCollider client: cheap, arbitrary-size, two-way transfer with the numpy/scipy/ML stack.
+
+Install the optional dependency with `pip install nanosynth[numpy]`.
+
+```python
+import numpy as np
+from nanosynth import Server
+
+with Server() as server:
+    # Load a numpy array straight into a new buffer (allocates + fills).
+    wavetable = np.sin(np.linspace(0, 2 * np.pi, 1024, endpoint=False)).astype("float32")
+    buffer_id = server.alloc_buffer_from_array(wavetable)
+
+    # Inspect it: (frames, channels, sample_rate)
+    frames, channels, sample_rate = server.buffer_info(buffer_id)
+
+    # Read samples back into numpy -- shape (frames, channels), float32.
+    data = server.get_buffer_data(buffer_id)
+
+    # Process in numpy and write back in place (shape must match the buffer).
+    server.set_buffer_data(buffer_id, np.tanh(data * 2.0))
+```
+
+`get_buffer_data` always returns a 2-D `(frames, channels)` array (mono is `(frames, 1)`); `set_buffer_data` accepts 1-D (mono) or 2-D input and coerces it to contiguous `float32`. These methods read and write the *live* buffer, so for clean results the buffer should not be in active use by a synth during the transfer (a concurrent read/write may tear or glitch -- it never crashes). Direct buffer access is available on the embedded scsynth engine only (not supernova).
 
 ### Offline (NRT) Rendering
 

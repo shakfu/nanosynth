@@ -49,9 +49,14 @@ Changelog = "https://github.com/shakfu/nanosynth/blob/main/CHANGELOG.md"
 [project.scripts]
 nanosynth = "nanosynth.cli:main"
 
+[project.optional-dependencies]
+# numpy is only needed for direct buffer data exchange (get/set_buffer_data).
+numpy = ["numpy>=1.21"]
+
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
+    "numpy>=1.21",
     "pytest",
     "ruff>=0.15.1",
     "twine>=6.2.0",

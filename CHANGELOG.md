@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Direct numpy buffer data exchange** (`server.py`, `_scsynth.cpp`): `Server.get_buffer_data(buffer_id)` and `set_buffer_data(buffer_id, array)` copy samples directly between a numpy array and a buffer's in-process float storage via `memcpy` -- no OSC round-trip and none of the `/b_getn`/`/b_setn` datagram-size limits, which is the core advantage of the embedded engine. `get` returns a `(frames, channels)` float32 array (owning a copy, so it stays valid across buffer reallocation); `set` accepts 1-D (mono) or 2-D input, coerced to contiguous float32 and shape-checked against the buffer. `buffer_info(buffer_id)` returns `(frames, channels, sample_rate)`, and `alloc_buffer_from_array(array)` allocates a correctly-sized buffer and fills it in one call (handy for loading wavetables/samples). scsynth-only (raises `EngineError` for supernova); numpy is an optional dependency (`pip install nanosynth[numpy]`), imported lazily with a clear error if missing. The C++ accessors (`world_buffer_get/set/info`) read the live buffer, so concurrent synth access during a transfer may tear/glitch (documented, never crashes)
+
 - **`Server.sync()` round-trip barrier**: sends `/sync` with a unique id and blocks until the matching `/synced` reply, the canonical scsynth flush primitive. Returns `True` once synced or `False` on timeout. Concurrent `sync()` calls are matched by id
 
 - **Reply matchers**: `Server.wait_for_reply()` and `send_msg_sync()` accept an optional `match` predicate so a waiter accepts only a reply satisfying it (e.g. a `/done` whose first argument is the originating command). Non-matching replies leave the waiter registered instead of resolving it

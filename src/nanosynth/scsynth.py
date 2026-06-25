@@ -416,6 +416,34 @@ class EmbeddedProcessProtocol:
 
             set_reply_func(callback)
 
+    # -- Direct in-process buffer access ---------------------------------------
+
+    def _require_world(self) -> Any:
+        if self.status != BootStatus.ONLINE or self._world is None:
+            raise EngineError("Server is not running")
+        return self._world
+
+    def buffer_info(self, buffer_id: int) -> tuple[int, int, float]:
+        """Return ``(frames, channels, sample_rate)`` for a buffer."""
+        from nanosynth._scsynth import world_buffer_info
+
+        frames, channels, sample_rate = world_buffer_info(
+            self._require_world(), int(buffer_id)
+        )
+        return int(frames), int(channels), float(sample_rate)
+
+    def buffer_get(self, buffer_id: int) -> Any:
+        """Copy a buffer's samples into a ``(frames, channels)`` float32 array."""
+        from nanosynth._scsynth import world_buffer_get
+
+        return world_buffer_get(self._require_world(), int(buffer_id))
+
+    def buffer_set(self, buffer_id: int, data: Any) -> None:
+        """Copy a ``(frames, channels)`` float32 array into a buffer."""
+        from nanosynth._scsynth import world_buffer_set
+
+        world_buffer_set(self._require_world(), int(buffer_id), data)
+
     def quit(self) -> None:
         """Shut down the embedded scsynth engine.
 

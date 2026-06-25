@@ -107,3 +107,27 @@ def test_double_quit_is_safe(booted: Server) -> None:
     booted.quit()
     booted.quit()  # second quit is a no-op, must not raise
     assert booted.is_running is False
+
+
+def test_buffer_data_round_trip(booted: Server) -> None:
+    import numpy as np
+
+    from nanosynth.exceptions import EngineError
+    from nanosynth.scsynth import EmbeddedProcessProtocol
+
+    if not isinstance(booted._protocol, EmbeddedProcessProtocol):
+        # Direct buffer access is scsynth-only; supernova must reject cleanly.
+        with pytest.raises(EngineError):
+            booted.get_buffer_data(0)
+        return
+
+    data = np.random.randn(512, 2).astype(np.float32)
+    buffer_id = booted.alloc_buffer_from_array(data)
+    frames, channels, sample_rate = booted.buffer_info(buffer_id)
+    assert (frames, channels) == (512, 2)
+    assert sample_rate > 0
+    out = booted.get_buffer_data(buffer_id)
+    assert out.shape == (512, 2)
+    assert out.dtype == np.float32
+    assert np.array_equal(out, data)  # exact byte-for-byte round-trip
+    booted.free_buffer(buffer_id)

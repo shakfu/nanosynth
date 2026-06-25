@@ -4,6 +4,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/optional.h>
+#include <nanobind/ndarray.h>
 
 #include <cstdarg>
 #include <cstdio>
@@ -21,6 +22,7 @@ static void _force_exit_on_teardown() {
 #endif
 
 #include "SC_WorldOptions.h"
+#include "SC_World.h"   // World struct, SndBuf, World_GetBuf
 
 namespace nb = nanobind;
 
@@ -288,6 +290,64 @@ static World* extract_world(nb::capsule& cap) {
     return static_cast<WorldHandle*>(cap.data())->world;
 }
 
+// --- Direct in-process buffer access -------------------------------------
+//
+// scsynth runs in-process, so we can read/write a buffer's float storage
+// directly with a memcpy instead of round-tripping sample data through OSC
+// (/b_getn, /b_setn) with their datagram-size limits. The buffer must already
+// be allocated (e.g. via /b_alloc + sync()). These touch the live buffer the
+// audio thread also uses: a get racing a writing synth may be torn, and a set
+// racing a reading synth may glitch -- neither crashes, but for clean results
+// the buffer should not be in active use during the transfer.
+
+static SndBuf* get_sndbuf(World* world, uint32_t buf_id) {
+    if (buf_id >= world->mNumSndBufs) {
+        throw std::runtime_error("buffer index out of range");
+    }
+    return World_GetBuf(world, buf_id);
+}
+
+static nb::tuple py_world_buffer_info(nb::capsule& world_cap, uint32_t buf_id) {
+    World* world = extract_world(world_cap);
+    SndBuf* buf = get_sndbuf(world, buf_id);
+    return nb::make_tuple(buf->frames, buf->channels, buf->samplerate);
+}
+
+static nb::ndarray<nb::numpy, float, nb::ndim<2>>
+py_world_buffer_get(nb::capsule& world_cap, uint32_t buf_id) {
+    World* world = extract_world(world_cap);
+    SndBuf* buf = get_sndbuf(world, buf_id);
+    if (buf->data == nullptr || buf->frames <= 0 || buf->channels <= 0) {
+        throw std::runtime_error("buffer is not allocated");
+    }
+    size_t frames = static_cast<size_t>(buf->frames);
+    size_t channels = static_cast<size_t>(buf->channels);
+    size_t n = frames * channels;
+    // Own a copy so the returned array stays valid even if the buffer is later
+    // freed or reallocated by the engine.
+    float* copy = new float[n];
+    std::memcpy(copy, buf->data, n * sizeof(float));
+    nb::capsule owner(copy, [](void* p) noexcept { delete[] static_cast<float*>(p); });
+    return nb::ndarray<nb::numpy, float, nb::ndim<2>>(copy, {frames, channels}, owner);
+}
+
+static void py_world_buffer_set(
+    nb::capsule& world_cap, uint32_t buf_id,
+    nb::ndarray<const float, nb::ndim<2>, nb::c_contig> data) {
+    World* world = extract_world(world_cap);
+    SndBuf* buf = get_sndbuf(world, buf_id);
+    if (buf->data == nullptr) {
+        throw std::runtime_error("buffer is not allocated");
+    }
+    if (static_cast<int>(data.shape(0)) != buf->frames ||
+        static_cast<int>(data.shape(1)) != buf->channels) {
+        throw std::runtime_error(
+            "array shape does not match buffer (frames, channels)");
+    }
+    size_t n = static_cast<size_t>(buf->frames) * static_cast<size_t>(buf->channels);
+    std::memcpy(buf->data, data.data(), n * sizeof(float));
+}
+
 static bool py_world_open_udp(nb::capsule& world_cap, const std::string& bind_to, int port) {
     World* world = extract_world(world_cap);
     int result;
@@ -513,6 +573,18 @@ NB_MODULE(_scsynth, m) {
     m.def("world_send_packet", &py_world_send_packet,
           nb::arg("world"), nb::arg("data"),
           "Send an OSC packet directly to the world. Returns True on success.");
+
+    m.def("world_buffer_info", &py_world_buffer_info,
+          nb::arg("world"), nb::arg("buffer_id"),
+          "Return (frames, channels, sample_rate) for a buffer.");
+
+    m.def("world_buffer_get", &py_world_buffer_get,
+          nb::arg("world"), nb::arg("buffer_id"),
+          "Copy a buffer's samples into a new (frames, channels) float32 array.");
+
+    m.def("world_buffer_set", &py_world_buffer_set,
+          nb::arg("world"), nb::arg("buffer_id"), nb::arg("data"),
+          "Copy a (frames, channels) float32 array into a buffer's samples.");
 
     m.def("set_reply_func", &py_set_reply_func,
           nb::arg("func").none(),

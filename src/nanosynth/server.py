@@ -29,6 +29,18 @@ else:
 logger = logging.getLogger(__name__)
 
 
+def _require_numpy() -> Any:
+    """Import numpy, raising a clear error if it is not installed."""
+    try:
+        import numpy
+    except ImportError as exc:  # pragma: no cover - exercised without numpy
+        raise ImportError(
+            "numpy is required for direct buffer data exchange; install it "
+            "with `pip install numpy` or `pip install nanosynth[numpy]`."
+        ) from exc
+    return numpy
+
+
 # ---------------------------------------------------------------------------
 # ID allocators
 # ---------------------------------------------------------------------------
@@ -869,6 +881,79 @@ class Server:
     def close_buffer(self, buffer_id: int) -> None:
         """Close the sound file associated with a buffer (after b_write)."""
         self.send_msg("/b_close", buffer_id)
+
+    # -- Direct buffer data exchange (numpy) -----------------------------------
+
+    def _buffer_protocol(self) -> Any:
+        """Return the protocol if it supports direct buffer access (scsynth)."""
+        proto = self._protocol
+        if not hasattr(proto, "buffer_get"):
+            raise EngineError(
+                "Direct buffer data access requires the embedded scsynth engine "
+                "(not supported by the supernova protocol)."
+            )
+        return proto
+
+    def buffer_info(self, buffer_id: SupportsInt) -> tuple[int, int, float]:
+        """Return ``(frames, channels, sample_rate)`` for an allocated buffer.
+
+        Requires the embedded scsynth engine.
+        """
+        return self._buffer_protocol().buffer_info(int(buffer_id))  # type: ignore[no-any-return]
+
+    def get_buffer_data(self, buffer_id: SupportsInt) -> Any:
+        """Copy a buffer's samples into a numpy array of shape ``(frames, channels)``.
+
+        This is a direct in-process memory copy -- no OSC round-trip and no
+        datagram-size limit -- which is the main advantage of the embedded
+        engine. The buffer must already be allocated. The copy reads the live
+        buffer, so a synth writing it concurrently may produce a torn read.
+
+        Requires numpy and the embedded scsynth engine.
+        """
+        _require_numpy()
+        return self._buffer_protocol().buffer_get(int(buffer_id))
+
+    def set_buffer_data(self, buffer_id: SupportsInt, data: Any) -> None:
+        """Copy a numpy array into an allocated buffer's samples.
+
+        ``data`` may be 1-D (mono) or 2-D ``(frames, channels)``; it is coerced
+        to contiguous float32 and its shape must match the buffer exactly. This
+        is a direct in-process memory write; a synth reading the buffer
+        concurrently may glitch.
+
+        Requires numpy and the embedded scsynth engine.
+        """
+        np = _require_numpy()
+        arr = np.ascontiguousarray(data, dtype=np.float32)
+        if arr.ndim == 1:
+            arr = arr.reshape(-1, 1)
+        if arr.ndim != 2:
+            raise ValueError("data must be 1-D (mono) or 2-D (frames, channels)")
+        self._buffer_protocol().buffer_set(int(buffer_id), arr)
+
+    def alloc_buffer_from_array(self, data: Any, *, sync: bool = True) -> int:
+        """Allocate a buffer sized to ``data`` and fill it. Returns the buffer ID.
+
+        Convenience for loading a numpy array (wavetable, sample, window) into
+        the engine. ``data`` may be 1-D (mono) or 2-D ``(frames, channels)``.
+        By default waits (``/sync``) for the allocation to complete before
+        writing; pass ``sync=False`` if you have already synced.
+
+        Requires numpy and the embedded scsynth engine.
+        """
+        np = _require_numpy()
+        arr = np.ascontiguousarray(data, dtype=np.float32)
+        if arr.ndim == 1:
+            arr = arr.reshape(-1, 1)
+        if arr.ndim != 2:
+            raise ValueError("data must be 1-D (mono) or 2-D (frames, channels)")
+        frames, channels = int(arr.shape[0]), int(arr.shape[1])
+        buffer_id = self.alloc_buffer(frames, channels)
+        if sync:
+            self.sync()
+        self.set_buffer_data(buffer_id, arr)
+        return buffer_id
 
     @contextlib.contextmanager
     def managed_buffer(
