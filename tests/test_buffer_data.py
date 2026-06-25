@@ -8,12 +8,15 @@ coercion, and input validation.
 
 from unittest.mock import MagicMock
 
-import numpy as np
 import pytest
 
 from nanosynth.exceptions import EngineError
 from nanosynth.scsynth import BootStatus
 from nanosynth.server import Server
+
+# numpy is an optional dependency; skip this module entirely if it is absent
+# (e.g. the cibuildwheel test environment, which installs only pytest).
+np = pytest.importorskip("numpy")
 
 
 @pytest.fixture()
