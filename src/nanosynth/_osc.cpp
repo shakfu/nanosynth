@@ -439,9 +439,12 @@ static nb::object decode_bundle_from_raw(const uint8_t* data, size_t len, int de
     nb::list bundle_contents;
     while (offset < len) {
         if (offset + 4 > len) throw std::runtime_error("truncated bundle element size");
-        int32_t element_len = read_be_i32(data + offset);
+        // OSC element sizes are non-negative int32 on the wire. Read as
+        // unsigned and bounds-check without arithmetic that could overflow
+        // size_t (offset <= len is guaranteed here, so len - offset is safe).
+        uint32_t element_len = read_be_u32(data + offset);
         offset += 4;
-        if (offset + static_cast<size_t>(element_len) > len)
+        if (element_len > len - offset)
             throw std::runtime_error("truncated bundle element");
         const uint8_t* element_data = data + offset;
         if (starts_with_bundle(element_data, element_len)) {
@@ -491,9 +494,10 @@ static nb::tuple decode_bundle_bytes(nb::bytes datagram) {
     nb::list elements;
     while (offset < len) {
         if (offset + 4 > len) throw std::runtime_error("truncated bundle element size");
-        int32_t element_len = read_be_i32(data + offset);
+        // See decode_bundle_from_raw: read unsigned, bounds-check safely.
+        uint32_t element_len = read_be_u32(data + offset);
         offset += 4;
-        if (offset + static_cast<size_t>(element_len) > len)
+        if (element_len > len - offset)
             throw std::runtime_error("truncated bundle element");
         elements.append(nb::bytes(reinterpret_cast<const char*>(data + offset), element_len));
         offset += element_len;

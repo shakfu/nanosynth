@@ -535,7 +535,12 @@ class Player:
             dur_beats = 1.0
 
         beat_dur = self._clock.beat_duration
-        self._next_time = now + dur_beats * beat_dur
+        # Advance from the previous scheduled target, not from the wall-clock
+        # wake time `now`. Seeding from `now` would bake every late wake-up
+        # into the next event's deadline, accumulating drift over a session.
+        # If the clock fell behind, _next_time stays <= now and the clock's
+        # run loop fires successive events back-to-back until it catches up.
+        self._next_time = self._next_time + dur_beats * beat_dur
 
         # Rest: advance time without creating a synth
         if isinstance(dur_val, Rest):

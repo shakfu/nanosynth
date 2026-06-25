@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **OSC bundle decoder out-of-bounds read** (`_osc.cpp`): the native bundle decoders (`decode_bundle_from_raw`, `decode_bundle_bytes`) read each element's length as a signed `int32_t` and bounds-checked it with `offset + (size_t)length > len`. A malformed datagram with a negative length cast to `size_t` could wrap that addition and pass the check, then hand a negative/huge size to `nb::bytes`, causing an out-of-bounds read or oversized allocation. Lengths are now read as `uint32_t` and validated with the overflow-safe `element_len > len - offset` (`offset <= len` is guaranteed at that point)
+
+- **Engine boot/quit thread coordination** (`scsynth.py`, `supernova.py`): `_shutdown()` previously did a blind `thread.join(timeout=5)` followed by an unconditional forced `world_cleanup`/`supernova_cleanup`, which could tear the engine down concurrently with a wait/run thread still inside `World_WaitForQuit`/`supernova_run` (a double-free / use-after-free race on the engine handle). It now gates on the existing `exit_future` -- resolved by the wait/run thread only after the engine has been torn down internally -- while that thread is alive, with forced cleanup retained only as a logged last resort on a 5s timeout
+
+- **Boot is now exception-safe** (`scsynth.py`, `supernova.py`): if the on-boot callback or the wait/run-thread start raised, the engine handle was created and the process-global `_active_world`/`_active` flag was left set, permanently wedging every subsequent boot with `ServerCannotBoot`. The go-online sequence is now wrapped; on failure a new `_abort_partial_boot()` tears down the engine and clears the global flag. The thread is started and `boot_future` resolved last, so rollback never races a running loop
+
+- **Pattern clock timing drift** (`patterns.py`): `Player._tick` advanced the next event deadline from the wall-clock wake time (`now + dur * beat_dur`), baking every late wake-up into the following event and accumulating drift over a session. It now advances from the previous scheduled target (`self._next_time + dur * beat_dur`); if the clock falls behind, successive events fire back-to-back until it catches up, with no accumulated error
+
+- **Release and docs CI workflows** (`.github/workflows/`): `release.yml` had its `push: tags` and `workflow_dispatch` inputs commented out while the publish steps gated on the resulting always-undefined `inputs.target` and a never-true `github.event_name == 'push'`, so no PyPI publish could ever run. Triggers are restored and the PyPI gate now keys on `startsWith(github.ref, 'refs/tags/v')`. `docs.yml` ran `uv sync --group docs` against a non-existent dependency group (mkdocs deps live in `dev`); it now runs `uv sync` and its `push: branches: [main]` trigger is restored
+
+### Changed
+
+- **Single-sourced package version**: the version was hard-coded in both `pyproject.toml` and `src/nanosynth/__init__.py` and could drift. `pyproject.toml` now declares `dynamic = ["version"]` and reads `__version__` from `src/nanosynth/__init__.py` via scikit-build-core's regex metadata provider, making `__init__.py` the single source of truth
+
 ## [0.1.6]
 
 ### Added

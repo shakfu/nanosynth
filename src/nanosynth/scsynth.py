@@ -302,13 +302,42 @@ class EmbeddedProcessProtocol:
 
             set_reply_func(self._reply_callback)
 
-        self.status = BootStatus.ONLINE
-        self.boot_future.set_result(True)
-        if self.on_boot_callback:
-            self.on_boot_callback()
+        # Bring the engine online. Anything that raises from here on -- a
+        # failing on_boot callback or an OS refusal to start the wait thread
+        # -- must not leave the global _active_world flag set, or every
+        # subsequent boot would raise ServerCannotBoot for the life of the
+        # process. The wait thread is started last so this rollback never has
+        # to coordinate with a running _wait_for_quit.
+        try:
+            self.status = BootStatus.ONLINE
+            if self.on_boot_callback:
+                self.on_boot_callback()
+            self.thread = threading.Thread(target=self._wait_for_quit, daemon=True)
+            self.thread.start()
+        except BaseException as exc:
+            self._abort_partial_boot()
+            raise ServerCannotBoot(f"boot failed after World creation: {exc}") from exc
 
-        self.thread = threading.Thread(target=self._wait_for_quit, daemon=True)
-        self.thread.start()
+        self.boot_future.set_result(True)
+
+    def _abort_partial_boot(self) -> None:
+        """Tear down a World whose boot failed before the wait thread ran.
+
+        Safe to call only when no ``_wait_for_quit`` thread is active, so
+        World teardown cannot race the wait loop. Always clears
+        ``_active_world`` so future boots can proceed.
+        """
+        from nanosynth._scsynth import set_print_func, world_cleanup
+
+        set_print_func(None)
+        if self._world is not None:
+            world_cleanup(self._world, False)
+            self._world = None
+        self.status = BootStatus.OFFLINE
+        with EmbeddedProcessProtocol._active_world_lock:
+            EmbeddedProcessProtocol._active_world = False
+        if not self.boot_future.done():
+            self.boot_future.set_result(False)
 
     def _wait_for_quit(self) -> None:
         from nanosynth._scsynth import set_print_func, world_wait_for_quit
@@ -327,14 +356,27 @@ class EmbeddedProcessProtocol:
             self.on_panic_callback()
 
     def _shutdown(self) -> None:
-        if self.thread and self.thread.is_alive():
-            self.thread.join(timeout=5)
-            if self.thread.is_alive():
-                from nanosynth._scsynth import world_cleanup
-
+        # The caller has already sent /quit. World_WaitForQuit returns only
+        # once the engine has processed it, tearing the World down internally,
+        # and _wait_for_quit then resolves exit_future. When the wait thread is
+        # running, gate on that future instead of blindly joining and
+        # force-cleaning the World, which could run World teardown concurrently
+        # with a wait thread still inside World_WaitForQuit (a double-free race
+        # on self._world). exit_future is only ever resolved by the wait
+        # thread, so we wait on it only while that thread is alive.
+        if self.thread is not None and self.thread.is_alive():
+            try:
+                self.exit_future.result(timeout=5)
+            except concurrent.futures.TimeoutError:
+                logger.warning(
+                    "scsynth did not acknowledge /quit within 5s; forcing World cleanup"
+                )
                 if self._world is not None:
+                    from nanosynth._scsynth import world_cleanup
+
                     world_cleanup(self._world, False)
-                self.thread.join()
+                    self._world = None
+            self.thread.join(timeout=5)
         self.status = BootStatus.OFFLINE
         with EmbeddedProcessProtocol._active_world_lock:
             EmbeddedProcessProtocol._active_world = False

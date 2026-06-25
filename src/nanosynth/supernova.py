@@ -145,13 +145,41 @@ class EmbeddedSupernovaProtocol:
 
             set_reply_func(self._reply_callback)
 
-        self.status = BootStatus.ONLINE
-        self.boot_future.set_result(True)
-        if self.on_boot_callback:
-            self.on_boot_callback()
+        # Bring the engine online. Anything that raises from here on must not
+        # leave the global _active flag set, or every subsequent boot would
+        # raise ServerCannotBoot for the life of the process. The run thread
+        # is started last so this rollback never has to coordinate with a
+        # running _run_loop.
+        try:
+            self.status = BootStatus.ONLINE
+            if self.on_boot_callback:
+                self.on_boot_callback()
+            self.thread = threading.Thread(target=self._run_loop, daemon=True)
+            self.thread.start()
+        except BaseException as exc:
+            self._abort_partial_boot()
+            raise ServerCannotBoot(f"boot failed after server creation: {exc}") from exc
 
-        self.thread = threading.Thread(target=self._run_loop, daemon=True)
-        self.thread.start()
+        self.boot_future.set_result(True)
+
+    def _abort_partial_boot(self) -> None:
+        """Tear down a server whose boot failed before the run loop started.
+
+        Safe to call only when no ``_run_loop`` thread is active, so server
+        teardown cannot race the event loop. Always clears ``_active`` so
+        future boots can proceed.
+        """
+        from nanosynth._supernova import set_print_func, supernova_cleanup
+
+        set_print_func(None)
+        if self._server is not None:
+            supernova_cleanup(self._server)
+            self._server = None
+        self.status = BootStatus.OFFLINE
+        with EmbeddedSupernovaProtocol._active_lock:
+            EmbeddedSupernovaProtocol._active = False
+        if not self.boot_future.done():
+            self.boot_future.set_result(False)
 
     def _run_loop(self) -> None:
         """Run supernova's event loop (blocks until terminate)."""
@@ -171,11 +199,22 @@ class EmbeddedSupernovaProtocol:
 
     def _shutdown(self) -> None:
         """Shut down the event loop and clean up."""
-        if self.thread and self.thread.is_alive():
+        # quit() has already sent supernova_terminate, which makes
+        # supernova_run return; _run_loop then resolves exit_future. When the
+        # run thread is alive, wait on that future so we only delete the
+        # nova_server after its event loop has provably exited, instead of
+        # racing supernova_cleanup against a thread still inside supernova_run
+        # (a use-after-free on self._server). exit_future is only ever resolved
+        # by the run thread, so we wait on it only while that thread is alive.
+        if self.thread is not None and self.thread.is_alive():
+            try:
+                self.exit_future.result(timeout=5)
+            except concurrent.futures.TimeoutError:
+                logger.warning(
+                    "supernova event loop did not exit within 5s; cleaning up anyway"
+                )
             self.thread.join(timeout=5)
-            if self.thread.is_alive():
-                self.thread.join()
-        # Properly deactivate audio and delete nova_server after thread exits
+        # Deactivate audio and delete nova_server now that the loop has exited.
         if self._server is not None:
             from nanosynth._supernova import supernova_cleanup
 

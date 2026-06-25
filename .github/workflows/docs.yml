@@ -1,8 +1,8 @@
 name: Docs
-on: [workflow_dispatch]
-  # push:
-  #   branches: [main]
-  # workflow_dispatch:
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,5 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
-      - run: uv sync --group docs
+      # The mkdocs/mkdocstrings dependencies live in the default `dev` group,
+      # which `uv sync` installs; mkdocstrings also needs the package built and
+      # importable, which `uv sync` provides.
+      - run: uv sync
       - run: uv run mkdocs gh-deploy --force
