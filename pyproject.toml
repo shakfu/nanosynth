@@ -78,7 +78,7 @@ build-backend = "scikit_build_core.build"
 [tool.scikit-build]
 wheel.packages = ["src/nanosynth"]
 wheel.exclude = ["*.cpp"]
-sdist.include = ["thirdparty/"]
+sdist.include = ["thirdparty/", "spec/"]
 build-dir = "build/{wheel_tag}"
 
 [tool.coverage.report]

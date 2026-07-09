@@ -45,6 +45,8 @@ nav:
   - MIDI Guide: midi.md
   - Threading Model: threading.md
   - CLI: cli.md
+  - Deploying SynthDefs: deployment.md
+  - SCgf Format: scgf-format.md
   - API Reference:
     - api/index.md
     - Core:

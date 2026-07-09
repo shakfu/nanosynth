@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CLI documentation** (`docs/cli.md`): documents both the `info` and `compile` subcommands, how SynthDefs are discovered, the option matrix, per-def vs bundled output, and exit-status behavior
 
+- **Deployment guide** (`docs/deployment.md`): the precompiled-artifact workflow for non-Python consumers -- compile SynthDefs to `.scsyndef` offline with `nanosynth compile`, then load them at runtime via `/d_load` / `/d_loadDir` / `/d_recv` from nanosynth, `sclang`, or any OSC client. Clarifies that the runtime identifier is the SynthDef name embedded in the binary, not the filename
+
+- **Language-neutral UGen spec** (`spec/nanosynth-ugens.json`, `scripts/generate_ugen_spec.py`): a versioned, machine-readable table of all 341 UGens (names, calculation rates, parameter defaults, and `unexpanded`/pure/output/width-first flags), the operator/rate/done-action enum tables, and an `operator_ugens` block naming `BinaryOpUGen`/`UnaryOpUGen` and the enum table their `special_index` selects, so a non-Python implementation of the SynthDef frontend shares the drift-prone metadata rather than transcribing it by hand. `tests/test_ugen_spec.py` fails if the committed spec drifts from the code (regenerate with `python scripts/generate_ugen_spec.py`); included in sdists
+
+- **SCgf format specification** (`docs/scgf-format.md`): documents the SCgf version-2 binary byte layout (header, constant pool, parameter tables, UGen records, input specs) and the UGen spec schema, for writing loaders, validators, or independent compilers in other languages
+
 - **Source-tree CI test matrix**: a `test-source` job runs `pytest` against the source tree (not built wheels) across CPython 3.10--3.14 on Linux, building the C extension from source via `uv sync`. Closes the gap where `make test` was previously only exercised against cibuildwheel-built wheels
 
 ## [0.2.0]
