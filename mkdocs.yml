@@ -44,6 +44,7 @@ nav:
   - Concepts: concepts.md
   - MIDI Guide: midi.md
   - Threading Model: threading.md
+  - CLI: cli.md
   - API Reference:
     - api/index.md
     - Core:

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Added
+
+- **`nanosynth compile` CLI command**: compiles Python-defined SynthDefs to `.scsyndef` binaries for use with a standalone `scsynth`/`supernova`, `/d_load`, or deploy-time precompilation. Loads a `.py` file, discovers every module-level `SynthDef` (both `@synthdef`-decorated functions and `SynthDefBuilder.build()` results), and writes one `<name>.scsyndef` per def (`-o DIR`) or a single bundled SCgf file holding all defs (`-b FILE`). `-n/--name` selects specific defs (repeatable); `--anonymous` emits MD5-hash names. Reports actionable errors (missing/non-`.py` input, import failure, no SynthDefs found, unknown name, missing output dir, duplicate names that would overwrite) on stderr with a non-zero exit
+
+- **Property-based tests** (`test_properties.py`, hypothesis): randomized invariants over the graph frontend -- algebraic identity laws (`sig + 0`/`0 + sig`/`sig - 0`/`sig * 1`/`1 * sig`/`sig / 1`/`sig ** 1` return the original signal; `sig * 0` and `sig ** 0` fold to the constants 0 and 1), constant folding equivalence with Python float arithmetic, multichannel expansion arity (a width-n input expands to n channels; combining widths m and n yields max(m, n)), and compilation determinism (byte-identical SCgf and stable topological order across rebuilds, independent of the declared name). Recipes generate graphs up to 14 UGens deep
+
+- **CLI documentation** (`docs/cli.md`): documents both the `info` and `compile` subcommands, how SynthDefs are discovered, the option matrix, per-def vs bundled output, and exit-status behavior
+
+- **Source-tree CI test matrix**: a `test-source` job runs `pytest` against the source tree (not built wheels) across CPython 3.10--3.14 on Linux, building the C extension from source via `uv sync`. Closes the gap where `make test` was previously only exercised against cibuildwheel-built wheels
+
 ## [0.2.0]
 
 ### Added
