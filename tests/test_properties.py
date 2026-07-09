@@ -27,9 +27,16 @@ from nanosynth.ugens import Out, Saw, SinOsc, WhiteNoise
 # ---------------------------------------------------------------------------
 
 # Finite, audio-range frequencies. Bounded well below overflow so that
-# constant folding of products stays exact.
+# constant folding of products stays exact. allow_subnormal=False because the
+# scsynth C extension is built with -ffast-math, which flips the CPU into
+# flush-to-zero mode process-wide; hypothesis otherwise refuses to build a
+# floats() strategy that could emit unrepresentable subnormals.
 frequencies = st.floats(
-    min_value=20.0, max_value=20000.0, allow_nan=False, allow_infinity=False
+    min_value=20.0,
+    max_value=20000.0,
+    allow_nan=False,
+    allow_infinity=False,
+    allow_subnormal=False,
 )
 
 # A leaf recipe names a source UGen and a frequency (ignored by WhiteNoise).
@@ -130,7 +137,11 @@ def test_power_zero_is_one(leaf: tuple[Any, ...]) -> None:
 # ---------------------------------------------------------------------------
 
 constants = st.floats(
-    min_value=-1.0e6, max_value=1.0e6, allow_nan=False, allow_infinity=False
+    min_value=-1.0e6,
+    max_value=1.0e6,
+    allow_nan=False,
+    allow_infinity=False,
+    allow_subnormal=False,  # see the note on `frequencies` above (-ffast-math)
 )
 
 
