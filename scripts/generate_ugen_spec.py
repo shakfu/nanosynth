@@ -28,7 +28,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from nanosynth import __version__
 from nanosynth.enums import (
     BinaryOperator,
     CalculationRate,
@@ -128,7 +127,6 @@ def build_spec() -> dict[str, Any]:
     """Build the full spec dictionary from live introspection."""
     return {
         "spec_version": SPEC_VERSION,
-        "generator_version": __version__,
         "supercollider_version": SUPERCOLLIDER_VERSION,
         "scgf_version": SCGF_VERSION,
         "enums": {

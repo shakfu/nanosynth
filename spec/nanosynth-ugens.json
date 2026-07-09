@@ -1,6 +1,5 @@
 {
   "spec_version": "1.0",
-  "generator_version": "0.2.1",
   "supercollider_version": "3.14.1",
   "scgf_version": 2,
   "enums": {

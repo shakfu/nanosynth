@@ -97,9 +97,7 @@ python scripts/generate_ugen_spec.py
 
 ### Top-level fields
 
-- `spec_version` -- schema version of this file.
-
-- `generator_version` -- the nanosynth version that produced it.
+- `spec_version` -- schema version of this file. Bumped only when the spec's shape changes, so it is independent of the nanosynth release version.
 
 - `supercollider_version` -- the SuperCollider release whose UGens and format these match.
 
