@@ -59,6 +59,48 @@ jobs:
       - name: Test
         run: uv run pytest tests/
 
+  benchmarks:
+    # Manual only: the double build (HEAD + HEAD^) is expensive, so this runs
+    # on demand via the Actions "Run workflow" button, not on every push/PR.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: benchmarks (regression gate)
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install ALSA dev headers
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+
+      - name: Benchmark HEAD
+        run: |
+          uv sync
+          uv run pytest benchmarks/ --benchmark-disable-gc --benchmark-json=/tmp/head.json -q
+
+      - name: Benchmark base (HEAD^) with the HEAD harness
+        run: |
+          # Pin the benchmark harness from HEAD, then rebuild the library at
+          # HEAD^ so the comparison measures library changes, not harness
+          # changes -- both runs happen on this one runner (apples to apples).
+          cp -r benchmarks /tmp/harness
+          git checkout HEAD^
+          rm -rf benchmarks && cp -r /tmp/harness benchmarks
+          uv sync
+          uv run pytest benchmarks/ --benchmark-disable-gc --benchmark-json=/tmp/base.json -q
+
+      - name: Compare (fail on gross regression)
+        # 50% here (vs 25% locally): a shared CI runner is noisier than a quiet
+        # dev machine, so CI gates only gross/algorithmic regressions. Run
+        # `make bench-check` locally for the tighter developer gate.
+        run: uv run python /tmp/harness/check_regression.py /tmp/base.json /tmp/head.json --threshold 50
+
   build-wheels:
     strategy:
       fail-fast: false

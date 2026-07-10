@@ -127,6 +127,8 @@ python scripts/generate_ugen_spec.py
 
 - `rates` -- the calculation rates the UGen can be instantiated at, as tokens keyed in `enums.calculation_rates`.
 
+- `outputs` -- the output arity. Either `{ "kind": "fixed", "count": N }` (most UGens; `N` is 1 by default, 0 for output UGens like `Out`, or a fixed width like 2 for `Pan2`) or `{ "kind": "variable", "default": N }` for multichannel UGens whose output count is chosen at construction time (e.g. `In`), with `N` the default.
+
 - `flags`:
 
     - `pure` -- side-effect-free, so it may be constant-folded or eliminated as dead code when its outputs are unused.

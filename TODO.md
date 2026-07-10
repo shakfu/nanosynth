@@ -4,12 +4,6 @@ Remaining improvement tasks, grouped by category and ordered by priority within 
 
 ---
 
-## CI / Build
-
-- [ ] **Performance regression benchmarks.** No tracking of graph compilation speed or OSC encode/decode throughput. A simple `pytest-benchmark` suite for `SynthDefBuilder.build()` on a reference graph would catch regressions early. Priority: **low**, effort: **low**.
-
----
-
 ## Architecture
 
 ### Cross-language SynthDef compilation

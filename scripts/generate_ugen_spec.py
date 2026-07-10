@@ -78,6 +78,20 @@ def _ugen_classes() -> list[type[UGen]]:
     return [found[name] for name in sorted(found)]
 
 
+def _ugen_outputs(cls: type[UGen]) -> dict[str, Any]:
+    """Describe a UGen's output arity.
+
+    Most UGens have a fixed number of outputs (1 by default, 0 for output UGens
+    like ``Out``, or a fixed N for e.g. ``Pan2``). Multichannel UGens have a
+    variable count chosen at construction time via a ``channel_count`` argument,
+    for which we record the default.
+    """
+    channel_count = int(getattr(cls, "_declared_channel_count", 1))
+    if getattr(cls, "_declared_is_multichannel", False):
+        return {"kind": "variable", "default": channel_count}
+    return {"kind": "fixed", "count": channel_count}
+
+
 def _ugen_spec(cls: type[UGen]) -> dict[str, Any]:
     signature = inspect.signature(cls.__init__)
     ordered_keys = getattr(cls, "_ordered_keys", ())
@@ -96,6 +110,7 @@ def _ugen_spec(cls: type[UGen]) -> dict[str, Any]:
     return {
         "name": cls.__name__,
         "rates": [rate.token for rate in getattr(cls, "_valid_calculation_rates", ())],
+        "outputs": _ugen_outputs(cls),
         "flags": {
             "pure": bool(getattr(cls, "_is_pure", False)),
             "output": bool(getattr(cls, "_is_output", False)),

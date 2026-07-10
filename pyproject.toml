@@ -59,6 +59,7 @@ dev = [
     "mypy>=1.19.1",
     "numpy>=1.21",
     "pytest",
+    "pytest-benchmark>=4.0",
     "ruff>=0.15.1",
     "twine>=6.2.0",
     "delocate>=0.12; sys_platform == 'darwin'",

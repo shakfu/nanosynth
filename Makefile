@@ -1,6 +1,6 @@
 .PHONY: all dev sync remake build sdist check clean demos demos-supernova help \
 		lint format typecheck qa test publish publish-test reset \
-		docs docs-serve docs-deploy
+		docs docs-serve docs-deploy bench bench-check bench-baseline
 # .DEFAULT_GOAL := help
 
 all: dev
@@ -33,15 +33,25 @@ test: ## Run tests via uv
 	@uv run pytest tests/  --cov=nanosynth --cov-report term-missing:skip-covered
 
 lint:
-	@uv run ruff check --fix src/ tests/ demos/
+	@uv run ruff check --fix src/ tests/ demos/ benchmarks/
 
 format:
-	@uv run ruff format src/ tests/ demos/
+	@uv run ruff format src/ tests/ demos/ benchmarks/
 
 typecheck:
 	@uv run mypy --strict src/
 
 qa: lint test typecheck format
+
+bench: ## Run performance benchmarks (writes benchmarks/last.json)
+	@uv run pytest benchmarks/ --benchmark-disable-gc --benchmark-json=benchmarks/last.json
+
+bench-check: ## Run benchmarks; fail if >25% slower than benchmarks/baseline.json (same machine only)
+	@uv run pytest benchmarks/ --benchmark-disable-gc --benchmark-json=benchmarks/last.json -q
+	@uv run python benchmarks/check_regression.py benchmarks/baseline.json benchmarks/last.json --threshold 25
+
+bench-baseline: ## Regenerate the committed baseline (run on a quiet machine, then commit)
+	@uv run pytest benchmarks/ --benchmark-disable-gc --benchmark-json=benchmarks/baseline.json
 
 demos: ## Run scsynth demo scripts sequentially
 	@for f in demos/scsynth/*.py; do echo "--- $$f ---"; uv run python "$$f"; done

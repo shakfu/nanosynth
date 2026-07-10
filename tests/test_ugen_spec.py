@@ -109,6 +109,12 @@ def test_ugen_entries_are_well_formed(committed_spec: dict[str, Any]) -> None:
     valid_defaults = {"required", "computed", "inf", "-inf", "nan"}
     for ugen in ugens:
         assert set(ugen["flags"]) == {"pure", "output", "width_first", "has_done_flag"}
+        outputs = ugen["outputs"]
+        if outputs["kind"] == "fixed":
+            assert isinstance(outputs["count"], int) and outputs["count"] >= 0
+        else:
+            assert outputs["kind"] == "variable"
+            assert isinstance(outputs["default"], int)
         for token in ugen["rates"]:
             assert token in valid_rate_tokens
         for param in ugen["parameters"]:
@@ -132,3 +138,7 @@ def test_known_ugen_shapes(committed_spec: dict[str, Any]) -> None:
 
     # Out writes to a bus: an output UGen with no outputs of its own.
     assert by_name["Out"]["flags"]["output"] is True
+    assert by_name["Out"]["outputs"] == {"kind": "fixed", "count": 0}
+    assert by_name["SinOsc"]["outputs"] == {"kind": "fixed", "count": 1}
+    assert by_name["Pan2"]["outputs"] == {"kind": "fixed", "count": 2}
+    assert by_name["In"]["outputs"] == {"kind": "variable", "default": 1}

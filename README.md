@@ -909,6 +909,10 @@ The GitHub Actions workflow (`.github/workflows/build.yml`) builds wheels for CP
 
 A separate release workflow (`.github/workflows/release.yml`) publishes to PyPI on tag push via trusted publisher, with manual dispatch for TestPyPI.
 
+## Related Projects
+
+- [synthdef](https://github.com/shakfu/synthdef) -- a native **Rust port** of nanosynth. It reimplements the SynthDef compiler (validated **byte-for-byte** against nanosynth's output via shared golden fixtures and the same language-neutral UGen spec, `spec/nanosynth-ugens.json`), and builds a full stack on top: a nanosynth-style `Server` and SuperCollider-style pattern sequencing over the pure-Rust [`plyphon`](https://crates.io/crates/plyphon) engine. The goal is a portable core that runs where a Python runtime cannot -- other languages via a C ABI, the browser via WASM, or a DAW plugin.
+
 ## Attributions
 
 - [SuperCollider](https://supercollider.github.io) -- the audio synthesis engine and programming language that nanosynth embeds.

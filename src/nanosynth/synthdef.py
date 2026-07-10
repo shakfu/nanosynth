@@ -309,6 +309,11 @@ def _process_class(
     cls._is_output = bool(is_output)
     cls._is_pure = bool(is_pure)
     cls._is_width_first = bool(is_width_first)
+    # Output-arity declaration, kept for introspection (e.g. the UGen spec).
+    # Runtime output count lives in the per-instance _channel_count; these
+    # record the class-level declaration without affecting it.
+    cls._declared_channel_count = int(channel_count)
+    cls._declared_is_multichannel = bool(is_multichannel)
     cls._ordered_keys = tuple(params.keys())
     cls._unexpanded_keys = frozenset(unexpanded_keys)
     cls._valid_calculation_rates = tuple(valid_calculation_rates)  # type: ignore[attr-defined]
@@ -1310,6 +1315,8 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
     _is_output = False
     _is_pure = False
     _is_width_first = False
+    _declared_channel_count = 1
+    _declared_is_multichannel = False
     _ordered_keys: tuple[str, ...] = ()
     _unexpanded_keys: frozenset[str] = frozenset()
 

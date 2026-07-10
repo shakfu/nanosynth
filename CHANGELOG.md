@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Native Rust port** ([synthdef](https://github.com/shakfu/synthdef)): a companion project reimplements the SynthDef compiler in Rust, driven by this package's language-neutral UGen spec (`spec/nanosynth-ugens.json`) and validated **byte-for-byte** against nanosynth's compiler via shared golden fixtures, so the two cannot silently diverge. On top of the compiler it adds a nanosynth-style `Server` and SuperCollider-style pattern sequencing over the pure-Rust [`plyphon`](https://crates.io/crates/plyphon) engine (native and `wasm32`), targeting environments a Python runtime cannot reach -- other languages via a C ABI, the browser via WASM, or a DAW plugin. Consuming the shared spec is the reason it was decoupled from the release version (below)
+
+- **Performance benchmark suite** (`benchmarks/`): `pytest-benchmark` benchmarks for the compile hot path (`SynthDefBuilder.build()` and `SynthDef.compile()` on a representative subtractive-synth reference graph) and OSC message/bundle encode/decode. Kept out of `tests/` so the coverage-gated `make test` run does not time them. `make bench` runs them, `make bench-baseline` regenerates the committed `benchmarks/baseline.json`, and `make bench-check` fails if any benchmark regresses more than 25% (median) versus the baseline on the same machine. A manual (`workflow_dispatch`-only) `benchmarks` CI job gates gross regressions by benchmarking HEAD and the previous commit on one runner (same-machine, apples-to-apples) at a looser 50% threshold that tolerates shared-runner noise
+
+### Changed
+
+- **UGen spec now records output arity**: each entry in `spec/nanosynth-ugens.json` gains an `outputs` field -- `{"kind": "fixed", "count": N}` for most UGens (0 for `Out`, 2 for `Pan2`, ...) or `{"kind": "variable", "default": N}` for multichannel UGens. The `@ugen` decorator stores the declaration on the class (`_declared_channel_count` / `_declared_is_multichannel`) for introspection without affecting the runtime channel count. Needed by non-Python frontends to emit multi-output UGens.
+
+- **Decoupled the UGen spec from the release version**: `spec/nanosynth-ugens.json` no longer carries a `generator_version` field, so a version bump no longer trips the `tests/test_ugen_spec.py` drift guard. The spec now regenerates only when the UGen metadata or enum tables actually change
+
 ## [0.2.1]
 
 ### Added

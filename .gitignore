@@ -52,6 +52,11 @@ Thumbs.db
 .*_cache/
 htmlcov/
 .coverage
+.hypothesis
+
+# benchmarks (baseline.json is committed; transient runs are not)
+benchmarks/last.json
+.benchmarks/
 
 # agent
 .claude

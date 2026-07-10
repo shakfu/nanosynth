@@ -86,6 +86,7 @@ nav:
       - Utility: api/ugens/basic.md
       - Safety: api/ugens/safety.md
       - Band-limited: api/ugens/ffsinosc.md
+  - Related Projects: related-projects.md
   - Changelog: changelog.md
 
 markdown_extensions:
