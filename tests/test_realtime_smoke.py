@@ -26,6 +26,7 @@ into a clean error, but the one-engine-per-process rule still stands.
 """
 
 import os
+import sys
 
 import pytest
 
@@ -175,3 +176,111 @@ def test_buffer_data_round_trip(booted: Server) -> None:
     assert out.dtype == np.float32
     assert np.array_equal(out, data)  # exact byte-for-byte round-trip
     booted.free_buffer(buffer_id)
+
+
+# ---------------------------------------------------------------------------
+# GIL/mutex lock-order regression
+# ---------------------------------------------------------------------------
+
+# Drives outgoing packets and incoming replies concurrently -- the interleaving
+# that used to deadlock the process. python_reply_func took the reply mutex and
+# then blocked on the GIL, while world_send_packet held the GIL and blocked on
+# that same mutex. Both callbacks now take the GIL first.
+#
+# Run in a subprocess so a regression shows up as a timeout rather than wedging
+# the whole pytest session: once the GIL is deadlocked, nothing in-process can
+# recover, including pytest's own timeout handling.
+_STRESS_SOURCE = """
+import faulthandler, sys, threading, time
+from nanosynth import Options, Server
+from nanosynth.enums import DoneAction
+from nanosynth.envelopes import EnvGen, Envelope
+from nanosynth.synthdef import SynthDefBuilder
+from nanosynth.ugens import Out, SinOsc
+
+with SynthDefBuilder(freq=440.0, amp=0.0, gate=1.0) as builder:
+    env = EnvGen.kr(
+        envelope=Envelope.asr(attack_time=0.01, release_time=0.05),
+        gate=builder["gate"],
+        done_action=DoneAction.FREE_SYNTH,
+    )
+    Out.ar(bus=0, source=SinOsc.ar(frequency=builder["freq"]) * env * builder["amp"])
+stress = builder.build(name="stress")
+
+stop = threading.Event()
+
+def sender(server, index):
+    count = 0
+    while not stop.is_set():
+        count += 1
+        try:
+            if count % 2:
+                with server.at(time.time() + 0.02):
+                    node = server.synth("stress", freq=200.0 + index, amp=0.0)
+                with server.at(time.time() + 0.05):
+                    server.set(node, gate=0.0)
+            else:
+                server.free(server.synth("stress", freq=300.0 + index, amp=0.0))
+        except Exception:
+            pass
+        time.sleep(0.002)
+
+def replier(server):
+    while not stop.is_set():
+        try:
+            server.status(timeout=2.0)
+            server.sync(timeout=2.0)
+        except Exception:
+            pass
+
+server = Server(Options(verbosity=-1))
+server.boot()
+try:
+    server.send_synthdef(stress)
+    server.sync(timeout=5.0)
+    server.enable_notifications()   # /n_go + /n_end multiply the reply traffic
+    seen = [0]
+    server.on_node(lambda ev: seen.__setitem__(0, seen[0] + 1))
+
+    # Fires from a C thread, so it still works when every Python thread is
+    # stuck waiting for the GIL.
+    faulthandler.dump_traceback_later(20, exit=True)
+
+    threads = [threading.Thread(target=sender, args=(server, i), daemon=True)
+               for i in range(6)]
+    threads += [threading.Thread(target=replier, args=(server,), daemon=True)
+                for _ in range(4)]
+    for t in threads:
+        t.start()
+    time.sleep(8.0)
+    stop.set()
+    for t in threads:
+        t.join(timeout=5.0)
+    faulthandler.cancel_dump_traceback_later()
+    # A deadlock starves the reply path first, so require replies actually flowed.
+    assert seen[0] > 100, "no node events -- reply path stalled"
+    print("OK", seen[0])
+finally:
+    stop.set()
+    server.quit()
+"""
+
+
+def test_concurrent_send_and_reply_does_not_deadlock(protocol_cls) -> None:
+    """Sends and replies in flight together must not deadlock on the GIL."""
+    import subprocess
+
+    if protocol_cls is not EmbeddedProcessProtocol:
+        pytest.skip("scsynth-only stress; supernova has its own reply endpoint")
+
+    result = subprocess.run(
+        [sys.executable, "-c", _STRESS_SOURCE],
+        capture_output=True,
+        text=True,
+        timeout=90,
+    )
+    assert result.returncode == 0, (
+        f"stress subprocess failed (deadlock?):\n{result.stdout[-2000:]}\n"
+        f"{result.stderr[-4000:]}"
+    )
+    assert "OK" in result.stdout

@@ -105,26 +105,31 @@ The `Clock` runs a daemon thread that drives pattern playback. Its main loop:
 
 3. Sleeps until the next scheduled event (adaptive wake time via `_stop_event.wait(timeout=...)`)
 
-`Player._tick()` pulls the next event from its pattern, creates a synth via `server.synth()`, and -- for gated envelopes -- spawns a `threading.Timer` daemon thread to send `gate=0.0` after the sustain duration:
+`Player._tick()` pulls the next event from its pattern and sends it as a *timestamped bundle* rather than an immediate message. Both the `/s_new` and -- for gated envelopes -- the `gate=0.0` release are dispatched during the same tick, stamped for the event's onset and for onset plus sustain respectively:
 
 ```python
 import time
-from nanosynth import Server, Clock, Player, Pbind, Pseq
+from nanosynth import Server, Clock, Pbind, Pseq
 
 with Server() as server:
     synthdef.send(server)
-    time.sleep(0.1)
+    server.sync()
 
-    clock = Clock(bpm=120)
-    # Player._tick() runs on the clock thread
-    # Gate release runs on short-lived Timer threads
-    player = Player(server, Pbind(name="sine", dur=Pseq([0.25, 0.5], repeats=4)))
-    clock.add(player)
-    clock.start()
+    clock = Clock(bpm=120, latency=0.1)
+    # Player._tick() runs on the clock thread; the engine, not this
+    # thread's wake time, decides the sample each synth starts on.
+    player = Pbind(instrument="sine", dur=Pseq([0.25, 0.5], repeats=4)).play(
+        clock, server
+    )
 
     time.sleep(4.0)
+    player.stop()
     clock.stop()
 ```
+
+Two consequences follow from bundling. Onset accuracy no longer depends on when the Python thread woke -- only on the tick landing within the latency window, which is far weaker a requirement. And gate releases hold no Python-side state: no thread is spawned per note, and a release can never fire against a server that has since quit.
+
+The clock thread also isolates player failures. If a `_tick()` raises -- a quit server, a pattern bug -- that player is logged and dropped rather than taking down the clock and silencing every other player sharing it.
 
 The `Clock._lock` protects mutation of the player list (add/remove). Player state itself (`_stopped`, `_next_time`) uses simple attribute writes that are atomic under CPython's GIL. `Player.stop()` can be called from the main thread while the clock thread is ticking -- the `_stopped` flag is checked at the top of each tick.
 
@@ -134,6 +139,7 @@ The `Clock._lock` protects mutation of the player list (add/remove). Player stat
 |-----------|----------------------|-------|
 | `server.synth()`, `server.free()`, `server.set()` | Yes | Delegates to `send_packet()`, a synchronous C call |
 | `server.send_msg()`, `server.send_msg_sync()` | Yes | Same as above; `send_msg_sync` blocks the calling thread |
+| `server.at()`, `server.send_bundle()` | Yes | The `at()` capture stack is thread-local, so a block open on one thread never swallows another thread's messages |
 | `server.on()`, `server.off()` | Yes | Protected by `_reply_lock` |
 | `server.wait_for_reply()` | Yes | Uses `threading.Event`, blocks calling thread |
 | `SynthDefBuilder` context manager | Yes | Thread-local stacks, UUID scope checking |

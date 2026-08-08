@@ -6,6 +6,7 @@ import pytest
 
 from nanosynth.enums import AddAction
 from nanosynth.exceptions import EngineError
+from nanosynth.osc import OscBundle, OscMessage
 from nanosynth.scsynth import BootStatus, Options
 from nanosynth.server import Bus, Group, ParGroup, Server, Synth
 
@@ -1127,3 +1128,118 @@ class TestRecording:
 
         server.record(Path("/tmp/test.wav"))
         assert server.is_recording is True
+
+
+class TestBundleScheduling:
+    """Timestamped bundle dispatch via send_bundle() and the at() block."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def _sent(self, server: Server) -> OscBundle:
+        """Decode the single packet the server sent as a bundle."""
+        server._protocol.send_packet.assert_called_once()
+        return OscBundle.from_datagram(server._protocol.send_packet.call_args[0][0])
+
+    def test_send_bundle_encodes_timestamp_and_contents(self, server: Server) -> None:
+        ts = 1_000_000.5
+        server.send_bundle([OscMessage("/n_set", 1000, "gate", 0.0)], timestamp=ts)
+        bundle = self._sent(server)
+        assert bundle.timestamp == pytest.approx(ts, abs=1e-6)
+        assert len(bundle.contents) == 1
+        assert bundle.contents[0].address == "/n_set"
+
+    def test_send_bundle_without_timestamp_is_immediate(self, server: Server) -> None:
+        server.send_bundle([OscMessage("/g_new", 1, 0, 0)])
+        assert self._sent(server).timestamp is None
+
+    def test_at_captures_high_level_calls(self, server: Server) -> None:
+        """synth() inside at() is bundled, not sent immediately."""
+        ts = 2_000_000.0
+        with server.at(ts):
+            server.synth("default", freq=440.0)
+            server.send_msg("/n_set", 1000, "amp", 0.5)
+            # Nothing escapes while the block is open.
+            server._protocol.send_packet.assert_not_called()
+        bundle = self._sent(server)
+        assert bundle.timestamp == pytest.approx(ts, abs=1e-6)
+        assert [m.address for m in bundle.contents] == ["/s_new", "/n_set"]
+
+    def test_at_allocates_node_id_eagerly(self, server: Server) -> None:
+        """The Synth proxy is usable before the bundle is sent."""
+        with server.at(1.0):
+            synth = server.synth("default")
+            assert synth.node_id == 1000
+        assert server.next_node_id() == 1001
+
+    def test_at_empty_block_sends_nothing(self, server: Server) -> None:
+        with server.at(1.0):
+            pass
+        server._protocol.send_packet.assert_not_called()
+
+    def test_at_discards_bundle_on_exception(self, server: Server) -> None:
+        """A raising block must not emit a half-built bundle."""
+        with pytest.raises(ValueError, match="boom"):
+            with server.at(1.0):
+                server.send_msg("/s_new", "default", 1000, 0, 1)
+                raise ValueError("boom")
+        server._protocol.send_packet.assert_not_called()
+        # The capture stack is unwound, so later sends go out normally.
+        server.send_msg("/status")
+        server._protocol.send_packet.assert_called_once()
+
+    def test_at_nests_into_inner_bundles(self, server: Server) -> None:
+        with server.at(10.0):
+            server.send_msg("/g_new", 1, 0, 0)
+            with server.at(20.0):
+                server.send_msg("/n_free", 1000)
+        outer = self._sent(server)
+        assert outer.timestamp == pytest.approx(10.0, abs=1e-6)
+        assert outer.contents[0].address == "/g_new"
+        inner = outer.contents[1]
+        assert isinstance(inner, OscBundle)
+        assert inner.timestamp == pytest.approx(20.0, abs=1e-6)
+        assert inner.contents[0].address == "/n_free"
+
+    def test_at_is_thread_local(self, server: Server) -> None:
+        """An open block on one thread must not swallow another's messages."""
+        import threading
+
+        opened = threading.Event()
+        other_sent = threading.Event()
+
+        def other() -> None:
+            opened.wait(timeout=2.0)
+            server.send_msg("/from_other_thread")
+            other_sent.set()
+
+        thread = threading.Thread(target=other)
+        thread.start()
+        try:
+            with server.at(1.0):
+                server.send_msg("/from_main")
+                opened.set()
+                assert other_sent.wait(timeout=2.0)
+                # The other thread's message went out immediately, unbundled.
+                assert server._protocol.send_packet.call_count == 1
+                direct = OscMessage.from_datagram(
+                    server._protocol.send_packet.call_args[0][0]
+                )
+                assert direct.address == "/from_other_thread"
+        finally:
+            thread.join(timeout=2.0)
+        # Only the bundle was added on block exit.
+        assert server._protocol.send_packet.call_count == 2
+        bundle = OscBundle.from_datagram(server._protocol.send_packet.call_args[0][0])
+        assert [m.address for m in bundle.contents] == ["/from_main"]
+
+    def test_round_trips_through_decoder(self, server: Server) -> None:
+        """The emitted datagram is decodable back to an equal bundle."""
+        with server.at(5.0):
+            server.synth("default", freq=220.0)
+        data = server._protocol.send_packet.call_args[0][0]
+        assert OscBundle.from_datagram(data).to_datagram() == data

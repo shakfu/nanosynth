@@ -2,6 +2,54 @@
 
 Remaining improvement tasks, grouped by category and ordered by priority within each section.
 
+The sections from **Correctness & API Gaps** onward were migrated here from `REVIEW.md` (a full architecture/code review of 0.1.6) when that file was retired; everything it recorded as done or resolved was dropped, and only open items were carried over. `REVIEW.md` was gitignored and untracked, so the only copy in history is the pre-`13525fb` one, which predates the fixes tracked against it -- treat this file as the sole live record of that review's open items.
+
+---
+
+## Correctness & API Gaps
+
+Ordered by likelihood of biting a user.
+
+- [ ] **`Score.to_binary()` emits an unguarded score.** The `/g_freeAll` + `/c_set` safety bundle that `render()` documents as necessary to avoid engine crashes is appended inside `render()` (`score.py:126-127`), not in the public `to_binary()`. Anyone writing a score file themselves gets the unguarded version. Fold the guard into `to_binary()` and have `render()` call it. Priority: **high**, effort: **low**.
+
+- [ ] **Terminal `/g_freeAll` truncates the final event.** It is appended at exactly `end_time` (`score.py:126`), so the last event can be cut off. Use `end_time + epsilon`. Priority: **medium**, effort: **low**.
+
+- [ ] **`Score.add_synth` ergonomics.** Takes raw ints -- no node-id allocation, no `AddAction` -- unlike `Server.synth`. Also `preferred_hardware_buffer_size=8192` is hard-coded at `score.py:167`, ignoring the passed `options`. Priority: **medium**, effort: **low**.
+
+- [ ] **MIDI handler lists are mutated without a lock.** `midi.py:203-241` appends to and removes from the handler lists from the user thread while the RtMidi thread iterates them. (Distinct from the GIL/mutex ordering bug fixed in `_midi.cpp` -- this is the Python side.) Priority: **medium**, effort: **low**.
+
+- [ ] **MIDI C++ handler exceptions vanish.** `_midi.cpp:69` swallows them with `catch (...)`, so a broken handler fails invisibly during live performance. Route to `PyErr_WriteUnraisable`. Priority: **medium**, effort: **low**.
+
+- [ ] **`record()` has no `is_running` guard** and remains single-stream (one recording at a time). The sleep-based sequencing it used to rely on is already replaced by `sync()`. Priority: **low**, effort: **low**.
+
+- [ ] **`Options.maximum_logins` default disagrees with the engine.** Python defaults to 1 (`scsynth.py:60`), the C++ default is 64. Harmless but confusing; align them. Priority: **low**, effort: **low**.
+
+- [ ] **`set_print_func(None)` installs a no-op rather than restoring the default.** Output is silently dropped instead of reverting to scsynth's own printer. Priority: **low**, effort: **low**.
+
+- [ ] **Single-World constraint is implicit.** A process-global live World is enforced via a class-level `_active_world` flag plus process-global print/reply callbacks in `_scsynth.cpp`. It leaks into behaviour: quitting one server clears the print callback process-wide, and TCP transport and `maximum_logins > 1` are wired in C++ but unreachable from Python. Document the singleton constraint explicitly; longer term, key the callbacks by World handle. Priority: **low**, effort: **medium**.
+
+---
+
+## Packaging / CI
+
+- [ ] **Version is hard-coded in two places.** `pyproject.toml:3` and `src/nanosynth/__init__.py:3` both carry the version with nothing asserting they match, so they will drift. Single-source it via scikit-build-core metadata and add a drift test. Priority: **high**, effort: **low**.
+
+- [ ] **No `concurrency: cancel-in-progress` in `build.yml`.** Rapid pushes queue redundant, expensive wheel builds. Priority: **medium**, effort: **low**.
+
+- [ ] **cibuildwheel runs the full suite in every wheel.** `CIBW_TEST_COMMAND: pytest {project}/tests/` across 5 Pythons x 3 OSes means 15 complete runs, including the slow NRT tests. Add a smoke marker for the in-wheel run. Priority: **low**, effort: **low**.
+
+---
+
+## Feature Gaps (engine & composition)
+
+- [ ] **MIDI output and clock.** `MidiOut`, plus MIDI clock/transport send and receive (slaving a `Clock` to incoming clock). Also missing: Program Change and Aftertouch message types. Priority: **medium**, effort: **medium**.
+
+- [ ] **CLI beyond `info` and `compile`.** `nanosynth render score.py -o out.wav`, `nanosynth midi-ports`, a boot self-test, and a top-level `--version`. Priority: **medium**, effort: **low**.
+
+- [ ] **Buffer introspection and generators.** `/b_query`, and `/b_gen` wavetable helpers (`sine1`/`sine2`/`sine3`, `cheby`). The direct numpy buffer path already covers bulk data exchange; these cover the rest. Also missing: control-bus `get()`. Priority: **medium**, effort: **low**.
+
+- [ ] **Pattern gaps.** `Pbindef` (per-key updates to a running `Pbind`), `PmonoArtic`, array-valued event keys for chords (one event expanding to several synths), and `Score.from_pattern(pattern, duration)` -- the realtime pattern engine and NRT scoring currently share no code path. These are the deliberate exclusions listed under "Not yet implemented" in `docs/patterns.md`. Priority: **medium**, effort: **medium**.
+
 ---
 
 ## Architecture

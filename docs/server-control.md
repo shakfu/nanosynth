@@ -26,6 +26,57 @@ with Server() as server:
 `sync()` returns `True` once synced, or `False` on timeout. It is the canonical
 way to order work that depends on a prior asynchronous command having completed.
 
+## Timestamped Bundles
+
+A plain `server.synth(...)` executes when the engine receives it, so its onset
+carries whatever jitter the sending thread had. A *bundle* carries a timestamp
+instead: the engine holds it and applies every message it contains on the same
+control block, at the requested time. This is what makes timing accurate to the
+sample rather than to the scheduler.
+
+`at()` captures everything sent inside the block into one bundle. Ordinary
+`Server` methods work unchanged inside it:
+
+```python
+import time
+from nanosynth import Server
+
+with Server() as server:
+    synthdef.send(server)
+    server.sync()
+
+    onset = time.time() + 0.2          # Unix epoch seconds
+    with server.at(onset):
+        note = server.synth("sine", freq=440.0)
+    with server.at(onset + 1.0):
+        server.set(note, gate=0.0)     # release, queued in advance
+```
+
+Both messages are sent immediately; the engine fires them at the stamped times.
+Node IDs are allocated eagerly, so the returned proxy is usable straight away --
+before the bundle has even been sent.
+
+Points worth knowing:
+
+- Timestamps are Unix epoch seconds (the `time.time()` domain). A timestamp in
+the past executes on arrival, so falling behind degrades to immediate playback
+rather than dropping the event.
+
+- An empty block sends nothing, and a block that raises sends nothing -- you
+never emit a half-built bundle.
+
+- Blocks may nest, producing nested OSC bundles.
+
+- The capture stack is thread-local: a block open on one thread never captures
+another thread's messages.
+
+`send_bundle(contents, timestamp)` is the lower-level form, taking explicit
+`OscMessage` objects when you are building packets directly.
+
+The pattern engine is built on this. A `Clock` schedules events a configurable
+`latency` ahead (default 0.1s), which is why pattern playback stays steady under
+Python-side load. See the [Patterns API](api/patterns.md).
+
 ## Buffer Data Exchange (numpy)
 
 Because the engine shares the process, sample data moves between a numpy array

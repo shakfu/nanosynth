@@ -45,18 +45,29 @@ static void rtmidi_callback(
     void* userData
 ) {
     auto* handle = static_cast<MidiInHandle*>(userData);
-    std::lock_guard<std::mutex> lock(handle->callback_mutex);
-    if (handle->callback.ptr() != nullptr && !handle->callback.is_none()) {
-        nb::gil_scoped_acquire gil;
-        try {
-            nb::bytes data(
-                reinterpret_cast<const char*>(message->data()),
-                message->size()
-            );
-            handle->callback(data);
-        } catch (...) {
-            // Swallow Python exceptions to avoid crashing the MIDI thread.
-        }
+    // GIL before mutex. set_callback/clear_callback and the capsule destructor
+    // all run with the GIL held and then take callback_mutex; taking the mutex
+    // first here and blocking on the GIL afterwards would invert that order
+    // and deadlock the process.
+    nb::gil_scoped_acquire gil;
+    nb::object callback;
+    {
+        std::lock_guard<std::mutex> lock(handle->callback_mutex);
+        callback = handle->callback;  // refcount bump is safe: GIL is held
+    }
+    if (callback.ptr() == nullptr || callback.is_none()) {
+        return;
+    }
+    // Dispatched outside the lock, and against our own reference, so the
+    // handler stays alive even if it is cleared concurrently.
+    try {
+        nb::bytes data(
+            reinterpret_cast<const char*>(message->data()),
+            message->size()
+        );
+        callback(data);
+    } catch (...) {
+        // Swallow Python exceptions to avoid crashing the MIDI thread.
     }
 }
 

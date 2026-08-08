@@ -94,11 +94,19 @@ static int supernova_print_func(const char* fmt, va_list ap) {
         buf = heap_buf.data();
     }
     va_end(ap_copy);
-    std::lock_guard<std::mutex> lock(g_sn_print_mutex);
-    if (g_sn_print_func.ptr() != nullptr && !g_sn_print_func.is_none()) {
-        nb::gil_scoped_acquire gil;
+    // Lock order is GIL-then-mutex everywhere in this file. The Python-side
+    // entry points are entered with the GIL already held and then take these
+    // mutexes, so taking the mutex first here and blocking on the GIL
+    // afterwards would invert the order and deadlock the whole process.
+    nb::gil_scoped_acquire gil;
+    nb::object callback;
+    {
+        std::lock_guard<std::mutex> lock(g_sn_print_mutex);
+        callback = g_sn_print_func;  // refcount bump is safe: GIL is held
+    }
+    if (callback.ptr() != nullptr && !callback.is_none()) {
         try {
-            g_sn_print_func(buf);
+            callback(buf);
         } catch (...) {
             // Swallow Python exceptions to avoid crashing supernova internals
         }
@@ -117,26 +125,37 @@ static std::mutex g_sn_reply_mutex;
 class python_endpoint : public nova::detail::nova_endpoint {
 public:
     void send(const char* data, size_t length) override {
-        std::lock_guard<std::mutex> lock(g_sn_reply_mutex);
-        if (g_sn_reply_func.ptr() != nullptr && !g_sn_reply_func.is_none()) {
-            nb::gil_scoped_acquire gil;
-            try {
-                nb::bytes py_data(data, length);
-                g_sn_reply_func(py_data);
-            } catch (...) {
-                // Swallow Python exceptions to avoid crashing supernova reply path
-            }
+        // GIL before mutex -- see the note in supernova_print_func.
+        nb::gil_scoped_acquire gil;
+        nb::object callback;
+        {
+            std::lock_guard<std::mutex> lock(g_sn_reply_mutex);
+            callback = g_sn_reply_func;  // refcount bump is safe: GIL is held
+        }
+        if (callback.ptr() == nullptr || callback.is_none()) {
+            return;
+        }
+        // Dispatched outside the lock so a slow handler cannot stall senders.
+        try {
+            nb::bytes py_data(data, length);
+            callback(py_data);
+        } catch (...) {
+            // Swallow Python exceptions to avoid crashing supernova reply path
         }
     }
 };
 
 static void py_sn_set_print_func(nb::object func) {
-    std::lock_guard<std::mutex> lock(g_sn_print_mutex);
-    if (func.is_none()) {
-        g_sn_print_func = nb::none();
-    } else {
-        g_sn_print_func = func;
+    {
+        std::lock_guard<std::mutex> lock(g_sn_print_mutex);
+        if (func.is_none()) {
+            g_sn_print_func = nb::none();
+        } else {
+            g_sn_print_func = func;
+        }
     }
+    // Outside the lock: if this ever logged, supernova_print_func would
+    // re-enter the same non-recursive mutex.
     SetPrintFunc(supernova_print_func);
 }
 

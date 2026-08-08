@@ -49,11 +49,22 @@ static int scsynth_print_func(const char* fmt, va_list ap) {
         buf = heap_buf.data();
     }
     va_end(ap_copy);
-    std::lock_guard<std::mutex> lock(g_print_mutex);
-    if (g_print_func.ptr() != nullptr && !g_print_func.is_none()) {
-        nb::gil_scoped_acquire gil;
+    // Lock order is GIL-then-mutex everywhere in this file. The Python-side
+    // entry points (set_print_func, set_reply_func, world_send_packet) are
+    // entered with the GIL already held and then take these mutexes, so
+    // taking the mutex first here and blocking on the GIL afterwards would
+    // invert the order and deadlock the whole process.
+    nb::gil_scoped_acquire gil;
+    nb::object callback;
+    {
+        std::lock_guard<std::mutex> lock(g_print_mutex);
+        callback = g_print_func;  // refcount bump is safe: GIL is held
+    }
+    // Called outside the lock so a slow handler cannot stall an unrelated
+    // send_packet, which takes the same mutex.
+    if (callback.ptr() != nullptr && !callback.is_none()) {
         try {
-            g_print_func(buf);
+            callback(buf);
         } catch (...) {
             // Swallow Python exceptions in the print callback to avoid
             // crashing inside scsynth's internal logging.
@@ -99,17 +110,27 @@ static nb::object g_reply_func;
 static std::mutex g_reply_mutex;
 
 static void python_reply_func(struct ReplyAddress*, char* buf, int size) {
-    std::lock_guard<std::mutex> lock(g_reply_mutex);
-    if (g_reply_func.ptr() != nullptr && !g_reply_func.is_none()) {
-        nb::gil_scoped_acquire gil;
-        try {
-            // Copy the reply data into a Python bytes object
-            nb::bytes data(buf, static_cast<size_t>(size));
-            g_reply_func(data);
-        } catch (...) {
-            // Swallow Python exceptions to avoid crashing scsynth's
-            // internal reply path.
-        }
+    // GIL before mutex -- see the note in scsynth_print_func. This runs on
+    // scsynth's reply thread while a Python thread may be inside
+    // world_send_packet holding the GIL and waiting for g_reply_mutex.
+    nb::gil_scoped_acquire gil;
+    nb::object callback;
+    {
+        std::lock_guard<std::mutex> lock(g_reply_mutex);
+        callback = g_reply_func;  // refcount bump is safe: GIL is held
+    }
+    if (callback.ptr() == nullptr || callback.is_none()) {
+        return;
+    }
+    // Dispatched outside the lock: holding it across the Python handler would
+    // block every send_packet for the handler's duration.
+    try {
+        // Copy the reply data into a Python bytes object
+        nb::bytes data(buf, static_cast<size_t>(size));
+        callback(data);
+    } catch (...) {
+        // Swallow Python exceptions to avoid crashing scsynth's
+        // internal reply path.
     }
 }
 
@@ -127,13 +148,17 @@ static void py_set_reply_func(nb::object func) {
 // ---------------------------------------------------------------------------
 
 static void py_set_print_func(nb::object func) {
-    std::lock_guard<std::mutex> lock(g_print_mutex);
-    if (func.is_none()) {
-        g_print_func = nb::none();
-        // SetPrintFunc with our no-op handler to avoid null dereference
-    } else {
-        g_print_func = func;
+    {
+        std::lock_guard<std::mutex> lock(g_print_mutex);
+        if (func.is_none()) {
+            g_print_func = nb::none();
+            // SetPrintFunc with our no-op handler to avoid null dereference
+        } else {
+            g_print_func = func;
+        }
     }
+    // Outside the lock: if this ever logged, scsynth_print_func would re-enter
+    // the same non-recursive mutex.
     SetPrintFunc(scsynth_print_func);
 }
 

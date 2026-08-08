@@ -8,13 +8,14 @@ import logging
 import struct
 import threading
 from collections.abc import Callable, Iterator
+from collections.abc import Sequence as SequenceABC
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsInt, Union
 
 from .enums import AddAction
 from .exceptions import EngineError, OscError
-from .osc import OscMessage
+from .osc import OscBundle, OscMessage
 from .scsynth import BootStatus, EmbeddedProcessProtocol, Options
 
 if TYPE_CHECKING:
@@ -593,6 +594,9 @@ class Server:
         self._node_handlers: list[Callable[[NodeEvent], None]] = []
         self._notifications_enabled = False
         self._node_dispatch_installed = False
+        # Per-thread stack of open ``at()`` capture buffers. Thread-local so a
+        # bundle opened on one thread never swallows another thread's messages.
+        self._bundle_local = threading.local()
 
     def __enter__(self) -> Server:
         self.boot()
@@ -652,9 +656,80 @@ class Server:
 
     # -- OSC -------------------------------------------------------------------
 
+    def _bundle_stack(self) -> list[list[OscBundle | OscMessage]]:
+        """This thread's stack of open ``at()`` capture buffers."""
+        stack: list[list[OscBundle | OscMessage]] | None = getattr(
+            self._bundle_local, "stack", None
+        )
+        if stack is None:
+            stack = []
+            self._bundle_local.stack = stack
+        return stack
+
+    def _dispatch(self, packet: OscBundle | OscMessage) -> None:
+        """Send *packet*, or capture it if an ``at()`` block is open."""
+        stack = self._bundle_stack()
+        if stack:
+            stack[-1].append(packet)
+            return
+        self._protocol.send_packet(packet.to_datagram())
+
     def send_msg(self, address: str, *args: OscArgument) -> None:
-        """Send an OSC message to the engine."""
-        self._protocol.send_packet(OscMessage(address, *args).to_datagram())
+        """Send an OSC message to the engine.
+
+        Inside a :meth:`at` block the message is captured into that bundle
+        instead of being sent immediately.
+        """
+        self._dispatch(OscMessage(address, *args))
+
+    def send_bundle(
+        self,
+        contents: SequenceABC[OscBundle | OscMessage],
+        timestamp: float | None = None,
+    ) -> None:
+        """Send *contents* as a single atomic OSC bundle.
+
+        Args:
+            contents: ``OscMessage`` and/or ``OscBundle`` instances.
+            timestamp: Unix epoch seconds (the ``time.time()`` domain) at which
+                the engine should execute the contents, or ``None`` for
+                "immediately". A timestamp in the past executes on arrival.
+
+        Bundling is what makes timing sample-accurate: the engine applies every
+        message in the bundle on the same control block, at the requested time,
+        independent of when Python got round to sending it.
+        """
+        self._dispatch(OscBundle(timestamp=timestamp, contents=tuple(contents)))
+
+    @contextlib.contextmanager
+    def at(self, timestamp: float | None = None) -> Iterator[None]:
+        """Capture messages sent in this block into one timestamped bundle.
+
+        Every ``Server`` method that sends OSC (``synth``, ``set``, ``free``,
+        ``group``, ...) routes through :meth:`send_msg`, so it can be used
+        unchanged inside the block::
+
+            with server.at(time.time() + 0.2):
+                synth = server.synth("default", freq=440)
+
+        Node IDs are still allocated eagerly, so the returned proxies are
+        usable immediately. The bundle is sent when the block exits; if the
+        block raises, nothing is sent. Blocks may nest, producing nested OSC
+        bundles. An empty block sends nothing.
+
+        Args:
+            timestamp: Unix epoch seconds, or ``None`` for "immediately".
+        """
+        stack = self._bundle_stack()
+        captured: list[OscBundle | OscMessage] = []
+        stack.append(captured)
+        try:
+            yield
+        finally:
+            stack.pop()
+        if not captured:
+            return
+        self._dispatch(OscBundle(timestamp=timestamp, contents=tuple(captured)))
 
     # -- Reply handling --------------------------------------------------------
 
