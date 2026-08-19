@@ -8,6 +8,16 @@ import nanosynth.osc
 from nanosynth.osc import OscBundle, OscMessage
 
 
+def test_native_osc_extension_is_available() -> None:
+    """The _osc C++ extension is built unconditionally, so its absence means a
+    silent build failure -- which would make every "native" parametrization
+    (and the whole parity suite) skip and quietly drop the "native ==
+    pure-Python" invariant. Fail loudly here instead of skipping."""
+    assert nanosynth.osc._osc_native is not None, (
+        "native _osc extension is not importable; native OSC tests would skip"
+    )
+
+
 @pytest.fixture(params=["native", "python"])
 def osc_backend(request, monkeypatch):
     if request.param == "python":

@@ -193,11 +193,46 @@ class TestUGenGraph:
         binary_ops = [u for u in synthdef.ugens if isinstance(u, BinaryOpUGen)]
         assert len(binary_ops) == 0
 
-    def test_short_circuit_mul_by_zero(self):
-        """SinOsc.ar() * 0 returns a ConstantProxy(0)."""
-        with SynthDefBuilder():
+    def test_mul_by_zero_preserves_signal_rate(self):
+        """audio * 0 must NOT fold to a scalar constant.
+
+        Folding a signal-rate operand to a scalar 0 would feed a single-float
+        scalar wire into a signal-rate input; scsynth's SIMD ugens (e.g.
+        Out_next_a_nova_64) read that as an aligned 64-wide block, causing an
+        out-of-bounds / misaligned load and a segfault. The multiply must
+        survive as an audio-rate BinaryOpUGen producing silence.
+        """
+        with SynthDefBuilder() as builder:
             sig = SinOsc.ar() * 0
-            # sig should be ConstantProxy(0)
+            assert not isinstance(sig, ConstantProxy)
+            assert CalculationRate.from_expr(sig) == CalculationRate.AUDIO
+            Out.ar(bus=0, source=sig)
+        synthdef = builder.build(name="test")
+        binary_ops = [u for u in synthdef.ugens if isinstance(u, BinaryOpUGen)]
+        assert len(binary_ops) == 1
+        assert binary_ops[0].operator == BinaryOperator.MULTIPLICATION
+
+    def test_pow_by_zero_preserves_signal_rate(self):
+        """audio ** 0 must NOT fold to a scalar constant (same hazard as * 0)."""
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() ** 0
+            assert not isinstance(sig, ConstantProxy)
+            assert CalculationRate.from_expr(sig) == CalculationRate.AUDIO
+            Out.ar(bus=0, source=sig)
+        synthdef = builder.build(name="test")
+        binary_ops = [u for u in synthdef.ugens if isinstance(u, BinaryOpUGen)]
+        assert len(binary_ops) == 1
+        assert binary_ops[0].operator == BinaryOperator.POWER
+
+    def test_scalar_mul_by_zero_still_folds(self):
+        """A scalar-rate operand * 0 still folds to a constant.
+
+        The rate-downgrade hazard only applies when the surviving operand is a
+        signal-rate UGen; a scalar survivor is safe to fold, so this stays an
+        optimization.
+        """
+        with SynthDefBuilder():
+            sig = ConstantProxy(2.0) * 0
             assert isinstance(sig, ConstantProxy)
             assert float(sig) == 0.0
 
@@ -803,6 +838,32 @@ class TestGraphOptimization:
         ugen_types = [type(u).__name__ for u in sd.ugens]
         # WhiteNoise is not pure, so optimization should not remove it
         assert "WhiteNoise" in ugen_types
+
+    def test_optimize_keeps_pure_ugen_with_active_done_action(self):
+        """A pure UGen with a nonzero DoneAction must survive elimination.
+
+        LFGauss is is_pure, but LFGauss(done_action=FREE_SYNTH) used purely to
+        self-free would have its side effect silently dropped if eliminated.
+        """
+        from nanosynth.enums import DoneAction
+        from nanosynth.ugens.osc import LFGauss
+
+        with SynthDefBuilder() as builder:
+            LFGauss.ar(duration=1.0, done_action=DoneAction.FREE_SYNTH)  # unused
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="donegauss", optimize=True)
+        assert "LFGauss" in [type(u).__name__ for u in sd.ugens]
+
+    def test_optimize_eliminates_pure_ugen_with_no_done_action(self):
+        """The optimization is preserved for a DoneAction.NOTHING (0) case."""
+        from nanosynth.enums import DoneAction
+        from nanosynth.ugens.osc import LFGauss
+
+        with SynthDefBuilder() as builder:
+            LFGauss.ar(duration=1.0, done_action=DoneAction.NOTHING)  # unused
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="nogauss", optimize=True)
+        assert "LFGauss" not in [type(u).__name__ for u in sd.ugens]
 
     def test_optimize_partial_chain(self):
         """If A feeds B and C, but only B is used, A and B survive, C is eliminated."""
@@ -1604,11 +1665,28 @@ class TestExtendedOperators:
 
     # -- POWER optimizations ---------------------------------------------------
 
-    def test_pow_zero_returns_one(self):
+    def test_pow_zero_on_scalar_returns_one(self):
+        """Scalar ** 0 folds to a constant 1 (safe: no signal wire involved)."""
         with SynthDefBuilder():
-            sig = SinOsc.ar() ** 0
+            sig = ConstantProxy(5.0) ** 0
             assert isinstance(sig, ConstantProxy)
             assert float(sig) == 1.0
+
+    def test_pow_zero_on_signal_is_not_folded(self):
+        """audio ** 0 must stay an audio-rate BinaryOpUGen, not a scalar constant.
+
+        Folding it to ConstantProxy(1) would feed a scalar wire into a
+        signal-rate input and segfault scsynth's SIMD path (see the
+        mul-by-zero regression tests for the full reasoning).
+        """
+        with SynthDefBuilder() as builder:
+            sig = SinOsc.ar() ** 0
+            assert not isinstance(sig, ConstantProxy)
+            assert CalculationRate.from_expr(sig) == CalculationRate.AUDIO
+            Out.ar(bus=0, source=sig)
+        sd = builder.build(name="test")
+        ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
+        assert any(o.operator == BinaryOperator.POWER for o in ops)
 
     def test_pow_one_returns_self(self):
         with SynthDefBuilder() as builder:
@@ -1619,6 +1697,47 @@ class TestExtendedOperators:
         sd = builder.build(name="test")
         ops = [u for u in sd.ugens if isinstance(u, BinaryOpUGen)]
         assert not any(o.operator == BinaryOperator.POWER for o in ops)
+
+    # -- Constant-fold domain errors defer to the engine (M11) -----------------
+
+    def test_out_of_domain_unary_fold_defers_to_ugen(self):
+        """sqrt(-1)/log(0) must not abort the build; emit a UGen instead."""
+        r = ConstantProxy(-1.0).sqrt_()
+        assert not isinstance(r, ConstantProxy)
+        assert CalculationRate.from_expr(r) == CalculationRate.SCALAR
+        # And it compiles inside a SynthDef rather than raising.
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=ConstantProxy(0.0).log_() + 0.0)
+        assert builder.build(name="t").compile()[:4] == b"SCgf"
+
+    def test_complex_result_pow_fold_defers_to_ugen(self):
+        """(-8) ** (1/3) is complex; fold must defer, not raise TypeError."""
+        r = ConstantProxy(-8.0) ** (1.0 / 3.0)
+        assert not isinstance(r, ConstantProxy)
+
+    def test_valid_unary_fold_still_folds(self):
+        """In-domain constants still fold to a ConstantProxy."""
+        r = ConstantProxy(4.0).sqrt_()
+        assert isinstance(r, ConstantProxy)
+        assert float(r) == 2.0
+
+    def test_non_finite_constant_folding(self):
+        """inf/-inf/nan constants fold through arithmetic (property tests exclude
+        them, so cover the spec's inf/nan sentinels explicitly)."""
+        import math
+
+        inf = ConstantProxy(float("inf"))
+        assert isinstance(inf + 1.0, ConstantProxy)
+        assert float(inf + 1.0) == float("inf")
+        assert float(inf * 2.0) == float("inf")
+        neg_inf = ConstantProxy(float("-inf"))
+        assert float(neg_inf * 1.0) == float("-inf")
+        nan = ConstantProxy(float("nan"))
+        assert math.isnan(float(nan + 1.0))
+        # Both operands are constants, so the generic float fold (nan*0 -> nan)
+        # applies; the algebraic x*0 -> 0 shortcut only fires when one operand
+        # is a UGen, not for two constants.
+        assert math.isnan(float(nan * 0.0))
 
     # -- Named binary methods --------------------------------------------------
 

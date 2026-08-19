@@ -223,6 +223,10 @@ class EmbeddedProcessProtocol:
         self.buffer_ = ""
         self.error_text = ""
         self._reply_callback: Callable[[bytes], None] | None = None
+        # Serializes the OFFLINE -> BOOTING transition so two concurrent boot()
+        # calls on the same instance cannot both proceed and clobber each
+        # other's status/boot_future (M5). Held only for the check-and-set.
+        self._lifecycle_lock = threading.Lock()
         # atexit cleanup is (un)registered around the booted lifetime, not in
         # __init__, so never-booted protocol objects do not accumulate atexit
         # callbacks (each would hold a strong ref and run at interpreter exit).
@@ -247,12 +251,13 @@ class EmbeddedProcessProtocol:
         logger.info(
             f"[{options.ip_address}:{options.port}/{label}] booting (embedded) ..."
         )
-        if self.status != BootStatus.OFFLINE:
-            logger.info(
-                f"[{options.ip_address}:{options.port}/{label}] ... already booted!"
-            )
-            return
-        self.status = BootStatus.BOOTING
+        with self._lifecycle_lock:
+            if self.status != BootStatus.OFFLINE:
+                logger.info(
+                    f"[{options.ip_address}:{options.port}/{label}] ... already booted!"
+                )
+                return
+            self.status = BootStatus.BOOTING
         self.error_text = ""
         self.buffer_ = ""
         # Ensure exactly one atexit cleanup for this booted instance.
@@ -373,26 +378,37 @@ class EmbeddedProcessProtocol:
             try:
                 self.exit_future.result(timeout=5)
             except concurrent.futures.TimeoutError:
-                logger.warning(
-                    "scsynth did not acknowledge /quit within 5s; forcing World cleanup"
-                )
-                if self._world is not None:
-                    from nanosynth._scsynth import world_cleanup
-
-                    world_cleanup(self._world, False)
-                    self._world = None
+                logger.warning("scsynth did not acknowledge /quit within 5s")
             self.thread.join(timeout=5)
+            if self.thread.is_alive():
+                # The wait thread is still blocked inside World_WaitForQuit,
+                # which owns self._world (that is why exit_future never
+                # resolved). Calling world_cleanup now would tear the World
+                # down concurrently with that thread -- the exact double-free
+                # the exit_future gating exists to prevent. Leak the World
+                # deliberately: a wedged engine thread already means the
+                # process is unhealthy, and a leak is strictly safer than UB.
+                logger.error(
+                    "scsynth wait thread did not exit; leaking World to avoid "
+                    "a teardown race with World_WaitForQuit"
+                )
+            # If the thread exited, _wait_for_quit already cleaned up the World
+            # and set self._world = None -- there is nothing left to free here.
         self.status = BootStatus.OFFLINE
         with EmbeddedProcessProtocol._active_world_lock:
             EmbeddedProcessProtocol._active_world = False
 
     def send_packet(self, data: bytes) -> bool:
         """Send a raw OSC packet to the engine."""
-        if self.status != BootStatus.ONLINE or self._world is None:
+        # Snapshot the handle: the wait thread nulls self._world on a panic, so
+        # checking self._world and then passing it separately is a TOCTOU race
+        # (M2). Read it once and use that value.
+        world = self._world
+        if self.status != BootStatus.ONLINE or world is None:
             raise EngineError("Server is not running")
         from nanosynth._scsynth import world_send_packet
 
-        result: bool = world_send_packet(self._world, data)
+        result: bool = world_send_packet(world, data)
         return result
 
     def send_msg(self, address: str | int, *args: "OscArgument") -> bool:

@@ -34,6 +34,8 @@ def _make_mock_supernova_module(
     mod.supernova_send_packet = MagicMock(return_value=True)  # type: ignore[attr-defined]
     mod.supernova_terminate = MagicMock()  # type: ignore[attr-defined]
     mod.supernova_cleanup = MagicMock()  # type: ignore[attr-defined]
+    mod.supernova_stop = MagicMock()  # type: ignore[attr-defined]
+    mod.supernova_delete = MagicMock()  # type: ignore[attr-defined]
     return mod
 
 
@@ -337,7 +339,11 @@ class TestSupernovaBootLifecycle:
         proto.quit()
 
         mock_mod.supernova_terminate.assert_called_once_with("fake_server")
-        mock_mod.supernova_cleanup.assert_called_once_with("fake_server")
+        # Healthy quit: the run thread exits, so the server is deleted (never
+        # stopped-under-a-live-thread). supernova_stop is only used on the
+        # wedged-engine fallback path, which this does not hit.
+        mock_mod.supernova_delete.assert_called_once_with("fake_server")
+        mock_mod.supernova_stop.assert_not_called()
         assert proto.status == BootStatus.OFFLINE
         assert proto._server is None
         assert EmbeddedSupernovaProtocol._active is False
@@ -350,7 +356,7 @@ class TestSupernovaBootLifecycle:
 
         proto._shutdown()
 
-        mock_mod.supernova_cleanup.assert_called_once_with("fake_server")
+        mock_mod.supernova_delete.assert_called_once_with("fake_server")
         assert proto._server is None
         assert EmbeddedSupernovaProtocol._active is False
 
@@ -359,7 +365,7 @@ class TestSupernovaBootLifecycle:
         proto._server = None
         proto.thread = None
         proto._shutdown()
-        mock_mod.supernova_cleanup.assert_not_called()
+        mock_mod.supernova_delete.assert_not_called()
 
     def test_exit_future_set_after_run(self, mock_mod, run_event):
         proto = EmbeddedSupernovaProtocol()
@@ -425,7 +431,12 @@ class TestSupernovaExport:
     def test_importable_from_package(self):
         from nanosynth import EmbeddedSupernovaProtocol
 
-        assert EmbeddedSupernovaProtocol is not None
+        # Meaningful checks, not a tautology: it is a class exposing the
+        # protocol interface (the import above already fails if it is missing).
+        assert isinstance(EmbeddedSupernovaProtocol, type)
+        assert callable(EmbeddedSupernovaProtocol.boot)
+        assert callable(EmbeddedSupernovaProtocol.quit)
+        assert callable(EmbeddedSupernovaProtocol.send_packet)
 
     def test_in_all(self):
         import nanosynth

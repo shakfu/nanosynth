@@ -130,6 +130,21 @@ class TestPrand:
         result = p.take(20)
         assert len(result) == 20
 
+    def test_seed_is_reproducible_and_independent_of_global(self) -> None:
+        """A seeded pattern replays identically and ignores global random (M9)."""
+        import random
+
+        p = Prand([1, 2, 3, 4, 5], repeats=20, seed=123)
+        first = list(p)
+        random.random()  # perturb the global RNG
+        second = list(p)  # re-iterating restarts from the seed
+        assert first == second
+
+    def test_different_seeds_differ(self) -> None:
+        a = list(Prand(list(range(100)), repeats=30, seed=1))
+        b = list(Prand(list(range(100)), repeats=30, seed=2))
+        assert a != b
+
 
 # ---------------------------------------------------------------------------
 # Pwhite

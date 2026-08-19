@@ -7,6 +7,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **OSC blob length integer overflow -> heap over-read** (`_osc.cpp`): `decode_blob` rounded the wire-supplied 32-bit blob length up to a 4-byte boundary *before* the bounds check, so a length near `UINT32_MAX` (e.g. `0xFFFFFFFF`) wrapped to a tiny padded size and slipped past the guard, after which the ~4 GB blob was scanned/copied past the end of the datagram. Reachable from any incoming packet (engine replies are decoded through the same path). The length is now validated against the remaining bytes before the rounding, matching the overflow-safe form already used for bundle elements
+
+- **`audioSignal * 0` and `audioSignal ** 0` crashed the engine** (`synthdef.py`): the compiler folded `x * 0 -> 0` and `x ** 0 -> 1` to a scalar constant unconditionally, even when the surviving operand was an audio/control-rate UGen. Feeding that scalar wire into a signal-rate input (e.g. `Out.ar(bus, SinOsc.ar() * 0)`) made scsynth's SIMD `Out_next_a_nova_64` read a single 4-byte scalar as an aligned 64-sample block -- an out-of-bounds, often misaligned load that segfaults (and, depending on heap layout, can read garbage instead of crashing). The two rate-downgrading folds now apply only when the surviving operand is itself scalar-rate; otherwise the `BinaryOpUGen` is kept so the result is a proper rate-matched silence/ones signal. This was the true cause of the real-boot smoke-test crash previously misattributed to the headless audio environment
+
+- **Unbounded C++ recursion in OSC encoding** (`_osc.cpp`): `encode_value` recursed into nested lists/tuples with no depth limit (unlike the decoder), so a deeply nested or self-referential Python sequence overflowed the C++ stack and crashed the process uncatchably. Encoding now bounds nesting depth and raises `ValueError` past the limit
+
+- **Quit-timeout force-cleanup re-introduced a double-free** (`scsynth.py`, `supernova.py`): when the engine failed to acknowledge shutdown within 5s, the timeout path freed the native `World`/`nova_server` even though the wait thread was still inside `World_WaitForQuit`/`supernova_run` on it -- the exact teardown race the normal path guards against. Shutdown now joins the thread first and, only if it has provably exited, deletes the native object; if the thread is wedged it deliberately leaks rather than free-under-a-live-thread (memory-safe). `supernova_cleanup` was split into `supernova_stop` (deactivate audio) and `supernova_delete` so teardown can order stop -> join -> delete
+
+- **Synchronous requests hung when issued inside an `at()` block** (`server.py`): `send_msg_sync` (and everything built on it -- `sync`, `status`, `version`, `query_tree`, `enable_notifications`, the `send_synthdef` confirmation) registered a reply waiter and then sent the request, but inside `with server.at(...)` the request was captured into the pending bundle instead of being sent, so no reply could ever arrive and the call blocked for the full timeout before reporting a spurious failure on a healthy engine. These now raise a clear `EngineError` telling the caller to move the synchronous call outside the `at()` block
+
+- **Comparison operators did not fold and could crash on cross-scope use** (`synthdef.py`): `>`, `<`, `.equal()`, and `.not_equal()` (unlike `>=`/`<=`) passed no float operator, so two-constant comparisons emitted a stray scalar UGen instead of folding, and one computed outside a builder then used inside raised `SynthDefError: UGen input in different scope`. All six comparisons now fold consistently to `1.0`/`0.0`
+
+- **`Dwhite` upper bound defaulted to 0.0** (`ugens/demand.py`): a copy-paste made `Dwhite`'s `maximum` default `0.0` instead of `1.0`, so `Dwhite()` with defaults degenerated to a constant-zero stream. Corrected to `1.0` (its `Dbrown`/`Diwhite` siblings were already correct) and the language-neutral spec regenerated
+
+- **`Clock.stop()` left held `Pmono` voices ringing** (`patterns.py`): stopping a clock marked its players stopped but, unlike `Player.stop()`, never gated off their held `Pmono` synths, so a mono voice rang until the server quit. `Clock.stop()` now releases every player's held voices
+
+- **`Score.render()` / `to_binary()` did not sort by timestamp** (`score.py`): the NRT command stream is consumed sequentially, so an out-of-order entry (e.g. `score.add(2.0, ...)` before `score.add(1.0, ...)`) was rendered at the wrong time with no error. Both now serialize a stable-sorted copy, and the teardown guard bundle is appended after the sort so it still runs last
+
+- **Option-string use-after-free on abnormal teardown** (`_scsynth.cpp`): the capsule held the `World`'s option strings (`mPassword`, `mRestrictedPath`, ...) which scsynth dereferences on every packet/command, but freed them in its destructor without regard to whether the `World` had been cleaned up. If the capsule was garbage-collected while a `World` was still live (an abandoned boot with a port open), the running engine read freed memory. The strings are now freed only after an explicit `world_cleanup`/`world_wait_for_quit`; otherwise they are leaked deliberately rather than freed under a live engine
+
+- **`enable_notifications` first-use race** (`server.py`): two threads enabling node notifications concurrently could both install the dispatch handlers and both send `/notify 1`, so every `/n_go`/`/n_end`/... fired user callbacks twice. The enable/install transition is now serialized by a dedicated lock
+
+- **`send_packet` handle race on panic** (`scsynth.py`, `supernova.py`): the status check and the native-handle dereference read `self._world`/`self._server` separately, so the wait/run thread nulling it on a panic in between could pass a null handle to the native call. The handle is now snapshotted once and re-checked
+
+- **Explicit buffer-id reservation could corrupt the allocator** (`server.py`): `_BlockAllocator.reserve` did not bounds- or overlap-check the requested id, so reserving an out-of-range or already-allocated id populated the size table without matching a free interval, and a later `free` then injected a bad interval that `allocate` could hand out. `reserve` now validates the range and rejects overlap with an `EngineError`
+
+- **Concurrent `boot()` on one instance could clobber its state** (`scsynth.py`, `supernova.py`): the OFFLINE->BOOTING check-and-set was unsynchronized, so two threads booting the same instance could both proceed and leave `is_running` reporting the wrong state. A per-instance lock now serializes that transition
+
+- **MIDI handler lists were mutated across threads without synchronization** (`midi.py`): the RtMidi callback thread iterated the handler lists while `on_*`/`off_*` mutated them from the user thread, risking `RuntimeError: list changed size during iteration` or missed/double dispatch during live coding. Dispatch now iterates over a snapshot
+
+- **`midi_note_map` leaked voices on retrigger and cleanup** (`midi.py`): a second Note-On for a still-held key overwrote the entry and dropped the previous synth un-gated (a stuck voice), and `cleanup()` left held voices ringing. The map now gates the previous voice off before retriggering and releases all held voices on cleanup
+
+- **Constant folding aborted the whole build on math-domain inputs** (`synthdef.py`): folding `ConstantProxy(-1.0).sqrt_()`, `log(0)`, `(-8) ** (1/3)`, etc. raised `ValueError`/`TypeError` out of graph construction, where scsynth would produce NaN/inf. Such folds now defer to a runtime UGen instead of failing the build
+
+- **Malformed envelope `curves` corrupted or emptied the envelope** (`envelopes.py`): a `curves` list longer than the segment count inflated the compiled segment count (cycling amplitudes/durations), and `curves=None`/`[]` produced a zero-segment envelope that silently dropped every breakpoint. Curves are now normalized to exactly `len(durations)` -- cycled if short, truncated if long, defaulting to LINEAR when empty
+
+- **Failed supernova boot leaked the process engine claim** (`_supernova.cpp`, `_scsynth.cpp`): a boot that failed before the SuperCollider core globals were initialized left the cross-engine coordination env var claimed, wrongly rejecting a later boot of the other engine kind. A scope guard now releases the claim on such pre-init failures (and keeps it once the core exists, since the process is then genuinely tainted), and the supernova RT memory pool is guarded against re-initialization on retry
+
+- **A self-freeing `LFGauss` was silently optimized away** (`synthdef.py`): `LFGauss` is marked pure, so an `LFGauss(done_action=FREE_SYNTH)` whose signal output is unused (used purely to self-free the synth) was dead-code-eliminated by graph optimization, dropping the `DoneAction` -- the synth would never free. Dead-code elimination now keeps any pure UGen that carries an active (nonzero) `DoneAction`; a `DoneAction.NOTHING` UGen is still eliminated, so the optimization is otherwise unchanged
+
+- **Invalid SynthDef/parameter names raised opaque low-level errors** (`compiler.py`): a name longer than 255 bytes raised `struct.error` and a non-ASCII name raised `UnicodeEncodeError` deep in the binary encoder. SCgf string encoding now validates ASCII and the 255-byte limit and raises a clear `SynthDefError`
+
+- **`Pfin` over-consumed its source, and `Ptpar` dropped a leading offset** (`patterns.py`): `Pfin(count, p)` pulled one extra element from the source before stopping (it now consumes exactly `count`, which matters for a shared/side-effecting iterator), and `Ppar`/`Ptpar` discarded a nonzero minimum start offset so an all-delayed parallel group started early (it now emits a leading rest for that offset)
+
+- **`alloc_buffer_from_array` wrote engine memory after a failed sync** (`server.py`): the `sync()` return was ignored, so on a sync timeout the direct buffer write proceeded against a possibly-unallocated buffer. It now raises `EngineError` on a failed sync instead of writing blindly
+
+### Changed
+
+- **`Server.send_synthdef` confirmation timeout is now a parameter** (`server.py`): `/d_recv` completion is asynchronous and a large SynthDef or a busy engine can take well over the previous hard-coded 100 ms, after which the def was marked loaded anyway and a following `/s_new` could fail with "SynthDef not found". The timeout now defaults to 5s (matching the other synchronous calls) and is exposed as a `timeout` argument; the wait still returns the instant `/done` arrives, so a healthy engine is not slowed
+
+- **Stochastic patterns accept a `seed`** (`patterns.py`): `Prand`, `Pwhite`, and `Pchoose` take an optional `seed` and use a per-instance RNG instead of the module-global `random`. A seeded pattern replays identically on every iteration (reproducible NRT renders), and even unseeded patterns are now independent of unrelated `random` use elsewhere in the process
+
+- **`Ndef` registry keyed on the server object** (`proxy.py`): the named-proxy registry was keyed on `id(server)` (an int that can be reused after a server is collected) and is now a `WeakKeyDictionary` keyed on the server itself, so a collected server's entry is dropped automatically and identity can never be aliased
+
+- **In-code documentation of two accepted limitations**: the direct in-process buffer transfer (`_scsynth.cpp` `world_buffer_get`/`set`) now states its safety contract explicitly -- a get/set racing a `/b_free` or `/b_alloc` on the same buffer id is a use-after-free, not a benign glitch, so callers must not run buffer commands for that id during the transfer -- and the cross-engine guard (`_scsynth.cpp`, `_supernova.cpp`) documents that its coordination env var is inherited across `fork()` and is not atomic against concurrent claims (the two extension modules share no symbols, so a process-local static cannot replace it)
+
+### Added
+
+- **Real-boot CI job** (`.github/workflows/build.yml`): a `test-realtime` job provisions a virtual ALSA sound card and runs `tests/test_realtime_smoke.py` against a genuinely booted scsynth `World` (the live `/sync` round-trip, reclaiming allocators, node-free notifications, reboot, and the send/reply deadlock regression), closing the gap where the largest module was previously exercised only by opt-in local runs. Supernova real-boot is intentionally excluded pending a separate teardown/reboot fix
+
+- **Golden-fixture render test** (`test_integration.py`): a new NRT integration test loads each committed `.scsyndef` golden fixture verbatim and asserts it renders non-silent audio -- the correctness link the golden-byte test's docstring claimed but did not previously exercise (the byte test only checks `compile() == fixture`)
+
+- **Independent UGen-default oracle** (`test_ugen_spec.py`): a hand-verified test of well-known UGen argument defaults (the demand-random UGens plus anchor shapes), transcribed from the SuperCollider class library rather than generated from the same Python classes the spec introspects, so a wrong default like the `Dwhite` regression is caught instead of being mirrored into the committed spec
+
 ## [0.3.0]
 
 ### Added

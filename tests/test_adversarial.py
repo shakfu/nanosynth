@@ -161,20 +161,20 @@ class TestNameEdgeCases:
         assert data[11:12] == b"x"
 
     def test_name_over_255_raises(self):
-        """A name longer than 255 characters should raise during compilation."""
+        """A name longer than 255 characters raises a clear SynthDefError."""
         long_name = "b" * 256
         with SynthDefBuilder() as builder:
             Out.ar(bus=0, source=SinOsc.ar())
         sd = builder.build(name=long_name)
-        with pytest.raises((struct.error, OverflowError, ValueError)):
+        with pytest.raises(SynthDefError, match="255-byte limit"):
             sd.compile()
 
     def test_non_ascii_name_raises(self):
-        """A name with non-ASCII characters raises during compilation."""
+        """A name with non-ASCII characters raises a clear SynthDefError."""
         with SynthDefBuilder() as builder:
             Out.ar(bus=0, source=SinOsc.ar())
         sd = builder.build(name="synth_\xff\xfe")
-        with pytest.raises((UnicodeEncodeError, UnicodeDecodeError, ValueError)):
+        with pytest.raises(SynthDefError, match="ASCII"):
             sd.compile()
 
 

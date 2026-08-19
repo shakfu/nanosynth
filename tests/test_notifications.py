@@ -2,6 +2,7 @@
 
 import threading
 import time
+from collections.abc import Callable
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,6 +10,19 @@ import pytest
 from nanosynth.osc import OscMessage
 from nanosynth.scsynth import BootStatus
 from nanosynth.server import NodeEvent, Server
+
+
+def _wait_until(
+    predicate: Callable[[], object], timeout: float = 2.0, interval: float = 0.005
+) -> bool:
+    """Poll ``predicate`` until truthy or timeout. Used instead of a fixed sleep
+    so dispatching a reply cannot race the waiter thread's registration (M18)."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return bool(predicate())
 
 
 @pytest.fixture()
@@ -148,7 +162,9 @@ class TestWaitForNodeFree:
 
         t = threading.Thread(target=waiter)
         t.start()
-        time.sleep(0.05)
+        # Wait until the waiter has registered before dispatching, so the reply
+        # cannot arrive first and be missed on slow CI (M18).
+        assert _wait_until(lambda: server._pending_replies.get("/n_end"))
         server._dispatch_reply(OscMessage("/n_end", 1001, 1, -1, -1, 0).to_datagram())
         t.join(timeout=2.0)
         assert result["r"] is True
@@ -168,7 +184,9 @@ class TestWaitForNodeFree:
 
         t = threading.Thread(target=waiter)
         t.start()
-        time.sleep(0.05)
+        # Wait until the waiter has registered before dispatching, so the reply
+        # cannot arrive first and be missed on slow CI (M18).
+        assert _wait_until(lambda: server._pending_replies.get("/n_end"))
         # A different node ending must not resolve the wait.
         server._dispatch_reply(OscMessage("/n_end", 2002, 1, -1, -1, 0).to_datagram())
         t.join(timeout=1.0)
@@ -187,7 +205,9 @@ class TestSynthHelpers:
 
         t = threading.Thread(target=waiter)
         t.start()
-        time.sleep(0.05)
+        # Wait until the waiter has registered before dispatching, so the reply
+        # cannot arrive first and be missed on slow CI (M18).
+        assert _wait_until(lambda: server._pending_replies.get("/n_end"))
         server._dispatch_reply(
             OscMessage("/n_end", int(node), 1, -1, -1, 0).to_datagram()
         )

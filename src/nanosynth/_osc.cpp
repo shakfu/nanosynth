@@ -142,6 +142,11 @@ static std::pair<std::string, size_t> decode_string(const uint8_t* data, size_t 
 // --- OSC blob encoding ---
 
 static void encode_blob(std::vector<uint8_t>& buf, const uint8_t* data, size_t size) {
+    // OSC blob length is a 32-bit field; reject rather than silently truncate a
+    // >= 4 GB blob to a wrong on-the-wire length.
+    if (size > 0xFFFFFFFFu) {
+        throw nb::value_error("OSC blob exceeds the 4 GB size limit");
+    }
     write_be_u32(buf, static_cast<uint32_t>(size));
     size_t total = 4 + size;
     buf.insert(buf.end(), data, data + size);
@@ -155,8 +160,14 @@ static std::tuple<const uint8_t*, size_t, size_t> decode_blob(const uint8_t* dat
     if (offset + 4 > len) throw OscDecodeError("truncated blob size");
     uint32_t actual_length = read_be_u32(data + offset);
     offset += 4;
-    size_t padded = ((actual_length + 3) / 4) * 4;
-    if (offset + padded > len) throw OscDecodeError("truncated blob data");
+    // Validate against the remaining bytes BEFORE rounding up to the 4-byte
+    // boundary. Computing `(actual_length + 3)` in 32-bit first would wrap for
+    // near-UINT32_MAX lengths (e.g. 0xFFFFFFFF -> padded 0) and slip past the
+    // bounds check, yielding an out-of-bounds read downstream. `offset <= len`
+    // is guaranteed above, so `len - offset` does not underflow.
+    if (actual_length > len - offset) throw OscDecodeError("truncated blob data");
+    size_t padded = (static_cast<size_t>(actual_length) + 3) / 4 * 4;
+    if (padded > len - offset) throw OscDecodeError("truncated blob data");
     const uint8_t* blob_data = data + offset;
     return {blob_data, actual_length, offset + padded};
 }
@@ -167,7 +178,9 @@ static constexpr int MAX_DECODE_DEPTH = 16;
 // --- Forward declarations for encode/decode ---
 
 // Encode a single value. Appends type tags to `type_tags` and data to `encoded`.
-static void encode_value(nb::handle value, std::string& type_tags, std::vector<uint8_t>& encoded);
+// `depth` bounds nested list/tuple recursion (mirrors decode's MAX_DECODE_DEPTH)
+// so a deeply nested or self-referential sequence cannot overflow the C++ stack.
+static void encode_value(nb::handle value, std::string& type_tags, std::vector<uint8_t>& encoded, int depth = 0);
 
 // Decode a full message from raw data. Returns Python OscMessage.
 static nb::object decode_message_from_raw(const uint8_t* data, size_t len, int depth = 0);
@@ -187,7 +200,10 @@ static bool starts_with_bundle(const uint8_t* data, size_t len) {
 
 // --- Encode ---
 
-static void encode_value(nb::handle value, std::string& type_tags, std::vector<uint8_t>& encoded) {
+static void encode_value(nb::handle value, std::string& type_tags, std::vector<uint8_t>& encoded, int depth) {
+    if (depth > MAX_DECODE_DEPTH) {
+        throw nb::value_error("OSC array nesting too deep");
+    }
     // Check for bool BEFORE int (Python bool is subclass of int)
     if (nb::isinstance<nb::bool_>(value)) {
         if (nb::cast<bool>(value))
@@ -224,7 +240,7 @@ static void encode_value(nb::handle value, std::string& type_tags, std::vector<u
     else if (nb::isinstance<nb::list>(value) || nb::isinstance<nb::tuple>(value)) {
         type_tags += '[';
         for (auto item : value) {
-            encode_value(item, type_tags, encoded);
+            encode_value(item, type_tags, encoded, depth + 1);
         }
         type_tags += ']';
     }
@@ -349,6 +365,12 @@ static nb::tuple decode_message_clean(const uint8_t* data, size_t len, int depth
                 offset = off4;
                 nb::object parsed;
                 bool did_parse = false;
+                // A blob is decoded back into a nested OscBundle/OscMessage when
+                // its bytes parse as one -- the inverse of encoding a nested
+                // message/bundle as a blob (an intentional, tested feature). A
+                // raw blob whose bytes happen to form valid OSC also decodes as
+                // a message (M6, accepted). Kept in parity with the pure-Python
+                // decoder.
                 if (depth < MAX_DECODE_DEPTH) {
                     if (starts_with_bundle(blob_data, blob_size)) {
                         try {

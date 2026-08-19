@@ -94,6 +94,10 @@ static int supernova_print_func(const char* fmt, va_list ap) {
         buf = heap_buf.data();
     }
     va_end(ap_copy);
+    // Do not touch Python once the interpreter is finalizing/gone (UB).
+    if (!Py_IsInitialized()) {
+        return n;
+    }
     // Lock order is GIL-then-mutex everywhere in this file. The Python-side
     // entry points are entered with the GIL already held and then take these
     // mutexes, so taking the mutex first here and blocking on the GIL
@@ -125,6 +129,10 @@ static std::mutex g_sn_reply_mutex;
 class python_endpoint : public nova::detail::nova_endpoint {
 public:
     void send(const char* data, size_t length) override {
+        // Do not acquire the GIL on a finalizing/gone interpreter (UB).
+        if (!Py_IsInitialized()) {
+            return;
+        }
         // GIL before mutex -- see the note in supernova_print_func.
         nb::gil_scoped_acquire gil;
         nb::object callback;
@@ -198,6 +206,15 @@ static void load_plugins(const std::string& plugin_path, nova::sc_ugen_factory* 
 // after a clean quit. The two extension modules share no symbols, so they
 // coordinate through an environment variable. Throws (surfaced to Python as
 // ServerCannotBoot) instead of letting the process segfault.
+//
+// Caveat (M15): the env var is process-global and inherited across fork() /
+// multiprocessing, so a forked child sees the parent's claim and would be
+// wrongly blocked from booting its own engine kind; and getenv-then-setenv is
+// not atomic against a concurrent claim on another thread. This is accepted:
+// the two extension modules share no symbols, so a process-local static cannot
+// coordinate across them, and an env var is the available cross-module channel.
+// Boot from the main thread of each process; do not rely on the guard surviving
+// a fork.
 static void nanosynth_claim_engine(const char* kind) {
     const char* active = std::getenv("NANOSYNTH_ACTIVE_ENGINE");
     if (active && active[0] != '\0' && std::string(active) != kind) {
@@ -214,6 +231,30 @@ static void nanosynth_claim_engine(const char* kind) {
     setenv("NANOSYNTH_ACTIVE_ENGINE", kind, 1);
 #endif
 }
+
+// Release the claim so a failed boot does not leave the engine kind claimed for
+// the process lifetime (which would wrongly reject a later boot of the other
+// kind, and mask that no engine is actually running). See the RAII guard in
+// py_supernova_new (M14).
+static void nanosynth_release_engine() {
+#ifdef _WIN32
+    _putenv_s("NANOSYNTH_ACTIVE_ENGINE", "");
+#else
+    unsetenv("NANOSYNTH_ACTIVE_ENGINE");
+#endif
+}
+
+// Releases the engine claim on stack unwind unless explicitly committed, so any
+// exception thrown after nanosynth_claim_engine() undoes the claim (M14).
+namespace {
+struct EngineClaimGuard {
+    bool committed = false;
+    ~EngineClaimGuard() {
+        if (!committed)
+            nanosynth_release_engine();
+    }
+};
+}  // namespace
 
 // ---------------------------------------------------------------------------
 // Boot: construct nova_server with programmatic arguments
@@ -245,6 +286,8 @@ static nb::capsule py_supernova_new(
     float safety_clip_threshold
 ) {
     nanosynth_claim_engine("supernova");
+    // Release the claim automatically if construction throws below (M14).
+    EngineClaimGuard claim_guard;
     // Parse hardware topology for thread pinning
     nova::parse_hardware_topology();
 
@@ -302,8 +345,14 @@ static nb::capsule py_supernova_new(
     (void)safety_clip_threshold;
 #endif
 
-    // Initialize RT memory pool
-    rt_pool.init(args.rt_pool_size * 1024, args.memory_locking);
+    // Initialize RT memory pool. rt_pool is a process-global; re-initializing
+    // an already-initialized pool (e.g. on a retry after a failed boot) would
+    // corrupt outstanding allocations, so init it at most once (M14).
+    static bool rt_pool_initialized = false;
+    if (!rt_pool_initialized) {
+        rt_pool.init(args.rt_pool_size * 1024, args.memory_locking);
+        rt_pool_initialized = true;
+    }
 
     // Install print function
     SetPrintFunc(supernova_print_func);
@@ -320,6 +369,14 @@ static nb::capsule py_supernova_new(
         nb::gil_scoped_release release;
         server = new nova::nova_server(args);
     }
+
+    // The SC core globals are now initialized, so the process is permanently
+    // claimed for supernova. Commit here (not at the end): only failures BEFORE
+    // this point (e.g. parse_hardware_topology) may release the claim. A later
+    // failure such as open_stream must KEEP the claim -- the process is already
+    // tainted, so a subsequent scsynth boot would crash and is correctly
+    // rejected (M14).
+    claim_guard.committed = true;
 
     // Reset udp_port to 0 after construction (shared memory is already set up)
     args.udp_port = 0;
@@ -423,6 +480,9 @@ static bool py_supernova_send_packet(nb::capsule& cap, nb::bytes data) {
         nb::gil_scoped_release release;
         server->handle_packet_async(buf.data(), buf.size(), endpoint);
     }
+    // handle_packet_async is fire-and-forget: it queues the packet and returns
+    // no delivery status, so this always reports success. (scsynth's
+    // world_send_packet forwards a real result; supernova has none to give.)
     return true;
 }
 
@@ -453,6 +513,40 @@ static void py_supernova_cleanup(nb::capsule& cap) {
         }
         delete server;
         static_cast<SupernovaHandle*>(cap.data())->server = nullptr;
+        nova::instance = nullptr;
+    }
+}
+
+// Stop the audio backend WITHOUT deleting the server. This is the half of
+// cleanup that unblocks a wedged run() loop: supernova_run() blocks in
+// system_interpreter.run(), and terminate() alone does not always release it
+// (a pending system callback can be blocked waiting on the audio backend, so
+// run_callbacks() never returns to re-check the terminate flag). Stopping audio
+// lets that callback complete, so the loop observes the flag and run() returns.
+// Crucially it does NOT free the server, so the still-running run thread is not
+// left with a dangling pointer -- the caller joins the thread first, then calls
+// supernova_delete. Safe to call more than once (the destructor also
+// deactivates audio).
+static void py_supernova_stop(nb::capsule& cap) {
+    auto* server = extract_server(cap);
+    if (server) {
+        nb::gil_scoped_release release;
+        server->deactivate_audio();
+        server->close_stream();
+    }
+}
+
+// Delete the server (and clear the process-global instance). Call ONLY after
+// the run thread has provably exited, so this never races supernova_run().
+static void py_supernova_delete(nb::capsule& cap) {
+    auto* h = static_cast<SupernovaHandle*>(cap.data());
+    if (h && h->server) {
+        nova::nova_server* server = h->server;
+        {
+            nb::gil_scoped_release release;
+            delete server;
+        }
+        h->server = nullptr;
         nova::instance = nullptr;
     }
 }
@@ -513,4 +607,13 @@ NB_MODULE(_supernova, m) {
     m.def("supernova_cleanup", &py_supernova_cleanup,
           nb::arg("handle"),
           "Clean up supernova resources (deactivate audio, delete server).");
+
+    m.def("supernova_stop", &py_supernova_stop,
+          nb::arg("handle"),
+          "Stop the audio backend without deleting the server; unblocks a "
+          "wedged run() so the run thread can exit before deletion.");
+
+    m.def("supernova_delete", &py_supernova_delete,
+          nb::arg("handle"),
+          "Delete the server. Call only after the run thread has exited.");
 }

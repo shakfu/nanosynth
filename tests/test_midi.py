@@ -241,6 +241,24 @@ class TestMidiNoteMap:
 
         cleanup()
 
+    def test_retrigger_gates_previous_voice(self) -> None:
+        """A second Note-On for a held key gates the first synth off (M8)."""
+        with patch("nanosynth.midi._midi") as mock:
+            mock.open_virtual_input.return_value = MagicMock()
+            midi = MidiIn(port=None)
+
+        server = MagicMock()
+        first, second = MagicMock(name="first"), MagicMock(name="second")
+        server.synth.side_effect = [first, second]
+
+        cleanup = midi_note_map(midi, server, "pad")
+        midi._raw_callback(bytes([0x90, 69, 100]))  # note on
+        midi._raw_callback(bytes([0x90, 69, 110]))  # retrigger, no note-off
+        # The first voice must have been gated off, not leaked.
+        server.set.assert_any_call(first, gate=0.0)
+        assert server.synth.call_count == 2
+        cleanup()
+
     def test_cleanup_removes_handlers(self) -> None:
         with patch("nanosynth.midi._midi") as mock:
             mock.open_virtual_input.return_value = MagicMock()
@@ -253,6 +271,21 @@ class TestMidiNoteMap:
         # After cleanup, note on should not create a synth
         midi._raw_callback(bytes([0x90, 60, 100]))
         server.synth.assert_not_called()
+
+    def test_cleanup_gates_held_voices(self) -> None:
+        """cleanup() releases any voices still held (M8)."""
+        with patch("nanosynth.midi._midi") as mock:
+            mock.open_virtual_input.return_value = MagicMock()
+            midi = MidiIn(port=None)
+
+        server = MagicMock()
+        held = MagicMock(name="held")
+        server.synth.return_value = held
+
+        cleanup = midi_note_map(midi, server, "pad")
+        midi._raw_callback(bytes([0x90, 64, 100]))  # note on, never released
+        cleanup()
+        server.set.assert_any_call(held, gate=0.0)
 
 
 class TestMidiCcMap:

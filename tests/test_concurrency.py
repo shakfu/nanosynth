@@ -7,6 +7,7 @@ under contention.
 
 import threading
 import time
+from collections.abc import Callable
 from unittest.mock import MagicMock, PropertyMock
 
 
@@ -16,6 +17,19 @@ from nanosynth.exceptions import SynthDefError
 from nanosynth.synthdef import SynthDefBuilder, _get_active_builders
 from nanosynth.ugens import LPF, Out, SinOsc
 from nanosynth.ugens.basic import Mix
+
+
+def _wait_until(
+    predicate: Callable[[], object], timeout: float = 5.0, interval: float = 0.005
+) -> bool:
+    """Poll ``predicate`` until truthy or timeout. Used instead of fixed sleeps
+    so cross-thread coordination cannot race on slow CI (M18)."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return bool(predicate())
 
 
 # ---------------------------------------------------------------------------
@@ -102,22 +116,26 @@ class TestBuilderThreadIsolation:
         """UGens from one thread's builder cannot be used in another thread's builder."""
         ugen_from_thread: list = []
         error_raised = threading.Event()
+        consumer_done = threading.Event()
 
         def producer():
             with SynthDefBuilder():
                 sig = SinOsc.ar()
                 ugen_from_thread.append(sig)
-                # Wait for consumer to try using our UGen
-                time.sleep(0.2)
+                # Keep this builder open until the consumer has finished its
+                # attempt (deterministic handshake, not a fixed sleep -- M18).
+                consumer_done.wait(timeout=5)
 
         def consumer():
-            # Wait for producer to create a UGen
-            time.sleep(0.05)
+            # Wait for the producer to create a UGen.
+            assert _wait_until(lambda: ugen_from_thread)
             try:
                 with SynthDefBuilder():
                     Out.ar(bus=0, source=ugen_from_thread[0])
             except SynthDefError:
                 error_raised.set()
+            finally:
+                consumer_done.set()
 
         t1 = threading.Thread(target=producer)
         t2 = threading.Thread(target=consumer)
@@ -202,6 +220,7 @@ def _make_mock_server() -> Server:
     server._reply_handlers: dict = {}
     server._pending_replies: dict = {}
     server._reply_lock = threading.Lock()
+    server._bundle_local = threading.local()
     server._allocated_buffers: set = set()
     server._next_buffer_id = 0
     server._audio_bus_allocator_index = 16
@@ -227,8 +246,9 @@ class TestServerConcurrentReplies:
         for t in threads:
             t.start()
 
-        # Give threads time to register their waiters
-        time.sleep(0.05)
+        # Wait until all 20 waiters have registered before dispatching, so no
+        # reply can arrive before its waiter and be missed (M18).
+        assert _wait_until(lambda: len(server._pending_replies) >= 20)
 
         # Dispatch replies for all addresses (as raw datagrams)
         for i in range(20):

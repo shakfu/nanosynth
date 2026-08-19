@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from . import _midi  # type: ignore[attr-defined]
-from .exceptions import MidiError
+from .exceptions import EngineError, MidiError
 
 if TYPE_CHECKING:
     from .server import Server, Synth
@@ -170,17 +170,21 @@ class MidiIn:
         msg = _parse(data)
         if msg is None:
             return
+        # Iterate over a snapshot: this runs on RtMidi's native callback thread
+        # while on_*/off_* may append/remove from the user thread. Snapshotting
+        # (an atomic list copy under the GIL) avoids "list changed size during
+        # iteration" and missed/double dispatch (M7).
         if isinstance(msg, NoteOn):
-            for note_on_cb in self._on_note_on:
+            for note_on_cb in list(self._on_note_on):
                 note_on_cb(msg)
         elif isinstance(msg, NoteOff):
-            for note_off_cb in self._on_note_off:
+            for note_off_cb in list(self._on_note_off):
                 note_off_cb(msg)
         elif isinstance(msg, ControlChange):
-            for cc_cb in self._on_cc:
+            for cc_cb in list(self._on_cc):
                 cc_cb(msg)
         elif isinstance(msg, PitchBend):
-            for pb_cb in self._on_pitch_bend:
+            for pb_cb in list(self._on_pitch_bend):
                 pb_cb(msg)
 
     def close(self) -> None:
@@ -278,11 +282,19 @@ def midi_note_map(
     active: dict[tuple[int, int], Synth] = {}  # (channel, note) -> Synth
 
     def on_note_on(msg: NoteOn) -> None:
+        key = (msg.channel, msg.note)
+        # A Note-On for a still-held key (fast retrigger, held key, or a missed
+        # Note-Off) would otherwise overwrite the entry and drop the previous
+        # synth's handle un-gated -> a stuck voice. Gate the old one off first
+        # (M8).
+        previous = active.pop(key, None)
+        if previous is not None:
+            server.set(previous, gate=0.0)
         freq = 440.0 * (2.0 ** ((msg.note - 69.0) / 12.0))
         amp = msg.velocity / 127.0
         params = {**fixed_params, "freq": freq, "amp": amp}
         synth = server.synth(synthdef_name, **params)
-        active[(msg.channel, msg.note)] = synth
+        active[key] = synth
 
     def on_note_off(msg: NoteOff) -> None:
         key = (msg.channel, msg.note)
@@ -296,6 +308,14 @@ def midi_note_map(
     def cleanup() -> None:
         midi_in.off_note_on(on_note_on)
         midi_in.off_note_off(on_note_off)
+        # Gate off any voices still held so cleanup does not leave notes ringing
+        # (M8). Tolerate a dead server -- the synths died with it.
+        for synth in list(active.values()):
+            try:
+                server.set(synth, gate=0.0)
+            except (EngineError, OSError):
+                pass
+        active.clear()
 
     return cleanup
 

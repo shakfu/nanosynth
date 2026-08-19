@@ -115,7 +115,16 @@ class OscMessage:
 
     @staticmethod
     def _decode_blob(data: bytes) -> tuple[bytes, bytes]:
+        if len(data) < 4:
+            raise OscError("truncated blob size")
         actual_length, remainder = struct.unpack(">I", data[:4])[0], data[4:]
+        # Reject a truncated datagram instead of silently returning a short
+        # blob (the slice below would otherwise just yield fewer bytes).
+        if len(remainder) < actual_length:
+            raise OscError(
+                f"truncated blob: declared {actual_length} bytes, "
+                f"{len(remainder)} available"
+            )
         padded_length = actual_length
         if actual_length % 4 != 0:
             padded_length = (actual_length // 4 + 1) * 4
@@ -192,6 +201,12 @@ class OscMessage:
         if isinstance(self.address, str):
             encoded_address = self._encode_string(self.address)
         else:
+            # Integer (command-number) address: a send-side optimization for
+            # outgoing commands. Note the asymmetry -- from_datagram always
+            # decodes the address as a string, so an int-addressed message does
+            # not round-trip. This is latent: engine replies are always
+            # string-addressed, and int addresses are only ever encoded, never
+            # decoded back.
             encoded_address = struct.pack(">i", self.address)
         encoded_type_tags = ","
         encoded_contents = b""
@@ -240,6 +255,13 @@ class OscMessage:
                 elif type_tag == "b":
                     blob, remainder = cls._decode_blob(remainder)
                     parsed: OscArgument = blob
+                    # A blob is decoded back into a nested OscBundle/OscMessage
+                    # when its bytes parse as one (the inverse of encoding a
+                    # nested message/bundle as a blob -- see test_nested_message
+                    # / test_nested_bundle). This is an intentional, tested
+                    # feature; the trade-off is that a raw blob whose bytes
+                    # happen to form valid OSC also decodes as a message (M6,
+                    # accepted -- there is no marker to distinguish the two).
                     for class_ in (OscBundle, OscMessage):
                         try:
                             parsed = class_.from_datagram(blob)
@@ -289,8 +311,11 @@ class OscBundle:
     specified time. A ``None`` timestamp means "immediately".
 
     Args:
-        timestamp: NTP timestamp (seconds since 1900-01-01) at which to
-            execute the contents, or ``None`` for immediate execution.
+        timestamp: Unix epoch seconds (the ``time.time()`` domain) at which to
+            execute the contents, or ``None`` for immediate execution. The
+            NTP-epoch conversion (seconds since 1900-01-01) is applied on the
+            wire only when encoding with ``realtime=True``; the stored and
+            decoded value is always Unix seconds.
         contents: Sequence of ``OscMessage`` and/or ``OscBundle`` instances.
     """
 

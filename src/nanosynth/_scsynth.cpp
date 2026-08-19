@@ -17,6 +17,11 @@
 #ifdef __APPLE__
 #include <unistd.h>
 
+// Registered via atexit to dodge CoreAudio static-destructor crashes on macOS
+// by hard-exiting before those destructors run. Caveat: _exit(0) forces exit
+// code 0, so a genuine non-zero exit or a crash during shutdown is masked from
+// CI/test harnesses. Deliberate trade-off (a clean exit beats a spurious crash
+// report); scoped to macOS only.
 static void _force_exit_on_teardown() {
     _exit(0);
 }
@@ -49,6 +54,11 @@ static int scsynth_print_func(const char* fmt, va_list ap) {
         buf = heap_buf.data();
     }
     va_end(ap_copy);
+    // Do not touch Python once the interpreter is finalizing/gone (UB); return
+    // the formatted length without dispatching.
+    if (!Py_IsInitialized()) {
+        return n;
+    }
     // Lock order is GIL-then-mutex everywhere in this file. The Python-side
     // entry points (set_print_func, set_reply_func, world_send_packet) are
     // entered with the GIL already held and then take these mutexes, so
@@ -93,6 +103,10 @@ struct WorldStrings {
 struct WorldHandle {
     World* world;
     WorldStrings* strings;
+    // Set once the World has been explicitly torn down (world_cleanup or
+    // world_wait_for_quit). Until then scsynth still holds raw const char*
+    // into `strings`, so they must not be freed. See the capsule destructor.
+    bool cleaned = false;
 };
 
 // ---------------------------------------------------------------------------
@@ -110,6 +124,11 @@ static nb::object g_reply_func;
 static std::mutex g_reply_mutex;
 
 static void python_reply_func(struct ReplyAddress*, char* buf, int size) {
+    // Do not acquire the GIL on a finalizing/gone interpreter (UB). Narrow
+    // shutdown-ordering guard.
+    if (!Py_IsInitialized()) {
+        return;
+    }
     // GIL before mutex -- see the note in scsynth_print_func. This runs on
     // scsynth's reply thread while a Python thread may be inside
     // world_send_packet holding the GIL and waiting for g_reply_mutex.
@@ -169,6 +188,15 @@ static void py_set_print_func(nb::object func) {
 // after a clean quit. The two extension modules share no symbols, so they
 // coordinate through an environment variable. Throws (surfaced to Python as
 // ServerCannotBoot) instead of letting the process segfault.
+//
+// Caveat (M15): the env var is process-global and inherited across fork() /
+// multiprocessing, so a forked child sees the parent's claim and would be
+// wrongly blocked from booting its own engine kind; and getenv-then-setenv is
+// not atomic against a concurrent claim on another thread. This is accepted:
+// the two extension modules share no symbols, so a process-local static cannot
+// coordinate across them, and an env var is the available cross-module channel.
+// Boot from the main thread of each process; do not rely on the guard surviving
+// a fork.
 static void nanosynth_claim_engine(const char* kind) {
     const char* active = std::getenv("NANOSYNTH_ACTIVE_ENGINE");
     if (active && active[0] != '\0' && std::string(active) != kind) {
@@ -185,6 +213,28 @@ static void nanosynth_claim_engine(const char* kind) {
     setenv("NANOSYNTH_ACTIVE_ENGINE", kind, 1);
 #endif
 }
+
+// Release the claim so a failed World_New does not leave the process claimed
+// for scsynth for its lifetime (wrongly rejecting a later supernova boot even
+// though no engine is running). See the RAII guard in py_world_new (M14).
+static void nanosynth_release_engine() {
+#ifdef _WIN32
+    _putenv_s("NANOSYNTH_ACTIVE_ENGINE", "");
+#else
+    unsetenv("NANOSYNTH_ACTIVE_ENGINE");
+#endif
+}
+
+// Releases the engine claim on stack unwind unless explicitly committed (M14).
+namespace {
+struct EngineClaimGuard {
+    bool committed = false;
+    ~EngineClaimGuard() {
+        if (!committed)
+            nanosynth_release_engine();
+    }
+};
+}  // namespace
 
 static nb::capsule py_world_new(
     uint32_t num_audio_bus_channels,
@@ -217,6 +267,8 @@ static nb::capsule py_world_new(
     float safety_clip_threshold
 ) {
     nanosynth_claim_engine("scsynth");
+    // Release the claim automatically if World_New (or anything below) throws (M14).
+    EngineClaimGuard claim_guard;
     // Allocate string storage with the same lifetime as the capsule
     auto* strings = new WorldStrings();
 
@@ -296,15 +348,29 @@ static nb::capsule py_world_new(
     }
 #endif
 
+    // World is fully constructed: keep the engine claim (do not release it).
+    claim_guard.committed = true;
     // Pack World* and WorldStrings* into a single handle so the capsule
     // destructor (a plain function pointer) can clean up both.
     auto* handle = new WorldHandle{world, strings};
     return nb::capsule(handle, "WorldHandle", [](void* p) noexcept {
         auto* h = static_cast<WorldHandle*>(p);
-        // Note: we do NOT call World_Cleanup here because the user should
-        // explicitly manage the world lifecycle. If they forget, the world
-        // was already cleaned up by world_wait_for_quit or world_cleanup.
-        delete h->strings;
+        // We do NOT call World_Cleanup here: the user manages the world
+        // lifecycle explicitly (world_wait_for_quit / world_cleanup), and
+        // tearing the world down from a GC-triggered destructor could race a
+        // still-running engine thread.
+        //
+        // Only free the option strings if the world was explicitly cleaned. If
+        // it was not (the handle is being GC'd while a World may still be live,
+        // e.g. an abandoned boot with an open port), scsynth still holds raw
+        // const char* into `strings` -- mPassword/mRestrictedPath are read on
+        // every incoming packet and file/buffer command -- so freeing them here
+        // would be a use-after-free on the engine's network/command thread.
+        // Deliberately leak in that abnormal case: a one-time bounded leak is
+        // strictly safer than a UAF. See REVIEW.md H3.
+        if (h->cleaned) {
+            delete h->strings;
+        }
         delete h;
     });
 }
@@ -321,10 +387,18 @@ static World* extract_world(nb::capsule& cap) {
 // scsynth runs in-process, so we can read/write a buffer's float storage
 // directly with a memcpy instead of round-tripping sample data through OSC
 // (/b_getn, /b_setn) with their datagram-size limits. The buffer must already
-// be allocated (e.g. via /b_alloc + sync()). These touch the live buffer the
-// audio thread also uses: a get racing a writing synth may be torn, and a set
-// racing a reading synth may glitch -- neither crashes, but for clean results
-// the buffer should not be in active use during the transfer.
+// be allocated (e.g. via /b_alloc + sync()).
+//
+// SAFETY CONTRACT: these read buf->data/frames/channels and then memcpy, with
+// no lock against the engine's command thread. A get/set racing a *reading or
+// writing synth* on a stable buffer only risks a torn/glitched sample block.
+// But a get/set racing a command that FREES or REALLOCATES the same buffer
+// (/b_free, /b_alloc, /b_read, /b_close) is a use-after-free / out-of-bounds
+// access, not a benign glitch -- the shape is read at one instant and data at
+// another. Callers MUST ensure no such buffer command for `buf_id` is in flight
+// during the transfer (e.g. perform it between sync() points with no pending
+// buffer commands). scsynth exposes no per-buffer lock to enforce this here.
+// See REVIEW.md H2.
 
 static SndBuf* get_sndbuf(World* world, uint32_t buf_id) {
     if (buf_id >= world->mNumSndBufs) {
@@ -406,6 +480,9 @@ static void py_world_wait_for_quit(nb::capsule& world_cap, bool unload_plugins) 
         nb::gil_scoped_release release;
         World_WaitForQuit(world, unload_plugins);
     }
+    // World is now torn down; its raw pointers into WorldStrings are dead, so
+    // the capsule destructor may safely free them.
+    static_cast<WorldHandle*>(world_cap.data())->cleaned = true;
 }
 
 static void py_world_cleanup(nb::capsule& world_cap, bool unload_plugins) {
@@ -414,6 +491,7 @@ static void py_world_cleanup(nb::capsule& world_cap, bool unload_plugins) {
         nb::gil_scoped_release release;
         World_Cleanup(world, unload_plugins);
     }
+    static_cast<WorldHandle*>(world_cap.data())->cleaned = true;
 }
 
 static bool py_world_send_packet(nb::capsule& world_cap, nb::bytes data) {

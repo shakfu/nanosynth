@@ -10,6 +10,7 @@ import tempfile
 import wave
 from pathlib import Path
 
+import pytest
 
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.osc import OscMessage
@@ -333,13 +334,15 @@ class TestEnvelopeIntegration:
             late_start = int(0.3 * rate) * bytes_per_sample
             early_frames = frames[:early_end]
             late_frames = frames[late_start:]
-            if early_frames and late_frames:
-                early_rms = _rms_amplitude(early_frames, sw)
-                late_rms = _rms_amplitude(late_frames, sw)
-                assert early_rms > late_rms * 2, (
-                    f"Percussive envelope should decay: "
-                    f"early_rms={early_rms:.4f}, late_rms={late_rms:.4f}"
-                )
+            # Assert (not silently skip) that both windows exist, so a render
+            # that produced too few frames fails rather than passing vacuously.
+            assert early_frames and late_frames, "render produced too few frames"
+            early_rms = _rms_amplitude(early_frames, sw)
+            late_rms = _rms_amplitude(late_frames, sw)
+            assert early_rms > late_rms * 2, (
+                f"Percussive envelope should decay: "
+                f"early_rms={early_rms:.4f}, late_rms={late_rms:.4f}"
+            )
         finally:
             path.unlink(missing_ok=True)
 
@@ -568,3 +571,49 @@ class TestCompilationRoundtrip:
         assert outputs[0] == outputs[1], (
             "Optimized and unoptimized builds produced different audio"
         )
+
+
+# ---------------------------------------------------------------------------
+# Golden SCgf fixtures render real audio (M17)
+# ---------------------------------------------------------------------------
+
+
+_GOLDEN_DIR = Path(__file__).parent / "fixtures" / "scgf"
+# fixture stem -> the SynthDef name compiled into it (see test_golden_scgf.py).
+_GOLDEN_SYNTHS = {
+    "additive_mix": "golden_additive_mix",
+    "enveloped": "golden_enveloped",
+    "filtered_noise": "golden_filtered_noise",
+    "sine": "golden_sine",
+}
+
+
+class TestGoldenFixturesRenderAudio:
+    """Close the loop the golden-byte test only claims: load the committed
+    ``.scsyndef`` bytes into the NRT engine and prove they synthesize audio.
+
+    ``test_golden_scgf.py`` asserts ``compile() == fixture`` -- a regression
+    guard that proves nothing about correctness on its own. This renders the
+    exact committed bytes and asserts non-silent output (M17).
+    """
+
+    @pytest.mark.parametrize("stem,name", sorted(_GOLDEN_SYNTHS.items()))
+    def test_fixture_renders_nonsilent(self, stem: str, name: str) -> None:
+        raw = (_GOLDEN_DIR / f"{stem}.scsyndef").read_bytes()
+        score = Score()
+        # Load the fixture bytes directly (add_synthdef would recompile a
+        # SynthDef; here we send the committed bytes verbatim).
+        score.add(0.0, OscMessage("/d_recv", raw))
+        score.add_synth(0.0, name)
+
+        path = _render_score(score, 0.5)
+        try:
+            _nch, sw, rate, frames = _read_wav(path)
+            assert rate == 44100
+            assert len(frames) > 0
+            assert _rms_amplitude(frames, sw) > 1e-3, (
+                f"golden fixture {stem!r} rendered silence -- the committed "
+                f"bytes do not synthesize audio"
+            )
+        finally:
+            path.unlink(missing_ok=True)

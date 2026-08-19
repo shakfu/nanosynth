@@ -82,7 +82,12 @@ class Score:
         The bundle timestamp is the raw time in seconds (no NTP epoch).
         """
         result = bytearray()
-        for time, messages in self._entries:
+        # scsynth consumes the NRT command stream sequentially; logical time
+        # only moves forward, so entries MUST be emitted in timestamp order or a
+        # late-added earlier event is processed at the wrong (later) time. Sort
+        # stably so equal-timestamp entries keep insertion order (e.g. a /d_recv
+        # stays ahead of the /s_new that uses it).
+        for time, messages in sorted(self._entries, key=lambda e: e[0]):
             bundle = OscBundle(timestamp=time, contents=messages)
             datagram = bundle.to_datagram(realtime=False)
             result.extend(struct.pack(">i", len(datagram)))
@@ -121,8 +126,11 @@ class Score:
         # Free all nodes before shutdown to prevent crashes from delay
         # UGens whose buffers are freed during World cleanup while still
         # referenced by running synths.
-        entries = list(self._entries)
+        # Emit in timestamp order (stable): the NRT stream is consumed
+        # sequentially, so out-of-order entries would render at the wrong time.
+        entries = sorted(self._entries, key=lambda e: e[0])
         end_time = max((t for t, _ in entries), default=0.0)
+        # Guards run last, after every real event at end_time.
         entries.append((end_time, [OscMessage("/g_freeAll", 0)]))
         entries.append((end_time, [OscMessage("/c_set", 0, 0)]))
 

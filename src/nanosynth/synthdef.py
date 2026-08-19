@@ -169,9 +169,6 @@ def _add_init(
 ) -> None:
     parent_class = UGen
     args = ["self", "*", "calculation_rate: CalculationRate"]
-    body = [
-        f"{'self._channel_count = channel_count' if is_multichannel and not fixed_channel_count else ''}"
-    ]
     if is_multichannel and fixed_channel_count:
         body = [f"self._channel_count = {channel_count}"]
     elif not is_multichannel and channel_count != 1:
@@ -423,7 +420,14 @@ def _compute_binary_op(
                 and isinstance(right, SupportsFloat)
                 and float_operator is not None
             ):
-                return ConstantProxy(float_operator(float(left), float(right)))
+                try:
+                    return ConstantProxy(float_operator(float(left), float(right)))
+                except (ValueError, TypeError):
+                    # Out-of-domain (e.g. log(0)) or a non-real result (e.g.
+                    # (-8) ** (1/3) -> complex) must not abort the whole build.
+                    # Emit the UGen instead and let the engine compute NaN/inf
+                    # at runtime, matching scsynth semantics (M11).
+                    pass
             return BinaryOpUGen._new_single(
                 calculation_rate=max(
                     [
@@ -451,7 +455,13 @@ def _compute_unary_op(
             all_expanded_params = all_expanded_params[0]
         if isinstance(all_expanded_params, dict):
             if isinstance(source, SupportsFloat) and float_operator is not None:
-                return ConstantProxy(float_operator(float(source)))
+                try:
+                    return ConstantProxy(float_operator(float(source)))
+                except (ValueError, TypeError):
+                    # Out-of-domain (e.g. sqrt(-1)) or non-real result: do not
+                    # abort the build -- emit the UGen and defer to the engine
+                    # (NaN/inf at runtime), matching scsynth semantics (M11).
+                    pass
             return UnaryOpUGen._new_single(
                 calculation_rate=max([CalculationRate.from_expr(source)]),
                 special_index=special_index,
@@ -578,6 +588,7 @@ class UGenOperable:
             left=self,
             right=expr,
             special_index=BinaryOperator.GREATER_THAN,
+            float_operator=operator.gt,
         )
 
     def __lt__(self, expr: UGenRecursiveInput) -> "UGenOperable":
@@ -585,6 +596,7 @@ class UGenOperable:
             left=self,
             right=expr,
             special_index=BinaryOperator.LESS_THAN,
+            float_operator=operator.lt,
         )
 
     def __neg__(self) -> "UGenOperable":
@@ -726,6 +738,7 @@ class UGenOperable:
             left=self,
             right=expr,
             special_index=BinaryOperator.EQUAL,
+            float_operator=operator.eq,
         )
 
     def not_equal(self, expr: UGenRecursiveInput) -> "UGenOperable":
@@ -734,6 +747,7 @@ class UGenOperable:
             left=self,
             right=expr,
             special_index=BinaryOperator.NOT_EQUAL,
+            float_operator=operator.ne,
         )
 
     # -- Named binary methods --------------------------------------------------
@@ -1517,10 +1531,32 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
             return ugen[0]
         return ugen
 
+    def _has_active_done_action(self) -> bool:
+        """Whether this UGen carries a DoneAction that would free/pause a node.
+
+        A pure UGen (``is_pure``) is normally dead-code-eliminated when its
+        signal output is unused, but if it also has a nonzero ``done_action``
+        (e.g. ``LFGauss(done_action=FREE_SYNTH)`` used purely to self-free) that
+        elimination would silently drop the side effect. A constant
+        ``DoneAction.NOTHING`` (0) is side-effect-free; a nonzero constant or a
+        dynamic input is treated as active.
+        """
+        for input_, key in zip(self._inputs, self._input_keys):
+            key_name = key[0] if isinstance(key, tuple) else key
+            if key_name == "done_action":
+                if isinstance(input_, (int, float)):
+                    return float(input_) != 0.0
+                return True
+        return False
+
     def _optimize(
         self, sort_bundles: dict["UGen", "SynthDefBuilder.SortBundle"]
     ) -> None:
         if not self._is_pure:
+            return
+        if self._has_active_done_action():
+            # Keep it: eliminating a UGen with an active DoneAction would
+            # silently drop the free/pause side effect.
             return
         self._eliminate(sort_bundles)
 
@@ -1630,7 +1666,24 @@ class BinaryOpUGen(UGen):
             right: UGenScalar | float,
         ) -> UGenOperable | float:
             if special_index == BinaryOperator.MULTIPLICATION:
-                if left == 0 or right == 0:
+                # x * 0 -> 0 (and 0 * x -> 0) ONLY when the surviving operand is
+                # scalar-rate. If the survivor is an audio/control-rate UGen,
+                # folding to a scalar constant would feed a single-float scalar
+                # wire into a signal-rate input; scsynth's SIMD ugens (e.g.
+                # Out_next_a_nova_64) read that as an aligned 64-wide block,
+                # causing an out-of-bounds / misaligned load and a segfault.
+                # Keep the BinaryOpUGen so the result stays a rate-matched zero
+                # signal. The remaining folds return the survivor unchanged, so
+                # they already preserve its rate.
+                if (
+                    right == 0
+                    and CalculationRate.from_expr(left) == CalculationRate.SCALAR
+                ):
+                    return ConstantProxy(0)
+                if (
+                    left == 0
+                    and CalculationRate.from_expr(right) == CalculationRate.SCALAR
+                ):
                     return ConstantProxy(0)
                 if left == 1:
                     return right
@@ -1656,7 +1709,13 @@ class BinaryOpUGen(UGen):
                 if right == -1:
                     return -left
             if special_index == BinaryOperator.POWER:
-                if right == 0:
+                # x ** 0 -> 1 ONLY when x is scalar-rate; same rate-preservation
+                # reasoning as the x * 0 fold above (a scalar constant fed into a
+                # signal-rate input segfaults scsynth's SIMD path).
+                if (
+                    right == 0
+                    and CalculationRate.from_expr(left) == CalculationRate.SCALAR
+                ):
                     return ConstantProxy(1)
                 if right == 1:
                     return left
@@ -1866,6 +1925,15 @@ class SynthDef:
         constants: list[float] = []
         for ugen in ugens:
             for input_ in ugen.inputs:
+                # Dedup by value equality. Accepted limitation: -0.0 and 0.0 are
+                # ``==`` so they coalesce to whichever appears first, dropping
+                # the sign bit of a -0.0 constant (only observable via 1/-0.0 ->
+                # -inf). Not changed deliberately: this dedup rule is part of the
+                # SCgf byte contract shared, byte-for-byte, with the native Rust
+                # compiler via golden fixtures, and bit-pattern keying here would
+                # silently diverge the two on graphs containing -0.0. NaN is
+                # unaffected (it dedups by identity via CPython's list-membership
+                # shortcut).
                 if isinstance(input_, float) and input_ not in constants:
                     constants.append(input_)
         self._constants = tuple(constants)
@@ -1882,7 +1950,7 @@ class SynthDef:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
-            return False
+            return NotImplemented
         return (self._name, self._compiled_graph) == (
             other._name,
             other._compiled_graph,
@@ -1991,7 +2059,9 @@ class SynthDef:
 
         params: dict[str, float] = {}
         for name, (param_obj, _idx) in self._parameters.items():
-            params[name] = param_obj.value[0] if len(param_obj.value) == 1 else 0.0
+            # Report the first channel's default rather than 0.0 for
+            # multichannel parameters, so introspection shows a real value.
+            params[name] = param_obj.value[0]
 
         return SynthDefGraph(
             name=self.effective_name,
@@ -2016,7 +2086,7 @@ class SynthDef:
             lines.append(f'  n{node.node_index} [label="{node_label}"];')
 
         for node in g.nodes:
-            for inp in node.inputs:
+            for input_index, inp in enumerate(node.inputs):
                 if inp.source is not None:
                     edge_label = inp.name
                     if inp.source.output_count > 1:
@@ -2031,7 +2101,10 @@ class SynthDef:
                             f"  n{inp.source.node_index} -> n{node.node_index};"
                         )
                 elif label and inp.value is not None:
-                    const_id = f"c{node.node_index}_{inp.name}"
+                    # Include the positional index: UGens with several constant
+                    # inputs sharing a name (EnvGen's envelope data, LagControl's
+                    # lags, ...) would otherwise collapse to one DOT node.
+                    const_id = f"c{node.node_index}_{input_index}_{inp.name}"
                     val_str = (
                         str(int(inp.value))
                         if inp.value == int(inp.value)
@@ -2071,7 +2144,11 @@ class SynthDef:
         action: int = 0,
         **params: float,
     ) -> SupportsInt:
-        """Send this SynthDef (if needed) and create a synth. Returns a Synth proxy."""
+        """Send this SynthDef, then create a synth. Returns a Synth proxy.
+
+        The SynthDef is sent unconditionally (there is no caching), so calling
+        ``play`` repeatedly re-sends it each time.
+        """
         self.send(server)
         return server.synth(self.effective_name, target=target, action=action, **params)
 
@@ -2377,6 +2454,15 @@ class SynthDefBuilder:
                 ):
                     available_ugens.append(descendant_sort_bundle.ugen)
             output_stack.append(available_ugen)
+        # A cycle would leave some UGens with unresolved antecedents, silently
+        # dropping them from the output and producing a truncated SynthDef.
+        # Cycles are structurally near-impossible in this builder, but detect
+        # one loudly rather than emit a corrupt graph.
+        if len(output_stack) != len(ugens):
+            raise SynthDefError(
+                "cycle detected in UGen graph: "
+                f"sorted {len(output_stack)} of {len(ugens)} UGens"
+            )
         return output_stack
 
     def add_parameter(

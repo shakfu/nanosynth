@@ -205,18 +205,28 @@ class Prand(Pattern[T]):
     Args:
         sequence: Pool of items to choose from.
         repeats: Number of values to produce.
+        seed: Optional RNG seed. When given, each iteration restarts from this
+            seed, so the pattern is reproducible (e.g. for NRT rendering). When
+            ``None`` (default) a fresh per-instance RNG is used -- still
+            independent of the global ``random`` state, so unrelated ``random``
+            calls elsewhere cannot perturb the sequence.
     """
 
     def __init__(
-        self, sequence: Sequence[T], repeats: int | float = float("inf")
+        self,
+        sequence: Sequence[T],
+        repeats: int | float = float("inf"),
+        seed: int | None = None,
     ) -> None:
         self._sequence = sequence
         self._repeats = repeats
+        self._seed = seed
 
     def __iter__(self) -> Iterator[T]:
+        rng = random.Random(self._seed)
         count = 0
         while count < self._repeats:
-            yield random.choice(self._sequence)
+            yield rng.choice(self._sequence)
             count += 1
 
 
@@ -227,19 +237,26 @@ class Pwhite(Pattern[float]):
         lo: Lower bound (inclusive).
         hi: Upper bound (inclusive).
         repeats: Number of values to produce.
+        seed: Optional RNG seed (see :class:`Prand` for the seeding semantics).
     """
 
     def __init__(
-        self, lo: float = 0.0, hi: float = 1.0, repeats: int | float = float("inf")
+        self,
+        lo: float = 0.0,
+        hi: float = 1.0,
+        repeats: int | float = float("inf"),
+        seed: int | None = None,
     ) -> None:
         self._lo = lo
         self._hi = hi
         self._repeats = repeats
+        self._seed = seed
 
     def __iter__(self) -> Iterator[float]:
+        rng = random.Random(self._seed)
         count = 0
         while count < self._repeats:
-            yield random.uniform(self._lo, self._hi)
+            yield rng.uniform(self._lo, self._hi)
             count += 1
 
 
@@ -300,6 +317,7 @@ class Pchoose(Pattern[T]):
         items: Pool of items to choose from.
         weights: Relative weights for each item (must sum to > 0).
         repeats: Number of values to produce.
+        seed: Optional RNG seed (see :class:`Prand` for the seeding semantics).
     """
 
     def __init__(
@@ -307,17 +325,20 @@ class Pchoose(Pattern[T]):
         items: Sequence[T],
         weights: Sequence[float],
         repeats: int | float = float("inf"),
+        seed: int | None = None,
     ) -> None:
         if len(items) != len(weights):
             raise ValueError("items and weights must have the same length")
         self._items = items
         self._weights = weights
         self._repeats = repeats
+        self._seed = seed
 
     def __iter__(self) -> Iterator[T]:
+        rng = random.Random(self._seed)
         count = 0
         while count < self._repeats:
-            yield random.choices(self._items, weights=self._weights, k=1)[0]
+            yield rng.choices(self._items, weights=self._weights, k=1)[0]
             count += 1
 
 
@@ -700,6 +721,15 @@ class Ppar(EventPattern):
             if first is not None:
                 entries.append([offset, index, iterator, first])
 
+        # Preserve a nonzero leading offset (all voices delayed, e.g. a Ptpar
+        # whose smallest offset is > 0). Only inter-event gaps are encoded as
+        # `delta` below, so without this the initial silence is dropped and the
+        # stream starts early. Emit a leading rest that advances by min_onset.
+        if entries:
+            min_onset = min(entry[0] for entry in entries)
+            if min_onset > 0:
+                yield {"dur": Rest(min_onset), "delta": min_onset}
+
         while entries:
             entries.sort(key=lambda entry: (entry[0], entry[1]))
             onset, _, iterator, event = entries[0]
@@ -871,10 +901,10 @@ class Pfin(Pattern[T]):
         self._pattern = pattern
 
     def __iter__(self) -> Iterator[T]:
-        for index, value in enumerate(self._pattern):
-            if index >= self._count:
-                return
-            yield value
+        # islice pulls exactly `count` items from the source. The previous
+        # enumerate/return pulled one extra (index == count) before stopping,
+        # which matters for a shared or side-effecting source iterator.
+        yield from itertools.islice(self._pattern, max(self._count, 0))
 
 
 class Pfindur(EventPattern):
@@ -919,6 +949,12 @@ class Clock:
     Runs a background daemon thread.  Uses ``time.monotonic()`` for
     drift-free absolute scheduling.  Multiple players share one clock
     for synchronized timing.
+
+    Call :meth:`stop` when done: the running thread holds a reference back to
+    the clock (and its players), so a clock that is never stopped lives -- with
+    its thread -- for the rest of the process. The thread is a daemon, so this
+    does not block interpreter exit, but it is a leak within a long-running
+    process.
 
     Args:
         bpm: Beats per minute (default 120).
@@ -999,7 +1035,10 @@ class Clock:
 
     def _add_player(self, player: Player) -> None:
         with self._lock:
-            self._players.append(player)
+            # Idempotent: calling play() on an already-playing player must not
+            # register it twice (which would double every tick and time advance).
+            if player not in self._players:
+                self._players.append(player)
 
     def _remove_player(self, player: Player) -> None:
         with self._lock:
@@ -1036,12 +1075,24 @@ class Clock:
             self._stop_event.wait(timeout=sleep_time)
 
     def stop(self) -> None:
-        """Stop the clock and all its players."""
+        """Stop the clock and all its players.
+
+        Mirrors :meth:`Player.stop` for every player: held Pmono synths are
+        gated off, not just marked stopped. Without this a live Pmono voice
+        (held with ``gate=1``) would ring until the server quits, since only
+        per-event Pbind synths have their gate-release bundles already queued
+        in the engine.
+        """
         self._stop_event.set()
         with self._lock:
-            for player in self._players:
+            players = list(self._players)
+            for player in players:
                 player._stopped = True
             self._players.clear()
+        # Release outside the lock: _release_mono sends OSC to the server, and
+        # holding the clock lock across engine I/O is unnecessary.
+        for player in players:
+            player._release_mono()
 
 
 # ---------------------------------------------------------------------------
@@ -1078,6 +1129,10 @@ class Player:
         self._next_time = 0.0
         # Live Pmono synths, keyed by the stream id their events carry.
         self._mono_synths: dict[str, Any] = {}
+        # Guards _mono_synths against the stop()-vs-_tick() race: stop() (user
+        # thread) clears it while _tick() (clock thread) may be creating a mono
+        # synth, which could otherwise leave a voice held after stop.
+        self._mono_lock = threading.Lock()
 
     @property
     def latency(self) -> float:
@@ -1112,10 +1167,11 @@ class Player:
 
     def _release_mono(self) -> None:
         """Gate off every held Pmono synth, ignoring a dead server."""
-        if not self._mono_synths:
-            return
-        synths = list(self._mono_synths.values())
-        self._mono_synths.clear()
+        with self._mono_lock:
+            if not self._mono_synths:
+                return
+            synths = list(self._mono_synths.values())
+            self._mono_synths.clear()
         try:
             for synth in synths:
                 self._server.set(synth, gate=0.0)
@@ -1175,14 +1231,20 @@ class Player:
                 # Pmono: one persistent synth per stream. Create it on the
                 # first event, then retune it in place -- no per-event gate
                 # release, so the envelope and any portamento carry across.
-                held = self._mono_synths.get(mono_id)
-                with self._server.at(onset):
-                    if held is None:
-                        self._mono_synths[mono_id] = self._server.synth(
-                            instrument, **params
-                        )
-                    elif params:
-                        self._server.set(held, **params)
+                # Hold _mono_lock and re-check _stopped so a concurrent stop()
+                # cannot clear the dict between the create and the insert and
+                # leave the new voice held (item 14).
+                with self._mono_lock:
+                    if self._stopped:
+                        return
+                    held = self._mono_synths.get(mono_id)
+                    with self._server.at(onset):
+                        if held is None:
+                            self._mono_synths[mono_id] = self._server.synth(
+                                instrument, **params
+                            )
+                        elif params:
+                            self._server.set(held, **params)
                 return
 
             with self._server.at(onset):

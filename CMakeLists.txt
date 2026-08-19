@@ -25,6 +25,10 @@ if(NANOSYNTH_EMBED_SCSYNTH)
     nanobind_add_module(_scsynth src/nanosynth/_scsynth.cpp)
 
     # --- Vendored libsndfile (static, tailored -- no external codec deps) ---
+    # NOTE: this FORCEs BUILD_SHARED_LIBS OFF into the cache, so it also governs
+    # every vendored subtree added after it (rtmidi, portaudio, ...), making
+    # them static too. That is intended (one self-contained extension), but the
+    # coupling is implicit -- keep this set before those add_subdirectory calls.
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     set(BUILD_PROGRAMS    OFF CACHE BOOL "" FORCE)
     set(BUILD_EXAMPLES    OFF CACHE BOOL "" FORCE)
@@ -126,6 +130,10 @@ if(NANOSYNTH_EMBED_SCSYNTH)
     # scikit-build-core editable mode only extracts Python extensions
     # to site-packages, not data files like .scx plugins.
     # We attach to _scsynth POST_BUILD since it depends on all plugins.
+    # NOTE: this writes into the source tree (src/nanosynth/plugins/) on every
+    # build, so the working copy is mutated -- a non-hermetic build. It is a
+    # deliberate workaround for the editable-install limitation above; a clean
+    # wheel build installs the plugins to the package instead (INSTALL rule).
     add_custom_command(TARGET _scsynth POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/src/nanosynth/plugins"

@@ -45,6 +45,12 @@ static void rtmidi_callback(
     void* userData
 ) {
     auto* handle = static_cast<MidiInHandle*>(userData);
+    // Do not touch Python if the interpreter is finalizing/gone: acquiring the
+    // GIL on a torn-down interpreter is undefined. Narrow shutdown-ordering
+    // guard (the port is normally closed before finalization).
+    if (!Py_IsInitialized()) {
+        return;
+    }
     // GIL before mutex. set_callback/clear_callback and the capsule destructor
     // all run with the GIL held and then take callback_mutex; taking the mutex
     // first here and blocking on the GIL afterwards would invert that order
@@ -66,8 +72,17 @@ static void rtmidi_callback(
             message->size()
         );
         callback(data);
+    } catch (nb::python_error &e) {
+        // Do not crash the RtMidi thread, but do not silently swallow a broken
+        // handler either -- report it via sys.unraisablehook (prints to stderr
+        // by default) so a bug surfaces during live performance. The GIL is
+        // held here, so PyErr_* is safe.
+        e.restore();
+        PyErr_WriteUnraisable(callback.ptr());
     } catch (...) {
-        // Swallow Python exceptions to avoid crashing the MIDI thread.
+        PyErr_SetString(PyExc_RuntimeError,
+                        "unknown C++ exception in MIDI handler");
+        PyErr_WriteUnraisable(callback.ptr());
     }
 }
 

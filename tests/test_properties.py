@@ -13,6 +13,7 @@ from typing import Any
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from nanosynth.enums import CalculationRate
 from nanosynth.synthdef import (
     ConstantProxy,
     OutputProxy,
@@ -113,23 +114,32 @@ def test_multiplicative_identity(leaf: tuple[Any, ...]) -> None:
 
 
 @given(leaf_recipes)
-def test_multiplicative_zero(leaf: tuple[Any, ...]) -> None:
-    """Multiplying a signal by zero folds to the constant 0."""
+def test_multiplicative_zero_preserves_signal_rate(leaf: tuple[Any, ...]) -> None:
+    """Multiplying a signal by zero keeps a rate-matched signal, not a constant.
+
+    All leaves here are audio-rate, so ``sig * 0`` must stay an audio-rate
+    BinaryOpUGen (a silent signal). Folding it to a scalar ``ConstantProxy(0)``
+    would feed a single-float scalar wire into a signal-rate input, which
+    scsynth's SIMD ugens read as an aligned block -> segfault.
+    """
     with SynthDefBuilder():
         sig = _build_signal(leaf)
         for zero in (sig * 0, 0 * sig):
-            assert isinstance(zero, ConstantProxy)
-            assert float(zero) == 0.0
+            assert not isinstance(zero, ConstantProxy)
+            assert CalculationRate.from_expr(zero) == CalculationRate.AUDIO
 
 
 @given(leaf_recipes)
-def test_power_zero_is_one(leaf: tuple[Any, ...]) -> None:
-    """A signal raised to the zeroth power folds to the constant 1."""
+def test_power_zero_preserves_signal_rate(leaf: tuple[Any, ...]) -> None:
+    """A signal raised to the zeroth power keeps its rate, not a constant 1.
+
+    Same rate-preservation reasoning as multiply-by-zero.
+    """
     with SynthDefBuilder():
         sig = _build_signal(leaf)
         result = sig**0
-        assert isinstance(result, ConstantProxy)
-        assert float(result) == 1.0
+        assert not isinstance(result, ConstantProxy)
+        assert CalculationRate.from_expr(result) == CalculationRate.AUDIO
 
 
 # ---------------------------------------------------------------------------

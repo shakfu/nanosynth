@@ -69,7 +69,10 @@ class MulAdd(UGen):
         cls,
         *,
         addend: UGenRecursiveInput = 0,
-        multiplier: UGenRecursiveInput = 0,
+        # Default 1.0 to match the class param default; a stray 0 here would make
+        # the `multiplier == 0.0 -> return addend` short-circuit below collapse
+        # the result whenever _new_single is reached without an explicit value.
+        multiplier: UGenRecursiveInput = 1,
         source: UGenRecursiveInput = 0,
         calculation_rate: CalculationRate | None = None,
         special_index: SupportsInt = 0,

@@ -75,6 +75,9 @@ class EmbeddedSupernovaProtocol:
         self.buffer_ = ""
         self.error_text = ""
         self._reply_callback: Callable[[bytes], None] | None = None
+        # Serializes the OFFLINE -> BOOTING transition so concurrent boot()
+        # calls on the same instance cannot clobber each other's state (M5).
+        self._lifecycle_lock = threading.Lock()
         # atexit cleanup is (un)registered around the booted lifetime, not in
         # __init__, so never-booted protocol objects do not accumulate atexit
         # callbacks (each would hold a strong ref and run at interpreter exit).
@@ -99,12 +102,13 @@ class EmbeddedSupernovaProtocol:
             f"[{options.ip_address}:{options.port}/{label}] "
             "booting (embedded supernova) ..."
         )
-        if self.status != BootStatus.OFFLINE:
-            logger.info(
-                f"[{options.ip_address}:{options.port}/{label}] ... already booted!"
-            )
-            return
-        self.status = BootStatus.BOOTING
+        with self._lifecycle_lock:
+            if self.status != BootStatus.OFFLINE:
+                logger.info(
+                    f"[{options.ip_address}:{options.port}/{label}] ... already booted!"
+                )
+                return
+            self.status = BootStatus.BOOTING
         self.error_text = ""
         self.buffer_ = ""
         # Ensure exactly one atexit cleanup for this booted instance.
@@ -203,27 +207,55 @@ class EmbeddedSupernovaProtocol:
             self.on_panic_callback()
 
     def _shutdown(self) -> None:
-        """Shut down the event loop and clean up."""
-        # quit() has already sent supernova_terminate, which makes
-        # supernova_run return; _run_loop then resolves exit_future. When the
-        # run thread is alive, wait on that future so we only delete the
-        # nova_server after its event loop has provably exited, instead of
-        # racing supernova_cleanup against a thread still inside supernova_run
-        # (a use-after-free on self._server). exit_future is only ever resolved
-        # by the run thread, so we wait on it only while that thread is alive.
+        """Shut down the event loop and clean up.
+
+        Ordering is ``stop -> join -> delete`` so the native ``nova_server`` is
+        deleted only after its run thread has provably exited -- never freed
+        while ``supernova_run`` is still executing on it (a use-after-free).
+
+        ``quit()`` has already sent ``supernova_terminate``. On a healthy engine
+        that unblocks ``supernova_run`` and ``_run_loop`` resolves
+        ``exit_future`` (the normal path). If it does not (a wedged run loop --
+        see REVIEW.md H12), stopping the audio backend is a best-effort attempt
+        to release it; if the thread still will not exit, the server is
+        deliberately leaked rather than deleted under a live thread. A leak is
+        memory-safe (no UAF, no teardown segfault); the cost is that an
+        in-process reboot may not be able to rebind the port until the process
+        exits.
+        """
+        from nanosynth._supernova import supernova_delete, supernova_stop
+
         if self.thread is not None and self.thread.is_alive():
             try:
                 self.exit_future.result(timeout=5)
             except concurrent.futures.TimeoutError:
                 logger.warning(
-                    "supernova event loop did not exit within 5s; cleaning up anyway"
+                    "supernova event loop did not exit within 5s; "
+                    "stopping audio to release it"
                 )
+                if self._server is not None:
+                    supernova_stop(self._server)
+                try:
+                    self.exit_future.result(timeout=3)
+                except concurrent.futures.TimeoutError:
+                    pass
             self.thread.join(timeout=5)
-        # Deactivate audio and delete nova_server now that the loop has exited.
+            if self.thread.is_alive():
+                # The run thread is still inside supernova_run, which owns
+                # self._server. Deleting nova_server now would be a
+                # use-after-free against the running loop, so leak it.
+                logger.error(
+                    "supernova run thread did not exit; leaking nova_server to "
+                    "avoid a teardown race (in-process reboot may be "
+                    "unavailable until this process exits)"
+                )
+                self.status = BootStatus.OFFLINE
+                with EmbeddedSupernovaProtocol._active_lock:
+                    EmbeddedSupernovaProtocol._active = False
+                return
+        # The run thread has provably exited (or never ran): safe to delete.
         if self._server is not None:
-            from nanosynth._supernova import supernova_cleanup
-
-            supernova_cleanup(self._server)
+            supernova_delete(self._server)
         self._server = None
         self.status = BootStatus.OFFLINE
         with EmbeddedSupernovaProtocol._active_lock:
@@ -231,11 +263,14 @@ class EmbeddedSupernovaProtocol:
 
     def send_packet(self, data: bytes) -> bool:
         """Send a raw OSC packet to the engine."""
-        if self.status != BootStatus.ONLINE or self._server is None:
+        # Snapshot the handle: the run thread nulls self._server on a panic, so
+        # checking and then passing it separately is a TOCTOU race (M2).
+        server = self._server
+        if self.status != BootStatus.ONLINE or server is None:
             raise EngineError("Server is not running")
         from nanosynth._supernova import supernova_send_packet
 
-        result: bool = supernova_send_packet(self._server, data)
+        result: bool = supernova_send_packet(server, data)
         return result
 
     def send_msg(self, address: str | int, *args: "Any") -> bool:

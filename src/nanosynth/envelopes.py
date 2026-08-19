@@ -115,8 +115,10 @@ class Envelope(UGenSerializable):
             )
         if isinstance(curves, (int, float, str, EnvelopeShape, UGenOperable)):
             curves = [curves]
-        elif curves is None:
-            curves = []
+        elif curves is None or len(curves) == 0:
+            # No curves given: default to LINEAR. An empty curve list would zip
+            # to zero segments and silently drop the entire envelope (M13).
+            curves = [EnvelopeShape.LINEAR]
         self._release_node = release_node
         self._loop_node = loop_node
         self._offset = offset
@@ -147,7 +149,14 @@ class Envelope(UGenSerializable):
                 curves_.append(EnvelopeShape.from_expr(x))
             else:
                 curves_.append(float(x))
-        self._curves: tuple[EnvelopeShape | UGenOperable | float, ...] = tuple(curves_)
+        # The envelope has exactly len(durations) == len(amplitudes) - 1
+        # segments. Normalize curves to that count -- cycling if too few,
+        # truncating if too many -- so an over-long curves list can no longer
+        # inflate the segment count and corrupt the compiled envelope (M12).
+        segment_count = len(self._durations)
+        self._curves: tuple[EnvelopeShape | UGenOperable | float, ...] = tuple(
+            itertools.islice(itertools.cycle(curves_), segment_count)
+        )
         self._envelope_segments = tuple(
             _zip_cycled(self._amplitudes, self._durations, self._curves)
         )

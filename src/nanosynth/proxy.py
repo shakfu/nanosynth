@@ -16,6 +16,7 @@ stays in place, enabling seamless audio transitions.
 
 from __future__ import annotations
 
+import weakref
 from collections.abc import Callable
 from typing import Any, ClassVar
 
@@ -191,7 +192,7 @@ class NodeProxy:
         """Set parameters on the running source synth.
 
         Raises:
-            RuntimeError: If no source synth is running.
+            EngineError: If no source synth is running.
         """
         if self._source_synth is None:
             raise EngineError("No source synth is running")
@@ -222,7 +223,16 @@ class Ndef:
         Ndef.clear_all(server)
     """
 
-    _registry: ClassVar[dict[tuple[int, str], NodeProxy]] = {}
+    # Keyed on the Server object (identity), not id(server): an int key can be
+    # reused after a server is garbage-collected, silently aliasing a fresh
+    # server onto stale proxies. A WeakKeyDictionary keys on identity and drops
+    # a server's entry automatically if the server is ever collected. Note the
+    # proxies still hold a strong reference to their server, so a server with
+    # registered Ndef proxies is pinned alive until ``clear_all`` -- call it to
+    # release both the proxies and the server.
+    _registry: ClassVar[weakref.WeakKeyDictionary[Server, dict[str, NodeProxy]]] = (
+        weakref.WeakKeyDictionary()
+    )
 
     def __new__(  # type: ignore[misc]
         cls,
@@ -230,10 +240,14 @@ class Ndef:
         name: str,
         source: Callable[..., Any] | SynthDef | None = _MISSING,  # type: ignore[assignment]
     ) -> NodeProxy:
-        key = (id(server), name)
-        if key not in cls._registry:
-            cls._registry[key] = NodeProxy(server)
-        proxy = cls._registry[key]
+        proxies = cls._registry.get(server)
+        if proxies is None:
+            proxies = {}
+            cls._registry[server] = proxies
+        proxy = proxies.get(name)
+        if proxy is None:
+            proxy = NodeProxy(server)
+            proxies[name] = proxy
         if source is not _MISSING:
             proxy.source = source
         return proxy
@@ -241,8 +255,7 @@ class Ndef:
     @classmethod
     def clear_all(cls, server: Server) -> None:
         """Clear all proxies associated with *server*."""
-        server_id = id(server)
-        keys_to_remove = [k for k in cls._registry if k[0] == server_id]
-        for key in keys_to_remove:
-            cls._registry[key].clear()
-            del cls._registry[key]
+        proxies = cls._registry.pop(server, None)
+        if proxies:
+            for proxy in proxies.values():
+                proxy.clear()

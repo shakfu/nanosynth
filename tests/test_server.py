@@ -63,12 +63,28 @@ class TestServerWithMockedProtocol:
         assert server.is_running is True
 
     def test_send_synthdef(self, server: Server) -> None:
+        from nanosynth.osc import OscMessage
+
+        # Mock engine acks /d_recv with /done /d_recv, so the confirmation wait
+        # resolves immediately (rather than running out the timeout).
+        def reply(_datagram: bytes) -> None:
+            server._dispatch_reply(OscMessage("/done", "/d_recv").to_datagram())
+
+        server._protocol.send_packet.side_effect = reply
         sd = MagicMock()
         sd.effective_name = "test_sd"
         sd.compile.return_value = b"SCgf_data"
         server.send_synthdef(sd)
         assert "test_sd" in server._synthdefs
         server._protocol.send_packet.assert_called_once()
+
+    def test_send_synthdef_falls_back_on_no_reply(self, server: Server) -> None:
+        """With no reply path, it still records the def (fire-and-forget)."""
+        sd = MagicMock()
+        sd.effective_name = "nf_sd"
+        sd.compile.return_value = b"SCgf_data"
+        server.send_synthdef(sd, timeout=0.05)  # low timeout: no mock reply
+        assert "nf_sd" in server._synthdefs
 
     def test_load_synthdef(self, server: Server) -> None:
         from pathlib import Path
@@ -987,6 +1003,14 @@ class TestRecording:
         s = Server()
         s._protocol = MagicMock()
         s._protocol.status = BootStatus.ONLINE
+        # record() sends a recorder SynthDef via /d_recv and waits for /done;
+        # ack it so the confirmation resolves promptly instead of timing out.
+        from nanosynth.osc import OscMessage
+
+        def _ack(_datagram: bytes) -> None:
+            s._dispatch_reply(OscMessage("/done", "/d_recv").to_datagram())
+
+        s._protocol.send_packet.side_effect = _ack
         return s
 
     @patch.object(Server, "sync")

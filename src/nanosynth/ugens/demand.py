@@ -165,7 +165,7 @@ class Duty(UGen):
 @ugen(dr=True)
 class Dwhite(UGen):
     minimum = param(0.0)
-    maximum = param(0.0)
+    maximum = param(1.0)
     length = param(float("inf"))
 
 

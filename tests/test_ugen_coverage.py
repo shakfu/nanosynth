@@ -7,6 +7,7 @@ Klank.ar() specification expansion, LinLin PseudoUGen, and Silence PseudoUGen.
 import pytest
 
 from nanosynth.synthdef import (
+    OutputProxy,
     SynthDefBuilder,
     UGenVector,
 )
@@ -281,8 +282,17 @@ class TestKlank:
         sd = builder.build(name="test")
         klanks = [u for u in sd.ugens if isinstance(u, Klank)]
         assert len(klanks) == 1
-        # Should have 9 spec inputs (3 freqs * 3 values each) plus source + 3 scale params
-        # The specifications are interleaved: [f1, a1, d1, f2, a2, d2, ...]
+        # Input layout: source, then the 3 scale params (freqscale=1, freqoffset=0,
+        # decayscale=1), then the specifications interleaved as [freq, amp, decay]
+        # per partial, with amplitudes and decay_times defaulting to 1.0. This
+        # (not just the header) is the invariant worth guarding (M16).
+        inputs = klanks[0]._inputs
+        assert len(inputs) == 1 + 3 + 3 * 3  # source + scale params + 3 triples
+        assert isinstance(inputs[0], OutputProxy)  # source
+        scale = [float(x) for x in inputs[1:4]]
+        assert scale == [1.0, 0.0, 1.0]  # freqscale, freqoffset, decayscale
+        spec = [float(x) for x in inputs[4:]]
+        assert spec == [440.0, 1.0, 1.0, 880.0, 1.0, 1.0, 1320.0, 1.0, 1.0]
 
     def test_klank_empty_frequencies_raises(self):
         """Klank.ar with empty frequencies raises ValueError."""

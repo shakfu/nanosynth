@@ -127,10 +127,30 @@ class _BlockAllocator:
 
     def reserve(self, base: int, count: int = 1) -> None:
         """Carve a specific block out of the free list (for explicit ids)."""
+        if count < 1:
+            raise ValueError("count must be >= 1")
         with self._lock:
             if base in self._sizes:
                 return
             hi = base + count
+            # Reject out-of-range ids: reserving outside [start, stop) would
+            # record a block the free list never contained, and a later free()
+            # would inject an out-of-range interval that allocate() could then
+            # hand out (M4).
+            if base < self._start or hi > self._stop:
+                raise EngineError(
+                    f"{self._name} id range {base}..{hi} is outside "
+                    f"{self._start}..{self._stop}"
+                )
+            # Reject overlap with an already-allocated block whose base differs:
+            # the range is not fully free, so carving it and recording _sizes
+            # [base] would double-book and later corrupt the free list (M4).
+            for other_base, other_count in self._sizes.items():
+                if base < other_base + other_count and other_base < hi:
+                    raise EngineError(
+                        f"{self._name} id range {base}..{hi} overlaps an "
+                        f"allocated block at {other_base}..{other_base + other_count}"
+                    )
             new_free: list[list[int]] = []
             for lo_i, hi_i in self._free:
                 if hi_i <= base or lo_i >= hi:
@@ -398,7 +418,7 @@ class Bus:
             *values: One value per channel.
 
         Raises:
-            RuntimeError: If called on an audio-rate bus.
+            EngineError: If called on an audio-rate bus.
         """
         if self._rate != "control":
             raise EngineError("set() is only valid for control-rate buses")
@@ -594,6 +614,11 @@ class Server:
         self._node_handlers: list[Callable[[NodeEvent], None]] = []
         self._notifications_enabled = False
         self._node_dispatch_installed = False
+        # Serializes the notification enable/install transition so concurrent
+        # first callers cannot double-register the node handlers or double-send
+        # /notify (M1). Distinct from _reply_lock; lock order is always
+        # _notify_lock -> _reply_lock.
+        self._notify_lock = threading.Lock()
         # Per-thread stack of open ``at()`` capture buffers. Thread-local so a
         # bundle opened on one thread never swallows another thread's messages.
         self._bundle_local = threading.local()
@@ -673,6 +698,24 @@ class Server:
             stack[-1].append(packet)
             return
         self._protocol.send_packet(packet.to_datagram())
+
+    def _reject_if_deferred(self, operation: str) -> None:
+        """Reject a synchronous engine round-trip while an ``at()`` block is open.
+
+        Inside :meth:`at` every outgoing message is captured into the pending
+        bundle instead of being sent, so the reply this operation waits for can
+        never arrive and the call would block for the full timeout (and then
+        report a spurious failure on a healthy engine). Fail fast with a clear
+        error instead. Move synchronous calls -- ``sync``, ``status``,
+        ``version``, ``query_tree``, ``enable_notifications``, ``send_synthdef``
+        -- outside the ``at()`` block.
+        """
+        if self._bundle_stack():
+            raise EngineError(
+                f"{operation}() waits for an engine reply and cannot be used "
+                "inside an at() block: captured messages are not sent, so the "
+                "reply never arrives. Move it outside the at() block."
+            )
 
     def send_msg(self, address: str, *args: OscArgument) -> None:
         """Send an OSC message to the engine.
@@ -797,6 +840,7 @@ class Server:
         Returns the decoded OscMessage, or None on timeout. On timeout the
         waiter is removed so it cannot be spuriously resolved by a later reply.
         """
+        self._reject_if_deferred("wait_for_reply")
         event = _ReplyEvent(match)
         self._register_waiter(address, event)
         result = event.wait(timeout=timeout)
@@ -816,6 +860,7 @@ class Server:
 
         Returns the decoded reply OscMessage, or None on timeout.
         """
+        self._reject_if_deferred("send_msg_sync")
         event = _ReplyEvent(match)
         self._register_waiter(reply_address, event)
         self.send_msg(address, *args)
@@ -859,16 +904,19 @@ class Server:
         c = reply.contents
         # /status.reply: [unused, #ugens, #synths, #groups, #synthdefs,
         #                 avgCPU, peakCPU, nominalSR, actualSR]
-        return ServerStatus(
-            num_ugens=_osc_int(c[1]),
-            num_synths=_osc_int(c[2]),
-            num_groups=_osc_int(c[3]),
-            num_synthdefs=_osc_int(c[4]),
-            average_cpu=_osc_float(c[5]),
-            peak_cpu=_osc_float(c[6]),
-            nominal_sample_rate=_osc_float(c[7]),
-            actual_sample_rate=_osc_float(c[8]),
-        )
+        try:
+            return ServerStatus(
+                num_ugens=_osc_int(c[1]),
+                num_synths=_osc_int(c[2]),
+                num_groups=_osc_int(c[3]),
+                num_synthdefs=_osc_int(c[4]),
+                average_cpu=_osc_float(c[5]),
+                peak_cpu=_osc_float(c[6]),
+                nominal_sample_rate=_osc_float(c[7]),
+                actual_sample_rate=_osc_float(c[8]),
+            )
+        except (IndexError, ValueError, TypeError) as exc:
+            raise EngineError(f"malformed /status.reply: {exc}") from exc
 
     def version(self, timeout: float = 5.0) -> ServerVersion:
         """Query engine version via ``/version``.
@@ -881,14 +929,17 @@ class Server:
         if reply is None:
             raise EngineError("no /version.reply received (is the engine running?)")
         c = reply.contents
-        return ServerVersion(
-            program=str(c[0]),
-            major=_osc_int(c[1]),
-            minor=_osc_int(c[2]),
-            patch=str(c[3]),
-            branch=str(c[4]),
-            commit=str(c[5]),
-        )
+        try:
+            return ServerVersion(
+                program=str(c[0]),
+                major=_osc_int(c[1]),
+                minor=_osc_int(c[2]),
+                patch=str(c[3]),
+                branch=str(c[4]),
+                commit=str(c[5]),
+            )
+        except (IndexError, ValueError, TypeError) as exc:
+            raise EngineError(f"malformed /version.reply: {exc}") from exc
 
     def query_tree(
         self,
@@ -915,14 +966,18 @@ class Server:
         if reply is None:
             raise EngineError("no /g_queryTree.reply received")
         c = list(reply.contents)
-        with_controls = bool(c[0])
         # c[1] = queried group id, c[2] = its child count, then a depth-first
-        # flat stream of nodes.
-        root = NodeInfo(node_id=_osc_int(c[1]), is_group=True)
-        idx = 3
-        for _ in range(_osc_int(c[2])):
-            child, idx = self._parse_tree_node(c, idx, with_controls)
-            root.children.append(child)
+        # flat stream of nodes. Wrap the fixed-offset parse so a short/malformed
+        # reply surfaces as a domain EngineError, not a raw IndexError.
+        try:
+            with_controls = bool(c[0])
+            root = NodeInfo(node_id=_osc_int(c[1]), is_group=True)
+            idx = 3
+            for _ in range(_osc_int(c[2])):
+                child, idx = self._parse_tree_node(c, idx, with_controls)
+                root.children.append(child)
+        except (IndexError, ValueError, TypeError) as exc:
+            raise EngineError(f"malformed /g_queryTree.reply: {exc}") from exc
         return root
 
     def _parse_tree_node(
@@ -987,20 +1042,25 @@ class Server:
         node's ``/n_go`` can be missed. Falls back to fire-and-forget on
         timeout (e.g. a mock server with no reply path).
         """
-        if not self._node_dispatch_installed:
-            for address in _NODE_EVENT_ACTIONS:
-                self.on(address, self._dispatch_node_event)
-            self._node_dispatch_installed = True
-        if self._notifications_enabled:
-            return
-        self.send_msg_sync(
-            "/notify",
-            1,
-            reply_address="/done",
-            match=lambda m: bool(m.contents) and m.contents[0] == "/notify",
-            timeout=timeout,
-        )
-        self._notifications_enabled = True
+        # Hold _notify_lock across the whole transition so two concurrent first
+        # callers cannot both install handlers and both send /notify (M1). The
+        # second caller blocks here, then observes the flags set and returns --
+        # correctly only after notifications are actually in effect.
+        with self._notify_lock:
+            if not self._node_dispatch_installed:
+                for address in _NODE_EVENT_ACTIONS:
+                    self.on(address, self._dispatch_node_event)
+                self._node_dispatch_installed = True
+            if self._notifications_enabled:
+                return
+            self.send_msg_sync(
+                "/notify",
+                1,
+                reply_address="/done",
+                match=lambda m: bool(m.contents) and m.contents[0] == "/notify",
+                timeout=timeout,
+            )
+            self._notifications_enabled = True
 
     def disable_notifications(self) -> None:
         """Unregister from node lifecycle notifications (``/notify 0``)."""
@@ -1058,13 +1118,20 @@ class Server:
 
     # -- SynthDef management ---------------------------------------------------
 
-    def send_synthdef(self, synthdef: SynthDef) -> None:
+    def send_synthdef(self, synthdef: SynthDef, timeout: float = 5.0) -> None:
         """Send a compiled SynthDef to the engine via /d_recv.
 
-        Waits for the engine to confirm loading (``/done /d_recv``)
-        before returning, so the SynthDef is ready for immediate use.
-        Falls back to fire-and-forget if no reply arrives (e.g. mock
-        servers in tests).
+        Waits for the engine to confirm loading (``/done /d_recv``) before
+        returning, so the SynthDef is ready for immediate use. ``/d_recv``
+        completion is asynchronous, and a large SynthDef or a busy engine can
+        take well over 100 ms; the default matches the other synchronous calls
+        (M3). The wait returns as soon as ``/done`` arrives, so a real engine is
+        not slowed -- only a no-reply path (e.g. a mock server in tests) waits
+        the full ``timeout`` before falling back to fire-and-forget.
+
+        Args:
+            synthdef: The SynthDef to send.
+            timeout: Seconds to wait for the load confirmation.
         """
         name = synthdef.effective_name
         compiled = synthdef.compile()
@@ -1074,7 +1141,7 @@ class Server:
             "/d_recv",
             compiled,
             reply_address="/done",
-            timeout=0.1,
+            timeout=timeout,
             match=lambda m: bool(m.contents) and m.contents[0] == "/d_recv",
         )
         self._synthdefs.add(name)
@@ -1371,7 +1438,14 @@ class Server:
         frames, channels = int(arr.shape[0]), int(arr.shape[1])
         buffer_id = self.alloc_buffer(frames, channels)
         if sync:
-            self.sync()
+            # set_buffer_data writes engine memory directly; if the allocation
+            # has not completed, that write targets an unallocated buffer. Fail
+            # loudly on a sync timeout instead of writing blindly.
+            if not self.sync():
+                raise EngineError(
+                    "buffer allocation did not sync before writing "
+                    "(engine did not acknowledge /sync); the buffer is not ready"
+                )
         self.set_buffer_data(buffer_id, arr)
         return buffer_id
 
@@ -1502,7 +1576,7 @@ class Server:
                 ``"float"``).
 
         Raises:
-            RuntimeError: If already recording.
+            EngineError: If already recording.
         """
         if self._recording is not None:
             raise EngineError("Already recording. Call stop_recording() first.")

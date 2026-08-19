@@ -142,3 +142,35 @@ def test_known_ugen_shapes(committed_spec: dict[str, Any]) -> None:
     assert by_name["SinOsc"]["outputs"] == {"kind": "fixed", "count": 1}
     assert by_name["Pan2"]["outputs"] == {"kind": "fixed", "count": 2}
     assert by_name["In"]["outputs"] == {"kind": "variable", "default": 1}
+
+
+def test_known_ugen_defaults_independent_of_generator(
+    committed_spec: dict[str, Any],
+) -> None:
+    """Hand-verified UGen argument defaults, checked against SuperCollider.
+
+    This is a deliberately independent oracle: the rest of the spec is generated
+    by introspecting the same Python classes it describes, so a wrong default is
+    mirrored into the spec and no generator-comparison test can catch it (see
+    REVIEW.md H11). These literals are transcribed from SuperCollider's class
+    library, so a regression like ``Dwhite`` defaulting its upper bound to 0.0
+    (REVIEW.md H7) fails here even though the generated spec still "matches".
+    """
+    by_name = {u["name"]: u for u in committed_spec["ugens"]}
+
+    def defaults(name: str) -> dict[str, Any]:
+        return {p["name"]: p["default"] for p in by_name[name]["parameters"]}
+
+    # Demand-rate random UGens: lo defaults to 0.0, hi defaults to 1.0. Dwhite's
+    # hi was the confirmed bug; its siblings pin the correct shape.
+    assert defaults("Dwhite")["minimum"] == 0.0
+    assert defaults("Dwhite")["maximum"] == 1.0
+    assert defaults("Dbrown")["minimum"] == 0.0
+    assert defaults("Dbrown")["maximum"] == 1.0
+    assert defaults("Diwhite")["minimum"] == 0.0
+    assert defaults("Diwhite")["maximum"] == 1.0
+
+    # A few more well-known shapes as anchors.
+    assert defaults("LFSaw")["frequency"] == 440.0
+    assert defaults("Saw")["frequency"] == 440.0
+    assert defaults("Pan2")["level"] == 1.0

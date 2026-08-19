@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Cancel superseded runs on the same ref so rapid pushes do not queue redundant
+# (and expensive, wheel-building) runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   qa:
     runs-on: ubuntu-latest
@@ -14,6 +20,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      # uv sync builds the C extension from source, which links ALSA on Linux
+      # (RtMidi/PortAudio); install the headers here as the test-source job does.
+      - name: Install ALSA dev headers
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -58,6 +69,52 @@ jobs:
 
       - name: Test
         run: uv run pytest tests/
+
+  test-realtime:
+    # Boots a GENUINE in-process scsynth World and exercises the live paths the
+    # rest of the suite mocks: the /sync -> /synced round-trip, reclaiming
+    # allocators, /n_end node-free notifications, reboot, and the GIL/mutex
+    # deadlock regression (tests/test_realtime_smoke.py). These are skipped by
+    # default (NANOSYNTH_TEST_REALTIME unset); this job opts in for scsynth.
+    #
+    # Supernova real-boot is intentionally NOT enabled here yet: it has a
+    # separate, pre-existing teardown/reboot crash (terminate() does not always
+    # unblock supernova_run(), and process-exit teardown can segfault). Add a
+    # `NANOSYNTH_TEST_REALTIME=supernova` job in its own process once that is
+    # fixed and verified -- the one-engine-per-process rule still stands.
+    runs-on: ubuntu-latest
+    name: test (realtime, scsynth)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ALSA dev headers + tools
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev alsa-utils
+
+      - name: Provide a virtual (dummy) ALSA sound card
+        # A headless runner has no audio hardware; scsynth boots through
+        # PortAudio/ALSA and needs a device to open. snd-dummy is a kernel
+        # virtual sound card; the asoundrc makes it the default PCM so
+        # PortAudio selects it. (linux-modules-extra carries snd-dummy when the
+        # base image omits it.)
+        run: |
+          sudo apt-get install -y "linux-modules-extra-$(uname -r)" || true
+          sudo modprobe snd-dummy
+          printf 'pcm.!default { type plug slave.pcm "hw:Dummy" }\nctl.!default { type hw card Dummy }\n' > "$HOME/.asoundrc"
+          aplay -l || true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+
+      - name: Sync (builds the C extension from the source tree)
+        run: uv sync
+
+      - name: Realtime smoke (scsynth)
+        env:
+          NANOSYNTH_TEST_REALTIME: scsynth
+        run: uv run pytest tests/test_realtime_smoke.py -v
 
   benchmarks:
     # Manual only: the double build (HEAD + HEAD^) is expensive, so this runs

@@ -5,6 +5,8 @@ from __future__ import annotations
 import struct
 from typing import TYPE_CHECKING
 
+from .exceptions import SynthDefError
+
 if TYPE_CHECKING:
     from .synthdef import OutputProxy, SynthDef, UGen
 
@@ -90,7 +92,21 @@ def _compile_ugen_input_spec(input_: OutputProxy | float, synthdef: SynthDef) ->
 
 
 def _encode_string(value: str) -> bytes:
-    return struct.pack(">B", len(value)) + value.encode("ascii")
+    # SCgf strings are Pascal-style: a single-byte length followed by ASCII
+    # bytes. Validate here (covers SynthDef names, parameter names, and UGen
+    # names) and raise a clear SynthDefError rather than an opaque struct.error
+    # (name > 255) or UnicodeEncodeError (non-ASCII).
+    try:
+        encoded = value.encode("ascii")
+    except UnicodeEncodeError as exc:
+        raise SynthDefError(
+            f"SCgf strings must be ASCII, got non-ASCII value {value!r}"
+        ) from exc
+    if len(encoded) > 255:
+        raise SynthDefError(
+            f"SCgf string exceeds the 255-byte limit ({len(encoded)} bytes): {value!r}"
+        )
+    return struct.pack(">B", len(encoded)) + encoded
 
 
 def _encode_float(value: float) -> bytes:

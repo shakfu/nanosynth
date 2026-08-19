@@ -115,3 +115,31 @@ class TestSerializeCleanup:
             Out.ar(bus=0, source=SinOsc.ar() * env)
         sd = builder.build(name="test")
         assert sd.compile()[:4] == b"SCgf"
+
+
+class TestEnvelopeCurvesNormalization:
+    """The segment count is fixed at len(amplitudes) - 1; curves must not change it."""
+
+    def test_over_long_curves_do_not_inflate_segments(self) -> None:
+        """More curves than segments must not add segments (M12)."""
+        env = Envelope(amplitudes=[0, 1, 0], durations=[0.1, 0.2], curves=[1, 2, 3, 4])
+        assert len(env._envelope_segments) == 2
+        assert env.compile()[1] == 2.0  # num_segments field
+
+    def test_none_curves_default_to_linear(self) -> None:
+        """curves=None keeps all segments (defaults to LINEAR), not zero (M13)."""
+        env = Envelope(amplitudes=[0, 1, 0], durations=[0.1, 0.2], curves=None)
+        assert len(env._envelope_segments) == 2
+        assert env.compile()[1] == 2.0
+
+    def test_empty_curves_default_to_linear(self) -> None:
+        """curves=[] keeps all segments (defaults to LINEAR), not zero (M13)."""
+        env = Envelope(amplitudes=[0, 1, 0], durations=[0.1, 0.2], curves=[])
+        assert len(env._envelope_segments) == 2
+        assert env.compile()[1] == 2.0
+
+    def test_short_curves_cycle(self) -> None:
+        """Fewer curves than segments cycle to fill (unchanged behavior)."""
+        env = Envelope(amplitudes=[0, 1, 0, 1], durations=[0.1, 0.2, 0.3], curves=[2])
+        assert len(env._envelope_segments) == 3
+        assert env.compile()[1] == 3.0

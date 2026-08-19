@@ -25,12 +25,24 @@ def _sine_source() -> Any:
     return SinOsc.ar(frequency=440)  # type: ignore[attr-defined]
 
 
+def _ack_d_recv(s: Server) -> None:
+    """Make the mock protocol ack /d_recv with /done so send_synthdef's
+    confirmation wait resolves promptly instead of running out the timeout."""
+    from nanosynth.osc import OscMessage
+
+    def _ack(_datagram: bytes) -> None:
+        s._dispatch_reply(OscMessage("/done", "/d_recv").to_datagram())
+
+    s._protocol.send_packet.side_effect = _ack
+
+
 @pytest.fixture()
 def server() -> Server:
     """Server with mocked protocol (no audio engine needed)."""
     s = Server()
     s._protocol = MagicMock()
     s._protocol.status = BootStatus.ONLINE
+    _ack_d_recv(s)
     return s
 
 
@@ -208,18 +220,20 @@ class TestNdef:
         s1 = Server()
         s1._protocol = MagicMock()
         s1._protocol.status = BootStatus.ONLINE
+        _ack_d_recv(s1)
 
         s2 = Server()
         s2._protocol = MagicMock()
         s2._protocol.status = BootStatus.ONLINE
+        _ack_d_recv(s2)
 
         Ndef(s1, "a", _sine_source)
         Ndef(s2, "a", _sine_source)
 
         Ndef.clear_all(s1)
-        # s2's proxy should still be in the registry
-        assert any(k[0] == id(s2) for k in Ndef._registry)
-        assert not any(k[0] == id(s1) for k in Ndef._registry)
+        # The registry is keyed on the server object: s2 remains, s1 is gone.
+        assert s2 in Ndef._registry
+        assert s1 not in Ndef._registry
 
     def test_source_none_clears(self, server: Server) -> None:
         Ndef(server, "test", _sine_source)
