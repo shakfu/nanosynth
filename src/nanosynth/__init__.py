@@ -1,6 +1,6 @@
 """nanosynth -- minimal embedded SuperCollider synthesis engine wrapper."""
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 from .enums import AddAction, CalculationRate, DoneAction
 from .exceptions import (

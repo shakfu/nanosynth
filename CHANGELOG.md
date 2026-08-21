@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1]
+
 ### Fixed
 
 - **OSC blob length integer overflow -> heap over-read** (`_osc.cpp`): `decode_blob` rounded the wire-supplied 32-bit blob length up to a 4-byte boundary *before* the bounds check, so a length near `UINT32_MAX` (e.g. `0xFFFFFFFF`) wrapped to a tiny padded size and slipped past the guard, after which the ~4 GB blob was scanned/copied past the end of the datagram. Reachable from any incoming packet (engine replies are decoded through the same path). The length is now validated against the remaining bytes before the rounding, matching the overflow-safe form already used for bundle elements
