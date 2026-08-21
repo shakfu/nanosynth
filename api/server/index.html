@@ -1,0 +1,5994 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://shakfu.github.io/nanosynth/api/server/">
+      
+      
+        <link rel="prev" href="../synthdef/">
+      
+      
+        <link rel="next" href="../envelopes/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Server - nanosynth</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#server" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="nanosynth" class="md-header__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nanosynth
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Server
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="nanosynth" class="md-nav__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nanosynth
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../server-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../threading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threading Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying SynthDefs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scgf-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SCgf Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_12_2" id="__nav_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synthdef/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SynthDef Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nanosynth.server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.wait_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wait_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.on_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Group.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.ParGroup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ParGroup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.bus_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.num_channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        num_channels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.ServerStatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ServerStatus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.ServerVersion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ServerVersion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.NodeInfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NodeInfo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.NodeEvent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NodeEvent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.is_running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.is_recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        boot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.quit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.next_node_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        next_node_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_msg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_msg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_bundle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.at" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        at
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.wait_for_reply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wait_for_reply
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_msg_sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_msg_sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.query_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        query_tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.dump_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dump_tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.enable_notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enable_notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.disable_notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        disable_notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.on_node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on_node
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.remove_node_handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remove_node_handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.wait_for_node_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wait_for_node_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_synthdef
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.load_synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_synthdef
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.synth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        synth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.par_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        par_group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_synth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_synth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_par_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_par_group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.next_buffer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        next_buffer_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.alloc_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        alloc_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.read_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.write_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.free_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.zero_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        zero_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.close_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        close_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.buffer_info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        buffer_info
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.get_buffer_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_buffer_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.set_buffer_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set_buffer_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.alloc_buffer_from_array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        alloc_buffer_from_array
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_read_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_read_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.audio_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        audio_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.control_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        control_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.free_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_audio_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_audio_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_control_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_control_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.stop_recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stop_recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OSC Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scsynth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_3" id="__nav_12_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composition
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Composition
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Score (NRT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_4" id="__nav_12_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engines & I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engines & I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_5" id="__nav_12_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UGens
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oscillators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/beq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BEQ Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/noise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Noise & Random
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/delay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delays
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/panning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/demand/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demand
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/chaos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/granular/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/bufio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/diskio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/physical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/reverb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/convolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/pv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Vocoder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Listening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/gendyn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stochastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/hilbert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hilbert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/inout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/mac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mouse/Keyboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/info/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Info
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/ffsinosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Band-limited
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../related-projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Related Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nanosynth.server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.wait_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wait_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Synth.on_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Group.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.ParGroup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ParGroup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.bus_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.num_channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        num_channels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Bus.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.ServerStatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ServerStatus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.ServerVersion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ServerVersion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.NodeInfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NodeInfo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.NodeEvent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NodeEvent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.is_running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.is_recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        boot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.quit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.next_node_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        next_node_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_msg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_msg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_bundle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.at" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        at
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.wait_for_reply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wait_for_reply
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_msg_sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_msg_sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.query_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        query_tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.dump_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dump_tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.enable_notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enable_notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.disable_notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        disable_notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.on_node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on_node
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.remove_node_handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remove_node_handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.wait_for_node_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wait_for_node_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.send_synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send_synthdef
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.load_synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_synthdef
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.synth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        synth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.par_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        par_group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_synth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_synth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_par_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_par_group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.next_buffer_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        next_buffer_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.alloc_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        alloc_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.read_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.write_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.free_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.zero_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        zero_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.close_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        close_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.buffer_info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        buffer_info
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.get_buffer_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_buffer_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.set_buffer_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set_buffer_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.alloc_buffer_from_array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        alloc_buffer_from_array
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_read_buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_read_buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.audio_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        audio_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.control_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        control_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.free_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        free_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_audio_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_audio_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.managed_control_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        managed_control_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.server.Server.stop_recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stop_recording
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="server">Server<a class="headerlink" href="#server" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="nanosynth.server" class="doc doc-heading">
+            <span class="doc doc-object-name doc-module-name">nanosynth.server</span>
+
+
+<a href="#nanosynth.server" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>High-level Server class wrapping the embedded scsynth engine.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.Synth" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Synth</span>
+
+
+<a href="#nanosynth.server.Synth" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Lightweight proxy for a synth node on the server.</p>
+<p>Wraps a node ID with convenience methods and int-compatibility.
+Returned by <code>Server.synth()</code> and <code>Server.managed_synth()</code>.</p>
+<p>Supports <code>int()</code> conversion, equality with plain ints, and use as
+a context manager (frees the node on exit)::</p>
+<div class="highlight"><pre><span></span><code>node = server.synth(&quot;sine&quot;, frequency=440.0)
+node.set(frequency=880.0)
+node.free()
+
+with server.synth(&quot;sine&quot;) as node:
+    ...  # freed on exit
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Synth.set" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">set</span>
+
+
+<a href="#nanosynth.server.Synth.set" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">set</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Set parameter values on this synth.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Synth.free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">free</span>
+
+
+<a href="#nanosynth.server.Synth.free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">free</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Free this synth node.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Synth.wait_free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">wait_free</span>
+
+
+<a href="#nanosynth.server.Synth.wait_free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">wait_free</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Block until this node is freed (e.g. by a self-freeing envelope).</p>
+<p>Returns <code>True</code> if it ended, <code>False</code> on timeout. See
+:meth:<code>Server.wait_for_node_free</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Synth.on_free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">on_free</span>
+
+
+<a href="#nanosynth.server.Synth.on_free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">on_free</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NodeEvent</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Call <em>callback</em> once, when this node is freed.</p>
+<p>The handler unregisters itself after firing. Enables notifications.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.Group" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Group</span>
+
+
+<a href="#nanosynth.server.Group" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Lightweight proxy for a group node on the server.</p>
+<p>Same shape as <code>Synth</code> but without a name field. Returned by
+<code>Server.group()</code> and <code>Server.managed_group()</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Group.free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">free</span>
+
+
+<a href="#nanosynth.server.Group.free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">free</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Free this group node.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.ParGroup" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ParGroup</span>
+
+
+<a href="#nanosynth.server.ParGroup" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Group (nanosynth.server.Group)" href="#nanosynth.server.Group">Group</a></code></p>
+
+
+
+        <p>Lightweight proxy for a parallel group node on the server.</p>
+<p>A ParGroup evaluates its child nodes in parallel across CPU cores.
+Same interface as <code>Group</code> but created with <code>/p_new</code> instead of
+<code>/g_new</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.Bus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Bus</span>
+
+
+<a href="#nanosynth.server.Bus" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Lightweight proxy for an allocated bus on the server.</p>
+<p>Wraps a bus ID with convenience methods and int-compatibility.
+Returned by <code>Server.audio_bus()</code> and <code>Server.control_bus()</code>.</p>
+<p>Supports <code>int()</code> conversion and use as a context manager
+(frees the bus on exit)::</p>
+<div class="highlight"><pre><span></span><code>bus = server.audio_bus(2)
+# use int(bus) or bus.bus_id as a synth param
+node = server.synth(&quot;fx&quot;, in_bus=float(int(bus)))
+bus.free()
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="nanosynth.server.Bus.bus_id" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">bus_id</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#nanosynth.server.Bus.bus_id" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">bus_id</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The server-side bus index.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="nanosynth.server.Bus.num_channels" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">num_channels</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#nanosynth.server.Bus.num_channels" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Number of contiguous channels this bus spans.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="nanosynth.server.Bus.rate" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">rate</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#nanosynth.server.Bus.rate" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">rate</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Bus rate: <code>"audio"</code> or <code>"control"</code>.</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Bus.set" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">set</span>
+
+
+<a href="#nanosynth.server.Bus.set" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">set</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Set control bus value(s). Only valid for control-rate buses.</p>
+<p>Args:
+    *values: One value per channel.</p>
+<p>Raises:
+    EngineError: If called on an audio-rate bus.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Bus.free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">free</span>
+
+
+<a href="#nanosynth.server.Bus.free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">free</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return this bus to the allocator pool.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.ServerStatus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ServerStatus</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#nanosynth.server.ServerStatus" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Snapshot of the engine's state, from <code>/status.reply</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.ServerVersion" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ServerVersion</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#nanosynth.server.ServerVersion" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Engine version information, from <code>/version.reply</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.NodeInfo" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">NodeInfo</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#nanosynth.server.NodeInfo" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>A node in the server's node tree, from <code>/g_queryTree.reply</code>.</p>
+<p>Groups have <code>is_group=True</code> and populated <code>children</code>; synths have
+<code>is_group=False</code>, a <code>synthdef</code> name, and (if queried with controls) a
+<code>controls</code> mapping of name -&gt; value (a float, or a bus-mapping string
+like <code>"c1"</code>/<code>"a0"</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.NodeEvent" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">NodeEvent</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#nanosynth.server.NodeEvent" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>A node lifecycle notification from the engine.</p>
+<p><code>action</code> is one of <code>"go"</code> (created), <code>"end"</code> (freed), <code>"off"</code>
+(paused), <code>"on"</code> (resumed), or <code>"move"</code>. Delivered only while
+notifications are enabled (see :meth:<code>Server.enable_notifications</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.server.Server" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Server</span>
+
+
+<a href="#nanosynth.server.Server" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>High-level wrapper around the embedded scsynth engine.</p>
+<p>Manages the full boot-send-quit lifecycle, node ID allocation,
+SynthDef dispatch, and common OSC commands.</p>
+<p>Can be used as a context manager::</p>
+<div class="highlight"><pre><span></span><code>with Server() as s:
+    s.send_synthdef(my_synthdef)
+    node = s.synth(&quot;my_synth&quot;, frequency=880.0)
+    ...
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="nanosynth.server.Server.is_running" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">is_running</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#nanosynth.server.Server.is_running" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">is_running</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the engine is currently online.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="nanosynth.server.Server.options" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">options</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#nanosynth.server.Server.options" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">options</span><span class="p">:</span> <span class="n">Options</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The server's <code>Options</code> configuration.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="nanosynth.server.Server.is_recording" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">is_recording</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#nanosynth.server.Server.is_recording" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">is_recording</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the server is currently recording.</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.boot" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">boot</span>
+
+
+<a href="#nanosynth.server.Server.boot" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">boot</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Boot the embedded scsynth engine and create the default group.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.quit" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">quit</span>
+
+
+<a href="#nanosynth.server.Server.quit" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">quit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Shut down the embedded engine.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.next_node_id" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">next_node_id</span>
+
+
+<a href="#nanosynth.server.Server.next_node_id" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">next_node_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a unique node ID (cycling from 1000 within scsynth's range).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.send_msg" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">send_msg</span>
+
+
+<a href="#nanosynth.server.Server.send_msg" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">send_msg</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">OscArgument</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Send an OSC message to the engine.</p>
+<p>Inside a :meth:<code>at</code> block the message is captured into that bundle
+instead of being sent immediately.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.send_bundle" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">send_bundle</span>
+
+
+<a href="#nanosynth.server.Server.send_bundle" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">send_bundle</span><span class="p">(</span>
+    <span class="n">contents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OscBundle</span> <span class="o">|</span> <span class="n">OscMessage</span><span class="p">],</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Send <em>contents</em> as a single atomic OSC bundle.</p>
+<p>Args:
+    contents: <code>OscMessage</code> and/or <code>OscBundle</code> instances.
+    timestamp: Unix epoch seconds (the <code>time.time()</code> domain) at which
+        the engine should execute the contents, or <code>None</code> for
+        "immediately". A timestamp in the past executes on arrival.</p>
+<p>Bundling is what makes timing sample-accurate: the engine applies every
+message in the bundle on the same control block, at the requested time,
+independent of when Python got round to sending it.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.at" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">at</span>
+
+
+<a href="#nanosynth.server.Server.at" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">at</span><span class="p">(</span><span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Capture messages sent in this block into one timestamped bundle.</p>
+<p>Every <code>Server</code> method that sends OSC (<code>synth</code>, <code>set</code>, <code>free</code>,
+<code>group</code>, ...) routes through :meth:<code>send_msg</code>, so it can be used
+unchanged inside the block::</p>
+<div class="highlight"><pre><span></span><code>with server.at(time.time() + 0.2):
+    synth = server.synth(&quot;default&quot;, freq=440)
+</code></pre></div>
+<p>Node IDs are still allocated eagerly, so the returned proxies are
+usable immediately. The bundle is sent when the block exits; if the
+block raises, nothing is sent. Blocks may nest, producing nested OSC
+bundles. An empty block sends nothing.</p>
+<p>Args:
+    timestamp: Unix epoch seconds, or <code>None</code> for "immediately".</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.on" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">on</span>
+
+
+<a href="#nanosynth.server.Server.on" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">on</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Register a persistent handler for replies at <em>address</em>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.off" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">off</span>
+
+
+<a href="#nanosynth.server.Server.off" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">off</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Remove a previously registered handler.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.wait_for_reply" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">wait_for_reply</span>
+
+
+<a href="#nanosynth.server.Server.wait_for_reply" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">wait_for_reply</span><span class="p">(</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">match</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OscMessage</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OscMessage</span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Block until a matching reply arrives at <em>address</em>, or timeout.</p>
+<p>Returns the decoded OscMessage, or None on timeout. On timeout the
+waiter is removed so it cannot be spuriously resolved by a later reply.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.send_msg_sync" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">send_msg_sync</span>
+
+
+<a href="#nanosynth.server.Server.send_msg_sync" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">send_msg_sync</span><span class="p">(</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">OscArgument</span><span class="p">,</span>
+    <span class="n">reply_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">match</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OscMessage</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OscMessage</span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Send a message and wait for a matching reply at <em>reply_address</em>.</p>
+<p>Returns the decoded reply OscMessage, or None on timeout.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.sync" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sync</span>
+
+
+<a href="#nanosynth.server.Server.sync" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">sync</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Block until the engine has processed all prior async commands.</p>
+<p>Sends <code>/sync</code> with a unique id and waits for the matching
+<code>/synced</code> reply -- the canonical scsynth round-trip barrier. Returns
+<code>True</code> once synced, or <code>False</code> on timeout (e.g. a mock server with
+no reply path). Concurrent <code>sync()</code> calls are matched by id.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.status" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">status</span>
+
+
+<a href="#nanosynth.server.Server.status" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">status</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServerStatus</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Query engine status via <code>/status</code>.</p>
+<p>Returns a :class:<code>ServerStatus</code> (CPU load, sample rate, and node /
+synth / group / synthdef / ugen counts). Raises <code>EngineError</code> if no
+<code>/status.reply</code> arrives within <em>timeout</em>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.version" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">version</span>
+
+
+<a href="#nanosynth.server.Server.version" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">version</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServerVersion</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Query engine version via <code>/version</code>.</p>
+<p>Raises <code>EngineError</code> if no <code>/version.reply</code> arrives within <em>timeout</em>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.query_tree" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">query_tree</span>
+
+
+<a href="#nanosynth.server.Server.query_tree" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">query_tree</span><span class="p">(</span>
+    <span class="n">group</span><span class="p">:</span> <span class="n">SupportsInt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">controls</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NodeInfo</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Query the node tree under <em>group</em> via <code>/g_queryTree</code>.</p>
+<p>Returns the queried group as a :class:<code>NodeInfo</code> with nested
+<code>children</code>. With <code>controls=True</code> each synth's current control
+values are included. Raises <code>EngineError</code> on timeout.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.dump_tree" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">dump_tree</span>
+
+
+<a href="#nanosynth.server.Server.dump_tree" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">dump_tree</span><span class="p">(</span>
+    <span class="n">group</span><span class="p">:</span> <span class="n">SupportsInt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">controls</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Print the node tree under <em>group</em> to the engine's console/log.</p>
+<p>Sends <code>/g_dumpTree</code> (no reply); output appears in the scsynth log.
+For programmatic access use :meth:<code>query_tree</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.reset" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">reset</span>
+
+
+<a href="#nanosynth.server.Server.reset" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">reset</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Free all nodes, clear the scheduler, and reset node-id allocation.</p>
+<p>The engine equivalent of a "panic" / cmd-period: frees every node
+(<code>/g_freeAll 0</code>), clears pending scheduled bundles (<code>/clearSched</code>),
+and recreates the default group. Loaded SynthDefs, buffers, and buses
+are left intact (<code>/g_freeAll</code> does not free them); only the node-id
+allocator is reset.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.enable_notifications" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">enable_notifications</span>
+
+
+<a href="#nanosynth.server.Server.enable_notifications" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">enable_notifications</span><span class="p">(</span><span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Register for node lifecycle notifications (<code>/notify 1</code>).</p>
+<p>Once enabled, the engine sends <code>/n_go</code>/<code>/n_end</code>/<code>/n_off</code>/
+<code>/n_on</code>/<code>/n_move</code> as nodes are created, freed (including by a
+self-freeing <code>DoneAction</code>), paused, resumed, or moved. Idempotent.
+Called automatically by :meth:<code>on_node</code> and :meth:<code>wait_for_node_free</code>.</p>
+<p>Waits for the engine's <code>/done /notify</code> so that registration is in
+effect before any subsequent node command -- otherwise the first
+node's <code>/n_go</code> can be missed. Falls back to fire-and-forget on
+timeout (e.g. a mock server with no reply path).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.disable_notifications" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">disable_notifications</span>
+
+
+<a href="#nanosynth.server.Server.disable_notifications" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">disable_notifications</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Unregister from node lifecycle notifications (<code>/notify 0</code>).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.on_node" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">on_node</span>
+
+
+<a href="#nanosynth.server.Server.on_node" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">on_node</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NodeEvent</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Register <em>callback</em> to receive every :class:<code>NodeEvent</code>.</p>
+<p>Enables notifications if not already on. Callbacks run on the reply
+thread, so they must be non-blocking.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.remove_node_handler" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">remove_node_handler</span>
+
+
+<a href="#nanosynth.server.Server.remove_node_handler" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">remove_node_handler</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NodeEvent</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Remove a callback previously registered with :meth:<code>on_node</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.wait_for_node_free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">wait_for_node_free</span>
+
+
+<a href="#nanosynth.server.Server.wait_for_node_free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">wait_for_node_free</span><span class="p">(</span>
+    <span class="n">node_id</span><span class="p">:</span> <span class="n">SupportsInt</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Block until <em>node_id</em> is freed (<code>/n_end</code>), or <em>timeout</em>.</p>
+<p>Returns <code>True</code> if the node ended, <code>False</code> on timeout. Enables
+notifications if needed. Register the wait <em>before</em> the node can free
+itself (e.g. right after creating a self-freeing synth), or the
+<code>/n_end</code> may arrive first and be missed.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.send_synthdef" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">send_synthdef</span>
+
+
+<a href="#nanosynth.server.Server.send_synthdef" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">send_synthdef</span><span class="p">(</span>
+    <span class="n">synthdef</span><span class="p">:</span> <span class="n">SynthDef</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Send a compiled SynthDef to the engine via /d_recv.</p>
+<p>Waits for the engine to confirm loading (<code>/done /d_recv</code>) before
+returning, so the SynthDef is ready for immediate use. <code>/d_recv</code>
+completion is asynchronous, and a large SynthDef or a busy engine can
+take well over 100 ms; the default matches the other synchronous calls
+(M3). The wait returns as soon as <code>/done</code> arrives, so a real engine is
+not slowed -- only a no-reply path (e.g. a mock server in tests) waits
+the full <code>timeout</code> before falling back to fire-and-forget.</p>
+<p>Args:
+    synthdef: The SynthDef to send.
+    timeout: Seconds to wait for the load confirmation.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.load_synthdef" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">load_synthdef</span>
+
+
+<a href="#nanosynth.server.Server.load_synthdef" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">load_synthdef</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Load a .scsyndef file into the engine via /d_load.</p>
+<p>Args:
+    path: Path to the .scsyndef file.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.synth" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">synth</span>
+
+
+<a href="#nanosynth.server.Server.synth" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">synth</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">AddAction</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">AddAction</span><span class="o">.</span><span class="n">ADD_TO_HEAD</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Synth</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a synth node. Returns a Synth proxy.</p>
+<p>Args:
+    name: SynthDef name.
+    target: Target node for placement.
+    action: Add action (AddAction enum or int 0-4).
+    **params: Initial synth parameter values.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.group" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">group</span>
+
+
+<a href="#nanosynth.server.Server.group" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">group</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">AddAction</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">AddAction</span><span class="o">.</span><span class="n">ADD_TO_HEAD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Group</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a group node. Returns a Group proxy.</p>
+<p>Args:
+    target: Target node for placement.
+    action: Add action (AddAction enum or int 0-4).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.par_group" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">par_group</span>
+
+
+<a href="#nanosynth.server.Server.par_group" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">par_group</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">AddAction</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">AddAction</span><span class="o">.</span><span class="n">ADD_TO_HEAD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParGroup</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a parallel group node. Returns a ParGroup proxy.</p>
+<p>A ParGroup evaluates its child nodes in parallel across CPU cores.</p>
+<p>Args:
+    target: Target node for placement.
+    action: Add action (AddAction enum or int 0-4).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.free" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">free</span>
+
+
+<a href="#nanosynth.server.Server.free" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">free</span><span class="p">(</span><span class="n">node_id</span><span class="p">:</span> <span class="n">SupportsInt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Free a node by ID (accepts int or Synth/Group proxy).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_synth" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_synth</span>
+
+
+<a href="#nanosynth.server.Server.managed_synth" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_synth</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">AddAction</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">AddAction</span><span class="o">.</span><span class="n">ADD_TO_HEAD</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Synth</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a synth and free it on context exit.</p>
+<p>Usage::</p>
+<div class="highlight"><pre><span></span><code>with server.managed_synth(&quot;sine&quot;, frequency=440.0) as node:
+    time.sleep(1)
+# node freed automatically
+</code></pre></div>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_group" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_group</span>
+
+
+<a href="#nanosynth.server.Server.managed_group" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_group</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">AddAction</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">AddAction</span><span class="o">.</span><span class="n">ADD_TO_HEAD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Group</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a group and free it on context exit.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_par_group" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_par_group</span>
+
+
+<a href="#nanosynth.server.Server.managed_par_group" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_par_group</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">AddAction</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">AddAction</span><span class="o">.</span><span class="n">ADD_TO_HEAD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParGroup</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a parallel group and free it on context exit.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.set" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">set</span>
+
+
+<a href="#nanosynth.server.Server.set" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">set</span><span class="p">(</span><span class="n">node_id</span><span class="p">:</span> <span class="n">SupportsInt</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Set parameter values on a running node.</p>
+<p>Args:
+    node_id: The node to modify (int or Synth/Group proxy).
+    **params: Parameter name-value pairs.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.next_buffer_id" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">next_buffer_id</span>
+
+
+<a href="#nanosynth.server.Server.next_buffer_id" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">next_buffer_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a unique buffer ID, reusing freed ids (from 0).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.alloc_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">alloc_buffer</span>
+
+
+<a href="#nanosynth.server.Server.alloc_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">alloc_buffer</span><span class="p">(</span>
+    <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">buffer_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate an empty buffer. Returns the buffer ID.</p>
+<p>Args:
+    num_frames: Number of sample frames.
+    num_channels: Number of channels.
+    buffer_id: Explicit buffer ID, or None for auto-allocation.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.read_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">read_buffer</span>
+
+
+<a href="#nanosynth.server.Server.read_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">read_buffer</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">buffer_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate a buffer and read a sound file into it. Returns the buffer ID.</p>
+<p>Args:
+    path: Path to the sound file.
+    buffer_id: Explicit buffer ID, or None for auto-allocation.
+    start_frame: Frame offset into the file.
+    num_frames: Number of frames to read (-1 for entire file).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.write_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">write_buffer</span>
+
+
+<a href="#nanosynth.server.Server.write_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">write_buffer</span><span class="p">(</span>
+    <span class="n">buffer_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">header_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wav&quot;</span><span class="p">,</span>
+    <span class="n">sample_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span>
+    <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">leave_open</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Write buffer contents to a sound file.</p>
+<p>Args:
+    buffer_id: Buffer to write.
+    path: Destination file path.
+    header_format: File format (e.g. "wav", "aiff").
+    sample_format: Sample format (e.g. "int16", "float").
+    num_frames: Number of frames to write (-1 for all).
+    start_frame: Starting frame in the buffer.
+    leave_open: If True, keep the file open for streaming
+        (used by DiskOut for recording).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.free_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">free_buffer</span>
+
+
+<a href="#nanosynth.server.Server.free_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">free_buffer</span><span class="p">(</span><span class="n">buffer_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Free a buffer by ID and return it to the allocator pool.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.zero_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">zero_buffer</span>
+
+
+<a href="#nanosynth.server.Server.zero_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">zero_buffer</span><span class="p">(</span><span class="n">buffer_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Zero all samples in a buffer.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.close_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">close_buffer</span>
+
+
+<a href="#nanosynth.server.Server.close_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">close_buffer</span><span class="p">(</span><span class="n">buffer_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Close the sound file associated with a buffer (after b_write).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.buffer_info" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">buffer_info</span>
+
+
+<a href="#nanosynth.server.Server.buffer_info" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">buffer_info</span><span class="p">(</span>
+    <span class="n">buffer_id</span><span class="p">:</span> <span class="n">SupportsInt</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return <code>(frames, channels, sample_rate)</code> for an allocated buffer.</p>
+<p>Requires the embedded scsynth engine.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.get_buffer_data" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_buffer_data</span>
+
+
+<a href="#nanosynth.server.Server.get_buffer_data" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_buffer_data</span><span class="p">(</span><span class="n">buffer_id</span><span class="p">:</span> <span class="n">SupportsInt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Copy a buffer's samples into a numpy array of shape <code>(frames, channels)</code>.</p>
+<p>This is a direct in-process memory copy -- no OSC round-trip and no
+datagram-size limit -- which is the main advantage of the embedded
+engine. The buffer must already be allocated. The copy reads the live
+buffer, so a synth writing it concurrently may produce a torn read.</p>
+<p>Requires numpy and the embedded scsynth engine.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.set_buffer_data" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">set_buffer_data</span>
+
+
+<a href="#nanosynth.server.Server.set_buffer_data" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">set_buffer_data</span><span class="p">(</span><span class="n">buffer_id</span><span class="p">:</span> <span class="n">SupportsInt</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Copy a numpy array into an allocated buffer's samples.</p>
+<p><code>data</code> may be 1-D (mono) or 2-D <code>(frames, channels)</code>; it is coerced
+to contiguous float32 and its shape must match the buffer exactly. This
+is a direct in-process memory write; a synth reading the buffer
+concurrently may glitch.</p>
+<p>Requires numpy and the embedded scsynth engine.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.alloc_buffer_from_array" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">alloc_buffer_from_array</span>
+
+
+<a href="#nanosynth.server.Server.alloc_buffer_from_array" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">alloc_buffer_from_array</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sync</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate a buffer sized to <code>data</code> and fill it. Returns the buffer ID.</p>
+<p>Convenience for loading a numpy array (wavetable, sample, window) into
+the engine. <code>data</code> may be 1-D (mono) or 2-D <code>(frames, channels)</code>.
+By default waits (<code>/sync</code>) for the allocation to complete before
+writing; pass <code>sync=False</code> if you have already synced.</p>
+<p>Requires numpy and the embedded scsynth engine.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_buffer</span>
+
+
+<a href="#nanosynth.server.Server.managed_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_buffer</span><span class="p">(</span>
+    <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate a buffer and free it on context exit.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_read_buffer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_read_buffer</span>
+
+
+<a href="#nanosynth.server.Server.managed_read_buffer" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_read_buffer</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Read a sound file into a buffer and free it on context exit.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.audio_bus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">audio_bus</span>
+
+
+<a href="#nanosynth.server.Server.audio_bus" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">audio_bus</span><span class="p">(</span><span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bus</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate private audio bus(es). Returns a Bus proxy.</p>
+<p>Audio buses are allocated from the private range, starting after
+the hardware I/O buses (at <code>options.first_private_bus_id</code>).</p>
+<p>Args:
+    num_channels: Number of contiguous channels to allocate.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.control_bus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">control_bus</span>
+
+
+<a href="#nanosynth.server.Server.control_bus" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">control_bus</span><span class="p">(</span><span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bus</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate control bus(es). Returns a Bus proxy.</p>
+<p>Args:
+    num_channels: Number of contiguous channels to allocate.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.free_bus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">free_bus</span>
+
+
+<a href="#nanosynth.server.Server.free_bus" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">free_bus</span><span class="p">(</span><span class="n">bus</span><span class="p">:</span> <span class="n">Bus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a bus to the allocator pool.</p>
+<p>Args:
+    bus: The Bus proxy to free.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_audio_bus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_audio_bus</span>
+
+
+<a href="#nanosynth.server.Server.managed_audio_bus" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_audio_bus</span><span class="p">(</span><span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Bus</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate an audio bus and free it on context exit.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.managed_control_bus" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">managed_control_bus</span>
+
+
+<a href="#nanosynth.server.Server.managed_control_bus" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">managed_control_bus</span><span class="p">(</span><span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Bus</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Allocate a control bus and free it on context exit.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.record" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">record</span>
+
+
+<a href="#nanosynth.server.Server.record" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">record</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">num_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bus</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">header_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wav&quot;</span><span class="p">,</span>
+    <span class="n">sample_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Start recording server audio output to a file.</p>
+<p>Args:
+    path: Destination file path.
+    num_channels: Number of channels to record. Defaults to
+        <code>options.output_bus_channel_count</code>.
+    bus: Bus index to record from (default 0 = main output).
+    header_format: File format (<code>"wav"</code> or <code>"aiff"</code>).
+    sample_format: Sample encoding (<code>"int16"</code>, <code>"int24"</code>,
+        <code>"float"</code>).</p>
+<p>Raises:
+    EngineError: If already recording.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.server.Server.stop_recording" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">stop_recording</span>
+
+
+<a href="#nanosynth.server.Server.stop_recording" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">stop_recording</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Stop recording and finalize the audio file.</p>
+<p>Safe to call when not recording (no-op).</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
