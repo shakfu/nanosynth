@@ -19,7 +19,7 @@ jobs:
     name: qa (lint + typecheck + test)
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # uv sync builds the C extension from source, which links ALSA on Linux
       # (RtMidi/PortAudio); install the headers here as the test-source job does.
@@ -27,7 +27,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
 
       - name: Install dependencies
         run: uv sync
@@ -54,13 +54,13 @@ jobs:
     name: test (source, py${{ matrix.python-version }})
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install ALSA dev headers
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -86,25 +86,65 @@ jobs:
     name: test (realtime, scsynth)
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install ALSA dev headers + tools
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev alsa-utils
 
-      - name: Provide a virtual (dummy) ALSA sound card
-        # A headless runner has no audio hardware; scsynth boots through
-        # PortAudio/ALSA and needs a device to open. snd-dummy is a kernel
-        # virtual sound card; the asoundrc makes it the default PCM so
-        # PortAudio selects it. (linux-modules-extra carries snd-dummy when the
-        # base image omits it.)
+      - name: Provide a virtual (userspace) audio device
+        # A headless runner has no audio hardware, and the Ubuntu "azure"
+        # kernel that GitHub runners boot ships no sound modules at all -- not
+        # even snd.ko -- so `modprobe snd-dummy` can never succeed here. Both
+        # backends below are pure userspace.
+        #
+        # Preferred: a PulseAudio null sink reached through the ALSA "pulse"
+        # plugin. Its timer-based scheduling keeps realtime pacing honest,
+        # which the scheduled-bundle and node-free assertions in the smoke test
+        # depend on.
+        #
+        # Fallback: the alsa-lib "null" PCM, which needs no daemon but never
+        # blocks, so scsynth free-runs on a meaningless clock. Weaker, but it
+        # still boots and exercises the OSC round-trip.
         run: |
-          sudo apt-get install -y "linux-modules-extra-$(uname -r)" || true
-          sudo modprobe snd-dummy
-          printf 'pcm.!default { type plug slave.pcm "hw:Dummy" }\nctl.!default { type hw card Dummy }\n' > "$HOME/.asoundrc"
-          aplay -l || true
+          sudo apt-get install -y pulseaudio pulseaudio-utils libasound2-plugins || true
+
+          # Pin the runtime dir so every later step (and the daemon) agree on
+          # where the socket lives; the runner's default may be unset.
+          export XDG_RUNTIME_DIR="$HOME/xdg-runtime"
+          mkdir -p "$XDG_RUNTIME_DIR"
+          chmod 700 "$XDG_RUNTIME_DIR"
+          echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
+
+          backend=null
+          if pulseaudio --start --exit-idle-time=-1 --disallow-exit --log-target=stderr; then
+            for _ in $(seq 1 20); do
+              pactl info >/dev/null 2>&1 && break
+              sleep 0.5
+            done
+            if pactl load-module module-null-sink sink_name=dummy \
+                 sink_properties=device.description=Dummy >/dev/null &&
+               pactl set-default-sink dummy; then
+              backend=pulse
+            fi
+          fi
+
+          if [ "$backend" = pulse ]; then
+            printf 'pcm.!default { type pulse }\nctl.!default { type pulse }\n' > "$HOME/.asoundrc"
+            echo "PULSE_SERVER=unix:$XDG_RUNTIME_DIR/pulse/native" >> "$GITHUB_ENV"
+            # scsynth opens an input stream too; the sink's monitor is the only
+            # source there is. (It clamps its 8-in/8-out request to whatever
+            # the device reports, so a stereo null sink is enough.)
+            pactl set-default-source dummy.monitor || true
+            pactl list short sinks
+          else
+            echo "PulseAudio unavailable -- falling back to the alsa-lib null PCM"
+            printf 'pcm.!default { type null }\nctl.!default { type null }\n' > "$HOME/.asoundrc"
+          fi
+          echo "audio backend: $backend"
+          aplay -L 2>/dev/null | head -20 || true
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
 
@@ -124,7 +164,7 @@ jobs:
     name: benchmarks (regression gate)
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -132,7 +172,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
 
@@ -174,7 +214,7 @@ jobs:
     name: wheels / ${{ matrix.os }} (${{ matrix.arch }})
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install ALSA dev headers (Linux)
         if: runner.os == 'Linux'
@@ -191,7 +231,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: yum install -y alsa-lib-devel || apt-get install -y libasound2-dev
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: wheelhouse/*.whl
@@ -201,16 +241,16 @@ jobs:
     name: sdist
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
 
       - name: Build sdist
         run: uv build --sdist
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -222,7 +262,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist/
           merge-multiple: true
@@ -231,7 +271,7 @@ jobs:
         run: ls -lh dist/
 
       - name: Upload combined artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: all-dist
           path: dist/
