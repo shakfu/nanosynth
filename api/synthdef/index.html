@@ -1,0 +1,6203 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://shakfu.github.io/nanosynth/api/synthdef/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../server/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SynthDef Builder - nanosynth</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#synthdef-builder" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="nanosynth" class="md-header__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nanosynth
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SynthDef Builder
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="nanosynth" class="md-nav__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nanosynth
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../server-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../threading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threading Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying SynthDefs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scgf-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SCgf Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_12_2" id="__nav_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SynthDef Builder
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SynthDef Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nanosynth.synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        synthdef
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="synthdef">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.ServerProtocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ServerProtocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenSerializable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenSerializable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.PseudoUGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PseudoUGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenOperable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UGenOperable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.not_equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        not_equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.min_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        min_
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.max_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        max_
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.lcm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lcm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.gcd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gcd
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.round_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        round_
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.round_up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        round_up
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.trunc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trunc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.atan2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        atan2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.hypot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hypot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.hypotx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hypotx
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.difsqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        difsqr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sumsqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sumsqr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sqrsum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sqrsum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sqrdif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sqrdif
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.absdif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        absdif
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.thresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        thresh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.amclip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        amclip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.scaleneg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scaleneg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.clip2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clip2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.excess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        excess
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.fold2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fold2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.wrap2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wrap2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.frac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        frac
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sign
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.squared" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        squared
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.cubed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cubed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.midicps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        midicps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.cpsmidi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpsmidi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.midiratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        midiratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ratiomidi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ratiomidi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.dbamp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dbamp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ampdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ampdb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.octcps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        octcps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.cpsoct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpsoct
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.distort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        distort
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.softclip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        softclip
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenScalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenScalar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.OutputProxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.ConstantProxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConstantProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenVector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenVector
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UnaryOpUGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UnaryOpUGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.BinaryOpUGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BinaryOpUGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenInput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenInput
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenNode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenNode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefGraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDefGraph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDef
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SynthDef">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.to_dot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_dot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.save" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        save
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.play" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        play
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.dump_ugens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dump_ugens
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDefBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SynthDefBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder.__getitem__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __getitem__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder.add_parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_parameter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder.build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.param" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        param
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.ugen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ugen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        synthdef
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OSC Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scsynth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_3" id="__nav_12_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composition
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Composition
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Score (NRT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_4" id="__nav_12_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engines & I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engines & I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_5" id="__nav_12_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UGens
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oscillators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/beq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BEQ Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/noise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Noise & Random
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/delay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delays
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/panning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/demand/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demand
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/chaos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/granular/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/bufio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/diskio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/physical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/reverb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/convolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/pv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Vocoder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Listening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/gendyn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stochastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/hilbert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hilbert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/inout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/mac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mouse/Keyboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/info/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Info
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ugens/ffsinosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Band-limited
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../related-projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Related Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nanosynth.synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        synthdef
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="synthdef">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.ServerProtocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ServerProtocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenSerializable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenSerializable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.PseudoUGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PseudoUGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenOperable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UGenOperable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.not_equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        not_equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.min_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        min_
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.max_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        max_
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.lcm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lcm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.gcd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gcd
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.round_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        round_
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.round_up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        round_up
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.trunc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trunc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.atan2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        atan2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.hypot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hypot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.hypotx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hypotx
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ring4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ring4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.difsqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        difsqr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sumsqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sumsqr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sqrsum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sqrsum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sqrdif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sqrdif
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.absdif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        absdif
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.thresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        thresh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.amclip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        amclip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.scaleneg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scaleneg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.clip2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clip2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.excess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        excess
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.fold2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fold2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.wrap2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wrap2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.frac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        frac
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.sign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sign
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.squared" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        squared
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.cubed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cubed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.midicps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        midicps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.cpsmidi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpsmidi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.midiratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        midiratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ratiomidi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ratiomidi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.dbamp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dbamp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.ampdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ampdb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.octcps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        octcps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.cpsoct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpsoct
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.distort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        distort
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenOperable.softclip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        softclip
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenScalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenScalar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.OutputProxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.ConstantProxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConstantProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenVector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenVector
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UnaryOpUGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UnaryOpUGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.BinaryOpUGen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BinaryOpUGen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.Control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenInput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenInput
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.UGenNode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UGenNode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefGraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDefGraph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDef
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SynthDef">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.to_dot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_dot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        send
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.save" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        save
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.play" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        play
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDef.dump_ugens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dump_ugens
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDefBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SynthDefBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder.__getitem__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __getitem__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder.add_parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_parameter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.SynthDefBuilder.build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.param" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        param
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.ugen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ugen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nanosynth.synthdef.synthdef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        synthdef
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="synthdef-builder">SynthDef Builder<a class="headerlink" href="#synthdef-builder" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="nanosynth.synthdef" class="doc doc-heading">
+            <span class="doc doc-object-name doc-module-name">nanosynth.synthdef</span>
+
+
+<a href="#nanosynth.synthdef" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>SynthDef builder and SCgf compiler for nanosynth.</p>
+<p>Ported from supriya's ugens/core.py -- minimal subset for defining UGen graphs
+in Python and compiling them to SuperCollider's SCgf binary format.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.ServerProtocol" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ServerProtocol</span>
+
+
+<a href="#nanosynth.synthdef.ServerProtocol" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Structural type for servers that can receive SynthDefs and create synths.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.Missing" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Missing</span>
+
+
+<a href="#nanosynth.synthdef.Missing" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Sentinel for required parameters (no default).</p>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.Default" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Default</span>
+
+
+<a href="#nanosynth.synthdef.Default" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Sentinel for parameters whose default is computed from other parameters.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGenSerializable" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGenSerializable</span>
+
+
+<a href="#nanosynth.synthdef.UGenSerializable" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Protocol for objects that can be serialized into a UGen graph (e.g. Envelope).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.PseudoUGen" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">PseudoUGen</span>
+
+
+<a href="#nanosynth.synthdef.PseudoUGen" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Base class for virtual UGens that compose other UGens.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGenOperable" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGenOperable</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Mixin providing arithmetic and signal-processing operators on UGen signals.</p>
+<p>All UGen outputs, constants, and vectors inherit these operators.
+Standard Python operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>**</code>, <code>%</code>,
+<code>//</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&amp;</code>, <code>|</code>, <code>^</code>, <code>&lt;&lt;</code>,
+<code>&gt;&gt;</code>) produce BinaryOpUGen nodes in the graph. Named methods provide
+SuperCollider-specific operations: pitch conversion (<code>midicps</code>,
+<code>cpsmidi</code>), amplitude conversion (<code>dbamp</code>, <code>ampdb</code>), waveshaping
+(<code>distort</code>, <code>softclip</code>, <code>tanh_</code>), clipping (<code>clip2</code>, <code>fold2</code>,
+<code>wrap2</code>), ring modulation (<code>ring1</code>--<code>ring4</code>), and more.</p>
+<p>When both operands are constants, the operation is folded at compile
+time (no UGen is emitted).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.equal" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">equal</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.equal" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">equal</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Signal equality test. Returns 1.0 when equal, 0.0 otherwise.</p>
+<p>Uses an explicit method instead of <code>__eq__</code> to preserve Python
+object identity semantics and hash stability.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.not_equal" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">not_equal</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.not_equal" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">not_equal</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Signal inequality test. Returns 1.0 when not equal, 0.0 otherwise.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.min_" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">min_</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.min_" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">min_</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Minimum of self and expr: <code>min(a, b)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.max_" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">max_</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.max_" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">max_</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Maximum of self and expr: <code>max(a, b)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.lcm" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">lcm</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.lcm" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">lcm</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Least common multiple.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.gcd" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">gcd</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.gcd" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">gcd</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Greatest common divisor.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.round_" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">round_</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.round_" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">round_</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Round self to the nearest multiple of expr.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.round_up" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">round_up</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.round_up" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">round_up</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Round self up to the next multiple of expr.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.trunc" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">trunc</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.trunc" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">trunc</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Truncate self to a multiple of expr.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.atan2" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">atan2</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.atan2" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">atan2</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Two-argument arctangent: <code>atan2(self, expr)</code> in radians.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.hypot" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">hypot</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.hypot" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">hypot</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Euclidean distance: <code>sqrt(self**2 + expr**2)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.hypotx" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">hypotx</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.hypotx" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">hypotx</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Approximate hypotenuse: <code>abs(self) + abs(expr) - min(abs(self), abs(expr)) / sqrt(2)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.ring1" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ring1</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.ring1" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ring1</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Ring modulation variant: <code>self * expr + self</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.ring2" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ring2</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.ring2" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ring2</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Ring modulation variant: <code>self * expr + self + expr</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.ring3" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ring3</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.ring3" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ring3</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Ring modulation variant: <code>self * self * expr</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.ring4" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ring4</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.ring4" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ring4</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Ring modulation variant: <code>self * self * expr - self * expr * expr</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.difsqr" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">difsqr</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.difsqr" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">difsqr</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Difference of squares: <code>self**2 - expr**2</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.sumsqr" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sumsqr</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.sumsqr" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">sumsqr</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Sum of squares: <code>self**2 + expr**2</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.sqrsum" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sqrsum</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.sqrsum" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">sqrsum</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Square of sum: <code>(self + expr)**2</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.sqrdif" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sqrdif</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.sqrdif" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">sqrdif</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Square of difference: <code>(self - expr)**2</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.absdif" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">absdif</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.absdif" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">absdif</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Absolute difference: <code>abs(self - expr)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.thresh" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">thresh</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.thresh" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">thresh</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Threshold gate: <code>self if self &gt;= expr else 0</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.amclip" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">amclip</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.amclip" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">amclip</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Amplitude clipping: <code>self * expr if expr &gt; 0 else 0</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.scaleneg" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">scaleneg</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.scaleneg" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">scaleneg</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Scale negative part: <code>self * expr if self &lt; 0 else self</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.clip2" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">clip2</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.clip2" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">clip2</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Bilateral clipping: clamp self to <code>[-expr, +expr]</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.excess" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">excess</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.excess" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">excess</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Residual after clip2: <code>self - clip2(self, expr)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.fold2" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">fold2</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.fold2" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">fold2</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Bilateral folding: fold self into the range <code>[-expr, +expr]</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.wrap2" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">wrap2</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.wrap2" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">wrap2</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">UGenRecursiveInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Bilateral wrapping: wrap self into the range <code>[-expr, +expr)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.frac" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">frac</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.frac" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">frac</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Fractional part: <code>self - floor(self)</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.sign" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sign</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.sign" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">sign</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Sign function: -1, 0, or 1.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.squared" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">squared</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.squared" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">squared</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Square: <code>self * self</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.cubed" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">cubed</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.cubed" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">cubed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Cube: <code>self * self * self</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.midicps" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">midicps</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.midicps" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">midicps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert MIDI note number to frequency in Hz (e.g. 69 -&gt; 440.0).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.cpsmidi" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">cpsmidi</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.cpsmidi" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">cpsmidi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert frequency in Hz to MIDI note number (e.g. 440.0 -&gt; 69).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.midiratio" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">midiratio</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.midiratio" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">midiratio</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert MIDI interval (semitones) to frequency ratio (e.g. 12 -&gt; 2.0).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.ratiomidi" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ratiomidi</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.ratiomidi" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ratiomidi</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert frequency ratio to MIDI interval in semitones (e.g. 2.0 -&gt; 12).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.dbamp" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">dbamp</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.dbamp" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">dbamp</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert decibels to linear amplitude (e.g. -6 -&gt; ~0.5).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.ampdb" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ampdb</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.ampdb" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ampdb</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert linear amplitude to decibels (e.g. 0.5 -&gt; ~-6).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.octcps" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">octcps</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.octcps" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">octcps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert decimal octave notation to frequency in Hz.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.cpsoct" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">cpsoct</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.cpsoct" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">cpsoct</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert frequency in Hz to decimal octave notation.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.distort" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">distort</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.distort" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">distort</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Nonlinear distortion: <code>self / (1 + abs(self))</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.UGenOperable.softclip" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">softclip</span>
+
+
+<a href="#nanosynth.synthdef.UGenOperable.softclip" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">softclip</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UGenOperable</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Soft clipping: linear below 0.5, asymptotic above. Keeps signal in approximately [-1, 1].</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGenScalar" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGenScalar</span>
+
+
+<a href="#nanosynth.synthdef.UGenScalar" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGenOperable (nanosynth.synthdef.UGenOperable)" href="#nanosynth.synthdef.UGenOperable">UGenOperable</a></code></p>
+
+
+
+        <p>A UGen scalar.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.OutputProxy" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">OutputProxy</span>
+
+
+<a href="#nanosynth.synthdef.OutputProxy" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGenScalar (nanosynth.synthdef.UGenScalar)" href="#nanosynth.synthdef.UGenScalar">UGenScalar</a></code></p>
+
+
+
+        <p>A UGen output proxy -- reference to a specific output of a UGen.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.ConstantProxy" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ConstantProxy</span>
+
+
+<a href="#nanosynth.synthdef.ConstantProxy" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGenScalar (nanosynth.synthdef.UGenScalar)" href="#nanosynth.synthdef.UGenScalar">UGenScalar</a></code></p>
+
+
+
+        <p>Wraps a float constant, exposing UGenOperable arithmetic.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGenVector" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGenVector</span>
+
+
+<a href="#nanosynth.synthdef.UGenVector" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGenOperable (nanosynth.synthdef.UGenOperable)" href="#nanosynth.synthdef.UGenOperable">UGenOperable</a></code>, <code><span title="collections.abc.Sequence">Sequence</span>[&#39;UGenOperable&#39;]</code></p>
+
+
+
+        <p>A sequence of UGenOperables.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGen" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGen</span>
+
+
+<a href="#nanosynth.synthdef.UGen" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGenOperable (nanosynth.synthdef.UGenOperable)" href="#nanosynth.synthdef.UGenOperable">UGenOperable</a></code>, <code><span title="collections.abc.Sequence">Sequence</span>[&#39;UGenOperable&#39;]</code></p>
+
+
+
+        <p>Base class for all unit generators.</p>
+<p>A UGen represents a single signal-processing node in a SynthDef graph.
+Subclasses are declared with the <code>@ugen</code> decorator, which generates
+<code>__init__</code>, rate constructors (<code>.ar</code>, <code>.kr</code>, <code>.ir</code>, <code>.dr</code>),
+and parameter accessors.</p>
+<p>UGens are instantiated inside a <code>SynthDefBuilder</code> context manager and
+automatically register themselves with the active builder. They support
+multi-channel expansion: passing a list to any parameter produces
+parallel UGen instances (one per list element), returned as a
+<code>UGenVector</code>.</p>
+<p>Indexing a UGen (<code>ugen[0]</code>) returns an <code>OutputProxy</code> referencing a
+specific output channel.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UnaryOpUGen" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UnaryOpUGen</span>
+
+
+<a href="#nanosynth.synthdef.UnaryOpUGen" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGen (nanosynth.synthdef.UGen)" href="#nanosynth.synthdef.UGen">UGen</a></code></p>
+
+
+
+        <p>Applies a unary operator to a single input signal.</p>
+<p>Created implicitly by named unary methods on <code>UGenOperable</code> (e.g.
+<code>sig.midicps()</code>, <code>sig.tanh_()</code>). The <code>special_index</code> selects
+which <code>UnaryOperator</code> to apply.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.BinaryOpUGen" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">BinaryOpUGen</span>
+
+
+<a href="#nanosynth.synthdef.BinaryOpUGen" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGen (nanosynth.synthdef.UGen)" href="#nanosynth.synthdef.UGen">UGen</a></code></p>
+
+
+
+        <p>Applies a binary operator to two input signals.</p>
+<p>Created implicitly by Python operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>,
+etc.) and named binary methods (<code>clip2</code>, <code>ring1</code>, etc.) on
+<code>UGenOperable</code>. The <code>special_index</code> selects which
+<code>BinaryOperator</code> to apply. Includes compile-time algebraic
+optimizations (e.g. <code>x * 0 = 0</code>, <code>x + 0 = x</code>, <code>x ** 1 = x</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.Parameter" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Parameter</span>
+
+
+<a href="#nanosynth.synthdef.Parameter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGen (nanosynth.synthdef.UGen)" href="#nanosynth.synthdef.UGen">UGen</a></code></p>
+
+
+
+        <p>A named SynthDef parameter with a default value, rate, and optional lag.</p>
+<p>Parameters are created by <code>SynthDefBuilder.add_parameter()</code> or the
+<code>SynthDefBuilder(**kwargs)</code> constructor. During <code>build()</code>, they are
+collected, sorted, and mapped to the appropriate <code>Control</code> UGen type
+based on their <code>rate</code> (CONTROL -&gt; Control, AUDIO -&gt; AudioControl,
+TRIGGER -&gt; TrigControl, CONTROL+lag -&gt; LagControl).</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.Control" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Control</span>
+
+
+<a href="#nanosynth.synthdef.Control" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UGen (nanosynth.synthdef.UGen)" href="#nanosynth.synthdef.UGen">UGen</a></code></p>
+
+
+
+        <p>A group of parameters exposed as control-rate (or scalar-rate) inputs.</p>
+<p>Created internally by <code>SynthDefBuilder.build()</code> to aggregate
+<code>Parameter</code> instances by rate. Subclasses <code>AudioControl</code>,
+<code>LagControl</code>, and <code>TrigControl</code> handle audio-rate, lagged, and
+trigger-rate parameters respectively.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGenInput" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGenInput</span>
+
+
+<a href="#nanosynth.synthdef.UGenInput" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.NamedTuple">NamedTuple</span></code></p>
+
+
+
+        <p>A single input to a UGen node in the graph.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.UGenNode" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">UGenNode</span>
+
+
+<a href="#nanosynth.synthdef.UGenNode" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.NamedTuple">NamedTuple</span></code></p>
+
+
+
+        <p>A UGen in the graph with its connections.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.SynthDefGraph" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">SynthDefGraph</span>
+
+
+<a href="#nanosynth.synthdef.SynthDefGraph" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.NamedTuple">NamedTuple</span></code></p>
+
+
+
+        <p>Structured representation of a SynthDef's UGen graph.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.SynthDef" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">SynthDef</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>A compiled UGen graph, ready for binary serialization and server dispatch.</p>
+<p>Produced by <code>SynthDefBuilder.build()</code> or the <code>@synthdef</code> decorator.
+Contains the topologically sorted UGen list, constant table, control
+mapping, and parameter index.</p>
+<p>Key methods:</p>
+<ul>
+<li><code>compile()</code> -- serialize to SuperCollider's SCgf binary format.</li>
+<li><code>send(server)</code> -- send the compiled bytes to a running server.</li>
+<li><code>play(server, **params)</code> -- send and immediately create a synth.</li>
+<li><code>dump_ugens()</code> -- return a human-readable graph representation.</li>
+<li><code>graph()</code> -- return a structured <code>SynthDefGraph</code> for introspection.</li>
+<li><code>to_dot()</code> -- export the graph as a Graphviz DOT string.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDef.graph" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">graph</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef.graph" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">graph</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">SynthDefGraph</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a structured representation of the UGen graph.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDef.to_dot" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">to_dot</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef.to_dot" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">to_dot</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">rankdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;TB&#39;</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Export the UGen graph as a Graphviz DOT string.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDef.send" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">send</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef.send" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">send</span><span class="p">(</span><span class="n">server</span><span class="p">:</span> <span class="n">ServerProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Send this SynthDef to a running server.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDef.save" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">save</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef.save" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">save</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">use_anonymous_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Write this SynthDef to a .scsyndef file.</p>
+<p>Args:
+    path: Destination file path.
+    use_anonymous_name: If True, use the anonymous name in the binary.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDef.play" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">play</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef.play" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">play</span><span class="p">(</span>
+    <span class="n">server</span><span class="p">:</span> <span class="n">ServerProtocol</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SupportsInt</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Send this SynthDef, then create a synth. Returns a Synth proxy.</p>
+<p>The SynthDef is sent unconditionally (there is no caching), so calling
+<code>play</code> repeatedly re-sends it each time.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDef.dump_ugens" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">dump_ugens</span>
+
+
+<a href="#nanosynth.synthdef.SynthDef.dump_ugens" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">dump_ugens</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a human-readable representation of the UGen graph.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="nanosynth.synthdef.SynthDefBuilder" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">SynthDefBuilder</span>
+
+
+<a href="#nanosynth.synthdef.SynthDefBuilder" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Context manager for constructing SynthDef UGen graphs.</p>
+<p>Usage::</p>
+<div class="highlight"><pre><span></span><code>with SynthDefBuilder(frequency=440.0, amplitude=0.3) as builder:
+    sig = SinOsc.ar(frequency=builder[&quot;frequency&quot;])
+    Out.ar(bus=0, source=sig * builder[&quot;amplitude&quot;])
+synthdef = builder.build(name=&quot;my_synth&quot;)
+</code></pre></div>
+<p>Parameters are declared as keyword arguments (name=default_value) or
+via <code>add_parameter()</code>. Inside the context, UGens instantiated with
+a matching <code>_uuid</code> are automatically added to the graph. On
+<code>build()</code>, the graph is sorted topologically, controls are mapped,
+unused pure UGens are eliminated, and a <code>SynthDef</code> is returned.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDefBuilder.__getitem__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__getitem__</span>
+
+
+<a href="#nanosynth.synthdef.SynthDefBuilder.__getitem__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutputProxy</span> <span class="o">|</span> <span class="n">Parameter</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Look up a parameter by name.</p>
+<p>Returns an OutputProxy for scalar parameters, or the Parameter
+itself for multi-channel parameters (sequence values).</p>
+<p>Raises:
+    KeyError: If the parameter name does not exist.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDefBuilder.add_parameter" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">add_parameter</span>
+
+
+<a href="#nanosynth.synthdef.SynthDefBuilder.add_parameter" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_parameter</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">rate</span><span class="p">:</span> <span class="n">ParameterRate</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">ParameterRate</span><span class="o">.</span><span class="n">CONTROL</span><span class="p">,</span>
+    <span class="n">lag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutputProxy</span> <span class="o">|</span> <span class="n">Parameter</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Add a named parameter to the SynthDef.</p>
+<p>Args:
+    name: Parameter name (must be unique within this builder).
+    value: Default value. A sequence creates a multi-channel parameter.
+    rate: Parameter rate (CONTROL, AUDIO, TRIGGER, or SCALAR).
+    lag: Lag time in seconds. Produces a LagControl when set.</p>
+<p>Returns:
+    OutputProxy for scalar parameters, or the Parameter for
+    multi-channel parameters.</p>
+<p>Raises:
+    ValueError: If a parameter with this name already exists.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="nanosynth.synthdef.SynthDefBuilder.build" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">build</span>
+
+
+<a href="#nanosynth.synthdef.SynthDefBuilder.build" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">build</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SynthDef</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compile the UGen graph into a SynthDef.</p>
+<p>Performs control mapping, topological sorting, and optional dead
+code elimination. The builder can be reused after calling build().</p>
+<p>Args:
+    name: SynthDef name. If None, an anonymous MD5 hash is used.
+    optimize: If True, eliminate unused pure UGens from the graph.</p>
+<p>Returns:
+    A compiled SynthDef ready for sending to a server.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="nanosynth.synthdef.param" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">param</span>
+
+
+<a href="#nanosynth.synthdef.param" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">param</span><span class="p">(</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">Missing</span> <span class="o">|</span> <span class="n">Default</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">MISSING</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">unexpanded</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Param</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Define a UGen parameter. Akin to dataclasses.field.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="nanosynth.synthdef.ugen" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">ugen</span>
+
+
+<a href="#nanosynth.synthdef.ugen" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ugen</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">ar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">kr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ir</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">dr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">has_done_flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">is_multichannel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">is_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">is_pure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">is_width_first</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">channel_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">fixed_channel_count</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">type</span><span class="p">[</span><span class="n">UGen</span><span class="p">]],</span> <span class="nb">type</span><span class="p">[</span><span class="n">UGen</span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Decorate a UGen class. Akin to dataclasses.dataclass.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="nanosynth.synthdef.control" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">control</span>
+
+
+<a href="#nanosynth.synthdef.control" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">control</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">rate</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">ParameterRate</span> <span class="o">=</span> <span class="s2">&quot;kr&quot;</span><span class="p">,</span>
+    <span class="n">lag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Parameter</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Define a SynthDef parameter with rate and lag metadata.</p>
+<p>Returns a <code>Parameter</code> instance suitable for passing to
+<code>SynthDefBuilder</code> as a keyword argument::</p>
+<div class="highlight"><pre><span></span><code>SynthDefBuilder(
+    freq=control(440.0, rate=&quot;ar&quot;),        # audio rate
+    amp=control(0.3, lag=0.1),              # control rate + lag
+    bus=control(0, rate=&quot;ir&quot;),              # scalar rate
+)
+</code></pre></div>
+<p>Args:
+    value: Default parameter value (float or sequence for multi-channel).
+    rate: Parameter rate -- <code>"ar"</code>, <code>"kr"</code>, <code>"ir"</code>, <code>"tr"</code>,
+        or a <code>ParameterRate</code> enum member. Defaults to <code>"kr"</code>.
+    lag: Lag time in seconds. Produces a LagControl when set.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="nanosynth.synthdef.synthdef" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">synthdef</span>
+
+
+<a href="#nanosynth.synthdef.synthdef" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">synthdef</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">SynthDef</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Decorator for constructing SynthDefs from functions.</p>
+<p>Parameter rates and lags can be specified positionally::</p>
+<div class="highlight"><pre><span></span><code>@synthdef(&quot;ar&quot;, (&quot;kr&quot;, 0.5))
+def my_synth(freq=440, amp=0.1):
+    ...
+</code></pre></div>
+<p>Without arguments, all parameters default to control rate::</p>
+<div class="highlight"><pre><span></span><code>@synthdef()
+def my_synth(freq=440, amp=0.1):
+    ...
+</code></pre></div>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3865 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://shakfu.github.io/nanosynth/changelog/">
+      
+      
+        <link rel="prev" href="../related-projects/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Changelog - nanosynth</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="nanosynth" class="md-header__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nanosynth
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="nanosynth" class="md-nav__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nanosynth
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../server-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../threading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threading Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying SynthDefs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scgf-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SCgf Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_2" id="__nav_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/synthdef/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SynthDef Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OSC Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/scsynth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_3" id="__nav_12_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composition
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Composition
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Score (NRT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_4" id="__nav_12_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engines & I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engines & I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_5" id="__nav_12_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UGens
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oscillators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/beq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BEQ Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/noise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Noise & Random
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/delay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delays
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/panning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/demand/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demand
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/chaos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/granular/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/bufio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/diskio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/physical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/reverb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/convolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/pv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Vocoder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Listening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/gendyn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stochastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/hilbert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hilbert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/inout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/mac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mouse/Keyboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/info/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Info
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/ugens/ffsinosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Band-limited
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../related-projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Related Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.1]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.1]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.1]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.1]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.6]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.6]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.5]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.5]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.4]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.4]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.3]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.3]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.2]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.2]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.1]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.1]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.1]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.1]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.1]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.1]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.6]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.6]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.5]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.5]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.4]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.4]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.3]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.3]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.2]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.2]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.1]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.1]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="031">[0.3.1]<a class="headerlink" href="#031" title="Permanent link">&para;</a></h2>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>OSC blob length integer overflow -&gt; heap over-read</strong> (<code>_osc.cpp</code>): <code>decode_blob</code> rounded the wire-supplied 32-bit blob length up to a 4-byte boundary <em>before</em> the bounds check, so a length near <code>UINT32_MAX</code> (e.g. <code>0xFFFFFFFF</code>) wrapped to a tiny padded size and slipped past the guard, after which the ~4 GB blob was scanned/copied past the end of the datagram. Reachable from any incoming packet (engine replies are decoded through the same path). The length is now validated against the remaining bytes before the rounding, matching the overflow-safe form already used for bundle elements</p>
+</li>
+<li>
+<p><strong><code>audioSignal * 0</code> and <code>audioSignal ** 0</code> crashed the engine</strong> (<code>synthdef.py</code>): the compiler folded <code>x * 0 -&gt; 0</code> and <code>x ** 0 -&gt; 1</code> to a scalar constant unconditionally, even when the surviving operand was an audio/control-rate UGen. Feeding that scalar wire into a signal-rate input (e.g. <code>Out.ar(bus, SinOsc.ar() * 0)</code>) made scsynth's SIMD <code>Out_next_a_nova_64</code> read a single 4-byte scalar as an aligned 64-sample block -- an out-of-bounds, often misaligned load that segfaults (and, depending on heap layout, can read garbage instead of crashing). The two rate-downgrading folds now apply only when the surviving operand is itself scalar-rate; otherwise the <code>BinaryOpUGen</code> is kept so the result is a proper rate-matched silence/ones signal. This was the true cause of the real-boot smoke-test crash previously misattributed to the headless audio environment</p>
+</li>
+<li>
+<p><strong>Unbounded C++ recursion in OSC encoding</strong> (<code>_osc.cpp</code>): <code>encode_value</code> recursed into nested lists/tuples with no depth limit (unlike the decoder), so a deeply nested or self-referential Python sequence overflowed the C++ stack and crashed the process uncatchably. Encoding now bounds nesting depth and raises <code>ValueError</code> past the limit</p>
+</li>
+<li>
+<p><strong>Quit-timeout force-cleanup re-introduced a double-free</strong> (<code>scsynth.py</code>, <code>supernova.py</code>): when the engine failed to acknowledge shutdown within 5s, the timeout path freed the native <code>World</code>/<code>nova_server</code> even though the wait thread was still inside <code>World_WaitForQuit</code>/<code>supernova_run</code> on it -- the exact teardown race the normal path guards against. Shutdown now joins the thread first and, only if it has provably exited, deletes the native object; if the thread is wedged it deliberately leaks rather than free-under-a-live-thread (memory-safe). <code>supernova_cleanup</code> was split into <code>supernova_stop</code> (deactivate audio) and <code>supernova_delete</code> so teardown can order stop -&gt; join -&gt; delete</p>
+</li>
+<li>
+<p><strong>Synchronous requests hung when issued inside an <code>at()</code> block</strong> (<code>server.py</code>): <code>send_msg_sync</code> (and everything built on it -- <code>sync</code>, <code>status</code>, <code>version</code>, <code>query_tree</code>, <code>enable_notifications</code>, the <code>send_synthdef</code> confirmation) registered a reply waiter and then sent the request, but inside <code>with server.at(...)</code> the request was captured into the pending bundle instead of being sent, so no reply could ever arrive and the call blocked for the full timeout before reporting a spurious failure on a healthy engine. These now raise a clear <code>EngineError</code> telling the caller to move the synchronous call outside the <code>at()</code> block</p>
+</li>
+<li>
+<p><strong>Comparison operators did not fold and could crash on cross-scope use</strong> (<code>synthdef.py</code>): <code>&gt;</code>, <code>&lt;</code>, <code>.equal()</code>, and <code>.not_equal()</code> (unlike <code>&gt;=</code>/<code>&lt;=</code>) passed no float operator, so two-constant comparisons emitted a stray scalar UGen instead of folding, and one computed outside a builder then used inside raised <code>SynthDefError: UGen input in different scope</code>. All six comparisons now fold consistently to <code>1.0</code>/<code>0.0</code></p>
+</li>
+<li>
+<p><strong><code>Dwhite</code> upper bound defaulted to 0.0</strong> (<code>ugens/demand.py</code>): a copy-paste made <code>Dwhite</code>'s <code>maximum</code> default <code>0.0</code> instead of <code>1.0</code>, so <code>Dwhite()</code> with defaults degenerated to a constant-zero stream. Corrected to <code>1.0</code> (its <code>Dbrown</code>/<code>Diwhite</code> siblings were already correct) and the language-neutral spec regenerated</p>
+</li>
+<li>
+<p><strong><code>Clock.stop()</code> left held <code>Pmono</code> voices ringing</strong> (<code>patterns.py</code>): stopping a clock marked its players stopped but, unlike <code>Player.stop()</code>, never gated off their held <code>Pmono</code> synths, so a mono voice rang until the server quit. <code>Clock.stop()</code> now releases every player's held voices</p>
+</li>
+<li>
+<p><strong><code>Score.render()</code> / <code>to_binary()</code> did not sort by timestamp</strong> (<code>score.py</code>): the NRT command stream is consumed sequentially, so an out-of-order entry (e.g. <code>score.add(2.0, ...)</code> before <code>score.add(1.0, ...)</code>) was rendered at the wrong time with no error. Both now serialize a stable-sorted copy, and the teardown guard bundle is appended after the sort so it still runs last</p>
+</li>
+<li>
+<p><strong>Option-string use-after-free on abnormal teardown</strong> (<code>_scsynth.cpp</code>): the capsule held the <code>World</code>'s option strings (<code>mPassword</code>, <code>mRestrictedPath</code>, ...) which scsynth dereferences on every packet/command, but freed them in its destructor without regard to whether the <code>World</code> had been cleaned up. If the capsule was garbage-collected while a <code>World</code> was still live (an abandoned boot with a port open), the running engine read freed memory. The strings are now freed only after an explicit <code>world_cleanup</code>/<code>world_wait_for_quit</code>; otherwise they are leaked deliberately rather than freed under a live engine</p>
+</li>
+<li>
+<p><strong><code>enable_notifications</code> first-use race</strong> (<code>server.py</code>): two threads enabling node notifications concurrently could both install the dispatch handlers and both send <code>/notify 1</code>, so every <code>/n_go</code>/<code>/n_end</code>/... fired user callbacks twice. The enable/install transition is now serialized by a dedicated lock</p>
+</li>
+<li>
+<p><strong><code>send_packet</code> handle race on panic</strong> (<code>scsynth.py</code>, <code>supernova.py</code>): the status check and the native-handle dereference read <code>self._world</code>/<code>self._server</code> separately, so the wait/run thread nulling it on a panic in between could pass a null handle to the native call. The handle is now snapshotted once and re-checked</p>
+</li>
+<li>
+<p><strong>Explicit buffer-id reservation could corrupt the allocator</strong> (<code>server.py</code>): <code>_BlockAllocator.reserve</code> did not bounds- or overlap-check the requested id, so reserving an out-of-range or already-allocated id populated the size table without matching a free interval, and a later <code>free</code> then injected a bad interval that <code>allocate</code> could hand out. <code>reserve</code> now validates the range and rejects overlap with an <code>EngineError</code></p>
+</li>
+<li>
+<p><strong>Concurrent <code>boot()</code> on one instance could clobber its state</strong> (<code>scsynth.py</code>, <code>supernova.py</code>): the OFFLINE-&gt;BOOTING check-and-set was unsynchronized, so two threads booting the same instance could both proceed and leave <code>is_running</code> reporting the wrong state. A per-instance lock now serializes that transition</p>
+</li>
+<li>
+<p><strong>MIDI handler lists were mutated across threads without synchronization</strong> (<code>midi.py</code>): the RtMidi callback thread iterated the handler lists while <code>on_*</code>/<code>off_*</code> mutated them from the user thread, risking <code>RuntimeError: list changed size during iteration</code> or missed/double dispatch during live coding. Dispatch now iterates over a snapshot</p>
+</li>
+<li>
+<p><strong><code>midi_note_map</code> leaked voices on retrigger and cleanup</strong> (<code>midi.py</code>): a second Note-On for a still-held key overwrote the entry and dropped the previous synth un-gated (a stuck voice), and <code>cleanup()</code> left held voices ringing. The map now gates the previous voice off before retriggering and releases all held voices on cleanup</p>
+</li>
+<li>
+<p><strong>Constant folding aborted the whole build on math-domain inputs</strong> (<code>synthdef.py</code>): folding <code>ConstantProxy(-1.0).sqrt_()</code>, <code>log(0)</code>, <code>(-8) ** (1/3)</code>, etc. raised <code>ValueError</code>/<code>TypeError</code> out of graph construction, where scsynth would produce NaN/inf. Such folds now defer to a runtime UGen instead of failing the build</p>
+</li>
+<li>
+<p><strong>Malformed envelope <code>curves</code> corrupted or emptied the envelope</strong> (<code>envelopes.py</code>): a <code>curves</code> list longer than the segment count inflated the compiled segment count (cycling amplitudes/durations), and <code>curves=None</code>/<code>[]</code> produced a zero-segment envelope that silently dropped every breakpoint. Curves are now normalized to exactly <code>len(durations)</code> -- cycled if short, truncated if long, defaulting to LINEAR when empty</p>
+</li>
+<li>
+<p><strong>Failed supernova boot leaked the process engine claim</strong> (<code>_supernova.cpp</code>, <code>_scsynth.cpp</code>): a boot that failed before the SuperCollider core globals were initialized left the cross-engine coordination env var claimed, wrongly rejecting a later boot of the other engine kind. A scope guard now releases the claim on such pre-init failures (and keeps it once the core exists, since the process is then genuinely tainted), and the supernova RT memory pool is guarded against re-initialization on retry</p>
+</li>
+<li>
+<p><strong>A self-freeing <code>LFGauss</code> was silently optimized away</strong> (<code>synthdef.py</code>): <code>LFGauss</code> is marked pure, so an <code>LFGauss(done_action=FREE_SYNTH)</code> whose signal output is unused (used purely to self-free the synth) was dead-code-eliminated by graph optimization, dropping the <code>DoneAction</code> -- the synth would never free. Dead-code elimination now keeps any pure UGen that carries an active (nonzero) <code>DoneAction</code>; a <code>DoneAction.NOTHING</code> UGen is still eliminated, so the optimization is otherwise unchanged</p>
+</li>
+<li>
+<p><strong>Invalid SynthDef/parameter names raised opaque low-level errors</strong> (<code>compiler.py</code>): a name longer than 255 bytes raised <code>struct.error</code> and a non-ASCII name raised <code>UnicodeEncodeError</code> deep in the binary encoder. SCgf string encoding now validates ASCII and the 255-byte limit and raises a clear <code>SynthDefError</code></p>
+</li>
+<li>
+<p><strong><code>Pfin</code> over-consumed its source, and <code>Ptpar</code> dropped a leading offset</strong> (<code>patterns.py</code>): <code>Pfin(count, p)</code> pulled one extra element from the source before stopping (it now consumes exactly <code>count</code>, which matters for a shared/side-effecting iterator), and <code>Ppar</code>/<code>Ptpar</code> discarded a nonzero minimum start offset so an all-delayed parallel group started early (it now emits a leading rest for that offset)</p>
+</li>
+<li>
+<p><strong><code>alloc_buffer_from_array</code> wrote engine memory after a failed sync</strong> (<code>server.py</code>): the <code>sync()</code> return was ignored, so on a sync timeout the direct buffer write proceeded against a possibly-unallocated buffer. It now raises <code>EngineError</code> on a failed sync instead of writing blindly</p>
+</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong><code>Server.send_synthdef</code> confirmation timeout is now a parameter</strong> (<code>server.py</code>): <code>/d_recv</code> completion is asynchronous and a large SynthDef or a busy engine can take well over the previous hard-coded 100 ms, after which the def was marked loaded anyway and a following <code>/s_new</code> could fail with "SynthDef not found". The timeout now defaults to 5s (matching the other synchronous calls) and is exposed as a <code>timeout</code> argument; the wait still returns the instant <code>/done</code> arrives, so a healthy engine is not slowed</p>
+</li>
+<li>
+<p><strong>Stochastic patterns accept a <code>seed</code></strong> (<code>patterns.py</code>): <code>Prand</code>, <code>Pwhite</code>, and <code>Pchoose</code> take an optional <code>seed</code> and use a per-instance RNG instead of the module-global <code>random</code>. A seeded pattern replays identically on every iteration (reproducible NRT renders), and even unseeded patterns are now independent of unrelated <code>random</code> use elsewhere in the process</p>
+</li>
+<li>
+<p><strong><code>Ndef</code> registry keyed on the server object</strong> (<code>proxy.py</code>): the named-proxy registry was keyed on <code>id(server)</code> (an int that can be reused after a server is collected) and is now a <code>WeakKeyDictionary</code> keyed on the server itself, so a collected server's entry is dropped automatically and identity can never be aliased</p>
+</li>
+<li>
+<p><strong>In-code documentation of two accepted limitations</strong>: the direct in-process buffer transfer (<code>_scsynth.cpp</code> <code>world_buffer_get</code>/<code>set</code>) now states its safety contract explicitly -- a get/set racing a <code>/b_free</code> or <code>/b_alloc</code> on the same buffer id is a use-after-free, not a benign glitch, so callers must not run buffer commands for that id during the transfer -- and the cross-engine guard (<code>_scsynth.cpp</code>, <code>_supernova.cpp</code>) documents that its coordination env var is inherited across <code>fork()</code> and is not atomic against concurrent claims (the two extension modules share no symbols, so a process-local static cannot replace it)</p>
+</li>
+</ul>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Real-boot CI job</strong> (<code>.github/workflows/build.yml</code>): a <code>test-realtime</code> job provisions a virtual ALSA sound card and runs <code>tests/test_realtime_smoke.py</code> against a genuinely booted scsynth <code>World</code> (the live <code>/sync</code> round-trip, reclaiming allocators, node-free notifications, reboot, and the send/reply deadlock regression), closing the gap where the largest module was previously exercised only by opt-in local runs. Supernova real-boot is intentionally excluded pending a separate teardown/reboot fix</p>
+</li>
+<li>
+<p><strong>Golden-fixture render test</strong> (<code>test_integration.py</code>): a new NRT integration test loads each committed <code>.scsyndef</code> golden fixture verbatim and asserts it renders non-silent audio -- the correctness link the golden-byte test's docstring claimed but did not previously exercise (the byte test only checks <code>compile() == fixture</code>)</p>
+</li>
+<li>
+<p><strong>Independent UGen-default oracle</strong> (<code>test_ugen_spec.py</code>): a hand-verified test of well-known UGen argument defaults (the demand-random UGens plus anchor shapes), transcribed from the SuperCollider class library rather than generated from the same Python classes the spec introspects, so a wrong default like the <code>Dwhite</code> regression is caught instead of being mirrored into the committed spec</p>
+</li>
+</ul>
+<h2 id="030">[0.3.0]<a class="headerlink" href="#030" title="Permanent link">&para;</a></h2>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Timestamped OSC bundle scheduling</strong> (<code>server.py</code>): <code>Server.send_bundle(contents, timestamp)</code> sends an explicit bundle, and <code>Server.at(timestamp)</code> is a context manager that captures every message sent inside the block into a single timestamped bundle. Because it hooks <code>send_msg</code> -- which all OSC-sending <code>Server</code> methods already route through -- the ordinary high-level API works unchanged inside the block (<code>with server.at(t): server.synth(...)</code>), rather than needing a bundle-aware variant of each method. Node ids are allocated eagerly, so returned proxies are usable before the bundle is sent. Timestamps are Unix epoch seconds; a past timestamp executes on arrival. The capture stack is thread-local (a block open on one thread never captures another's sends), blocks nest into nested OSC bundles, an empty block sends nothing, and a block that raises sends nothing rather than emitting a half-built bundle</p>
+</li>
+<li>
+<p><strong>Pattern latency scheduling</strong> (<code>patterns.py</code>): <code>Clock(bpm, latency=...)</code> and <code>Player(..., latency=...)</code> (defaulting to the clock's value, so players sharing a clock stay phase-aligned) schedule each event as a bundle stamped <code>target + latency</code> instead of an immediate <code>/s_new</code> at Python wake time. <code>DEFAULT_LATENCY</code> is 0.1s. Onset accuracy is now set by the engine rather than by when the clock thread woke, so playback holds steady under Python-side load. Verified against a live engine via <code>/n_go</code> notifications: a bundle stamped 750ms ahead created its node 734ms later, versus 11ms for the unbundled path</p>
+</li>
+<li>
+<p><strong>Pattern quantization</strong> (<code>patterns.py</code>): <code>Clock</code> now maintains a beat grid, and <code>play(quant=...)</code> starts playback on the next <code>quant</code>-beat boundary instead of immediately, so parts launched by hand at arbitrary moments still begin together. <code>offset</code> starts a given number of beats past the boundary (for backbeats and swung entries). <code>Clock.elapsed_beats</code>, <code>Clock.next_boundary(quant, offset)</code>, and <code>Clock.reset_grid()</code> expose the grid. All players on a clock share one grid, so quantized starts are mutually aligned</p>
+</li>
+<li>
+<p><strong>Pitch and event derivation chain</strong> (<code>patterns.py</code>): <code>Pbind</code> now implements the sclang derivation chain -- <code>degree</code> -&gt; <code>note</code> -&gt; <code>midinote</code> -&gt; <code>freq</code>, plus <code>db</code> -&gt; <code>amp</code> and <code>dur</code>/<code>legato</code>/<code>stretch</code> -&gt; <code>sustain</code>/<code>delta</code> -- so patterns can be written in scale degrees rather than precomputed frequencies. <code>degree</code> indexes a <code>scale</code> (a name from the new <code>SCALES</code> table or an explicit semitone list), wrapping across octaves, with fractional degrees interpolating between steps; <code>root</code> transposes and <code>octave</code> (default 5) places note 0 at MIDI 60. Every step is skipped when the key is bound explicitly, so binding <code>freq</code> bypasses the chain entirely. Derivation inputs are treated as metadata and never sent to the synth as controls</p>
+</li>
+<li>
+<p><strong><code>Ppar</code> / <code>Ptpar</code></strong> (<code>patterns.py</code>): run event patterns in parallel, merged into one time-ordered stream. Each voice keeps its own <code>sustain</code>; only <code>delta</code> is rewritten to the gap in the merged stream. Simultaneous events receive a delta of 0 and therefore land in the same bundle timestamp -- verified against a live engine, where coincident events started 0.04ms apart. <code>Ptpar</code> adds a per-pattern beat offset</p>
+</li>
+<li>
+<p><strong><code>Pmono</code></strong> (<code>patterns.py</code>): holds a single synth for the lifetime of the pattern and sends <code>/n_set</code> per event rather than creating a node per note, releasing it when the pattern ends or the player stops. This is what produces a monophonic gliding line (portamento, continuous filter sweeps) that a stream of separate synths cannot. Verified live: five events created one node and ended one</p>
+</li>
+<li>
+<p><strong><code>Pdef</code></strong> (<code>patterns.py</code>): a named, hot-swappable event pattern registry -- the pattern analogue of <code>Ndef</code>. <code>Pdef(name, pattern)</code> registers or replaces, <code>Pdef(name)</code> looks up, and a running player picks up a replacement at the next event boundary, so a part can be rewritten without stopping playback</p>
+</li>
+<li>
+<p><strong><code>Pkey</code></strong> (<code>patterns.py</code>): references another key of the event being built, with an optional transform callable. A <code>Pkey</code> bound to a derivation-chain input (<code>degree</code>, <code>dur</code>, <code>db</code>, ...) resolves before the chain runs so it can drive it; bound to any other key it resolves after, so it can read derived values such as <code>freq</code>. Patterns do not overload arithmetic operators, so the transform callable replaces sclang's <code>Pkey(\freq) * 2</code></p>
+</li>
+<li>
+<p><strong><code>Pfin</code> / <code>Pfindur</code></strong> (<code>patterns.py</code>): bound a pattern by event count or by total duration. <code>Pfindur</code> clips the final <code>delta</code> so the total is exact and the pattern lands on a bar line</p>
+</li>
+<li>
+<p><strong><code>EventPattern</code> base class</strong> (<code>patterns.py</code>): <code>play()</code> moved here from <code>Pbind</code>, so every event pattern (<code>Ppar</code>, <code>Pmono</code>, <code>Pdef</code>, <code>Pfindur</code>) is directly playable. <code>Pbind</code> remains a <code>Pattern</code> subclass, so existing type checks are unaffected</p>
+</li>
+<li>
+<p><strong>Demos for the scheduling and pattern features</strong> (<code>demos/scsynth/</code>, run via <code>make demos</code>): <code>22_bundle_scheduling.py</code> plays the same 16-click rhythm twice under deliberate GIL load -- once as immediate messages (audibly uneven) and once as <code>server.at()</code> bundles (rigid) -- then uses <code>send_bundle()</code> for an atomic chord change and a scheduled synchronised release. <code>23_pitch_chain.py</code> plays one degree sequence through four scales, then varies <code>root</code>/<code>octave</code>/<code>db</code>/<code>legato</code>/<code>stretch</code>, and drives filter cutoff and pan from the derived <code>freq</code> via <code>Pkey</code>. <code>24_parallel_quant.py</code> layers bass/lead/hats through <code>Ppar</code>, staggers entries with <code>Ptpar</code>, and launches parts at deliberately awkward mid-bar moments to show <code>quant</code> snapping them to the downbeat. <code>25_pmono_pdef.py</code> plays a line as <code>Pbind</code> then <code>Pmono</code> so the portamento difference is audible, hot-swaps a running <code>Pdef</code> twice without a gap, and bounds patterns with <code>Pfin</code>/<code>Pfindur</code></p>
+</li>
+<li>
+<p><strong>Patterns guide</strong> (<code>docs/patterns.md</code>): documents the event model, the pitch chain, latency and quantization, and the composite patterns, including an explicit list of what is not implemented (array-valued chord keys, pattern arithmetic operators, <code>Score.from_pattern</code>)</p>
+</li>
+<li>
+<p><strong>Native Rust port</strong> (<a href="https://github.com/shakfu/synthdef">synthdef</a>): a companion project reimplements the SynthDef compiler in Rust, driven by this package's language-neutral UGen spec (<code>spec/nanosynth-ugens.json</code>) and validated <strong>byte-for-byte</strong> against nanosynth's compiler via shared golden fixtures, so the two cannot silently diverge. On top of the compiler it adds a nanosynth-style <code>Server</code> and SuperCollider-style pattern sequencing over the pure-Rust <a href="https://crates.io/crates/plyphon"><code>plyphon</code></a> engine (native and <code>wasm32</code>), targeting environments a Python runtime cannot reach -- other languages via a C ABI, the browser via WASM, or a DAW plugin. Consuming the shared spec is the reason it was decoupled from the release version (below)</p>
+</li>
+<li>
+<p><strong>Performance benchmark suite</strong> (<code>benchmarks/</code>): <code>pytest-benchmark</code> benchmarks for the compile hot path (<code>SynthDefBuilder.build()</code> and <code>SynthDef.compile()</code> on a representative subtractive-synth reference graph) and OSC message/bundle encode/decode. Kept out of <code>tests/</code> so the coverage-gated <code>make test</code> run does not time them. <code>make bench</code> runs them, <code>make bench-baseline</code> regenerates the committed <code>benchmarks/baseline.json</code>, and <code>make bench-check</code> fails if any benchmark regresses more than 25% (median) versus the baseline on the same machine. A manual (<code>workflow_dispatch</code>-only) <code>benchmarks</code> CI job gates gross regressions by benchmarking HEAD and the previous commit on one runner (same-machine, apples-to-apples) at a looser 50% threshold that tolerates shared-runner noise</p>
+</li>
+</ul>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GIL/mutex lock-order inversion deadlocked the process</strong> (<code>_scsynth.cpp</code>, <code>_supernova.cpp</code>, <code>_midi.cpp</code>): the engine's print, reply and MIDI callbacks took their C++ mutex and <em>then</em> acquired the GIL, while the Python-side entry points that share those mutexes (<code>set_print_func</code>, <code>set_reply_func</code>, <code>set_callback</code>, the MIDI capsule destructor, and critically <code>world_send_packet</code>) are entered with the GIL already held and then take the mutex. Any interleaving of an outgoing packet with an incoming reply could therefore deadlock: the reply thread held the mutex waiting for the GIL while a Python thread held the GIL waiting for the mutex, and every remaining thread then blocked behind the GIL with the process hung at zero CPU. All five callbacks now acquire the GIL first, copy the callable under the mutex, release it, and invoke the handler outside the lock -- one consistent GIL-then-mutex order. Dispatching outside the lock also means a slow reply or MIDI handler no longer blocks every concurrent <code>send_packet</code>, and the MIDI callback now holds its own reference so a handler cleared mid-dispatch cannot be torn down under it. <code>SetPrintFunc</code> was additionally moved out of the print-mutex scope, where a log line emitted during registration would have re-entered the same non-recursive mutex</li>
+</ul>
+<p>Found when a full <code>make demos</code> run hung; diagnosed from a <code>sample(1)</code> trace showing a Python thread blocked in <code>std::mutex::lock()</code> inside <code>_scsynth</code> while an scsynth thread sat in <code>PyGILState_Ensure</code>. A new opt-in regression test (<code>test_realtime_smoke.py::test_concurrent_send_and_reply_does_not_deadlock</code>, gated by <code>NANOSYNTH_TEST_REALTIME=scsynth</code>) drives six sender threads against four reply threads with node notifications enabled; it deadlocks the pre-fix build within seconds and passes on the fix. Verified by rebuilding both ways: pre-fix wedged 4/4 runs, post-fix survived 5/5 at ~140k reply events per 30s run. The test runs the stress in a subprocess so a future regression surfaces as a timeout rather than wedging the pytest session</p>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong><code>Pattern.play()</code> moved to the base class</strong> (<code>patterns.py</code>): <code>play()</code> was initially added to the new <code>EventPattern</code> base, which left the generic wrappers unplayable -- <code>Pn(Pbind(...))</code>, the idiomatic way to loop a part, raised <code>AttributeError</code>, as did <code>Pseq([...])</code>, <code>Pfin(...)</code> and <code>p1 | p2</code> over events. Since those are generic in their element type they cannot subclass <code>EventPattern</code>, so <code>play()</code> now lives on <code>Pattern</code> itself. <code>EventPattern</code> remains as the marker for the event layer. Found while writing the demos</p>
+</li>
+<li>
+<p><strong>Player advances by <code>delta</code>, not <code>dur</code></strong> (<code>patterns.py</code>): the time advance after an event now comes from its <code>delta</code> key (which honours <code>stretch</code>, and which <code>Ppar</code> rewrites to the gap in the merged stream), falling back to <code>dur</code> when absent. For a plain <code>Pbind</code> with no <code>stretch</code> the two are identical, so existing patterns are unaffected</p>
+</li>
+<li>
+<p><strong>Gate release is now engine-scheduled</strong> (<code>patterns.py</code>): <code>Player</code> previously spawned a <code>threading.Timer</code> per note to send <code>gate=0.0</code> after the sustain duration. The release is now sent during the same tick as the note itself, stamped <code>onset + sustain</code>, so the engine holds it. This leaks no thread at high event density, cannot drift independently of the clock, and can never fire from Python against an already-quit server (a queued release simply dies with the engine)</p>
+</li>
+<li>
+<p><strong>Clock isolates failing players</strong> (<code>patterns.py</code>): an exception in <code>Player._tick()</code> previously propagated into the clock's run loop and killed the clock thread, silencing every other player sharing it. A failing player is now logged and dropped while the clock keeps ticking; a <code>Player</code> whose server has quit (<code>EngineError</code>/<code>OSError</code>) ends its own playback cleanly instead of raising on every subsequent tick</p>
+</li>
+<li>
+<p><strong>UGen spec now records output arity</strong>: each entry in <code>spec/nanosynth-ugens.json</code> gains an <code>outputs</code> field -- <code>{"kind": "fixed", "count": N}</code> for most UGens (0 for <code>Out</code>, 2 for <code>Pan2</code>, ...) or <code>{"kind": "variable", "default": N}</code> for multichannel UGens. The <code>@ugen</code> decorator stores the declaration on the class (<code>_declared_channel_count</code> / <code>_declared_is_multichannel</code>) for introspection without affecting the runtime channel count. Needed by non-Python frontends to emit multi-output UGens.</p>
+</li>
+<li>
+<p><strong>Decoupled the UGen spec from the release version</strong>: <code>spec/nanosynth-ugens.json</code> no longer carries a <code>generator_version</code> field, so a version bump no longer trips the <code>tests/test_ugen_spec.py</code> drift guard. The spec now regenerates only when the UGen metadata or enum tables actually change</p>
+</li>
+</ul>
+<h2 id="021">[0.2.1]<a class="headerlink" href="#021" title="Permanent link">&para;</a></h2>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong><code>nanosynth compile</code> CLI command</strong>: compiles Python-defined SynthDefs to <code>.scsyndef</code> binaries for use with a standalone <code>scsynth</code>/<code>supernova</code>, <code>/d_load</code>, or deploy-time precompilation. Loads a <code>.py</code> file, discovers every module-level <code>SynthDef</code> (both <code>@synthdef</code>-decorated functions and <code>SynthDefBuilder.build()</code> results), and writes one <code>&lt;name&gt;.scsyndef</code> per def (<code>-o DIR</code>) or a single bundled SCgf file holding all defs (<code>-b FILE</code>). <code>-n/--name</code> selects specific defs (repeatable); <code>--anonymous</code> emits MD5-hash names. Reports actionable errors (missing/non-<code>.py</code> input, import failure, no SynthDefs found, unknown name, missing output dir, duplicate names that would overwrite) on stderr with a non-zero exit</p>
+</li>
+<li>
+<p><strong>Property-based tests</strong> (<code>test_properties.py</code>, hypothesis): randomized invariants over the graph frontend -- algebraic identity laws (<code>sig + 0</code>/<code>0 + sig</code>/<code>sig - 0</code>/<code>sig * 1</code>/<code>1 * sig</code>/<code>sig / 1</code>/<code>sig ** 1</code> return the original signal; <code>sig * 0</code> and <code>sig ** 0</code> fold to the constants 0 and 1), constant folding equivalence with Python float arithmetic, multichannel expansion arity (a width-n input expands to n channels; combining widths m and n yields max(m, n)), and compilation determinism (byte-identical SCgf and stable topological order across rebuilds, independent of the declared name). Recipes generate graphs up to 14 UGens deep</p>
+</li>
+<li>
+<p><strong>CLI documentation</strong> (<code>docs/cli.md</code>): documents both the <code>info</code> and <code>compile</code> subcommands, how SynthDefs are discovered, the option matrix, per-def vs bundled output, and exit-status behavior</p>
+</li>
+<li>
+<p><strong>Deployment guide</strong> (<code>docs/deployment.md</code>): the precompiled-artifact workflow for non-Python consumers -- compile SynthDefs to <code>.scsyndef</code> offline with <code>nanosynth compile</code>, then load them at runtime via <code>/d_load</code> / <code>/d_loadDir</code> / <code>/d_recv</code> from nanosynth, <code>sclang</code>, or any OSC client. Clarifies that the runtime identifier is the SynthDef name embedded in the binary, not the filename</p>
+</li>
+<li>
+<p><strong>Language-neutral UGen spec</strong> (<code>spec/nanosynth-ugens.json</code>, <code>scripts/generate_ugen_spec.py</code>): a versioned, machine-readable table of all 341 UGens (names, calculation rates, parameter defaults, and <code>unexpanded</code>/pure/output/width-first flags), the operator/rate/done-action enum tables, and an <code>operator_ugens</code> block naming <code>BinaryOpUGen</code>/<code>UnaryOpUGen</code> and the enum table their <code>special_index</code> selects, so a non-Python implementation of the SynthDef frontend shares the drift-prone metadata rather than transcribing it by hand. <code>tests/test_ugen_spec.py</code> fails if the committed spec drifts from the code (regenerate with <code>python scripts/generate_ugen_spec.py</code>); included in sdists</p>
+</li>
+<li>
+<p><strong>SCgf format specification</strong> (<code>docs/scgf-format.md</code>): documents the SCgf version-2 binary byte layout (header, constant pool, parameter tables, UGen records, input specs) and the UGen spec schema, for writing loaders, validators, or independent compilers in other languages</p>
+</li>
+<li>
+<p><strong>Source-tree CI test matrix</strong>: a <code>test-source</code> job runs <code>pytest</code> against the source tree (not built wheels) across CPython 3.10--3.14 on Linux, building the C extension from source via <code>uv sync</code>. Closes the gap where <code>make test</code> was previously only exercised against cibuildwheel-built wheels</p>
+</li>
+</ul>
+<h2 id="020">[0.2.0]<a class="headerlink" href="#020" title="Permanent link">&para;</a></h2>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Node lifecycle notifications</strong> (<code>server.py</code>): <code>Server.enable_notifications()</code> registers for the engine's node events (<code>/notify</code>); once on, <code>/n_go</code>/<code>/n_end</code>/<code>/n_off</code>/<code>/n_on</code>/<code>/n_move</code> are parsed into <code>NodeEvent</code> objects. <code>on_node(callback)</code> receives every event; <code>wait_for_node_free(node_id, timeout)</code> blocks until a node ends (including a self-freeing <code>DoneAction</code> synth, which the client otherwise has no way to observe); and <code>Synth.wait_free()</code> / <code>Synth.on_free(callback)</code> are per-node conveniences (the latter is one-shot and self-unregisters). <code>enable_notifications()</code> waits for the <code>/done /notify</code> confirmation so registration is in effect before any node is created -- otherwise the first node's <code>/n_go</code> can be missed. <code>NodeEvent</code> is exported from the top-level package</p>
+</li>
+<li>
+<p><strong>Server introspection &amp; control</strong> (<code>server.py</code>): <code>Server.status()</code> returns a <code>ServerStatus</code> (CPU load, sample rate, and ugen/synth/group/synthdef counts from <code>/status.reply</code>); <code>version()</code> returns a <code>ServerVersion</code> (<code>/version.reply</code>); <code>query_tree(group, controls=...)</code> returns the live node graph as a nested <code>NodeInfo</code> tree (groups, synths, and their current control values, parsed from <code>/g_queryTree.reply</code>); <code>dump_tree()</code> prints it to the engine log; and <code>reset()</code> is the "panic" equivalent -- frees all nodes (<code>/g_freeAll</code>), clears the scheduler (<code>/clearSched</code>), recreates the default group, and resets the node-id allocator (leaving loaded SynthDefs, buffers, and buses intact). <code>ServerStatus</code>/<code>ServerVersion</code>/<code>NodeInfo</code> are exported from the top-level package</p>
+</li>
+<li>
+<p><strong>Direct numpy buffer data exchange</strong> (<code>server.py</code>, <code>_scsynth.cpp</code>): <code>Server.get_buffer_data(buffer_id)</code> and <code>set_buffer_data(buffer_id, array)</code> copy samples directly between a numpy array and a buffer's in-process float storage via <code>memcpy</code> -- no OSC round-trip and none of the <code>/b_getn</code>/<code>/b_setn</code> datagram-size limits, which is the core advantage of the embedded engine. <code>get</code> returns a <code>(frames, channels)</code> float32 array (owning a copy, so it stays valid across buffer reallocation); <code>set</code> accepts 1-D (mono) or 2-D input, coerced to contiguous float32 and shape-checked against the buffer. <code>buffer_info(buffer_id)</code> returns <code>(frames, channels, sample_rate)</code>, and <code>alloc_buffer_from_array(array)</code> allocates a correctly-sized buffer and fills it in one call (handy for loading wavetables/samples). scsynth-only (raises <code>EngineError</code> for supernova); numpy is an optional dependency (<code>pip install nanosynth[numpy]</code>), imported lazily with a clear error if missing. The C++ accessors (<code>world_buffer_get/set/info</code>) read the live buffer, so concurrent synth access during a transfer may tear/glitch (documented, never crashes)</p>
+</li>
+<li>
+<p><strong><code>Server.sync()</code> round-trip barrier</strong>: sends <code>/sync</code> with a unique id and blocks until the matching <code>/synced</code> reply, the canonical scsynth flush primitive. Returns <code>True</code> once synced or <code>False</code> on timeout. Concurrent <code>sync()</code> calls are matched by id</p>
+</li>
+<li>
+<p><strong>Reply matchers</strong>: <code>Server.wait_for_reply()</code> and <code>send_msg_sync()</code> accept an optional <code>match</code> predicate so a waiter accepts only a reply satisfying it (e.g. a <code>/done</code> whose first argument is the originating command). Non-matching replies leave the waiter registered instead of resolving it</p>
+</li>
+<li>
+<p><strong>Reclaiming id allocators</strong> (<code>server.py</code>): node ids, buffers, audio buses, and control buses are now managed by allocators that reclaim freed ids. Buffers/buses use a coalescing free-list block allocator (<code>_BlockAllocator</code>) that hands out the lowest available contiguous block, reuses freed blocks, supports explicit-id reservation, and raises <code>EngineError</code> on exhaustion. Node ids use a wrapping allocator (<code>_NodeIdAllocator</code>) bounded within scsynth's id space (not reclaimed on free, since self-freeing <code>DoneAction</code> synths are not reported to the client)</p>
+</li>
+<li>
+<p><strong>Cross-engine process guard</strong> (<code>_scsynth.cpp</code>, <code>_supernova.cpp</code>): scsynth and supernova each statically embed the full SuperCollider core and share process-global state (the dlopen'd UGen plugin registry, FFT init), so creating one kind after the other has run in the same process segfaults -- in either order, even after a clean quit, and even via NRT (which also creates a scsynth World). A guard in each extension's engine-creation entry point (coordinated through an environment variable, since the two modules share no symbols) now raises <code>ServerCannotBoot</code> with a clear message instead of letting the process crash. Same-kind reuse (scsynth reboot, repeated NRT renders) is unaffected</p>
+</li>
+<li>
+<p><strong>Test hardening</strong>: golden SCgf byte fixtures (<code>tests/fixtures/scgf/</code>, regenerable via <code>python tests/test_golden_scgf.py</code>) that freeze proven-correct compiler output and catch silent format regressions; unit tests for the allocators (reclaim, coalescing, capacity, reservation, thread-safety), <code>sync()</code>, and reply matchers; forced cross-path OSC parity tests (<code>test_osc_parity.py</code>) asserting byte-identical encode, identical decode, and identical exception types across the native and pure-Python codecs; and opt-in realtime smoke tests (<code>test_realtime_smoke.py</code>, gated by <code>NANOSYNTH_TEST_REALTIME=scsynth|supernova</code>) that boot a real engine and exercise <code>sync()</code>, buffer reclaim, and clean quit. A <code>--cov-fail-under</code>-style coverage floor (90%) is enforced via <code>[tool.coverage.report]</code></p>
+</li>
+</ul>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>OSC codec C++/Python parity</strong> (<code>_osc.cpp</code>, <code>osc.py</code>, <code>exceptions.py</code>): the two codecs violated their "must stay compatible" contract. They now agree on (a) <strong>exception type</strong> -- both raise <code>OscError</code> on malformed input (the C++ path via a nanobind exception translator scoped to a dedicated <code>OscDecodeError</code> C++ type, so it does not affect <code>std::runtime_error</code>s from the <code>_scsynth</code>/<code>_supernova</code> extensions -- nanobind translators are process-global; the Python path by wrapping <code>struct.error</code>/<code>IndexError</code>/<code>ValueError</code>), and <code>OscError</code> now also subclasses <code>ValueError</code> so <code>except ValueError</code> keeps working; (b) <strong>string encoding</strong> -- both use UTF-8 (Python previously used ASCII and raised on non-ASCII); and (c) <strong>unterminated strings</strong> -- the C++ decoder now rejects a string with no null terminator instead of silently accepting it, matching Python</p>
+</li>
+<li>
+<p><strong>Reply waiter leak on timeout</strong> (<code>server.py</code>): a timed-out <code>wait_for_reply</code>/<code>send_msg_sync</code> waiter was never removed from <code>_pending_replies</code>, so it lingered and could be spuriously resolved by a later unrelated reply. Timed-out waiters are now unregistered</p>
+</li>
+<li>
+<p><strong>atexit cleanup leak</strong> (<code>scsynth.py</code>, <code>supernova.py</code>): <code>atexit.register(self.quit)</code> ran in <code>__init__</code> and was never unregistered, so every protocol object (booted or not) leaked an atexit callback holding a strong reference. Registration now happens on <code>boot()</code> and is removed on <code>quit()</code>, so never-booted objects accumulate nothing</p>
+</li>
+<li>
+<p><strong>OSC bundle decoder out-of-bounds read</strong> (<code>_osc.cpp</code>): the native bundle decoders (<code>decode_bundle_from_raw</code>, <code>decode_bundle_bytes</code>) read each element's length as a signed <code>int32_t</code> and bounds-checked it with <code>offset + (size_t)length &gt; len</code>. A malformed datagram with a negative length cast to <code>size_t</code> could wrap that addition and pass the check, then hand a negative/huge size to <code>nb::bytes</code>, causing an out-of-bounds read or oversized allocation. Lengths are now read as <code>uint32_t</code> and validated with the overflow-safe <code>element_len &gt; len - offset</code> (<code>offset &lt;= len</code> is guaranteed at that point)</p>
+</li>
+<li>
+<p><strong>Engine boot/quit thread coordination</strong> (<code>scsynth.py</code>, <code>supernova.py</code>): <code>_shutdown()</code> previously did a blind <code>thread.join(timeout=5)</code> followed by an unconditional forced <code>world_cleanup</code>/<code>supernova_cleanup</code>, which could tear the engine down concurrently with a wait/run thread still inside <code>World_WaitForQuit</code>/<code>supernova_run</code> (a double-free / use-after-free race on the engine handle). It now gates on the existing <code>exit_future</code> -- resolved by the wait/run thread only after the engine has been torn down internally -- while that thread is alive, with forced cleanup retained only as a logged last resort on a 5s timeout</p>
+</li>
+<li>
+<p><strong>Boot is now exception-safe</strong> (<code>scsynth.py</code>, <code>supernova.py</code>): if the on-boot callback or the wait/run-thread start raised, the engine handle was created and the process-global <code>_active_world</code>/<code>_active</code> flag was left set, permanently wedging every subsequent boot with <code>ServerCannotBoot</code>. The go-online sequence is now wrapped; on failure a new <code>_abort_partial_boot()</code> tears down the engine and clears the global flag. The thread is started and <code>boot_future</code> resolved last, so rollback never races a running loop</p>
+</li>
+<li>
+<p><strong>Pattern clock timing drift</strong> (<code>patterns.py</code>): <code>Player._tick</code> advanced the next event deadline from the wall-clock wake time (<code>now + dur * beat_dur</code>), baking every late wake-up into the following event and accumulating drift over a session. It now advances from the previous scheduled target (<code>self._next_time + dur * beat_dur</code>); if the clock falls behind, successive events fire back-to-back until it catches up, with no accumulated error</p>
+</li>
+<li>
+<p><strong>Release and docs CI workflows</strong> (<code>.github/workflows/</code>): <code>release.yml</code> had its <code>push: tags</code> and <code>workflow_dispatch</code> inputs commented out while the publish steps gated on the resulting always-undefined <code>inputs.target</code> and a never-true <code>github.event_name == 'push'</code>, so no PyPI publish could ever run. Triggers are restored and the PyPI gate now keys on <code>startsWith(github.ref, 'refs/tags/v')</code>. <code>docs.yml</code> ran <code>uv sync --group docs</code> against a non-existent dependency group (mkdocs deps live in <code>dev</code>); it now runs <code>uv sync</code> and its <code>push: branches: [main]</code> trigger is restored</p>
+</li>
+</ul>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Synchronous SynthDef load matches the sub-command</strong> (<code>server.py</code>): <code>send_synthdef()</code> now waits for a <code>/done</code> whose first argument is <code>/d_recv</code>, so a <code>/done</code> from an unrelated async command cannot resolve the wait early (still falls back to fire-and-forget on timeout for mock servers)</p>
+</li>
+<li>
+<p><strong>Recording uses <code>sync()</code> instead of <code>time.sleep</code></strong> (<code>server.py</code>): <code>record()</code> and <code>stop_recording()</code> replaced their fixed <code>time.sleep(0.1)</code> pauses with <code>self.sync()</code> barriers, so the disk buffer is provably open before <code>DiskOut</code> starts and final samples are flushed before the file is closed</p>
+</li>
+<li>
+<p><strong>Single-sourced package version</strong>: the version was hard-coded in both <code>pyproject.toml</code> and <code>src/nanosynth/__init__.py</code> and could drift. <code>pyproject.toml</code> now declares <code>dynamic = ["version"]</code> and reads <code>__version__</code> from <code>src/nanosynth/__init__.py</code> via scikit-build-core's regex metadata provider, making <code>__init__.py</code> the single source of truth</p>
+</li>
+</ul>
+<h2 id="016">[0.1.6]<a class="headerlink" href="#016" title="Permanent link">&para;</a></h2>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong><code>nanosynth info</code> CLI command</strong>: shows version, Python version/platform/architecture, audio backend (CoreAudio/PortAudio), UGen plugin path and count, and whether the scsynth and supernova C extensions loaded successfully (with error reason if not). <code>--list</code> / <code>-l</code> flag lists all available UGen classes alphabetically (341 UGens). Entry point registered via <code>[project.scripts]</code> in <code>pyproject.toml</code>. Uses <code>argparse</code> subparsers for future extensibility</p>
+</li>
+<li>
+<p><strong>MIDI usage guide</strong> (<code>docs/midi.md</code>): covers port opening (by index, name substring, or virtual port), MIDI message types (<code>NoteOn</code>, <code>NoteOff</code>, <code>ControlChange</code>, <code>PitchBend</code>), handler registration and removal, <code>midi_note_map()</code> for note-to-synth mapping with frequency/velocity conversion, <code>midi_cc_map()</code> for CC-to-parameter mapping with linear scaling, and thread safety considerations for callbacks running on RtMidi's polling thread</p>
+</li>
+<li>
+<p><strong>Threading model documentation</strong> (<code>docs/threading.md</code>): documents all background threads (engine daemon, reply callback, Clock, Timer, MIDI), the engine lifecycle state machine (<code>OFFLINE -&gt; BOOTING -&gt; ONLINE -&gt; QUITTING</code>), OSC reply dispatch with locking, thread-local <code>SynthDefBuilder</code> stacks with UUID scope checking, Clock/Player scheduling with adaptive sleep, and a reference table of thread-safe vs thread-unsafe operations</p>
+</li>
+<li>
+<p><strong>Integration tests</strong> (<code>test_integration.py</code>): 19 tests verifying the full compilation-to-audio pipeline (SynthDefBuilder -&gt; SynthDef -&gt; SCgf binary -&gt; engine load -&gt; audio synthesis -&gt; WAV output) via NRT rendering. Covers sine wave synthesis (non-silence, amplitude scaling, frequency differentiation), parameter control, diverse UGens (WhiteNoise, Saw, LPF, RLPF, Pan2), envelopes (percussive decay verification), Mix, stereo panning, <code>@synthdef</code> decorator, complex graphs (subtractive, additive, multi-SynthDef scores), and compilation roundtrip (determinism, anonymous names, optimization equivalence). No audio hardware required</p>
+</li>
+<li>
+<p><strong>Basic UGen tests</strong> (<code>test_basic_ugens.py</code>): 37 tests covering <code>MulAdd</code>, <code>Sum3</code>, <code>Sum4</code>, and <code>Mix</code> -- all algebraic simplification paths, rate computation and validation, zero-elision, input swapping for rate validity, multichannel expansion, recursive Mix grouping (Sum3/Sum4 tree), and SCgf compilation. Coverage of <code>basic.py</code> raised from 26% to 86%</p>
+</li>
+<li>
+<p><strong>Adversarial compiler tests</strong> (<code>test_adversarial.py</code>): 32 tests for edge cases -- deep UGen chains (100-deep filter cascades, 200-deep arithmetic chains), large graphs (500 parallel UGens, 100 parameters, 200+ constants), name encoding boundaries (empty, 1-char, 255-char, 256-char overflow, non-ASCII rejection), scope isolation (nested/sequential/cross-scope errors), degenerate graphs (constant-only, parameter-only, all-dead-code), topological sort edge cases (diamond dependencies, wide fan-out/fan-in, disconnected subgraphs), compilation determinism, and custom UGen type name encoding</p>
+</li>
+<li>
+<p><strong>OSC edge case tests</strong> (<code>test_osc_edge_cases.py</code>): 48+ tests (parametrized across native C++ and pure-Python backends) covering NTP timestamp edge cases (zero, fractional, large, immediate, non-realtime), deeply nested bundles (3-level, 5-level, mixed message/bundle), special characters in addresses (underscores, digits, dots, long, minimal, OSC wildcards), equality edge cases, <code>format_datagram</code>/<code>str</code>/<code>repr</code>, <code>to_list</code>/<code>to_osc</code>, <code>find_free_port</code>, unsupported type encoding, and empty/no-arg messages</p>
+</li>
+<li>
+<p><strong>Concurrency stress tests</strong> (<code>test_concurrency.py</code>): 10 tests covering SynthDefBuilder thread isolation (50 concurrent builds with unique frequencies, barrier-synchronized stack checks, nested builder isolation, cross-thread UGen rejection, 30 concurrent complex graphs with Mix/LPF/params, deterministic output under concurrency) and Server reply dispatch (20 concurrent waiters resolved via raw datagram dispatch, concurrent handler registration/unregistration, 100 concurrent dispatches, waiter timeout)</p>
+</li>
+<li>
+<p><strong>Low-coverage UGen module tests</strong> (<code>test_ugen_coverage.py</code>): 30 tests covering LocalIn (single/multi-channel, default cycling, scalar defaults, feedback loops with LocalOut, control rate), BiPanB2 (audio/control rate, 3-channel output), DecodeB2 (4/8 channel counts), Splay (single/multiple sources, normalize/no-normalize, spread/center, control rate), Klank (basic, explicit amplitudes, decay times, default fill, empty frequencies rejection, frequency scale/offset/decay scale), LinLin (ar/kr mapping, identity), and Silence (mono/stereo/8-channel)</p>
+</li>
+<li>
+<p><strong>Typed exception hierarchy</strong> (<code>exceptions.py</code>): All exceptions defined in a single module importable via <code>from nanosynth.exceptions import ...</code>. <code>NanosynthError</code> base class with <code>OscError</code> (OSC encode/decode), <code>EngineError</code> (engine lifecycle), <code>ServerCannotBoot</code> (boot failures, subclass of <code>EngineError</code>), <code>MidiError</code> (MIDI port/callback), and <code>SynthDefError</code> (graph construction) subclasses. All six exception classes exported from the top-level package</p>
+</li>
+<li>
+<p><strong>Supernova demos</strong> (<code>demos/supernova/</code>): 5 new demos -- demand-rate sequencing with parallel voices (<code>07_demand_sequencer.py</code>), pattern sequencing via Pbind/Clock (<code>08_patterns.py</code>), FFT spectral processing (<code>09_spectral.py</code>), managed ParGroup context manager with chord progression (<code>10_managed_pargroup.py</code>), and NodeProxy/Ndef live coding (<code>11_nodeproxy.py</code>)</p>
+</li>
+</ul>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Synchronous SynthDef loading</strong> (<code>server.py</code>): <code>send_synthdef()</code> now waits for the engine's <code>/done /d_recv</code> reply before returning (0.1s timeout), ensuring the SynthDef is ready for immediate use. Previously the fire-and-forget <code>/d_recv</code> caused race conditions on supernova where <code>/s_new</code> could arrive before the SynthDef was loaded (e.g. NodeProxy source swaps failing with "Cannot create synth"). Falls back gracefully to fire-and-forget on timeout, so mock servers in tests are unaffected</p>
+</li>
+<li>
+<p><strong>NRT render crash with persistent delay synths</strong> (<code>score.py</code>): <code>Score.render()</code> would segfault during World cleanup when persistent synths (no <code>DoneAction.FREE_SYNTH</code> or explicit <code>/n_free</code>) containing delay UGens (DelayN, CombC, etc.) reading from private buses via <code>In.ar</code> were still running at end-of-score. The engine freed delay line buffers while they were still referenced. Fixed by sending <code>/g_freeAll 0</code> (free all nodes in the default group) before the end-of-score marker, ensuring clean synth teardown before World cleanup</p>
+</li>
+</ul>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Consolidated exceptions into <code>nanosynth.exceptions</code></strong>: <code>ServerCannotBoot</code> moved from <code>scsynth.py</code> and <code>SynthDefError</code> moved from <code>synthdef.py</code> into the new <code>exceptions.py</code> module. Both are re-exported from their original modules for internal use but the canonical import path is now <code>nanosynth.exceptions</code></p>
+</li>
+<li>
+<p><strong>Narrowed broad <code>except Exception</code> catches</strong>: <code>server.py:_dispatch_reply</code> OSC decode catch narrowed to specific decode-failure types (<code>ValueError</code>, <code>IndexError</code>, <code>struct.error</code>, <code>OscError</code>, <code>RuntimeError</code>). <code>patterns.py:_release_synth</code> narrowed to <code>(EngineError, OSError)</code>. Handler callback catch retained as <code>except Exception</code> with explicit annotation for intentional user-callback isolation</p>
+</li>
+<li>
+<p><strong>Replaced generic <code>RuntimeError</code> with typed exceptions</strong>: <code>scsynth.py</code> and <code>supernova.py</code> <code>send_packet</code> raise <code>EngineError</code> instead of <code>RuntimeError</code> when the server is not running. <code>server.py</code> raises <code>EngineError</code> for bus/recording state errors. <code>proxy.py</code> raises <code>EngineError</code> for missing source synth. <code>midi.py</code> raises <code>MidiError</code> for port-not-found. <code>osc.py</code> raises <code>OscError</code> for unparseable type tags</p>
+</li>
+</ul>
+<h2 id="015">[0.1.5]<a class="headerlink" href="#015" title="Permanent link">&para;</a></h2>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Embedded supernova</strong>: <code>EmbeddedSupernovaProtocol</code> runs SuperCollider's parallel DSP engine (supernova) in-process via nanobind (<code>_supernova.cpp</code>), as a drop-in replacement for <code>EmbeddedProcessProtocol</code>. Same <code>Server</code> API -- just pass <code>protocol=EmbeddedSupernovaProtocol()</code>. Supernova schedules independent nodes across CPU cores when placed in <code>ParGroup</code>s, providing parallel DSP execution that scsynth cannot. C++ wrapper (<code>_supernova.cpp</code>, ~400 lines) wraps supernova's C++ classes directly (no C API exists), synthesizing <code>server_arguments</code> from Python kwargs, implementing a custom reply endpoint for in-process OSC responses, and managing the event loop on a daemon thread. Supernova plugins (24 <code>_supernova</code> variants) are compiled with <code>SUPERNOVA</code> defined and bundled alongside scsynth plugins. Build gated by <code>NANOSYNTH_EMBED_SUPERNOVA=ON</code> CMake option</p>
+</li>
+<li>
+<p><strong>ParGroup support</strong>: <code>ParGroup</code> proxy class (subclass of <code>Group</code>) and <code>Server.par_group()</code> / <code>Server.managed_par_group()</code> for creating parallel groups via <code>/p_new</code>. ParGroups evaluate their child nodes in parallel across CPU cores (supernova only; scsynth treats them as regular groups)</p>
+</li>
+<li>
+<p><strong>SynthDef disk I/O</strong>: <code>SynthDef.save(path)</code> writes compiled SCgf bytes to a <code>.scsyndef</code> file (with optional <code>use_anonymous_name</code> flag). <code>Server.load_synthdef(path)</code> loads a <code>.scsyndef</code> file into the engine via <code>/d_load</code>, resolving to an absolute path for the engine</p>
+</li>
+<li>
+<p>Demo scripts reorganized into <code>demos/scsynth/</code> (21 demos) and <code>demos/supernova/</code> (6 demos). Supernova demos: <code>01_sine.py</code> (basic sine wave), <code>02_parallel_voices.py</code> (24 voices in ParGroup), <code>03_fx_chain.py</code> (delay + reverb effect chain), <code>04_parallel_fx.py</code> (three independent effect chains on private buses in a ParGroup), <code>05_nested_pargroups.py</code> (nested ParGroups with left/right voice banks and sequential fx group), <code>06_dense_polyphony.py</code> (64 simultaneous voices stress test)</p>
+</li>
+</ul>
+<h2 id="014">[0.1.4]<a class="headerlink" href="#014" title="Permanent link">&para;</a></h2>
+<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Patterns / sequencing</strong>: <code>Pattern[T]</code> abstract base class with <code>__iter__</code>, <code>take(n)</code>, and <code>|</code> (chain) operator. Eight value patterns: <code>Pseq</code> (sequential with nested pattern flattening), <code>Prand</code> (random selection), <code>Pwhite</code> (uniform random float), <code>Pseries</code> (arithmetic series), <code>Pgeom</code> (geometric series), <code>Pchoose</code> (weighted random), <code>Pn</code> (repeat a pattern N times), <code>Pconst</code> (yield until sum reaches total). <code>Pbind</code> binds keys to patterns/scalars to produce <code>Event</code> dicts, stops on shortest pattern, merges with configurable defaults, auto-derives <code>sustain</code> from <code>dur</code> and <code>freq</code> from <code>midinote</code>. <code>Clock</code> (background daemon thread with <code>time.monotonic()</code> scheduling, settable <code>bpm</code>) and <code>Player</code> (pulls events, creates synths, schedules gate release via <code>threading.Timer</code>). <code>Rest</code> sentinel class for silent beats</p>
+</li>
+<li>
+<p><strong>MIDI input</strong>: C++ nanobind extension (<code>_midi.cpp</code>) wrapping RtMidiIn from vendored rtmidi 6.0.0 (CoreMIDI on macOS, ALSA on Linux, WinMM on Windows; JACK disabled). Python layer (<code>midi.py</code>): frozen dataclass message types (<code>NoteOn</code>, <code>NoteOff</code>, <code>ControlChange</code>, <code>PitchBend</code>), <code>MidiIn</code> class with handler registration (<code>on_note_on</code>/<code>off_note_on</code>, <code>on_cc</code>/<code>off_cc</code>, etc.), pure-Python <code>_parse()</code> for raw MIDI bytes (velocity-0 note-on treated as note-off), context manager support, port opening by index/name/virtual. High-level helpers: <code>midi_note_map()</code> (note-on creates synth with freq/amp, note-off sends gate=0) and <code>midi_cc_map()</code> (CC values scaled to parameter range). Build integration: <code>NANOSYNTH_EMBED_MIDI</code> CMake option, rtmidi built as static library via <code>add_subdirectory</code></p>
+</li>
+<li>
+<p><strong>NodeProxy / Ndef</strong>: <code>NodeProxy</code> owns a private audio bus, a source synth (with ASR envelope for clean crossfade on swap), and a monitor synth (reads from private bus, writes to hardware output). Source can be a callable (auto-wrapped in <code>SynthDefBuilder</code> with envelope) or a <code>SynthDef</code>. Hot-swap sends gate=0 to old source (10ms release) and creates new source (10ms attack) for overlap crossfade. <code>play()</code> / <code>stop()</code> control monitoring, <code>clear()</code> frees all resources, <code>set()</code> updates source synth params. <code>Ndef</code> is a global named proxy registry: <code>Ndef(server, "name", source)</code> creates or retrieves a <code>NodeProxy</code>, <code>Ndef.clear_all(server)</code> frees all proxies for a server. Registry keyed by <code>(id(server), name)</code> to support multiple servers</p>
+</li>
+<li>
+<p><strong>Bus allocation</strong>: <code>Bus</code> proxy class with <code>Server.audio_bus()</code>, <code>Server.control_bus()</code>, <code>free_bus()</code>, <code>managed_audio_bus()</code>, <code>managed_control_bus()</code>. Audio buses allocate from the private range (after hardware I/O); control buses from 0. <code>Bus</code> supports <code>int()</code> conversion, <code>set()</code> for control buses, equality/hashing, and <code>free()</code>. <code>Server.options</code> property exposes the <code>Options</code> configuration</p>
+</li>
+<li>
+<p><strong>Server recording</strong>: <code>Server.record(path)</code> captures real-time audio output to WAV/AIFF via DiskOut. <code>stop_recording()</code> finalizes the file. <code>is_recording</code> property for state inspection. Configurable channel count, bus, header/sample format. Recorder SynthDef built and cached on first use per channel count. <code>write_buffer()</code> gains a <code>leave_open</code> parameter for disk-streaming buffers</p>
+</li>
+<li>
+<p><strong>NRT (non-real-time) rendering</strong>: <code>Score</code> class for offline audio rendering without real-time audio hardware. <code>Score.add()</code>, <code>add_synthdef()</code>, <code>add_synth()</code> build a timestamped sequence of OSC commands; <code>to_binary()</code> serializes to SC's binary command file format; <code>render()</code> invokes the embedded scsynth NRT engine to produce WAV/AIFF files. C++ binding <code>world_nrt_render()</code> wraps <code>World_NonRealTimeSynthesis</code> with configurable sample rate, format, channels, and engine options</p>
+</li>
+<li>
+<p><strong>SynthDef graph introspection</strong>: <code>SynthDef.graph()</code> returns a <code>SynthDefGraph</code> NamedTuple containing <code>UGenNode</code> and <code>UGenInput</code> structures for programmatic DAG walking. <code>SynthDef.to_dot()</code> exports the graph as a Graphviz DOT string for visualization. Handles BinaryOpUGen/UnaryOpUGen operator names, Control parameter names, multi-output UGens, and constant inputs</p>
+</li>
+<li>
+<p>Demo script <code>19_nrt_render.py</code>: offline rendering of a C major arpeggio to WAV and AIFF files</p>
+</li>
+<li>
+<p>Demo script <code>20_patterns.py</code>: pattern-based sequencing with Pseq, Prand, Pwhite, Pbind, Clock, and Rest</p>
+</li>
+<li>
+<p>Demo script <code>21_nodeproxy.py</code>: NodeProxy hot-swapping (sine/saw/noise) and Ndef named proxy registry</p>
+</li>
+<li>
+<p><strong>Concepts documentation page</strong> (<code>docs/concepts.md</code>): explains 8 non-obvious internal concepts -- calculation rates, multichannel expansion, the <code>unexpanded</code> flag, parameter rates, the builder scope, graph optimization (constant folding and dead code elimination), width-first ordering, and the <code>Default</code> sentinel. Each section includes code examples and practical implications</p>
+</li>
+</ul>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Demos 01--11 converted from low-level <code>_scsynth</code> API to high-level <code>Server</code> API (<code>server.synth()</code>, <code>server.group()</code>, <code>server.free()</code>, <code>node.set()</code>, context manager lifecycle)</p>
+</li>
+<li>
+<p>README restructured: Quick Start now leads with the <code>Server</code>-based workflow (define, boot, play), followed by managed nodes, effect chains with <code>AddAction</code>, and NRT rendering. Synthesis technique examples moved to a dedicated section. SynthDef compilation without engine, graph introspection, and OSC codec moved to Advanced Features</p>
+</li>
+</ul>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Windows NRT render crash</strong> (<code>score.py</code>): <code>Score.render()</code> used <code>tempfile.NamedTemporaryFile(delete=True)</code> for the binary command file, which on Windows holds an exclusive file lock preventing the C++ engine from opening it -- causing an access violation (0xC0000005) in <code>World_New</code>. Replaced with <code>tempfile.mkstemp()</code> so the file is closed before <code>world_nrt_render</code> reads it, with manual cleanup in a <code>finally</code> block</li>
+</ul>
+<h2 id="013">[0.1.3]<a class="headerlink" href="#013" title="Permanent link">&para;</a></h2>
+<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong><code>Synth</code> / <code>Group</code> proxy objects</strong>: <code>Server.synth()</code> and <code>Server.group()</code> now return lightweight <code>Synth</code> and <code>Group</code> proxy objects instead of raw ints. Proxies support <code>.set(**params)</code>, <code>.free()</code>, context manager usage (<code>with server.synth(...) as node:</code>), and are fully int-compatible via <code>__int__()</code>, <code>__index__()</code>, <code>__eq__()</code>, and <code>__hash__()</code>. <code>managed_synth()</code> and <code>managed_group()</code> also yield proxies. Existing code comparing against ints continues to work unchanged</p>
+</li>
+<li>
+<p><strong><code>control()</code> function</strong>: convenience constructor for SynthDef parameters with rate and lag metadata -- <code>control(440.0, rate="ar")</code> is equivalent to <code>Parameter(value=440.0, rate=ParameterRate.AUDIO)</code>. Accepts string rate tokens (<code>"ar"</code>, <code>"kr"</code>, <code>"ir"</code>, <code>"tr"</code>) or <code>ParameterRate</code> enum values</p>
+</li>
+<li>
+<p><strong>Tuple syntax for <code>SynthDefBuilder</code></strong>: parameters can be specified as tuples -- <code>SynthDefBuilder(freq=("ar", 440.0))</code> for <code>(rate, value)</code> or <code>SynthDefBuilder(amp=("kr", 0.5, 0.1))</code> for <code>(rate, value, lag)</code>. Works alongside <code>float</code>, <code>Parameter</code>, and <code>control()</code> styles</p>
+</li>
+<li>
+<p><strong>Trimmed <code>__all__</code> exports</strong>: <code>from nanosynth import *</code> now exports ~60 names (core API + 29 common UGens) instead of 340+. The full UGen set remains available via <code>from nanosynth.ugens import *</code> or qualified imports</p>
+</li>
+<li>
+<p><strong>Extended operators</strong>: <code>BinaryOperator</code> expanded from 7 to 43 entries, <code>UnaryOperator</code> from 2 to 34, covering SC's full practical operator set (power, integer division, comparisons, bitwise ops, trig, pitch conversion, clipping, ring modulation, etc.)</p>
+</li>
+<li>
+<p><strong>Operator methods on UGenOperable</strong>: 16 new dunder methods (<code>__pow__</code>, <code>__floordiv__</code>, <code>__le__</code>, <code>__ge__</code>, <code>__and__</code>, <code>__or__</code>, <code>__xor__</code>, <code>__lshift__</code>, <code>__rshift__</code> and their reverse variants), <code>equal()</code>/<code>not_equal()</code> explicit comparison methods, 25 named binary methods (<code>min_</code>, <code>max_</code>, <code>clip2</code>, <code>fold2</code>, <code>wrap2</code>, <code>ring1</code>--<code>ring4</code>, <code>atan2</code>, <code>hypot</code>, etc.), and 32 named unary methods (<code>midicps</code>, <code>cpsmidi</code>, <code>dbamp</code>, <code>ampdb</code>, <code>tanh_</code>, <code>softclip</code>, <code>distort</code>, <code>squared</code>, <code>sqrt_</code>, <code>exp_</code>, <code>log_</code>, <code>sin_</code>, <code>cos_</code>, etc.)</p>
+</li>
+<li>
+<p><strong>Constant folding</strong> for new operators: <code>POWER</code>, <code>INTEGER_DIVISION</code>, <code>MINIMUM</code>, <code>MAXIMUM</code>, comparison ops, and all math-stdlib unary ops fold <code>float op float</code> at compile time</p>
+</li>
+<li>
+<p><strong>POWER optimizations</strong> in <code>BinaryOpUGen._new_single</code>: <code>x ** 0</code> folds to <code>1</code>, <code>x ** 1</code> folds to <code>x</code></p>
+</li>
+<li>
+<p><strong>Buffer management</strong> on <code>Server</code>: <code>alloc_buffer()</code>, <code>read_buffer()</code>, <code>write_buffer()</code>, <code>free_buffer()</code>, <code>zero_buffer()</code>, <code>close_buffer()</code>, <code>next_buffer_id()</code>, plus <code>managed_buffer()</code> and <code>managed_read_buffer()</code> context managers. Buffer IDs are auto-allocated (monotonically from 0) or explicitly specified; allocated buffers tracked in <code>_allocated_buffers</code> set</p>
+</li>
+<li>
+<p><strong>Reply handling</strong>: C++ reply callback (<code>set_reply_func</code> in <code>_scsynth.cpp</code>) routes OSC responses from the engine back to Python; <code>EmbeddedProcessProtocol.set_reply_callback()</code> wires it at boot; <code>Server</code> gains <code>_dispatch_reply()</code> router, <code>on()</code>/<code>off()</code> for persistent handlers, <code>wait_for_reply()</code> for blocking one-shot waits, and <code>send_msg_sync()</code> for send-and-wait patterns -- all thread-safe</p>
+</li>
+<li>
+<p>Demo script <code>18_operators_buffers.py</code>: extended operators (<code>midicps</code>, <code>tanh_</code>, <code>clip2</code>, <code>dbamp</code>, <code>softclip</code>, <code>distort</code>), managed buffer allocation, and synchronous reply handling (<code>send_msg_sync</code>)</p>
+</li>
+<li>
+<p><strong>Documentation site</strong> (mkdocs-material + mkdocstrings): auto-generated API reference from docstrings, organized by core modules and 28 UGen categories, with Getting Started guide and changelog. Served locally via <code>make docs-serve</code>, deployed to GitHub Pages via <code>make docs-deploy</code>. New <code>docs</code> dependency group in <code>pyproject.toml</code>, GitHub Actions workflow (<code>.github/workflows/docs.yml</code>) for auto-deploy on push to main</p>
+</li>
+<li>
+<p><strong>Comprehensive docstrings</strong> across all core modules:</p>
+</li>
+<li><code>enums.py</code>: all 6 enum classes (<code>CalculationRate</code>, <code>ParameterRate</code>, <code>BinaryOperator</code>, <code>UnaryOperator</code>, <code>DoneAction</code>, <code>EnvelopeShape</code>) with member descriptions and <code>from_expr()</code> methods</li>
+<li><code>synthdef.py</code>: <code>SynthDef</code>, <code>SynthDefBuilder</code>, <code>UGen</code>, <code>UGenOperable</code>, <code>UnaryOpUGen</code>, <code>BinaryOpUGen</code>, <code>Parameter</code>, <code>Control</code>, <code>SynthDefError</code>, <code>UGenSerializable</code>; 25 named binary methods with formulas (<code>ring1</code>--<code>ring4</code>, <code>clip2</code>, <code>fold2</code>, <code>wrap2</code>, <code>difsqr</code>, <code>sumsqr</code>, etc.); 8 pitch/amplitude conversion methods with examples (<code>midicps</code>, <code>cpsmidi</code>, <code>dbamp</code>, <code>ampdb</code>); waveshaping methods (<code>distort</code>, <code>softclip</code>)</li>
+<li><code>envelopes.py</code>: <code>Envelope</code> class with full Args section, all 5 factory methods (<code>adsr</code>, <code>asr</code>, <code>linen</code>, <code>percussive</code>, <code>triangle</code>), <code>EnvGen</code> with parameter descriptions</li>
+<li><code>osc.py</code>: <code>OscMessage</code>, <code>OscBundle</code> with public method docstrings (<code>to_datagram</code>, <code>from_datagram</code>, <code>to_list</code>), <code>find_free_port()</code></li>
+<li><code>scsynth.py</code>: <code>Options</code> with commonly adjusted fields, <code>BootStatus</code>, <code>ServerCannotBoot</code>, <code>EmbeddedProcessProtocol.boot()</code> and <code>.quit()</code></li>
+<li>
+<p><code>compiler.py</code>: <code>compile_synthdefs()</code> with Args/Returns documenting the SCgf binary format</p>
+</li>
+<li>
+<p><strong><code>AddAction</code> enum</strong> (<code>enums.py</code>): <code>ADD_TO_HEAD</code>, <code>ADD_TO_TAIL</code>, <code>ADD_BEFORE</code>, <code>ADD_AFTER</code>, <code>REPLACE</code> -- replaces opaque raw ints in <code>Server.synth()</code>, <code>Server.group()</code>, and their managed variants. Raw int values still accepted for backwards compatibility</p>
+</li>
+<li>
+<p><strong><code>ServerProtocol</code></strong> structural type (<code>synthdef.py</code>): <code>SynthDef.send()</code> and <code>SynthDef.play()</code> now accept any object satisfying <code>ServerProtocol</code> instead of <code>Any</code>, restoring type safety without circular imports</p>
+</li>
+</ul>
+<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Gendy1/2/3 parameter wire order</strong> (<code>gendyn.py</code>): all three Gendy UGens had incorrect parameter ordering and counts vs the C++ plugin (<code>GendynUGens.cpp</code>). Gendy1/2 had a single <code>frequency</code> where SC expects <code>min_frequency</code>/<code>max_frequency</code>, and had four distribution parameters (<code>amplitude_parameter_one/two</code>, <code>duration_parameter_one/two</code>) where SC expects two (<code>amplitude_parameter</code>, <code>duration_parameter</code>). Wire positions 2--10 were all wrong, causing silence or garbage output. Gendy3's parameter order was also incorrect (it has a different layout from Gendy1/2 in the C++ -- single <code>frequency</code>, no min/max). All three now match their <code>ZIN0()</code> indices exactly</p>
+</li>
+<li>
+<p><strong>Klank audio rate</strong> (<code>ffsinosc.py</code>): <code>Klank.ar()</code> passed <code>calculation_rate=None</code> to <code>_new_expanded</code>, which resolved to <code>CalculationRate.SCALAR</code> -- the filter bank was computed once at init instead of processing audio samples per block. Changed to <code>CalculationRate.AUDIO</code></p>
+</li>
+<li>
+<p><strong><code>ParameterRate.from_expr("tr")</code></strong>: the <code>"tr"</code> token for trigger rate was missing from the string-to-enum mapping, causing <code>KeyError</code> when using <code>control(rate="tr")</code>. Added alongside <code>"ar"</code>, <code>"kr"</code>, <code>"ir"</code></p>
+</li>
+<li>
+<p><code>help(nanosynth)</code> crash: dynamically generated rate methods (<code>.ar</code>, <code>.kr</code>, <code>.ir</code>) created via <code>exec</code> in <code>_create_fn</code> had <code>__module__ = None</code>, causing <code>pydoc</code> to raise <code>TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'</code> when rendering help text. Now sets <code>__module__</code> from the owning class before applying decorators.</p>
+</li>
+<li>
+<p><strong><code>__bool__</code> trap on <code>UGenOperable</code></strong>: <code>UGenOperable.__bool__</code> now raises <code>TypeError</code> instead of silently returning <code>True</code>. Catches the common footgun where <code>if sig &gt; 0:</code> always takes the truthy branch because comparison operators return <code>UGenOperable</code> objects, not booleans</p>
+</li>
+<li>
+<p><strong><code>Server.quit()</code> decoupled from protocol internals</strong>: <code>Server.quit()</code> now delegates to <code>EmbeddedProcessProtocol.quit()</code> instead of reaching into the private <code>_shutdown()</code> method, properly setting the <code>QUITTING</code> state for clean shutdown callbacks</p>
+</li>
+<li>
+<p><strong>Thread-local builder guard centralized</strong>: replaced three inconsistent <code>hasattr(_local, "_active_builders")</code> guard patterns in <code>SynthDefBuilder.__init__</code>, <code>__enter__</code>, and <code>UGen.__init__</code> with a single <code>_get_active_builders()</code> function</p>
+</li>
+<li>
+<p><strong>Topological sort descendant ordering</strong>: <code>_initiate_topological_sort</code> had <code>key=lambda x: ugens.index(ugen)</code> which captured the loop variable, making the sort a no-op. Fixed to <code>key=lambda x: ugens.index(x)</code> to sort descendants by their position in the UGen list</p>
+</li>
+</ul>
+<h2 id="012">[0.1.2]<a class="headerlink" href="#012" title="Permanent link">&para;</a></h2>
+<h3 id="added_8">Added<a class="headerlink" href="#added_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>~80 new UGen classes</strong> (290 -&gt; 346 total), achieving full parity with supriya's UGen surface:</li>
+<li><strong>Phase vocoder</strong> (<code>pv.py</code>): <code>FFT</code>, <code>IFFT</code>, <code>PV_ChainUGen</code>, and 34 <code>PV_*</code> analysis/resynthesis UGens, plus <code>RunningSum</code></li>
+<li><strong>Machine listening</strong> (<code>ml.py</code>): <code>BeatTrack</code>, <code>BeatTrack2</code>, <code>KeyTrack</code>, <code>Loudness</code>, <code>MFCC</code>, <code>Onsets</code>, <code>Pitch</code>, <code>SpecCentroid</code>, <code>SpecFlatness</code>, <code>SpecPcile</code></li>
+<li><strong>Stochastic synthesis</strong> (<code>gendyn.py</code>): <code>Gendy1</code>, <code>Gendy2</code>, <code>Gendy3</code></li>
+<li><strong>Hilbert transforms</strong> (<code>hilbert.py</code>): <code>FreqShift</code>, <code>Hilbert</code>, <code>HilbertFIR</code></li>
+<li><strong>Mouse/keyboard</strong> (<code>mac.py</code>): <code>KeyState</code>, <code>MouseButton</code>, <code>MouseX</code>, <code>MouseY</code></li>
+<li><strong>Disk I/O</strong> (<code>diskio.py</code>): <code>DiskIn</code>, <code>DiskOut</code>, <code>VDiskIn</code></li>
+<li><strong>Utility</strong> (<code>basic.py</code>): <code>MulAdd</code>, <code>Sum3</code>, <code>Sum4</code>, <code>Mix</code> (signal mixer with Sum3/Sum4 tree optimization)</li>
+<li>
+<p><strong>Additions to existing modules</strong>: <code>LocalBuf</code>, <code>ScopeOut2</code> (bufio); <code>Demand</code>, <code>Dwrand</code> (demand); <code>Poll</code>, <code>SendReply</code>, <code>SendPeakRMS</code> (triggers); <code>LocalIn</code> (inout); <code>Klank</code> (ffsinosc); <code>LinLin</code>, <code>Silence</code> (lines); <code>Changed</code> (filters); <code>CompanderD</code> (dynamics); <code>Splay</code> (panning)</p>
+</li>
+<li>
+<p><code>Default</code> sentinel class in <code>synthdef.py</code> for parameters whose defaults are computed from other parameters at construction time (used by <code>FFT</code>, <code>Gendy1-3</code>, <code>ScopeOut2</code>)</p>
+</li>
+<li>
+<p><code>PseudoUGen</code> base class for virtual UGens that compose other UGens (<code>Mix</code>, <code>Changed</code>, <code>CompanderD</code>, <code>LinLin</code>, <code>Silence</code>, <code>Splay</code>)</p>
+</li>
+<li>
+<p><code>_postprocess_kwargs</code> hook on <code>UGen.__init__</code> for transforming parameters at construction time (dynamic channel counts, Default resolution, rate forcing)</p>
+</li>
+<li>
+<p><code>GREATER_THAN</code> and <code>LESS_THAN</code> binary operators with corresponding <code>__gt__</code>/<code>__lt__</code> on <code>UGenOperable</code></p>
+</li>
+<li>
+<p>Demo scripts: <code>14_spectral.py</code> (FFT/PV spectral processing), <code>15_gendy.py</code> (stochastic synthesis), <code>16_klank_splay.py</code> (resonant filter banks), <code>17_freqshift.py</code> (Bode frequency shifting)</p>
+</li>
+</ul>
+<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>LocalBuf</code> crash: <code>SynthDefBuilder.build()</code> now runs a <code>_cleanup_local_bufs</code> pass that automatically inserts a <code>MaxLocalBufs</code> UGen when <code>LocalBuf</code> instances are present in the graph (e.g. from <code>FFT</code>'s auto-allocated buffer). Without this, scsynth would crash with <code>LocalBuf tried to allocate too many local buffers</code></li>
+</ul>
+<h2 id="011">[0.1.1]<a class="headerlink" href="#011" title="Permanent link">&para;</a></h2>
+<h3 id="added_9">Added<a class="headerlink" href="#added_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>Server</code> class (<code>nanosynth.server</code>) -- high-level wrapper around the embedded scsynth engine with boot/quit lifecycle, node ID allocation, SynthDef dispatch, and convenience methods (<code>synth</code>, <code>group</code>, <code>free</code>, <code>set</code>). Supports context manager usage</p>
+</li>
+<li>
+<p><code>Server.managed_synth()</code> and <code>Server.managed_group()</code> context managers -- create a synth or group and automatically free it on context exit (including on exceptions); guard against freeing if the server has already stopped</p>
+</li>
+<li>
+<p><code>SynthDef.send(server)</code> and <code>SynthDef.play(server, **params)</code> convenience methods for sending SynthDefs and creating synths in one call</p>
+</li>
+<li>
+<p><code>SynthDef.dump_ugens()</code> pretty-printer -- returns a human-readable UGen graph representation (modeled on SuperCollider's <code>SynthDef.dumpUGens</code>), showing UGen types, rates, input wiring, operator names, and multi-output counts</p>
+</li>
+<li>
+<p><code>Envelope.compile()</code> -- dedicated serialization path producing <code>tuple[float, ...]</code> directly, bypassing UGenVector/ConstantProxy; raises <code>TypeError</code> on UGen inputs. <code>serialize()</code> retained for UGen graph wiring</p>
+</li>
+<li>
+<p>Demo scripts <code>12_server_sine.py</code> (sine wave via Server API) and <code>13_server_pad.py</code> (gated pad chord progression with <code>managed_synth</code>, <code>managed_group</code>, and <code>server.set()</code>)</p>
+</li>
+<li>
+<p><code>EmbeddedProcessProtocol.send_packet()</code> and <code>send_msg()</code> convenience methods for sending OSC to the engine without importing <code>_scsynth</code> directly</p>
+</li>
+<li>
+<p>Auto-generated docstrings for all <code>@ugen</code>-decorated classes (e.g. <code>SinOsc -- ar, kr\n\nParameters:\n    frequency (default: 440.0)</code>)</p>
+</li>
+<li>
+<p><code>__slots__</code> on core graph classes (<code>UGen</code>, <code>OutputProxy</code>, <code>ConstantProxy</code>, <code>UGenVector</code>, <code>UGenOperable</code>, <code>UGenScalar</code>, <code>UGenSerializable</code>) for lower memory usage</p>
+</li>
+<li>
+<p>OSC test suite now runs all 24 tests against both the C++ and pure-Python backends (48 total)</p>
+</li>
+<li>
+<p><code>EmbeddedProcessProtocol</code> state machine tests: initial state, quit no-op, send errors when offline, callback storage, boot-when-active guard</p>
+</li>
+<li>
+<p>Test coverage for <code>SynthDefBuilder</code> cross-scope errors, graph optimization (<code>_optimize</code>/<code>_eliminate</code>), <code>Envelope.linen</code>/<code>.triangle</code>/<code>.asr</code> factory methods, multi-channel UGens (<code>In</code>, <code>PanAz</code>, <code>DecodeB2</code>), <code>compile_synthdefs</code> with multiple SynthDefs, demand-rate UGens (<code>Dseq</code>, <code>Drand</code>, <code>Duty</code>, etc.), and <code>@synthdef</code> decorator (trigger/audio/lag rates, complex graphs) -- 54 new tests (322 -&gt; 376)</p>
+</li>
+<li>
+<p><code>qa</code> CI job: runs ruff lint, ruff format check, mypy --strict, and pytest against the source tree on every push/PR</p>
+</li>
+<li>
+<p>Release workflow (<code>release.yml</code>): tag-triggered publish to PyPI via trusted publisher, <code>workflow_dispatch</code> for TestPyPI, auto-generated GitHub Release</p>
+</li>
+<li>
+<p>Docstrings on <code>SynthDefBuilder.build()</code>, <code>.add_parameter()</code>, and <code>.__getitem__()</code></p>
+</li>
+<li>
+<p>Plugin loading validation: <code>_options_to_world_kwargs()</code> logs a warning when no UGen plugins path is found</p>
+</li>
+</ul>
+<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>macOS CoreAudio teardown crash: registered a C-level <code>atexit</code> guard in <code>_scsynth.cpp</code> (after <code>World_New</code>) that calls <code>_exit(0)</code> before CoreAudio's static destructors run; removed <code>os._exit(0)</code> from all 11 demo scripts</p>
+</li>
+<li>
+<p><code>WorldStrings</code> memory leak in <code>_scsynth.cpp</code>: capsule destructor now frees the heap-allocated strings object</p>
+</li>
+<li>
+<p>Windows CI build failure caused by Strawberry Perl's incompatible ccache crashing MSVC (<code>STATUS_ENTRYPOINT_NOT_FOUND</code>); disabled SC's ccache integration on Windows</p>
+</li>
+<li>
+<p>nanobind 2.11 compatibility: replaced capturing lambda in <code>_scsynth.cpp</code> capsule constructor with <code>WorldHandle</code> struct and non-capturing cleanup function</p>
+</li>
+<li>
+<p>Removed 11 <code>type: ignore[arg-type]</code> suppressions from <code>EnvGen</code> by widening <code>UGen.__init__</code>, <code>_new_single</code>, and <code>_new_expanded</code> kwargs to <code>UGenRecursiveInput | None</code></p>
+</li>
+<li>
+<p>OSC decoder unbounded recursion: <code>_osc.cpp</code> blob/bundle recursive parsing now enforces a maximum nesting depth of 16 levels; beyond the limit, blobs are returned as raw bytes</p>
+</li>
+<li>
+<p>OSC decoder aggregate bounds checking: <code>decode_message_clean</code> pre-validates that the payload has enough bytes for all type tags before entering the decode loop</p>
+</li>
+<li>
+<p><code>world_send_packet</code> <code>const_cast</code> removal: OSC packet data is now copied into a <code>std::vector&lt;char&gt;</code> before passing to <code>World_SendPacket</code>, eliminating undefined behavior from casting away const on Python bytes</p>
+</li>
+<li>
+<p><code>scsynth_print_func</code> buffer overflow: replaced fixed 4096-byte stack buffer with a two-pass approach that dynamically allocates when the formatted message exceeds the stack buffer</p>
+</li>
+</ul>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Protected <code>EmbeddedProcessProtocol._active_world</code> with <code>threading.Lock</code> to prevent race conditions on concurrent <code>boot()</code> calls</p>
+</li>
+<li>
+<p>Cleaned up <code>Envelope.serialize()</code> and <code>UGenSerializable.serialize()</code> signatures: removed unused <code>**kwargs</code> parameter, added docstring documenting the wire format</p>
+</li>
+<li>
+<p>Extracted 6 enum classes (<code>CalculationRate</code>, <code>ParameterRate</code>, <code>BinaryOperator</code>, <code>UnaryOperator</code>, <code>DoneAction</code>, <code>EnvelopeShape</code>) from <code>synthdef.py</code> into <code>enums.py</code></p>
+</li>
+<li>
+<p>Extracted SCgf binary compiler (<code>_compile_*</code>, <code>_encode_*</code>, <code>compile_synthdefs</code>) from <code>synthdef.py</code> into <code>compiler.py</code></p>
+</li>
+<li>
+<p>Pinned <code>nanobind&gt;=2.11,&lt;3</code> in both <code>[build-system]</code> and <code>[dependency-groups]</code></p>
+</li>
+<li>
+<p>All <code>ValueError</code> raises in <code>synthdef.py</code> (10) and <code>envelopes.py</code> (2) now include descriptive messages</p>
+</li>
+<li>
+<p>Narrowed bare <code>except Exception</code> in <code>osc.py</code> to <code>except (ValueError, IndexError, struct.error)</code></p>
+</li>
+<li>
+<p>Refactored all 11 demo scripts to use <code>_options_to_world_kwargs()</code> instead of duplicated 25-line <code>_options_kwargs()</code> functions</p>
+</li>
+</ul>
+<h2 id="010">[0.1.0]<a class="headerlink" href="#010" title="Permanent link">&para;</a></h2>
+<p>Initial release.</p>
+<h3 id="added_10">Added<a class="headerlink" href="#added_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>SynthDef compiler</strong> -- <code>SynthDefBuilder</code> context manager and <code>@synthdef</code> decorator for defining UGen graphs in Python, compiled to SuperCollider's SCgf binary format</p>
+</li>
+<li>
+<p><strong>290+ UGen definitions</strong> across 18 categories: oscillators, filters, BEQ filters, noise, delays, envelopes, panning, demand, dynamics, chaos, granular, buffer I/O, physical modeling, reverb, convolution, I/O, lines, and triggers</p>
+</li>
+<li>
+<p><strong>Envelope system</strong> -- <code>Envelope</code> class with <code>adsr</code>, <code>asr</code>, <code>linen</code>, <code>percussive</code>, and <code>triangle</code> factory methods, plus the <code>EnvGen</code> UGen</p>
+</li>
+<li>
+<p><strong>OSC codec</strong> -- <code>OscMessage</code> and <code>OscBundle</code> encode/decode with pure-Python implementation and C++ accelerated path via nanobind (<code>_osc.cpp</code>)</p>
+</li>
+<li>
+<p><strong>Embedded libscsynth</strong> -- in-process SuperCollider engine via nanobind (<code>_scsynth.cpp</code>), with <code>EmbeddedProcessProtocol</code> for lifecycle management and <code>Options</code> frozen dataclass for server configuration</p>
+</li>
+<li>
+<p><strong>Vendored dependencies</strong> -- SuperCollider 3.14.1, libsndfile, and PortAudio built from source via <code>add_subdirectory</code>; SC trimmed to 27MB (from 132MB) with only libscsynth, UGen plugins, and required boost headers; libsndfile tailored for WAV/AIFF only (no external codec deps). Audio backend: CoreAudio on macOS, vendored PortAudio on Linux/Windows</p>
+</li>
+<li>
+<p><strong>Incremental builds</strong> -- <code>make build</code> uses <code>--wheel --no-build-isolation</code> with persistent cmake build cache in <code>build/</code>; incremental rebuilds in ~3s</p>
+</li>
+<li>
+<p><strong>Wheel repair</strong> -- platform-conditional wheel repair via delocate (macOS), auditwheel (Linux), delvewheel (Windows); SC's macOS <code>POST_BUILD</code> bundle-copy commands disabled to prevent duplicate plugins leaking into the wheel</p>
+</li>
+<li>
+<p><strong>Demos</strong> -- three example scripts: sine wave (<code>01_sine.py</code>), subtractive synthesis (<code>02_subtractive.py</code>), and FM synthesis with melody (<code>03_fm.py</code>)</p>
+</li>
+<li>
+<p><strong>Test suite</strong> -- 291 tests covering OSC round-trip encoding, SynthDef compilation, UGen instantiation and calculation rates, and server options/lifecycle</p>
+</li>
+<li>
+<p><strong>Full <code>mypy --strict</code> compliance</strong> with complete type annotations</p>
+</li>
+<li>
+<p><strong>CI workflow</strong> -- GitHub Actions with cibuildwheel building wheels for CPython 3.10--3.13 across macOS ARM64, Linux x86_64, and Windows x86_64; sdist built separately; all artifacts aggregated into a single download</p>
+</li>
+<li>
+<p><strong>Development tooling</strong> -- Makefile with <code>dev</code>, <code>build</code>, <code>sdist</code>, <code>test</code>, <code>lint</code>, <code>format</code>, <code>typecheck</code>, <code>qa</code>, <code>clean</code>, and <code>reset</code> targets</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
