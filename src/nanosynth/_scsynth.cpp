@@ -167,18 +167,15 @@ static void py_set_reply_func(nb::object func) {
 // ---------------------------------------------------------------------------
 
 static void py_set_print_func(nb::object func) {
+    bool restore_default = func.is_none();
     {
         std::lock_guard<std::mutex> lock(g_print_mutex);
-        if (func.is_none()) {
-            g_print_func = nb::none();
-            // SetPrintFunc with our no-op handler to avoid null dereference
-        } else {
-            g_print_func = func;
-        }
+        g_print_func = restore_default ? nb::none() : func;
     }
     // Outside the lock: if this ever logged, scsynth_print_func would re-enter
-    // the same non-recursive mutex.
-    SetPrintFunc(scsynth_print_func);
+    // the same non-recursive mutex. nullptr restores scsynth's own vprintf
+    // (scprintf null-checks gPrint).
+    SetPrintFunc(restore_default ? nullptr : scsynth_print_func);
 }
 
 // Cross-engine guard. scsynth and supernova each statically embed the full
@@ -624,7 +621,8 @@ NB_MODULE(_scsynth, m) {
 
     m.def("set_print_func", &py_set_print_func,
           nb::arg("func").none(),
-          "Set the print function for scsynth output. Pass None to clear.");
+          "Set the print function for scsynth output. Pass None to restore "
+          "scsynth's default printer (stdout).");
 
     m.def("world_new", &py_world_new,
           nb::arg("num_audio_bus_channels") = 1024u,

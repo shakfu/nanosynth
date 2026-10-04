@@ -1,4 +1,4 @@
-"""Performance benchmarks for the compile and OSC hot paths.
+"""Performance benchmarks for the compile, OSC and pattern hot paths.
 
 Run via ``make bench`` (writes a JSON) or ``make bench-check`` (compares against
 the committed baseline and fails on regression). These are deliberately kept out
@@ -22,6 +22,7 @@ from nanosynth import SynthDefBuilder
 from nanosynth.enums import DoneAction
 from nanosynth.envelopes import EnvGen, Envelope
 from nanosynth.osc import OscBundle, OscMessage
+from nanosynth.patterns import Pbind, Pkey, Pseq
 from nanosynth.synthdef import SynthDef
 from nanosynth.ugens import RLPF, Mix, Out, Pan2, Saw
 
@@ -98,3 +99,19 @@ def test_osc_bundle_decode(benchmark: Any) -> None:
     datagram = _reference_bundle().to_datagram()
     result = benchmark(OscBundle.from_datagram, datagram)
     assert len(result.contents) == 8
+
+
+def _pattern_events() -> int:
+    """Generate 1000 events through the pitch chain and a Pkey."""
+    pattern = Pbind(
+        degree=Pseq(list(range(8)), float("inf")),
+        dur=0.25,
+        amp=Pkey("freq", lambda f: 40.0 / f),
+    )
+    return len(pattern.take(1000))
+
+
+@pytest.mark.benchmark(group="patterns")
+def test_pbind_event_generation(benchmark: Any) -> None:
+    result = benchmark(_pattern_events)
+    assert result == 1000

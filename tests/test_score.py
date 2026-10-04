@@ -5,8 +5,11 @@ import tempfile
 from pathlib import Path
 
 
+import pytest
+
+from nanosynth.enums import AddAction
 from nanosynth.osc import OscBundle, OscMessage
-from nanosynth.score import Score
+from nanosynth.score import _GUARD_EPSILON, Score
 from nanosynth.scsynth import Options
 from nanosynth.synthdef import SynthDefBuilder
 from nanosynth.ugens import Out, SinOsc
@@ -60,6 +63,48 @@ class TestScoreConstruction:
         assert "freq" in contents
         assert 440.0 in contents
 
+    def test_add_synth_allocates_node_ids(self):
+        """add_synth() allocates unique node IDs and returns them."""
+        s = Score()
+        a = s.add_synth(0.0, "sine", node_id=None)
+        b = s.add_synth(0.5, "sine", node_id=None)
+        assert (a, b) == (1000, 1001)
+        assert s._entries[1][1][0].contents[1] == b
+
+    def test_auto_ids_skip_explicit_ids(self):
+        """An explicit node_id is never handed out again by allocation."""
+        s = Score()
+        s.add_synth(0.0, "sine", node_id=1001)
+        s.add_synth(0.0, "sine", node_id=-1)  # server-assigned; not reserved
+        assert [s.add_synth(0.0, "sine", None) for _ in range(2)] == [1000, 1002]
+
+    def test_add_synth_controls_mapping(self):
+        """Controls named like add_synth's own parameters stay controls."""
+        s = Score()
+        s.add_synth(0.0, "sine", controls={"target": 2.0, "node_id": 3.0})
+        contents = tuple(s._entries[0][1][0].contents)
+        assert contents == ("sine", -1, 0, 0, "target", 2.0, "node_id", 3.0)
+
+    def test_add_synth_add_action(self):
+        """add_synth() accepts an AddAction in its original positional slot."""
+        s = Score()
+        s.add_synth(0.0, "sine", -1, AddAction.ADD_AFTER, 7)
+        contents = s._entries[0][1][0].contents
+        assert tuple(contents[1:4]) == (-1, int(AddAction.ADD_AFTER), 7)
+
+    def test_add_synth_default_node_id_is_engine_assigned(self):
+        """The default stays -1, as before allocation existed."""
+        s = Score()
+        assert s.add_synth(0.0, "sine") == -1
+        assert s._entries[0][1][0].contents[1] == -1
+
+    def test_add_synth_original_keywords(self):
+        """The pre-0.4 keyword form still works unchanged."""
+        s = Score()
+        node = s.add_synth(0.0, "sine", node_id=5, add_action=1, target=0, freq=2.0)
+        assert node == 5
+        assert tuple(s._entries[0][1][0].contents) == ("sine", 5, 1, 0, "freq", 2.0)
+
     def test_sort(self):
         """sort() orders entries by time."""
         s = Score()
@@ -84,11 +129,41 @@ class TestScoreConstruction:
 # ---------------------------------------------------------------------------
 
 
+def _decode(data: bytes) -> list[OscBundle]:
+    """Split a binary command file into its bundles."""
+    bundles = []
+    while data:
+        size = struct.unpack(">i", data[:4])[0]
+        bundles.append(OscBundle.from_datagram(data[4 : 4 + size]))
+        data = data[4 + size :]
+    return bundles
+
+
+def _nrt_times(data: bytes) -> list[float]:
+    """Raw NRT bundle timestamps (seconds, no NTP epoch) of a command file."""
+    times = []
+    while data:
+        size = struct.unpack(">i", data[:4])[0]
+        times.append(struct.unpack(">Q", data[12:20])[0] / 2**32)
+        data = data[4 + size :]
+    return times
+
+
 class TestScoreSerialization:
     def test_to_binary_empty(self):
         """An empty score produces empty bytes."""
         s = Score()
         assert s.to_binary() == b""
+
+    def test_to_binary_appends_guard(self):
+        """to_binary() ends with /g_freeAll + /c_set just after the last event."""
+        s = Score()
+        s.add(0.0, OscMessage("/a"))
+        s.add(2.0, OscMessage("/b"))
+        data = s.to_binary()
+        last = _decode(data)[-1]
+        assert [m.address for m in last.contents] == ["/g_freeAll", "/c_set"]
+        assert _nrt_times(data)[-1] == pytest.approx(2.0 + _GUARD_EPSILON, abs=1e-6)
 
     def test_to_binary_format(self):
         """to_binary() produces int32 size + bundle datagram pairs."""
@@ -103,8 +178,8 @@ class TestScoreSerialization:
         assert len(bundle_data) == size
         # Should be a valid bundle
         assert bundle_data[:8] == b"#bundle\x00"
-        # Total length should be exactly 4 + size
-        assert len(data) == 4 + size
+        # Event bundle, then the guard bundle
+        assert len(_decode(data)) == 2
 
     def test_to_binary_multiple_entries(self):
         """Multiple entries produce concatenated size+datagram pairs."""
@@ -113,14 +188,8 @@ class TestScoreSerialization:
         s.add(1.0, OscMessage("/second"))
         data = s.to_binary()
 
-        # Parse first entry
-        size1 = struct.unpack(">i", data[:4])[0]
-        remainder = data[4 + size1 :]
-        # Parse second entry
-        size2 = struct.unpack(">i", remainder[:4])[0]
-        assert size2 > 0
-        # Total length matches
-        assert len(data) == 4 + size1 + 4 + size2
+        addresses = [b.contents[0].address for b in _decode(data)]
+        assert addresses == ["/first", "/second", "/g_freeAll"]
 
     def test_to_binary_nrt_timestamp(self):
         """Bundle timestamps use raw seconds (no NTP epoch offset)."""
@@ -208,3 +277,98 @@ class TestScoreRender:
             assert p.stat().st_size > 44
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# Score.from_pattern
+# ---------------------------------------------------------------------------
+
+from nanosynth.patterns import Pbind, Pmono, Pseq, Rest  # noqa: E402
+
+
+def _commands(score: Score) -> list[tuple[float, str, tuple]]:
+    score.sort()
+    return [(t, m.address, tuple(m.contents)) for t, ms in score._entries for m in ms]
+
+
+class TestFromPattern:
+    def test_onsets_and_releases_follow_tempo(self):
+        pattern = Pbind(instrument="beep", freq=Pseq([100.0, 200.0]), dur=1.0)
+        cmds = _commands(Score.from_pattern(pattern, 10.0, bpm=120.0))
+        news = [(t, c[0], c[c.index("freq") + 1]) for t, a, c in cmds if a == "/s_new"]
+        assert news == [(0.0, "beep", 100.0), (0.5, "beep", 200.0)]
+        # sustain = 0.8 beats = 0.4 s at 120 bpm
+        releases = [t for t, a, c in cmds if a == "/n_set" and c[1:] == ("gate", 0.0)]
+        assert releases == pytest.approx([0.4, 0.9])
+
+    def test_synthdefs_precede_events(self):
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="fp")
+        score = Score.from_pattern(Pbind(instrument="fp", dur=1.0), 1.0, synthdefs=[sd])
+        assert [a for _, a, _ in _commands(score)][:2] == ["/d_recv", "/s_new"]
+
+    def test_duration_bounds_infinite_pattern(self):
+        score = Score.from_pattern(Pbind(dur=0.5), 2.0, bpm=60.0)
+        onsets = [t for t, a, _ in _commands(score) if a == "/s_new"]
+        assert onsets == [0.0, 0.5, 1.0, 1.5]
+
+    def test_rest_advances_without_synth(self):
+        score = Score.from_pattern(Pbind(dur=Pseq([1.0, Rest(1.0), 1.0])), 10.0, bpm=60)
+        onsets = [t for t, a, _ in _commands(score) if a == "/s_new"]
+        assert onsets == [0.0, 2.0]
+
+    def test_chord_creates_unique_nodes(self):
+        score = Score.from_pattern(Pbind(midinote=Pseq([[60, 64, 67]])), 4.0)
+        ids = [c[1] for _, a, c in _commands(score) if a == "/s_new"]
+        assert len(set(ids)) == 3
+
+    def test_pmono_released_at_stream_end(self):
+        score = Score.from_pattern(
+            Pmono("m", freq=Pseq([1.0, 2.0]), dur=1.0), 10.0, bpm=60
+        )
+        cmds = _commands(score)
+        assert [a for _, a, _ in cmds].count("/s_new") == 1
+        assert cmds[-1][0] == 2.0 and cmds[-1][2][1:] == ("gate", 0.0)
+
+    def test_param_named_target_stays_a_control(self):
+        score = Score.from_pattern(Pbind(target=7.0, dur=Pseq([1.0])), 1.0)
+        contents = [c for _, a, c in _commands(score) if a == "/s_new"][0]
+        assert contents[2:4] == (0, 0)
+        assert contents[contents.index("target") + 1] == 7.0
+
+    def test_renders_audio_where_notes_are(self):
+        """End to end: a two-note pattern sounds at its onsets, silent between."""
+        np = pytest.importorskip("numpy")
+        import wave
+
+        from nanosynth.envelopes import EnvGen, Envelope
+
+        with SynthDefBuilder(freq=440.0, gate=1.0) as b:
+            env = EnvGen.kr(envelope=Envelope.asr(0.005, 1.0, 0.005), gate=b["gate"])
+            Out.ar(bus=0, source=SinOsc.ar(frequency=b["freq"]) * env * 0.3)
+        sd = b.build(name="fp_gated")
+        # bpm 60: notes at 0 s and 1 s, each sustained 0.4 s.
+        score = Score.from_pattern(
+            Pbind(instrument="fp_gated", dur=Pseq([1.0, 1.0]), legato=0.4),
+            4.0,
+            bpm=60.0,
+            synthdefs=[sd],
+        )
+        score.add(1.6, OscMessage("/c_set", 0, 0))  # end marker
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            path = Path(f.name)
+        try:
+            score.render(path, output_channels=1, options=Options(verbosity=-1))
+            with wave.open(str(path)) as w:
+                sr = w.getframerate()
+                pcm = np.frombuffer(w.readframes(w.getnframes()), dtype="<i2")
+        finally:
+            path.unlink(missing_ok=True)
+
+        def peak(t0: float, t1: float) -> float:
+            return float(np.abs(pcm[int(t0 * sr) : int(t1 * sr)]).max()) / 32767
+
+        assert peak(0.1, 0.3) > 0.2
+        assert peak(0.5, 0.9) < 0.01
+        assert peak(1.1, 1.3) > 0.2

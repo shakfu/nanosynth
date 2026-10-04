@@ -111,6 +111,15 @@ with Server(Options(verbosity=0)) as server:
 # Engine shuts down automatically on context exit
 ```
 
+Synth controls are keyword arguments. A control whose name matches a method parameter (`target`, `action`, `controls`) goes in the `controls` mapping:
+
+```python
+server.synth("sampler", target=group, controls={"target": 0.5}, rate=1.0)
+server.set(node, controls={"action": 1.0})
+```
+
+A name given both ways raises `TypeError`. `Score.add_synth`, `SynthDef.play` and patterns follow the same rule.
+
 ## Managed Nodes (Automatic Cleanup)
 
 `managed_synth()` and `managed_group()` create nodes that are automatically freed on context exit, even if an exception occurs:

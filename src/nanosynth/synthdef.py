@@ -12,6 +12,7 @@ import math
 import operator
 import threading
 import uuid
+from collections.abc import Mapping
 from collections.abc import Sequence as SequenceABC
 from pathlib import Path
 from typing import (
@@ -29,6 +30,7 @@ from typing import (
     runtime_checkable,
 )
 
+from ._controls import SYNTH_PARAMS
 from .exceptions import SynthDefError  # noqa: F401
 from .enums import (  # noqa: F401
     BinaryOperator,
@@ -52,7 +54,7 @@ class ServerProtocol(Protocol):
     def send_synthdef(self, synthdef: "SynthDef") -> None: ...
 
     def synth(
-        self, name: str, target: int = ..., action: int = ..., **params: float
+        self, name: str, target: int = ..., action: int = ..., **params: Any
     ) -> SupportsInt: ...
 
 
@@ -2142,6 +2144,8 @@ class SynthDef:
         server: ServerProtocol,
         target: int = 1,
         action: int = 0,
+        *,
+        controls: Mapping[str, SupportsFloat] | None = None,
         **params: float,
     ) -> SupportsInt:
         """Send this SynthDef, then create a synth. Returns a Synth proxy.
@@ -2150,7 +2154,18 @@ class SynthDef:
         ``play`` repeatedly re-sends it each time.
         """
         self.send(server)
-        return server.synth(self.effective_name, target=target, action=action, **params)
+        # Same call shape as before controls= existed unless it is needed, so
+        # ServerProtocol implementations without it keep working.
+        if controls is None and SYNTH_PARAMS.isdisjoint(params):
+            return server.synth(
+                self.effective_name, target=target, action=action, **params
+            )
+        merged: dict[str, SupportsFloat] = dict(controls or {})
+        duplicate = merged.keys() & params.keys()
+        if duplicate:
+            raise TypeError(f"control(s) given twice: {', '.join(sorted(duplicate))}")
+        merged.update(params)
+        return server.synth(self.effective_name, target, action, controls=merged)
 
     def dump_ugens(self) -> str:
         """Return a human-readable representation of the UGen graph."""

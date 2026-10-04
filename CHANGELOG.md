@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **MIDI output and clock** (`midi.py`, `_midi.cpp`): `MidiOut` sends message objects or raw bytes. `MidiClockOut` sends Timing Clock and transport following a `Clock`; `MidiClockIn` slaves a `Clock`'s tempo and beat grid to incoming clock. New message types: `ProgramChange`, `Aftertouch`, `PolyAftertouch`, `SongPosition`, `TimingClock`, `Start`, `Continue`, `Stop`. `MidiIn` gains generic `on(type, cb)`/`off(type, cb)` and `receive_clock=True`. See `docs/midi.md`
+
+- **Chords, `PmonoArtic`, `Pbindef`, `Score.from_pattern`** (`patterns.py`, `score.py`): a list-valued event key expands to one synth per voice, each derived separately. `PmonoArtic` re-articulates when `legato < 1`. `Pbindef` rebinds single keys of a running `Pbind`. `Score.from_pattern(pattern, duration)` renders patterns offline through the same event-to-command code as `Player`. `Clock.set_beat()` moves the beat grid. See `docs/patterns.md`
+
+- **Buffer generators and bus reads** (`server.py`): `query_buffer()` (`/b_query`), `gen_buffer()` plus `sine1`/`sine2`/`sine3`/`cheby` (`/b_gen`), and `Bus.get()` (`/c_getn`). These use OSC replies, so they also work on supernova
+
+- **CLI** (`cli.py`): `nanosynth render FILE.py -o out.wav`, `midi-ports`, `selftest` (boot, query, quit), and `--version`. See `docs/cli.md`
+
+### Changed
+
+- **`Score.add_synth()` can allocate node IDs** (`score.py`): `node_id=None` allocates one from 1000, skipping IDs passed explicitly. It returns the node ID, and `add_action` also accepts an `AddAction`. The default stays `-1` (engine-assigned)
+
+- **Control names no longer collide with method parameters** (`server.py`, `score.py`, `synthdef.py`, `patterns.py`, `midi.py`): a control named `target` or `action` was taken as `Server.synth()`'s own argument, so `Pbind(target=...)` placed the synth instead of setting the control. `synth`, `managed_synth`, `set`, `Score.add_synth`/`add_set` and `SynthDef.play` take an optional `controls={...}` mapping for any name; a name given both ways raises `TypeError`. Signatures are unchanged, and internal callers use `controls=` only when a name collides, so duck-typed servers without it keep working. A non-mapping `controls=0.5` is still a control named `controls`
+
+- **`Options.maximum_logins` defaults to 64**, matching the engine's own default (was 1)
+
+- **`Score.to_binary()` includes the teardown guard** (`score.py`): the `/g_freeAll` + `/c_set` bundle that prevents NRT shutdown crashes was added only inside `render()`, so a hand-written score file lacked it. It is now emitted by `to_binary()`, 10 ms after the last event. At the same timestamp it freed a final `/s_new` in the block it started, so that synth rendered no audio
+
+- **Version is single-sourced** (`pyproject.toml`): scikit-build-core reads it from `src/nanosynth/__init__.py`, so the two can no longer drift
+
+### Fixed
+
+- **`from nanosynth import *` raised `AttributeError`** (`__init__.py`): `__all__` listed `Resonz`, which does not exist
+
+- **NRT render ignored `Options.hardware_buffer_size`** (`score.py`): it was hard-coded to 8192
+
+- **`Server.record()` crashed the engine** (`ugens/diskio.py`): `DiskOut` was declared with zero outputs, but `DiskOut_next` writes a frame counter to `OUT(0)` unconditionally, so it wrote through an unallocated output pointer and segfaulted on the audio thread. It now has its one output. Recording was only ever tested against a mocked engine
+
+- **Recordings began with 1.5 s of silence** (`server.py`): `record()` opened the file with `/b_write ... numFrames=-1`, which first wrote the whole zeroed 65536-frame disk buffer. It now uses 0, as sclang's `Recorder` does
+
+- **Recordings could be left unfinalized** (`server.py`): `/b_close` rewrites the file header asynchronously, and `stop_recording()` did not wait for it, so a `quit()` straight after left a WAV with no valid header (observed on supernova). `stop_recording()` now ends with `sync()`. `quit()` now finalizes an active recording first; previously the stale state also made the next `record()` after a reboot raise "Already recording". `record()` on a stopped server raises `EngineError` before allocating a buffer
+
+- **`MidiIn.close()` could deadlock** (`_midi.cpp`): on ALSA, RtMidi's `closePort()` joins the input thread. It was called with the GIL held, while that thread could be blocked in the callback waiting for the GIL. Busy ports (e.g. 24 clock ticks per beat) hung reliably. The GIL is now released around `closePort()` and around the `RtMidiIn` delete in the handle destructor
+
+- **`set_print_func(None)` dropped engine output** (`_scsynth.cpp`): it installed a no-op callback. It now restores scsynth's default printer (stdout)
+
 ## [0.3.1]
 
 ### Fixed

@@ -1,7 +1,8 @@
-"""MIDI input support via embedded RtMidi.
+"""MIDI input and output via embedded RtMidi.
 
-Provides parsed MIDI message types and a ``MidiIn`` class for receiving
-MIDI input from hardware controllers.
+Provides parsed MIDI message types, ``MidiIn`` and ``MidiOut`` ports, and
+MIDI clock send (``MidiClockOut``) and receive (``MidiClockIn``) bridged to a
+pattern :class:`~nanosynth.patterns.Clock`.
 
 This module requires the ``_midi`` C extension (built by default with
 ``NANOSYNTH_EMBED_MIDI=ON``).  If unavailable, importing this module
@@ -24,14 +25,19 @@ Basic usage::
 
 from __future__ import annotations
 
+import threading
+import time
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from . import _midi  # type: ignore[attr-defined]
+from ._controls import SET_PARAMS, SYNTH_PARAMS, call
 from .exceptions import EngineError, MidiError
 
 if TYPE_CHECKING:
+    from .patterns import Clock
     from .server import Server, Synth
 
 
@@ -78,8 +84,82 @@ class PitchBend:
     value: int
 
 
+@dataclass(frozen=True, slots=True)
+class ProgramChange:
+    """MIDI Program Change message."""
+
+    channel: int
+    program: int
+
+
+@dataclass(frozen=True, slots=True)
+class Aftertouch:
+    """MIDI Channel Pressure (channel aftertouch) message."""
+
+    channel: int
+    value: int
+
+
+@dataclass(frozen=True, slots=True)
+class PolyAftertouch:
+    """MIDI Polyphonic Key Pressure (per-note aftertouch) message."""
+
+    channel: int
+    note: int
+    value: int
+
+
+@dataclass(frozen=True, slots=True)
+class SongPosition:
+    """MIDI Song Position Pointer, in sixteenth notes (0--16383)."""
+
+    position: int
+
+
+@dataclass(frozen=True, slots=True)
+class TimingClock:
+    """MIDI Timing Clock tick (24 per quarter note)."""
+
+
+@dataclass(frozen=True, slots=True)
+class Start:
+    """MIDI Start (transport)."""
+
+
+@dataclass(frozen=True, slots=True)
+class Continue:
+    """MIDI Continue (transport)."""
+
+
+@dataclass(frozen=True, slots=True)
+class Stop:
+    """MIDI Stop (transport)."""
+
+
 # Union of all message types
-MidiMessage = NoteOn | NoteOff | ControlChange | PitchBend
+MidiMessage = (
+    NoteOn
+    | NoteOff
+    | ControlChange
+    | PitchBend
+    | ProgramChange
+    | Aftertouch
+    | PolyAftertouch
+    | SongPosition
+    | TimingClock
+    | Start
+    | Continue
+    | Stop
+)
+
+M = TypeVar("M", bound=MidiMessage)
+
+_REALTIME: dict[int, MidiMessage] = {
+    0xF8: TimingClock(),
+    0xFA: Start(),
+    0xFB: Continue(),
+    0xFC: Stop(),
+}
 
 
 # ---------------------------------------------------------------------------
@@ -97,6 +177,11 @@ def _parse(data: bytes) -> MidiMessage | None:
         return None
 
     status = data[0]
+    if status in _REALTIME:
+        return _REALTIME[status]
+    if status == 0xF2 and len(data) >= 3:
+        return SongPosition(position=data[1] | (data[2] << 7))
+
     msg_type = status & 0xF0
     channel = status & 0x0F
 
@@ -121,7 +206,65 @@ def _parse(data: bytes) -> MidiMessage | None:
         value = data[1] | (data[2] << 7)
         return PitchBend(channel=channel, value=value)
 
+    if msg_type == 0xC0 and len(data) >= 2:
+        return ProgramChange(channel=channel, program=data[1])
+
+    if msg_type == 0xD0 and len(data) >= 2:
+        return Aftertouch(channel=channel, value=data[1])
+
+    if msg_type == 0xA0 and len(data) >= 3:
+        return PolyAftertouch(channel=channel, note=data[1], value=data[2])
+
     return None
+
+
+def _encode(msg: MidiMessage) -> bytes:
+    """Encode a message object as raw MIDI bytes (inverse of ``_parse``).
+
+    Raises:
+        ValueError: If a field is outside its MIDI range.
+    """
+    if isinstance(msg, (TimingClock, Start, Continue, Stop)):
+        return {TimingClock: b"\xf8", Start: b"\xfa", Continue: b"\xfb", Stop: b"\xfc"}[
+            type(msg)
+        ]
+    if isinstance(msg, SongPosition):
+        return bytes([0xF2, *_split14(msg.position)])
+    if isinstance(msg, PitchBend):
+        return bytes([0xE0 | _channel(msg.channel), *_split14(msg.value)])
+    if isinstance(msg, NoteOn):
+        status, d1, d2 = 0x90, msg.note, msg.velocity
+    elif isinstance(msg, NoteOff):
+        status, d1, d2 = 0x80, msg.note, msg.velocity
+    elif isinstance(msg, ControlChange):
+        status, d1, d2 = 0xB0, msg.control, msg.value
+    elif isinstance(msg, PolyAftertouch):
+        status, d1, d2 = 0xA0, msg.note, msg.value
+    elif isinstance(msg, ProgramChange):
+        return bytes([0xC0 | _channel(msg.channel), _data7(msg.program)])
+    elif isinstance(msg, Aftertouch):
+        return bytes([0xD0 | _channel(msg.channel), _data7(msg.value)])
+    else:
+        raise TypeError(f"not a MIDI message: {msg!r}")
+    return bytes([status | _channel(msg.channel), _data7(d1), _data7(d2)])
+
+
+def _channel(value: int) -> int:
+    if not 0 <= value <= 15:
+        raise ValueError(f"MIDI channel must be 0-15, got {value}")
+    return value
+
+
+def _data7(value: int) -> int:
+    if not 0 <= value <= 127:
+        raise ValueError(f"MIDI data byte must be 0-127, got {value}")
+    return value
+
+
+def _split14(value: int) -> tuple[int, int]:
+    if not 0 <= value <= 16383:
+        raise ValueError(f"14-bit MIDI value must be 0-16383, got {value}")
+    return value & 0x7F, value >> 7
 
 
 # ---------------------------------------------------------------------------
@@ -135,57 +278,41 @@ class MidiIn:
     Args:
         port: Port to open.  ``None`` opens a virtual port,
             ``int`` opens by index, ``str`` matches by name.
+        receive_clock: Deliver Timing Clock ticks (``TimingClock``), which
+            RtMidi drops by default. Transport messages arrive either way.
 
     Raises:
         ImportError: If the ``_midi`` C extension is not available.
         RuntimeError: If the requested port cannot be opened.
     """
 
-    def __init__(self, port: int | str | None = None) -> None:
+    def __init__(
+        self, port: int | str | None = None, *, receive_clock: bool = False
+    ) -> None:
         self._handle: Any = None
-        self._on_note_on: list[Callable[[NoteOn], None]] = []
-        self._on_note_off: list[Callable[[NoteOff], None]] = []
-        self._on_cc: list[Callable[[ControlChange], None]] = []
-        self._on_pitch_bend: list[Callable[[PitchBend], None]] = []
+        # Handler lists are replaced, never mutated in place, under _lock; the
+        # RtMidi thread reads a list reference without locking.
+        self._handlers: dict[type, list[Callable[[Any], None]]] = {}
+        self._lock = threading.Lock()
 
         if port is None:
             self._handle = _midi.open_virtual_input("nanosynth")
-        elif isinstance(port, int):
-            self._handle = _midi.open_input(port, "nanosynth")
-        elif isinstance(port, str):
-            ports = _midi.list_input_ports()
-            for i, name in enumerate(ports):
-                if port in name:
-                    self._handle = _midi.open_input(i, "nanosynth")
-                    break
-            if self._handle is None:
-                raise MidiError(f"No MIDI port matching {port!r}")
         else:
-            raise TypeError(f"port must be int, str, or None, got {type(port)}")
+            self._handle = _midi.open_input(
+                _resolve_port(port, _midi.list_input_ports()), "nanosynth"
+            )
 
-        _midi.set_callback(self._handle, self._raw_callback)
+        _midi.set_callback(
+            self._handle, self._raw_callback, ignore_timing=not receive_clock
+        )
 
     def _raw_callback(self, data: bytes) -> None:
         """Dispatch raw MIDI bytes to registered handlers."""
         msg = _parse(data)
         if msg is None:
             return
-        # Iterate over a snapshot: this runs on RtMidi's native callback thread
-        # while on_*/off_* may append/remove from the user thread. Snapshotting
-        # (an atomic list copy under the GIL) avoids "list changed size during
-        # iteration" and missed/double dispatch (M7).
-        if isinstance(msg, NoteOn):
-            for note_on_cb in list(self._on_note_on):
-                note_on_cb(msg)
-        elif isinstance(msg, NoteOff):
-            for note_off_cb in list(self._on_note_off):
-                note_off_cb(msg)
-        elif isinstance(msg, ControlChange):
-            for cc_cb in list(self._on_cc):
-                cc_cb(msg)
-        elif isinstance(msg, PitchBend):
-            for pb_cb in list(self._on_pitch_bend):
-                pb_cb(msg)
+        for callback in self._handlers.get(type(msg), ()):
+            callback(msg)
 
     def close(self) -> None:
         """Close the MIDI input port."""
@@ -202,49 +329,52 @@ class MidiIn:
 
     # -- Handler registration --------------------------------------------------
 
+    def on(self, msg_type: type[M], callback: Callable[[M], None]) -> None:
+        """Register a handler for one message type, e.g. ``on(ProgramChange, f)``."""
+        with self._lock:
+            current = self._handlers.get(msg_type, [])
+            self._handlers[msg_type] = [*current, callback]
+
+    def off(self, msg_type: type[M], callback: Callable[[M], None]) -> None:
+        """Remove a handler registered with :meth:`on`. Unknown handlers are ignored."""
+        with self._lock:
+            current = self._handlers.get(msg_type, [])
+            if callback in current:
+                updated = list(current)
+                updated.remove(callback)
+                self._handlers[msg_type] = updated
+
     def on_note_on(self, callback: Callable[[NoteOn], None]) -> None:
         """Register a handler for Note On messages."""
-        self._on_note_on.append(callback)
+        self.on(NoteOn, callback)
 
     def on_note_off(self, callback: Callable[[NoteOff], None]) -> None:
         """Register a handler for Note Off messages."""
-        self._on_note_off.append(callback)
+        self.on(NoteOff, callback)
 
     def on_cc(self, callback: Callable[[ControlChange], None]) -> None:
         """Register a handler for Control Change messages."""
-        self._on_cc.append(callback)
+        self.on(ControlChange, callback)
 
     def on_pitch_bend(self, callback: Callable[[PitchBend], None]) -> None:
         """Register a handler for Pitch Bend messages."""
-        self._on_pitch_bend.append(callback)
+        self.on(PitchBend, callback)
 
     def off_note_on(self, callback: Callable[[NoteOn], None]) -> None:
         """Remove a Note On handler."""
-        try:
-            self._on_note_on.remove(callback)
-        except ValueError:
-            pass
+        self.off(NoteOn, callback)
 
     def off_note_off(self, callback: Callable[[NoteOff], None]) -> None:
         """Remove a Note Off handler."""
-        try:
-            self._on_note_off.remove(callback)
-        except ValueError:
-            pass
+        self.off(NoteOff, callback)
 
     def off_cc(self, callback: Callable[[ControlChange], None]) -> None:
         """Remove a Control Change handler."""
-        try:
-            self._on_cc.remove(callback)
-        except ValueError:
-            pass
+        self.off(ControlChange, callback)
 
     def off_pitch_bend(self, callback: Callable[[PitchBend], None]) -> None:
         """Remove a Pitch Bend handler."""
-        try:
-            self._on_pitch_bend.remove(callback)
-        except ValueError:
-            pass
+        self.off(PitchBend, callback)
 
     # -- Static methods --------------------------------------------------------
 
@@ -252,6 +382,203 @@ class MidiIn:
     def list_ports() -> list[str]:
         """Return a list of available MIDI input port names."""
         return list(_midi.list_input_ports())
+
+
+def _resolve_port(port: int | str, names: list[str]) -> int:
+    """Map an index or a name substring to a port index."""
+    if isinstance(port, bool) or not isinstance(port, (int, str)):
+        raise TypeError(f"port must be int, str, or None, got {type(port)}")
+    if isinstance(port, int):
+        return port
+    for i, name in enumerate(names):
+        if port in name:
+            return i
+    raise MidiError(f"No MIDI port matching {port!r}")
+
+
+# ---------------------------------------------------------------------------
+# MidiOut class
+# ---------------------------------------------------------------------------
+
+
+class MidiOut:
+    """MIDI output port.
+
+    Args:
+        port: Port to open.  ``None`` opens a virtual port,
+            ``int`` opens by index, ``str`` matches by name.
+
+    Example::
+
+        with MidiOut("Synth") as out:
+            out.send(ProgramChange(channel=0, program=5))
+            out.send(NoteOn(channel=0, note=60, velocity=100))
+    """
+
+    def __init__(self, port: int | str | None = None) -> None:
+        self._handle: Any = None
+        if port is None:
+            self._handle = _midi.open_virtual_output("nanosynth")
+        else:
+            self._handle = _midi.open_output(
+                _resolve_port(port, _midi.list_output_ports()), "nanosynth"
+            )
+
+    def send(self, msg: MidiMessage) -> None:
+        """Encode and send one message."""
+        self.send_bytes(_encode(msg))
+
+    def send_bytes(self, data: bytes) -> None:
+        """Send one raw MIDI message (e.g. SysEx) unvalidated."""
+        if self._handle is None:
+            raise MidiError("MIDI output is closed")
+        _midi.send_message(self._handle, bytes(data))
+
+    def close(self) -> None:
+        """Close the MIDI output port."""
+        if self._handle is not None:
+            _midi.close_output(self._handle)
+            self._handle = None
+
+    def __enter__(self) -> MidiOut:
+        return self
+
+    def __exit__(self, *args: Any) -> None:
+        self.close()
+
+    @staticmethod
+    def list_ports() -> list[str]:
+        """Return a list of available MIDI output port names."""
+        return list(_midi.list_output_ports())
+
+
+# ---------------------------------------------------------------------------
+# MIDI clock bridge
+# ---------------------------------------------------------------------------
+
+#: MIDI Timing Clock resolution, in ticks per quarter note.
+PPQN = 24
+
+
+class MidiClockOut:
+    """Send MIDI Timing Clock and transport, following a pattern ``Clock``.
+
+    Ticks run on a daemon thread at ``PPQN`` per beat of ``clock.bpm``; tempo
+    changes apply from the next tick. :meth:`start` sends ``Start`` and
+    begins ticking on the clock's next beat; :meth:`stop` sends ``Stop``.
+
+    Args:
+        midi_out: Destination port.
+        clock: Tempo source.
+    """
+
+    def __init__(self, midi_out: MidiOut, clock: Clock) -> None:
+        self._out = midi_out
+        self._clock = clock
+        self._stop_event = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    @property
+    def running(self) -> bool:
+        """Whether the tick thread is active."""
+        return self._thread is not None and self._thread.is_alive()
+
+    def start(self) -> None:
+        """Send ``Start`` and begin ticking on the clock's next beat."""
+        if self.running:
+            return
+        self._stop_event.clear()
+        first_tick = self._clock.next_boundary(1.0)
+        self._thread = threading.Thread(
+            target=self._run, args=(first_tick,), daemon=True
+        )
+        self._thread.start()
+
+    def stop(self) -> None:
+        """Stop ticking and send ``Stop``."""
+        self._stop_event.set()
+        if self._thread is not None:
+            self._thread.join()
+            self._thread = None
+        self._out.send(Stop())
+
+    def _run(self, next_tick: float) -> None:
+        tick = _encode(TimingClock())
+        self._stop_event.wait(max(0.0, next_tick - time.monotonic()))
+        if self._stop_event.is_set():
+            return
+        self._out.send(Start())
+        while not self._stop_event.is_set():
+            self._out.send_bytes(tick)
+            # Advance from the previous deadline, not the wake time, so OS
+            # jitter does not accumulate as tempo drift.
+            next_tick += self._clock.beat_duration / PPQN
+            # time.sleep, not Event.wait: on Windows (CPython >= 3.11) it uses a
+            # high-resolution timer; Event.wait rounds to the ~15.6 ms tick.
+            time.sleep(max(0.0, next_tick - time.monotonic()))
+
+
+class MidiClockIn:
+    """Slave a pattern ``Clock`` to incoming MIDI Timing Clock.
+
+    Sets ``clock.bpm`` from the mean tick interval over the last beat, and
+    re-anchors the clock's beat grid on each received beat so quantized
+    players stay in phase with the master. ``Start`` resets the grid to beat
+    0; ``SongPosition`` moves it.
+
+    The ``MidiIn`` must be opened with ``receive_clock=True``.
+
+    Args:
+        midi_in: Source port.
+        clock: Clock to drive.
+    """
+
+    def __init__(self, midi_in: MidiIn, clock: Clock) -> None:
+        self._in = midi_in
+        self._clock = clock
+        self._ticks = 0
+        self._last: float | None = None
+        self._intervals: deque[float] = deque(maxlen=PPQN)
+        self._handlers: list[tuple[type, Callable[[Any], None]]] = [
+            (TimingClock, self._on_tick),
+            (Start, self._on_start),
+            (SongPosition, self._on_song_position),
+        ]
+        for msg_type, handler in self._handlers:
+            midi_in.on(msg_type, handler)
+
+    @property
+    def beats(self) -> float:
+        """Beats received since the last ``Start`` or ``SongPosition``."""
+        return self._ticks / PPQN
+
+    def close(self) -> None:
+        """Stop following the incoming clock."""
+        for msg_type, handler in self._handlers:
+            self._in.off(msg_type, handler)
+
+    def _on_start(self, _msg: Start) -> None:
+        self._ticks = 0
+        self._last = None
+        self._clock.set_beat(0.0)
+
+    def _on_song_position(self, msg: SongPosition) -> None:
+        # One MIDI beat (sixteenth note) is 6 clock ticks.
+        self._ticks = msg.position * 6
+        self._last = None
+        self._clock.set_beat(self.beats)
+
+    def _on_tick(self, _msg: TimingClock) -> None:
+        now = time.monotonic()
+        if self._last is not None:
+            self._intervals.append(now - self._last)
+        self._last = now
+        self._ticks += 1
+        if self._ticks % PPQN == 0 and self._intervals:
+            mean = sum(self._intervals) / len(self._intervals)
+            if mean > 0:
+                self._clock.bpm = 60.0 / (mean * PPQN)
+            self._clock.set_beat(self.beats)
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +620,7 @@ def midi_note_map(
         freq = 440.0 * (2.0 ** ((msg.note - 69.0) / 12.0))
         amp = msg.velocity / 127.0
         params = {**fixed_params, "freq": freq, "amp": amp}
-        synth = server.synth(synthdef_name, **params)
+        synth = call(server.synth, synthdef_name, params, SYNTH_PARAMS)
         active[key] = synth
 
     def on_note_off(msg: NoteOff) -> None:
@@ -350,7 +677,7 @@ def midi_cc_map(
         param_name = cc_map.get(msg.control)
         if param_name is not None:
             scaled = range_min + (msg.value / 127.0) * (range_max - range_min)
-            server.set(synth, **{param_name: scaled})
+            call(server.set, synth, {param_name: scaled}, SET_PARAMS)
 
     midi_in.on_cc(on_cc)
 

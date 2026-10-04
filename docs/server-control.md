@@ -110,6 +110,31 @@ results the buffer should not be in active use by a synth during the transfer (a
 concurrent read/write may tear or glitch -- it never crashes). Direct buffer
 access is available on the embedded scsynth engine only (not supernova).
 
+## Buffer Generators and Bus Reads
+
+These use OSC replies, so they work on both engines.
+
+```python
+with Server() as server:
+    buf = server.alloc_buffer(1024)
+    server.sync()
+    frames, channels, sample_rate = server.query_buffer(buf)  # /b_query
+
+    server.sine1(buf, [1.0, 0.5, 0.25])              # harmonic partials
+    server.sine2(buf, [1.0, 2.5], [1.0, 0.3])        # arbitrary partials
+    server.sine3(buf, [1.0], [1.0], [0.5])           # with phases
+    server.cheby(buf, [1.0, 0.0, 0.5], wavetable=False)
+
+    bus = server.control_bus(2)
+    bus.set(0.25, 0.75)
+    server.sync()
+    print(bus.get())  # (0.25, 0.75)
+```
+
+The `/b_gen` helpers take `normalize`, `wavetable` and `clear` flags, all `True`
+by default. `gen_buffer(buf, command, *args)` sends any other `/b_gen` command.
+`query_buffer()` and `Bus.get()` raise `EngineError` on timeout.
+
 ## Introspection
 
 Query the running engine and inspect or reset its node graph:

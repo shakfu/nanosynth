@@ -1056,3 +1056,186 @@ class TestGenericWrappersArePlayable:
             player.stop()
         finally:
             clock.stop()
+
+
+# ---------------------------------------------------------------------------
+# Chords, PmonoArtic, Pbindef, shared event scheduling
+# ---------------------------------------------------------------------------
+
+import contextlib  # noqa: E402
+
+from nanosynth.patterns import (  # noqa: E402
+    Pbindef,
+    PmonoArtic,
+    _expand_chord,
+    _send_event,
+)
+
+
+class _Recorder:
+    """Server-shaped fake that logs (time, op, args) for _send_event."""
+
+    def __init__(self) -> None:
+        self.log: list[tuple[float, str, object, dict]] = []
+        self._time = 0.0
+        self._ids = iter(range(1000, 2000))
+
+    @contextlib.contextmanager
+    def at(self, t: float):
+        self._time = t
+        yield
+
+    def synth(self, name: str, /, *, controls=None, **params: float) -> int:
+        node = next(self._ids)
+        self.log.append((self._time, "synth", name, {**(controls or {}), **params}))
+        return node
+
+    def set(self, node: int, /, *, controls=None, **params: float) -> None:
+        self.log.append((self._time, "set", node, {**(controls or {}), **params}))
+
+
+class TestChords:
+    def test_degree_list_derives_each_voice(self) -> None:
+        event = Pbind(degree=[0, 2, 4]).take(1)[0]
+        assert event["midinote"] == [60.0, 64.0, 67.0]
+        assert event["delta"] == 1.0  # shared timing stays scalar
+
+    def test_pseq_of_chords(self) -> None:
+        events = Pbind(midinote=Pseq([[60, 64], 62])).take(2)
+        assert events[0]["freq"] == pytest.approx(
+            [_midinote_to_freq(60), _midinote_to_freq(64)]
+        )
+        assert isinstance(events[1]["freq"], float)
+
+    def test_shorter_lists_wrap(self) -> None:
+        voices = _expand_chord({"a": [1.0, 2.0, 3.0], "b": [10.0, 20.0], "c": 5.0})
+        assert [(v["a"], v["b"], v["c"]) for v in voices] == [
+            (1.0, 10.0, 5.0),
+            (2.0, 20.0, 5.0),
+            (3.0, 10.0, 5.0),
+        ]
+
+    def test_scale_list_is_not_a_chord(self) -> None:
+        event = Pbind(degree=1, scale=[0, 3, 7]).take(1)[0]
+        assert event["midinote"] == 63.0
+
+    def test_pkey_resolves_per_voice(self) -> None:
+        event = Pbind(midinote=[60, 72], amp=Pkey("midinote", lambda m: m / 100)).take(
+            1
+        )[0]
+        assert event["amp"] == [0.6, 0.72]
+
+    def test_send_event_starts_one_synth_per_voice(self) -> None:
+        rec = _Recorder()
+        event = Pbind(instrument="pad", midinote=[60, 64, 67], dur=1.0).take(1)[0]
+        _send_event(rec, event, 10.0, 0.5, {})
+        synths = [e for e in rec.log if e[1] == "synth"]
+        releases = [e for e in rec.log if e[1] == "set"]
+        assert len(synths) == 3 and len(releases) == 3
+        assert {e[2] for e in synths} == {"pad"}
+        assert [e[3]["freq"] for e in synths] == pytest.approx(
+            [_midinote_to_freq(n) for n in (60, 64, 67)]
+        )
+        # sustain = dur * legato(0.8) = 0.8 beats = 0.4 s
+        assert [e[0] for e in releases] == pytest.approx([10.4] * 3)
+
+    def test_pmono_rejects_chords(self) -> None:
+        with pytest.raises(ValueError, match="chords"):
+            Pmono("bass", midinote=[60, 64]).take(1)
+
+
+class TestPmonoArtic:
+    def _run(self, legato: list[float]) -> _Recorder:
+        rec = _Recorder()
+        mono: dict = {}
+        now = 0.0
+        for event in PmonoArtic(
+            "lead", midinote=Pseq([60, 62, 64]), legato=Pseq(legato), dur=1.0
+        ):
+            _send_event(rec, event, now, 1.0, mono)
+            now += _event_delta(event)
+        return rec
+
+    def test_legato_glides(self) -> None:
+        ops = [e[1] for e in self._run([1.0, 1.0, 1.0]).log]
+        assert ops == ["synth", "set", "set"]
+
+    def test_detached_note_rearticulates(self) -> None:
+        log = self._run([0.5, 1.0, 1.0]).log
+        # Note 1 releases at 0.5 s, note 2 starts a new synth, note 3 glides.
+        assert [(e[0], e[1]) for e in log] == [
+            (0.0, "synth"),
+            (0.5, "set"),
+            (1.0, "synth"),
+            (2.0, "set"),
+        ]
+        assert log[1][3] == {"gate": 0.0}
+
+    def test_is_tagged(self) -> None:
+        assert PmonoArtic("x").take(1)[0]["_artic"]
+        assert "_artic" not in Pmono("x").take(1)[0]
+
+
+class TestPbindef:
+    @pytest.fixture(autouse=True)
+    def _clear_registry(self):
+        Pbindef.clear()
+        yield
+        Pbindef.clear()
+
+    def test_lookup_returns_same_instance(self) -> None:
+        a = Pbindef("x", freq=440)
+        assert Pbindef("x") is a
+        assert a.bindings == {"freq": 440}
+
+    def test_rebinding_one_key_keeps_others_running(self) -> None:
+        pdef = Pbindef("x", midinote=Pseq([60, 61, 62, 63]), dur=1.0)
+        stream = iter(pdef)
+        first = next(stream)
+        Pbindef("x", dur=0.5)
+        second = next(stream)
+        assert (first["midinote"], first["dur"]) == (60, 1.0)
+        assert (second["midinote"], second["dur"]) == (61, 0.5)
+
+    def test_rebinding_pattern_restarts_that_key(self) -> None:
+        pdef = Pbindef("x", midinote=Pseq([60, 61, 62]), amp=Pseq([0.1, 0.2, 0.3]))
+        stream = iter(pdef)
+        next(stream)
+        Pbindef("x", midinote=Pseq([70, 71]))
+        event = next(stream)
+        assert (event["midinote"], event["amp"]) == (70, 0.2)
+
+    def test_none_removes_key(self) -> None:
+        pdef = Pbindef("x", freq=300.0, amp=0.5)
+        stream = iter(pdef)
+        next(stream)
+        Pbindef("x", freq=None)
+        event = next(stream)
+        assert "freq" not in pdef.bindings
+        assert event["amp"] == 0.5 and "freq" not in event
+
+    def test_ends_when_a_pattern_ends(self) -> None:
+        assert len(Pbindef("x", freq=Pseq([1, 2])).take(5)) == 2
+
+
+class TestClockSetBeat:
+    def test_set_beat_moves_grid(self) -> None:
+        clock = Clock(bpm=120)
+        try:
+            clock.set_beat(8.0)
+            assert clock.elapsed_beats == pytest.approx(8.0, abs=0.05)
+        finally:
+            clock.stop()
+
+
+class TestPlayerChord:
+    def test_player_plays_chord(self) -> None:
+        server = MagicMock()
+        clock = Clock(bpm=6000, latency=0.01)
+        try:
+            player = Player(Pbind(midinote=Pseq([[60, 64, 67]])), clock, server)
+            player.play()
+            _wait_until(lambda: player._stopped, timeout=3.0)
+        finally:
+            clock.stop()
+        assert server.synth.call_count == 3

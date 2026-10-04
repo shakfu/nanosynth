@@ -3105,7 +3105,7 @@
       ],
       "outputs": {
         "kind": "fixed",
-        "count": 0
+        "count": 1
       },
       "flags": {
         "pure": false,

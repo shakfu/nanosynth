@@ -1,8 +1,14 @@
 # Command-Line Interface
 
-nanosynth installs a `nanosynth` console script with two subcommands: `info` for build and environment diagnostics, and `compile` for turning Python-defined SynthDefs into `.scsyndef` binaries.
+nanosynth installs a `nanosynth` console script with these subcommands:
 
-Run `nanosynth --help` to see the available subcommands, or `nanosynth <command> --help` for the options of a single command.
+- `info`: build and environment diagnostics.
+- `compile`: turn Python-defined SynthDefs into `.scsyndef` binaries.
+- `render`: render a `Score` to an audio file offline.
+- `midi-ports`: list MIDI input and output ports.
+- `selftest`: boot the engine, query it, and quit.
+
+Run `nanosynth --help` to see the available subcommands, `nanosynth <command> --help` for the options of a single command, or `nanosynth --version`.
 
 ## `nanosynth info`
 
@@ -91,3 +97,32 @@ nanosynth compile defs.py --bundle build/all.scsyndef --anonymous
 ### Exit status
 
 The command exits non-zero and reports the reason on standard error when the input file is missing or is not a `.py` file, the file fails to import, no SynthDefs are found, a requested `--name` does not match, or the output directory does not exist.
+
+## `nanosynth render`
+
+Imports a Python file, finds the module-level `Score`, and renders it with the embedded NRT engine.
+
+```bash
+nanosynth render piece.py -o piece.wav
+nanosynth render piece.py -o piece.aiff --name intro --header-format AIFF -r 48000
+```
+
+| Option | Description |
+|--------|-------------|
+| `FILE.py` | Python file defining a `Score` at module level (required). |
+| `-o`, `--output FILE` | Output audio file (required). |
+| `-n`, `--name NAME` | Variable holding the `Score`. Required if the file defines several. |
+| `-r`, `--sample-rate` | Default 44100. |
+| `-c`, `--channels` | Output channels. Default 2. |
+| `--header-format` | `WAV` (default) or `AIFF`. |
+| `--sample-format` | `int16` (default), `int24` or `float`. |
+
+As with `compile`, importing the file executes it.
+
+## `nanosynth midi-ports`
+
+Lists MIDI input and output ports with the indices `MidiIn(port)` and `MidiOut(port)` accept.
+
+## `nanosynth selftest`
+
+Boots the realtime engine on the default audio device, queries its version and sample rate, and quits. Prints `OK` and exits 0 on success. On failure it exits 1 and reports the reason on standard error.

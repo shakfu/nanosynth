@@ -116,6 +116,14 @@ instead of creating a new node, then releases it at the end. This is how a
 monophonic line glides -- portamento and filter sweeps that separate synths
 cannot produce. `sustain` is ignored.
 
+- **`PmonoArtic`** is `Pmono` that re-articulates: an event with `legato < 1`
+releases the synth after `sustain`, and the next event starts a new one. The
+default `legato` is 0.8, so bind it explicitly.
+
+- **`Pbindef`** is a named `Pbind` whose keys can be rebound while it plays.
+`Pbindef("bass", dur=0.25)` replaces only `dur`; every other key keeps its
+position. Bind a key to `None` to remove it.
+
 - **`Pdef`** is a named, hot-swappable pattern registry. `Pdef("bass", pattern)`
 registers or replaces; `Pdef("bass")` looks up. A running player picks up a
 replacement at the next event, so a part can be rewritten without stopping
@@ -137,6 +145,32 @@ player = Ppar([Pdef("bass"), Pdef("lead")]).play(clock, server, quant=4)
 Pdef("lead", Pn(Pbind(instrument="blip", degree=Pseq([12, 11, 9]), dur=0.25)))
 ```
 
+## Chords
+
+A list value makes one event a chord. Each voice runs the derivation chain
+separately and the player starts one synth per voice. Shorter lists wrap, as
+in SuperCollider multichannel expansion. `scale` lists are not chords.
+
+```python
+Pbind(degree=Pseq([[0, 2, 4], [3, 5, 7]]), dur=1.0)
+```
+
+`dur` and `delta` should be scalar: an event advances time once, by its first
+voice's `delta`. `Pmono` rejects chords.
+
+## Offline rendering
+
+`Score.from_pattern()` schedules an event pattern into a [`Score`](api/score.md)
+for NRT rendering. It uses the same event-to-command code as realtime playback.
+
+```python
+score = Score.from_pattern(pattern, duration=8.0, bpm=120, synthdefs=[sd])
+score.render("out.wav")
+```
+
+Events starting at or after `duration` (seconds) are dropped, so infinite
+patterns are fine.
+
 Every pattern has `play()`, not just the event composites, so the generic
 wrappers stay playable -- `Pn(Pbind(...), 4)`, `Pfin(8, part)`, `partA | partB`.
 Only patterns yielding events are meaningful to play; a value pattern will
@@ -144,7 +178,7 @@ produce nonsense.
 
 ## Demos
 
-`make demos` runs the scsynth demo scripts, four of which cover this material:
+`make demos` runs the scsynth demo scripts, five of which cover this material:
 
 - `22_bundle_scheduling.py` -- the same rhythm sent immediately and as
 timestamped bundles, under GIL load, so the timing difference is audible.
@@ -158,11 +192,9 @@ snap to the downbeat via `quant`.
 - `25_pmono_pdef.py` -- `Pbind` versus `Pmono` on the same line, live `Pdef`
 swaps, and `Pfin`/`Pfindur`.
 
+- `26_chords_pbindef.py` -- a chord progression, `PmonoArtic`, live `Pbindef`
+edits, and the progression rendered offline with `Score.from_pattern`.
+
 ## Not yet implemented
 
-- Array-valued keys for chords (one event expanding to several synths).
-
 - Arithmetic operators on patterns; use `Pkey` with a transform.
-
-- `Score.from_pattern()` -- the realtime pattern engine and NRT scoring do not
-yet share a code path, so patterns cannot be rendered offline.

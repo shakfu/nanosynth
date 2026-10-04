@@ -186,3 +186,74 @@ class TestExports:
         for name in ("ServerStatus", "ServerVersion", "NodeInfo"):
             assert name in nanosynth.__all__
             assert hasattr(nanosynth, name)
+
+
+class TestBufferQuery:
+    def test_query_buffer_parses_b_info(self, server: Server) -> None:
+        _auto_reply(
+            server,
+            lambda m: (
+                OscMessage("/b_info", m.contents[0], 512, 2, 44100.0)
+                if m.address == "/b_query"
+                else None
+            ),
+        )
+        assert server.query_buffer(3, timeout=2.0) == (512, 2, 44100.0)
+
+    def test_query_buffer_ignores_other_buffers(self, server: Server) -> None:
+        _auto_reply(
+            server,
+            lambda m: OscMessage("/b_info", 99, 1, 1, 1.0),
+        )
+        with pytest.raises(EngineError, match="b_info"):
+            server.query_buffer(3, timeout=0.05)
+
+
+class TestBufferGen:
+    def _sent(self, server: Server) -> OscMessage:
+        data = server._protocol.send_packet.call_args[0][0]
+        return OscMessage.from_datagram(data)
+
+    def test_sine1_default_flags(self, server: Server) -> None:
+        server.sine1(4, [1.0, 0.5])
+        msg = self._sent(server)
+        assert msg.address == "/b_gen"
+        assert tuple(msg.contents) == (4, "sine1", 7, 1.0, 0.5)
+
+    def test_flags_bits(self, server: Server) -> None:
+        server.cheby(4, [1.0], normalize=False, wavetable=True, clear=False)
+        assert tuple(self._sent(server).contents)[:3] == (4, "cheby", 2)
+
+    def test_sine2_interleaves_pairs(self, server: Server) -> None:
+        server.sine2(1, [1.0, 2.0], [0.5, 0.25])
+        assert tuple(self._sent(server).contents)[3:] == (1.0, 0.5, 2.0, 0.25)
+
+    def test_sine3_interleaves_triples(self, server: Server) -> None:
+        server.sine3(1, [1.0], [0.5], [0.0])
+        assert tuple(self._sent(server).contents)[3:] == (1.0, 0.5, 0.0)
+
+    def test_sine2_length_mismatch(self, server: Server) -> None:
+        with pytest.raises(ValueError):
+            server.sine2(1, [1.0, 2.0], [0.5])
+
+
+class TestBusGet:
+    def test_control_bus_get(self, server: Server) -> None:
+        _auto_reply(
+            server,
+            lambda m: (
+                OscMessage("/c_setn", m.contents[0], 2, 0.25, 0.75)
+                if m.address == "/c_getn"
+                else None
+            ),
+        )
+        bus = server.control_bus(2)
+        assert bus.get(timeout=2.0) == (0.25, 0.75)
+
+    def test_audio_bus_get_rejected(self, server: Server) -> None:
+        with pytest.raises(EngineError, match="control-rate"):
+            server.audio_bus(1).get()
+
+    def test_get_timeout(self, server: Server) -> None:
+        with pytest.raises(EngineError, match="c_setn"):
+            server.control_bus(1).get(timeout=0.05)

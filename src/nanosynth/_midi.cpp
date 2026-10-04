@@ -1,4 +1,4 @@
-// nanobind wrapper for RtMidiIn -- thin binding for MIDI input.
+// nanobind wrapper for RtMidiIn/RtMidiOut -- thin binding for MIDI I/O.
 // Follows the same callback/capsule pattern as _scsynth.cpp.
 
 #include <nanobind/nanobind.h>
@@ -100,6 +100,23 @@ static nb::list py_list_input_ports() {
     return result;
 }
 
+// Capsule destructor. Runs with the GIL held (Python dealloc). Deleting the
+// RtMidiIn joins its input thread, which may be blocked in rtmidi_callback
+// waiting for the GIL, so the GIL is released around the delete.
+static void destroy_input_handle(void* p) noexcept {
+    auto* h = static_cast<MidiInHandle*>(p);
+    {
+        nb::gil_scoped_release release;
+        delete h->midi_in;
+        h->midi_in = nullptr;
+    }
+    {
+        std::lock_guard<std::mutex> lock(h->callback_mutex);
+        h->callback = nb::object();
+    }
+    delete h;
+}
+
 static nb::capsule py_open_input(unsigned int port, const std::string& name) {
     auto* handle = new MidiInHandle();
     try {
@@ -109,15 +126,7 @@ static nb::capsule py_open_input(unsigned int port, const std::string& name) {
         delete handle;
         throw std::runtime_error(std::string("Failed to open MIDI port: ") + e.what());
     }
-    return nb::capsule(handle, "MidiInHandle", [](void* p) noexcept {
-        auto* h = static_cast<MidiInHandle*>(p);
-        // Clear callback before destruction to avoid dangling references
-        {
-            std::lock_guard<std::mutex> lock(h->callback_mutex);
-            h->callback = nb::object();
-        }
-        delete h;
-    });
+    return nb::capsule(handle, "MidiInHandle", destroy_input_handle);
 }
 
 static nb::capsule py_open_virtual_input(const std::string& name) {
@@ -129,25 +138,22 @@ static nb::capsule py_open_virtual_input(const std::string& name) {
         delete handle;
         throw std::runtime_error(std::string("Failed to open virtual MIDI port: ") + e.what());
     }
-    return nb::capsule(handle, "MidiInHandle", [](void* p) noexcept {
-        auto* h = static_cast<MidiInHandle*>(p);
-        {
-            std::lock_guard<std::mutex> lock(h->callback_mutex);
-            h->callback = nb::object();
-        }
-        delete h;
-    });
+    return nb::capsule(handle, "MidiInHandle", destroy_input_handle);
 }
 
 static void py_close_input(nb::capsule& cap) {
     auto* handle = extract_handle(cap);
     if (handle->midi_in) {
-        handle->midi_in->cancelCallback();
+        // closePort joins the input thread (ALSA), which may be blocked in
+        // rtmidi_callback waiting for the GIL: release it or both deadlock.
+        nb::gil_scoped_release release;
         handle->midi_in->closePort();
     }
 }
 
-static void py_set_callback(nb::capsule& cap, nb::object func) {
+static void py_set_callback(nb::capsule& cap, nb::object func,
+                            bool ignore_sysex, bool ignore_timing,
+                            bool ignore_sensing) {
     auto* handle = extract_handle(cap);
     {
         std::lock_guard<std::mutex> lock(handle->callback_mutex);
@@ -156,8 +162,7 @@ static void py_set_callback(nb::capsule& cap, nb::object func) {
             handle->midi_in->cancelCallback();
         } else {
             handle->callback = func;
-            // Ignore sysex, timing, and active sensing by default
-            handle->midi_in->ignoreTypes(true, true, true);
+            handle->midi_in->ignoreTypes(ignore_sysex, ignore_timing, ignore_sensing);
             handle->midi_in->setCallback(rtmidi_callback, handle);
         }
     }
@@ -173,11 +178,77 @@ static void py_clear_callback(nb::capsule& cap) {
 }
 
 // ---------------------------------------------------------------------------
+// MIDI output
+// ---------------------------------------------------------------------------
+
+static RtMidiOut* extract_output(nb::capsule& cap) {
+    if (!cap.data()) {
+        throw std::runtime_error("MIDI output handle is null (already closed?)");
+    }
+    return static_cast<RtMidiOut*>(cap.data());
+}
+
+static nb::capsule wrap_output(RtMidiOut* out) {
+    return nb::capsule(out, "RtMidiOut", [](void* p) noexcept {
+        delete static_cast<RtMidiOut*>(p);
+    });
+}
+
+static nb::list py_list_output_ports() {
+    RtMidiOut midi_out;
+    nb::list result;
+    unsigned int count = midi_out.getPortCount();
+    for (unsigned int i = 0; i < count; i++) {
+        result.append(nb::str(midi_out.getPortName(i).c_str()));
+    }
+    return result;
+}
+
+static nb::capsule py_open_output(unsigned int port, const std::string& name) {
+    auto* out = new RtMidiOut();
+    try {
+        out->openPort(port, name);
+    } catch (const RtMidiError& e) {
+        delete out;
+        throw std::runtime_error(std::string("Failed to open MIDI port: ") + e.what());
+    }
+    return wrap_output(out);
+}
+
+static nb::capsule py_open_virtual_output(const std::string& name) {
+    auto* out = new RtMidiOut();
+    try {
+        out->openVirtualPort(name);
+    } catch (const RtMidiError& e) {
+        delete out;
+        throw std::runtime_error(std::string("Failed to open virtual MIDI port: ") + e.what());
+    }
+    return wrap_output(out);
+}
+
+static void py_close_output(nb::capsule& cap) {
+    extract_output(cap)->closePort();
+}
+
+static void py_send_message(nb::capsule& cap, nb::bytes data) {
+    auto* out = extract_output(cap);
+    const auto* bytes = static_cast<const unsigned char*>(data.data());
+    std::vector<unsigned char> message(bytes, bytes + data.size());
+    // sendMessage may block briefly in the OS MIDI layer; let other threads run.
+    nb::gil_scoped_release release;
+    try {
+        out->sendMessage(&message);
+    } catch (const RtMidiError& e) {
+        throw std::runtime_error(std::string("Failed to send MIDI message: ") + e.what());
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Module definition
 // ---------------------------------------------------------------------------
 
 NB_MODULE(_midi, m) {
-    m.doc() = "MIDI input via RtMidi";
+    m.doc() = "MIDI input and output via RtMidi";
 
     m.def("list_input_ports", &py_list_input_ports,
           "Return a list of available MIDI input port names.");
@@ -196,9 +267,30 @@ NB_MODULE(_midi, m) {
 
     m.def("set_callback", &py_set_callback,
           nb::arg("handle"), nb::arg("func").none(),
+          nb::arg("ignore_sysex") = true, nb::arg("ignore_timing") = true,
+          nb::arg("ignore_sensing") = true,
           "Set the MIDI callback. Called with raw bytes. Pass None to clear.");
 
     m.def("clear_callback", &py_clear_callback,
           nb::arg("handle"),
           "Clear the MIDI callback.");
+
+    m.def("list_output_ports", &py_list_output_ports,
+          "Return a list of available MIDI output port names.");
+
+    m.def("open_output", &py_open_output,
+          nb::arg("port"), nb::arg("name") = "nanosynth",
+          "Open a MIDI output port by index. Returns an opaque handle.");
+
+    m.def("open_virtual_output", &py_open_virtual_output,
+          nb::arg("name") = "nanosynth",
+          "Open a virtual MIDI output port. Returns an opaque handle.");
+
+    m.def("close_output", &py_close_output,
+          nb::arg("handle"),
+          "Close a MIDI output port.");
+
+    m.def("send_message", &py_send_message,
+          nb::arg("handle"), nb::arg("data"),
+          "Send one raw MIDI message.");
 }

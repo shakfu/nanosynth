@@ -37,6 +37,7 @@ from collections.abc import Sequence as SequenceABC
 from collections.abc import Set as SetABC
 from typing import Any, Generic, TypeVar, Union
 
+from ._controls import SET_PARAMS, SYNTH_PARAMS, call
 from .exceptions import EngineError
 
 logger = logging.getLogger(__name__)
@@ -59,8 +60,9 @@ def _monotonic_to_unix(when: float) -> float:
     return time.time() + (when - time.monotonic())
 
 
-# Type alias for events -- string keys mapping to float, str, or Rest values.
-Event = dict[str, Union[float, str, "Rest"]]
+# Type alias for events -- string keys mapping to float, str, Rest, or list
+# (chord) values.
+Event = dict[str, Union[float, str, "Rest", list[Any]]]
 
 _EVENT_DEFAULTS: Event = {
     "instrument": "default",
@@ -441,8 +443,58 @@ _META_KEYS = frozenset(
         "scale",
         "db",
         "_mono",
+        "_artic",
     }
 )
+
+# List-valued keys that are not chords.
+_NO_EXPAND_KEYS = frozenset({"scale"})
+
+
+def _chord_size(event: Event) -> int:
+    """Number of voices in *event*: the longest list value, or 0 for none."""
+    size = 0
+    for key, value in event.items():
+        if isinstance(value, (list, tuple)) and key not in _NO_EXPAND_KEYS:
+            size = max(size, len(value))
+    return size
+
+
+def _expand_chord(event: Event) -> list[Event]:
+    """Split a chord event into one event per voice.
+
+    Voice ``i`` takes element ``i`` of each list value, wrapping shorter lists
+    (SuperCollider multichannel expansion); scalars are shared.
+    """
+    size = _chord_size(event)
+    if size == 0:
+        return [event]
+    voices: list[Event] = []
+    for i in range(size):
+        voice: Event = {}
+        for key, value in event.items():
+            if isinstance(value, (list, tuple)) and key not in _NO_EXPAND_KEYS:
+                voice[key] = value[i % len(value)] if value else 0.0
+            else:
+                voice[key] = value
+        voices.append(voice)
+    return voices
+
+
+def _merge_chord(voices: list[Event]) -> Event:
+    """Inverse of :func:`_expand_chord`: per-voice differences become lists.
+
+    Timing advances once per event, so ``delta`` comes from the first voice.
+    """
+    if len(voices) == 1:
+        return voices[0]
+    merged: Event = {}
+    for key in voices[0]:
+        values = [voice.get(key) for voice in voices]
+        first = values[0]
+        merged[key] = first if all(v == first for v in values) else values  # type: ignore[assignment]
+    merged["delta"] = voices[0]["delta"]
+    return merged
 
 
 def _resolve_scale(value: Any) -> Sequence[int]:
@@ -629,58 +681,156 @@ class Pbind(EventPattern):
     Stops when any bound pattern is exhausted.  Scalar values repeat
     forever.  Events are merged with ``_EVENT_DEFAULTS``.
 
+    A list value (``degree=[0, 2, 4]``) makes the event a chord: each voice
+    is derived separately and the Player starts one synth per voice.
+
     Args:
         **bindings: Key-value pairs where values can be floats,
-            strings, Rest instances, or Pattern instances.
+            strings, Rest instances, lists (chords), or Pattern instances.
     """
 
-    def __init__(self, **bindings: float | str | Rest | Pattern[Any] | Pkey) -> None:
+    def __init__(self, **bindings: Any) -> None:
         self._bindings = bindings
 
     def __iter__(self) -> Iterator[Event]:
-        # Split bindings by kind. Pkey bindings are deferred to the end of each
-        # event because they read the values the other bindings produced.
-        iters: dict[str, Iterator[Any]] = {}
-        scalars: dict[str, Any] = {}
-        keyrefs: dict[str, Pkey] = {}
-        for key, val in self._bindings.items():
+        stream = _BindStream(self._bindings)
+        while (event := stream.next()) is not None:
+            yield event
+
+
+class _BindStream:
+    """The per-event state of a Pbind: one iterator per pattern-valued key."""
+
+    def __init__(self, bindings: dict[str, Any]) -> None:
+        # Pkey bindings are deferred to the end of each event because they
+        # read the values the other bindings produced.
+        self._iters: dict[str, Iterator[Any]] = {}
+        self._scalars: dict[str, Any] = {}
+        self._keyrefs: dict[str, Pkey] = {}
+        self._explicit: frozenset[str] = frozenset()
+        self.rebind({}, bindings)
+
+    def rebind(self, old: dict[str, Any], new: dict[str, Any]) -> None:
+        """Apply changed bindings; unchanged keys keep their running iterator."""
+        for key in old.keys() | new.keys():
+            if key in old and key in new and old[key] is new[key]:
+                continue
+            self._iters.pop(key, None)
+            self._scalars.pop(key, None)
+            self._keyrefs.pop(key, None)
+            if key not in new:
+                continue
+            val = new[key]
             if isinstance(val, Pkey):
-                keyrefs[key] = val
+                self._keyrefs[key] = val
             elif isinstance(val, Pattern):
-                iters[key] = iter(val)
+                self._iters[key] = iter(val)
             else:
-                scalars[key] = val
-        explicit = frozenset(self._bindings)
+                self._scalars[key] = val
+        self._explicit = frozenset(new)
 
+    def next(self) -> Event | None:
+        """Build the next event, or return ``None`` once any pattern ends."""
+        event: Event = dict(_EVENT_DEFAULTS)
+        event.update(self._scalars)
+
+        for key, it in self._iters.items():
+            try:
+                event[key] = next(it)
+            except StopIteration:
+                return None
+
+        if _chord_size(event) == 0:
+            return self._finish(event)
+        return _merge_chord([self._finish(v) for v in _expand_chord(event)])
+
+    def _finish(self, event: Event) -> Event:
+        """Resolve Pkeys and run the derivation chain on one voice."""
+        # Pkeys feeding the derivation chain resolve first, in binding
+        # order, so one may reference an earlier one.
+        for key, ref in self._keyrefs.items():
+            if key in _CHAIN_INPUT_KEYS:
+                event[key] = ref._resolve(event)
+
+        _derive_event(event, self._explicit)
+
+        # The rest resolve against the finished event, so they can read
+        # derived values such as freq, amp, sustain and delta.
+        for key, ref in self._keyrefs.items():
+            if key not in _CHAIN_INPUT_KEYS:
+                event[key] = ref._resolve(event)
+        return event
+
+
+class Pbindef(EventPattern):
+    """A named :class:`Pbind` whose keys can be rebound while it plays.
+
+    ``Pbindef(name, **bindings)`` creates the entry or updates only the given
+    keys; ``Pbindef(name)`` looks it up.  A running stream picks up a change
+    at the next event: the rebound key restarts from its new pattern, every
+    other key continues where it was.  Bind a key to ``None`` to remove it::
+
+        Pbindef("bass", degree=Pseq([0, 3, 5], float("inf")), dur=0.5).play(...)
+        Pbindef("bass", dur=0.25)  # degree sequence keeps its position
+
+    Args:
+        name: Registry key.
+        **bindings: As :class:`Pbind`; ``None`` removes a key.
+    """
+
+    _registry: dict[str, Pbindef] = {}
+    _registry_lock = threading.Lock()
+    _name: str
+    _bindings: dict[str, Any]
+
+    def __new__(cls, name: str, **bindings: Any) -> Pbindef:
+        with cls._registry_lock:
+            existing = cls._registry.get(name)
+            if existing is None:
+                existing = super().__new__(cls)
+                existing._name = name
+                existing._bindings = {}
+                cls._registry[name] = existing
+            if bindings:
+                # Replace, never mutate: a playing stream compares references.
+                merged = {**existing._bindings, **bindings}
+                existing._bindings = {k: v for k, v in merged.items() if v is not None}
+            return existing
+
+    def __init__(self, name: str, **bindings: Any) -> None:
+        # State is established in __new__; see Pdef.
+        pass
+
+    @property
+    def name(self) -> str:
+        """The registry key this Pbindef is stored under."""
+        return self._name
+
+    @property
+    def bindings(self) -> dict[str, Any]:
+        """A copy of the current bindings."""
+        return dict(self._bindings)
+
+    @classmethod
+    def clear(cls) -> None:
+        """Forget every registered Pbindef.  Does not stop running players."""
+        with cls._registry_lock:
+            cls._registry.clear()
+
+    def __repr__(self) -> str:
+        return f"Pbindef({self._name!r})"
+
+    def __iter__(self) -> Iterator[Event]:
+        bindings = self._bindings
+        stream = _BindStream(bindings)
         while True:
-            event: Event = dict(_EVENT_DEFAULTS)
-            event.update(scalars)
-
-            # Pull from pattern iterators -- stop if any is exhausted
-            exhausted = False
-            for key, it in iters.items():
-                try:
-                    event[key] = next(it)
-                except StopIteration:
-                    exhausted = True
-                    break
-            if exhausted:
-                break
-
-            # Pkeys feeding the derivation chain resolve first, in binding
-            # order, so one may reference an earlier one.
-            for key, ref in keyrefs.items():
-                if key in _CHAIN_INPUT_KEYS:
-                    event[key] = ref._resolve(event)
-
-            _derive_event(event, explicit)
-
-            # The rest resolve against the finished event, so they can read
-            # derived values such as freq, amp, sustain and delta.
-            for key, ref in keyrefs.items():
-                if key not in _CHAIN_INPUT_KEYS:
-                    event[key] = ref._resolve(event)
-
+            current = self._bindings
+            if current is not bindings:
+                stream.rebind(bindings, current)
+                bindings = current
+            event = stream.next()
+            if event is None:
+                return
             yield event
 
 
@@ -790,11 +940,9 @@ class Pmono(EventPattern):
         **bindings: As :class:`Pbind`.
     """
 
-    def __init__(
-        self,
-        instrument: str = "default",
-        **bindings: float | str | Rest | Pattern[Any] | Pkey,
-    ) -> None:
+    _articulate = False
+
+    def __init__(self, instrument: str = "default", **bindings: Any) -> None:
         bindings.setdefault("instrument", instrument)
         self._source = Pbind(**bindings)
 
@@ -803,9 +951,25 @@ class Pmono(EventPattern):
         # Pmono (e.g. inside a Ppar) on separate synths.
         mono_id = f"mono-{next(_mono_ids)}"
         for event in self._source:
+            if _chord_size(event) > 1:
+                raise ValueError(f"{type(self).__name__} cannot play chords")
             tagged = dict(event)
             tagged["_mono"] = mono_id
+            if self._articulate:
+                tagged["_artic"] = 1.0
             yield tagged
+
+
+class PmonoArtic(Pmono):
+    """A :class:`Pmono` that re-articulates when an event is not legato.
+
+    An event whose ``sustain`` is shorter than its ``delta`` (``legato < 1``)
+    releases the synth after ``sustain``; the next event starts a new one.
+    Events with ``legato >= 1`` glide into the next note as in ``Pmono``.
+    Note that the default ``legato`` is 0.8, so bind it explicitly.
+    """
+
+    _articulate = True
 
 
 class Pdef(EventPattern):
@@ -1033,6 +1197,10 @@ class Clock:
         """Move the quantization grid origin to now (beat 0 starts here)."""
         self._origin = time.monotonic()
 
+    def set_beat(self, beat: float) -> None:
+        """Move the grid origin so that now is *beat* at the current tempo."""
+        self._origin = time.monotonic() - beat * self.beat_duration
+
     def _add_player(self, player: Player) -> None:
         with self._lock:
             # Idempotent: calling play() on an already-playing player must not
@@ -1093,6 +1261,80 @@ class Clock:
         # holding the clock lock across engine I/O is unnecessary.
         for player in players:
             player._release_mono()
+
+
+# ---------------------------------------------------------------------------
+# Event -> server commands (shared by Player and Score.from_pattern)
+# ---------------------------------------------------------------------------
+
+
+def _synth_params(event: Event) -> dict[str, float]:
+    """Numeric non-meta keys of *event*, as synth controls."""
+    return {
+        key: float(val)
+        for key, val in event.items()
+        if key not in _META_KEYS and isinstance(val, (int, float))
+    }
+
+
+def _send_event(
+    server: Any,
+    event: Event,
+    onset: float,
+    beat_dur: float,
+    mono_synths: dict[str, Any],
+) -> None:
+    """Issue the synth commands for one non-rest event, stamped at *onset*.
+
+    *server* needs ``at()``, ``synth()`` and ``set()``, taking
+    ``controls=`` only when a control name collides; *onset* is in its
+    timestamp domain (seconds). *mono_synths* holds the live Pmono synths
+    across calls, keyed by stream id.
+    """
+    sustain = event.get("sustain")
+    mono_id = event.get("_mono")
+    if isinstance(mono_id, str):
+        # Pmono: one persistent synth per stream. Create it on the first
+        # event, then retune it in place -- no per-event gate release, so the
+        # envelope and any portamento carry across.
+        instrument = str(event.get("instrument", "default"))
+        params = _synth_params(event)
+        held = mono_synths.get(mono_id)
+        with server.at(onset):
+            if held is None:
+                held = mono_synths[mono_id] = call(
+                    server.synth, instrument, params, SYNTH_PARAMS
+                )
+            elif params:
+                call(server.set, held, params, SET_PARAMS)
+        # PmonoArtic: a detached note releases now; the next event starts anew.
+        if (
+            event.get("_artic")
+            and isinstance(sustain, (int, float))
+            and sustain < _event_delta(event)
+        ):
+            with server.at(onset + float(sustain) * beat_dur):
+                server.set(held, gate=0.0)
+            del mono_synths[mono_id]
+        return
+
+    for voice in _expand_chord(event):
+        with server.at(onset):
+            synth = call(
+                server.synth,
+                str(voice.get("instrument", "default")),
+                _synth_params(voice),
+                SYNTH_PARAMS,
+            )
+        # Schedule gate release for gated envelopes. Sent now as a timestamped
+        # bundle rather than deferred to a threading.Timer: the engine holds
+        # it, so release timing is immune to GIL jitter, no thread is leaked
+        # per note, and a release can never fire from Python against an
+        # already-quit server.
+        voice_sustain = voice.get("sustain")
+        if isinstance(voice_sustain, (int, float)):
+            with server.at(onset + float(voice_sustain) * beat_dur):
+                server.set(synth, gate=0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -1210,56 +1452,19 @@ class Player:
         if isinstance(dur_val, Rest):
             return
 
-        # Extract synth params (everything except meta keys)
-        instrument = str(event.get("instrument", "default"))
-        params: dict[str, float] = {}
-        for key, val in event.items():
-            if key in _META_KEYS:
-                continue
-            if isinstance(val, (int, float)):
-                params[key] = float(val)
-
         # Onset in the OSC timestamp domain: the event's own deadline plus the
         # latency window, so the engine -- not this thread's wake time --
         # decides the exact sample the synth starts on.
         onset = _monotonic_to_unix(scheduled) + self.latency
 
-        mono_id = event.get("_mono")
-
         try:
-            if isinstance(mono_id, str):
-                # Pmono: one persistent synth per stream. Create it on the
-                # first event, then retune it in place -- no per-event gate
-                # release, so the envelope and any portamento carry across.
-                # Hold _mono_lock and re-check _stopped so a concurrent stop()
-                # cannot clear the dict between the create and the insert and
-                # leave the new voice held (item 14).
-                with self._mono_lock:
-                    if self._stopped:
-                        return
-                    held = self._mono_synths.get(mono_id)
-                    with self._server.at(onset):
-                        if held is None:
-                            self._mono_synths[mono_id] = self._server.synth(
-                                instrument, **params
-                            )
-                        elif params:
-                            self._server.set(held, **params)
-                return
-
-            with self._server.at(onset):
-                synth = self._server.synth(instrument, **params)
-
-            # Schedule gate release for gated envelopes. Sent now as a
-            # timestamped bundle rather than deferred to a threading.Timer:
-            # the engine holds it, so release timing is immune to GIL jitter,
-            # no thread is leaked per note, and a release can never fire from
-            # Python against an already-quit server.
-            sustain_val = event.get("sustain")
-            if isinstance(sustain_val, (int, float)):
-                sustain_secs = float(sustain_val) * beat_dur
-                with self._server.at(onset + sustain_secs):
-                    self._server.set(synth, gate=0.0)
+            # Hold _mono_lock and re-check _stopped so a concurrent stop()
+            # cannot clear _mono_synths between a Pmono create and its insert
+            # and leave the new voice held (item 14).
+            with self._mono_lock:
+                if self._stopped:
+                    return
+                _send_event(self._server, event, onset, beat_dur, self._mono_synths)
         except (EngineError, OSError):
             # Server quit or the connection dropped mid-event; end playback
             # rather than raising on every subsequent tick.

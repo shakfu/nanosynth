@@ -57,7 +57,7 @@ class Options:
     input_stream_mask: str = ""
     ip_address: str = DEFAULT_IP_ADDRESS
     load_synthdefs: bool = True
-    maximum_logins: int = 1
+    maximum_logins: int = 64
     maximum_node_count: int = 1024
     maximum_synthdef_count: int = 1024
     memory_locking: bool = False

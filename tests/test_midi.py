@@ -6,6 +6,7 @@ for the parsing tests.  MidiIn/handler tests use mocks.
 
 from __future__ import annotations
 
+import time
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -349,3 +350,287 @@ class TestMessageDataclasses:
     def test_pitch_bend_hash(self) -> None:
         s = {PitchBend(0, 8192), PitchBend(0, 8192), PitchBend(1, 8192)}
         assert len(s) == 2
+
+
+# ---------------------------------------------------------------------------
+# Extended message types, encoding, MidiOut, clock bridge
+# ---------------------------------------------------------------------------
+
+from nanosynth.midi import (  # noqa: E402
+    PPQN,
+    Aftertouch,
+    Continue,
+    MidiClockIn,
+    MidiClockOut,
+    MidiOut,
+    PolyAftertouch,
+    ProgramChange,
+    SongPosition,
+    Start,
+    Stop,
+    TimingClock,
+    _encode,
+)
+from nanosynth.patterns import Clock  # noqa: E402
+
+ALL_MESSAGES = [
+    NoteOn(channel=3, note=60, velocity=100),
+    NoteOff(channel=0, note=61, velocity=64),
+    ControlChange(channel=15, control=74, value=1),
+    PitchBend(channel=2, value=12345),
+    ProgramChange(channel=9, program=42),
+    Aftertouch(channel=1, value=99),
+    PolyAftertouch(channel=4, note=60, value=7),
+    SongPosition(position=1000),
+    TimingClock(),
+    Start(),
+    Continue(),
+    Stop(),
+]
+
+
+class TestExtendedParse:
+    def test_program_change(self) -> None:
+        assert _parse(bytes([0xC2, 5])) == ProgramChange(channel=2, program=5)
+
+    def test_channel_aftertouch(self) -> None:
+        assert _parse(bytes([0xD0, 80])) == Aftertouch(channel=0, value=80)
+
+    def test_poly_aftertouch(self) -> None:
+        assert _parse(bytes([0xA1, 60, 30])) == PolyAftertouch(1, 60, 30)
+
+    def test_realtime(self) -> None:
+        assert _parse(b"\xf8") == TimingClock()
+        assert _parse(b"\xfa") == Start()
+        assert _parse(b"\xfb") == Continue()
+        assert _parse(b"\xfc") == Stop()
+
+    def test_song_position(self) -> None:
+        assert _parse(bytes([0xF2, 0x01, 0x02])) == SongPosition(1 | (2 << 7))
+
+    def test_incomplete_program_change(self) -> None:
+        assert _parse(bytes([0xC0])) is None
+
+
+class TestEncode:
+    @pytest.mark.parametrize("msg", ALL_MESSAGES, ids=lambda m: type(m).__name__)
+    def test_roundtrip(self, msg) -> None:
+        assert _parse(_encode(msg)) == msg
+
+    def test_note_on_bytes(self) -> None:
+        assert _encode(NoteOn(1, 60, 100)) == bytes([0x91, 60, 100])
+
+    @pytest.mark.parametrize(
+        "msg",
+        [
+            NoteOn(16, 60, 1),
+            NoteOn(0, 128, 1),
+            ControlChange(0, 1, -1),
+            PitchBend(0, 16384),
+            ProgramChange(0, 200),
+        ],
+    )
+    def test_out_of_range_rejected(self, msg) -> None:
+        with pytest.raises(ValueError):
+            _encode(msg)
+
+    def test_non_message_rejected(self) -> None:
+        with pytest.raises(TypeError):
+            _encode("note")  # type: ignore[arg-type]
+
+
+class TestGenericHandlers:
+    def _make_midi_in(self, **kwargs) -> tuple[MidiIn, MagicMock]:
+        with patch("nanosynth.midi._midi") as mock_backend:
+            mock_backend.open_virtual_input.return_value = MagicMock()
+            midi = MidiIn(port=None, **kwargs)
+        return midi, mock_backend
+
+    def test_on_program_change(self) -> None:
+        midi, _ = self._make_midi_in()
+        handler = MagicMock()
+        midi.on(ProgramChange, handler)
+        midi._raw_callback(bytes([0xC0, 7]))
+        handler.assert_called_once_with(ProgramChange(0, 7))
+
+    def test_off_generic(self) -> None:
+        midi, _ = self._make_midi_in()
+        handler = MagicMock()
+        midi.on(Aftertouch, handler)
+        midi.off(Aftertouch, handler)
+        midi._raw_callback(bytes([0xD0, 7]))
+        handler.assert_not_called()
+
+    def test_handler_removed_during_dispatch(self) -> None:
+        """Removing a handler mid-dispatch does not skip the next one."""
+        midi, _ = self._make_midi_in()
+        second = MagicMock()
+
+        def first(msg) -> None:
+            midi.off_note_on(first)
+
+        midi.on_note_on(first)
+        midi.on_note_on(second)
+        midi._raw_callback(bytes([0x90, 60, 1]))
+        second.assert_called_once()
+
+    def test_timing_ignored_by_default(self) -> None:
+        _, backend = self._make_midi_in()
+        assert backend.set_callback.call_args.kwargs["ignore_timing"] is True
+
+    def test_receive_clock_enables_timing(self) -> None:
+        _, backend = self._make_midi_in(receive_clock=True)
+        assert backend.set_callback.call_args.kwargs["ignore_timing"] is False
+
+
+class TestMidiOut:
+    def test_send_encodes(self) -> None:
+        with patch("nanosynth.midi._midi") as mock:
+            handle = MagicMock()
+            mock.open_virtual_output.return_value = handle
+            with MidiOut() as out:
+                out.send(ProgramChange(0, 3))
+            mock.send_message.assert_called_once_with(handle, bytes([0xC0, 3]))
+            mock.close_output.assert_called_once_with(handle)
+
+    def test_open_by_name(self) -> None:
+        with patch("nanosynth.midi._midi") as mock:
+            mock.list_output_ports.return_value = ["A", "My Synth"]
+            MidiOut("Synth")
+            mock.open_output.assert_called_once_with(1, "nanosynth")
+
+    def test_open_by_name_not_found(self) -> None:
+        with patch("nanosynth.midi._midi") as mock:
+            mock.list_output_ports.return_value = ["A"]
+            with pytest.raises(MidiError):
+                MidiOut("missing")
+
+    def test_send_after_close(self) -> None:
+        with patch("nanosynth.midi._midi"):
+            out = MidiOut()
+            out.close()
+            with pytest.raises(MidiError):
+                out.send(Start())
+
+
+class TestMidiClockIn:
+    def _setup(self):
+        with patch("nanosynth.midi._midi") as backend:
+            backend.open_virtual_input.return_value = MagicMock()
+            midi = MidiIn(port=None, receive_clock=True)
+        clock = Clock(bpm=60.0)
+        return midi, clock
+
+    def test_follows_tempo_and_phase(self) -> None:
+        midi, clock = self._setup()
+        try:
+            follower = MidiClockIn(midi, clock)
+            tick_interval = 60.0 / (150.0 * PPQN)  # 150 bpm master
+            now = [1000.0]
+            with patch("nanosynth.midi.time.monotonic", lambda: now[0]):
+                midi._raw_callback(b"\xfa")
+                for _ in range(2 * PPQN):
+                    midi._raw_callback(b"\xf8")
+                    now[0] += tick_interval
+            assert clock.bpm == pytest.approx(150.0)
+            assert follower.beats == 2.0
+            follower.close()
+            midi._raw_callback(b"\xf8")
+            assert follower.beats == 2.0
+        finally:
+            clock.stop()
+
+    def test_song_position_moves_grid(self) -> None:
+        midi, clock = self._setup()
+        try:
+            follower = MidiClockIn(midi, clock)
+            midi._raw_callback(bytes([0xF2, 8, 0]))  # 8 sixteenths = 2 beats
+            assert follower.beats == 2.0
+            assert clock.elapsed_beats == pytest.approx(2.0, abs=0.01)
+        finally:
+            clock.stop()
+
+
+class TestMidiClockOut:
+    def test_sends_start_ticks_stop(self) -> None:
+        """Tick count tracks tempo. Ticks are ~42 ms apart at 60 bpm, well above
+        the ~15.6 ms timer resolution of Windows waits."""
+        out = MagicMock()
+        clock = Clock(bpm=60.0)
+        try:
+            clock.set_beat(0.95)  # next beat, where ticking starts, is 50 ms away
+            sender = MidiClockOut(out, clock)
+            sender.start()
+            assert sender.running
+            time.sleep(0.55)
+            sender.stop()
+            assert not sender.running
+        finally:
+            clock.stop()
+        sent = [c.args[0] for c in out.send.call_args_list]
+        assert sent[0] == Start()
+        assert sent[-1] == Stop()
+        ticks = [c for c in out.send_bytes.call_args_list if c.args[0] == b"\xf8"]
+        # ~0.5 s of ticking at 24 per second; wide bounds absorb scheduler noise.
+        assert 6 <= len(ticks) <= 16
+
+    def test_stop_before_first_beat_sends_no_ticks(self) -> None:
+        out = MagicMock()
+        clock = Clock(bpm=60.0)
+        try:
+            clock.set_beat(0.0)  # next beat is ~1 s away
+            sender = MidiClockOut(out, clock)
+            sender.start()
+            sender.stop()
+        finally:
+            clock.stop()
+        assert out.send_bytes.call_count == 0
+        assert [c.args[0] for c in out.send.call_args_list] == [Stop()]
+
+
+def _through_port() -> str | None:
+    try:
+        names = MidiOut.list_ports()
+    except Exception:  # noqa: BLE001
+        return None
+    return next((n for n in names if "Midi Through" in n), None)
+
+
+@pytest.mark.skipif(_through_port() is None, reason="needs ALSA 'Midi Through'")
+def test_loopback_through_alsa() -> None:
+    """MidiOut -> ALSA Midi Through -> MidiIn delivers real bytes."""
+    import threading
+
+    received: list = []
+    got = threading.Event()
+    with MidiIn("Midi Through", receive_clock=True) as midi_in:
+        midi_in.on(ProgramChange, lambda m: (received.append(m), got.set()))
+        with MidiOut("Midi Through") as out:
+            out.send(ProgramChange(channel=2, program=17))
+            assert got.wait(2.0)
+    assert received == [ProgramChange(channel=2, program=17)]
+
+
+@pytest.mark.skipif(_through_port() is None, reason="needs ALSA 'Midi Through'")
+def test_clock_loopback_follows_and_closes_under_traffic() -> None:
+    """MidiClockOut -> Midi Through -> MidiClockIn tracks tempo, and closing
+    the input mid-stream returns. A regression of the close deadlock
+    (closePort joining RtMidi's thread while holding the GIL it waits for)
+    hangs this test rather than failing it.
+    """
+    master, follower = Clock(bpm=150.0), Clock(bpm=60.0)
+    midi_in = MidiIn("Midi Through", receive_clock=True)
+    out = MidiOut("Midi Through")
+    sender = MidiClockOut(out, master)
+    try:
+        MidiClockIn(midi_in, follower)
+        sender.start()
+        time.sleep(1.2)  # ~3 beats at 150 bpm
+        assert follower.bpm == pytest.approx(150.0, abs=1.0)
+
+        midi_in.close()  # ticks still flowing
+    finally:
+        sender.stop()
+        out.close()
+        master.stop()
+        follower.stop()

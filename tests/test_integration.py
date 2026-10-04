@@ -617,3 +617,31 @@ class TestGoldenFixturesRenderAudio:
             )
         finally:
             path.unlink(missing_ok=True)
+
+
+def test_diskout_records_in_nrt(tmp_path: Path) -> None:
+    """DiskOut streams a signal to disk. With no declared output it crashed scsynth."""
+    from nanosynth.ugens import DiskOut, In
+
+    with SynthDefBuilder(buffer_id=0.0) as b:
+        Out.ar(bus=0, source=SinOsc.ar(frequency=440.0) * 0.5)
+        DiskOut.ar(buffer_id=b["buffer_id"], source=In.ar(bus=0, channel_count=1))
+    sd = b.build(name="nrt_diskout")
+    assert len(sd.compile()) > 0
+
+    recorded = tmp_path / "disk.wav"
+    score = Score()
+    score.add_synthdef(0.0, sd)
+    score.add(0.0, OscMessage("/b_alloc", 0, 32768, 1))
+    score.add(0.0, OscMessage("/b_write", 0, str(recorded), "wav", "int16", 0, 0, 1))
+    score.add_synth(0.0, "nrt_diskout", add_action=1, buffer_id=0.0)  # tail: after Out
+    score.add(1.0, OscMessage("/n_free", 1000))
+    score.add(1.0, OscMessage("/b_close", 0))
+    out = _render_score(score, 1.1)
+    try:
+        nchannels, sampwidth, framerate, frames = _read_wav(recorded)
+        assert nchannels == 1
+        assert len(frames) // sampwidth >= framerate // 2
+        assert _peak_amplitude(frames, sampwidth) > 0.4
+    finally:
+        out.unlink(missing_ok=True)

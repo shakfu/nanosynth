@@ -228,3 +228,117 @@ def _import_sample(path: Path):  # type: ignore[no-untyped-def]
     from nanosynth.cli import _load_module_from_path
 
     return _load_module_from_path(path.resolve())
+
+
+# ---------------------------------------------------------------------------
+# --version, render, midi-ports, selftest
+# ---------------------------------------------------------------------------
+
+SCORE_FILE = """
+from nanosynth import Score, SynthDefBuilder
+from nanosynth.ugens import Out, SinOsc
+
+with SynthDefBuilder() as b:
+    Out.ar(bus=0, source=SinOsc.ar(frequency=440.0) * 0.1)
+
+score = Score()
+score.add_synthdef(0.0, b.build(name="cli_sine"))
+score.add_synth(0.0, "cli_sine")
+"""
+
+
+def test_version_flag(capsys: pytest.CaptureFixture[str]) -> None:
+    import nanosynth
+
+    with pytest.raises(SystemExit) as exc:
+        main(["--version"])
+    assert exc.value.code == 0
+    assert capsys.readouterr().out.strip() == f"nanosynth {nanosynth.__version__}"
+
+
+def test_render_writes_wav(tmp_path: Path) -> None:
+    src = tmp_path / "piece.py"
+    src.write_text(SCORE_FILE + "score.add(0.2, [])\n")
+    out = tmp_path / "out.wav"
+    main(["render", str(src), "-o", str(out), "-c", "1", "-r", "22050"])
+    import wave
+
+    with wave.open(str(out)) as w:
+        assert (w.getnchannels(), w.getframerate()) == (1, 22050)
+        assert w.getnframes() >= int(0.2 * 22050)
+
+
+def test_render_requires_choice_between_scores(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    src = tmp_path / "two.py"
+    src.write_text(SCORE_FILE + "other = Score()\n")
+    with pytest.raises(SystemExit):
+        main(["render", str(src), "-o", str(tmp_path / "x.wav")])
+    assert "--name" in capsys.readouterr().err
+
+
+def test_render_unknown_name(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    src = tmp_path / "piece.py"
+    src.write_text(SCORE_FILE)
+    with pytest.raises(SystemExit):
+        main(["render", str(src), "-o", str(tmp_path / "x.wav"), "-n", "nope"])
+    assert "score" in capsys.readouterr().err
+
+
+def test_render_no_score(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    src = tmp_path / "empty.py"
+    src.write_text("x = 1\n")
+    with pytest.raises(SystemExit):
+        main(["render", str(src), "-o", str(tmp_path / "x.wav")])
+    assert "no Score" in capsys.readouterr().err
+
+
+def test_midi_ports(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nanosynth import midi
+
+    monkeypatch.setattr(midi.MidiIn, "list_ports", staticmethod(lambda: ["In A"]))
+    monkeypatch.setattr(midi.MidiOut, "list_ports", staticmethod(lambda: []))
+    main(["midi-ports"])
+    out = capsys.readouterr().out
+    assert "Inputs:\n  0: In A" in out
+    assert "Outputs:\n  (none)" in out
+
+
+def test_selftest_ok(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from unittest.mock import MagicMock
+
+    from nanosynth import server as server_module
+    from nanosynth.server import ServerStatus, ServerVersion
+
+    fake = MagicMock()
+    fake.version.return_value = ServerVersion("scsynth", 3, 14, ".1", "", "")
+    fake.status.return_value = ServerStatus(0, 0, 1, 0, 0.0, 0.0, 48000.0, 48000.0)
+    monkeypatch.setattr(server_module, "Server", lambda: fake)
+    main(["selftest"])
+    assert "OK" in capsys.readouterr().out
+    fake.quit.assert_called_once()
+
+
+def test_selftest_boot_failure(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from unittest.mock import MagicMock
+
+    from nanosynth import server as server_module
+    from nanosynth.exceptions import ServerCannotBoot
+
+    fake = MagicMock()
+    fake.boot.side_effect = ServerCannotBoot("no audio device")
+    fake.is_running = False
+    monkeypatch.setattr(server_module, "Server", lambda: fake)
+    with pytest.raises(SystemExit) as exc:
+        main(["selftest"])
+    assert exc.value.code == 1
+    assert "no audio device" in capsys.readouterr().err

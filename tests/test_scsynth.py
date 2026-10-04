@@ -76,7 +76,7 @@ class TestOptionsToWorldKwargs:
         assert kwargs["max_graph_defs"] == 1024
         assert kwargs["max_wire_bufs"] == 64
         assert kwargs["num_rgens"] == 64
-        assert kwargs["max_logins"] == 1
+        assert kwargs["max_logins"] == 64
         assert kwargs["realtime_memory_size"] == 8192
         assert kwargs["load_graph_defs"] == 1
         assert kwargs["memory_locking"] is False

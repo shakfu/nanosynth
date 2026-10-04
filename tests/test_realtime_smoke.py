@@ -284,3 +284,64 @@ def test_concurrent_send_and_reply_does_not_deadlock(protocol_cls) -> None:
         f"{result.stderr[-4000:]}"
     )
     assert "OK" in result.stdout
+
+
+def test_buffer_query_and_gen(booted: Server) -> None:
+    """/b_query and /b_gen work through OSC replies on either engine."""
+    buf = booted.alloc_buffer(512)
+    assert booted.sync()
+    frames, channels, _ = booted.query_buffer(buf)
+    assert (frames, channels) == (512, 1)
+    booted.sine1(buf, [1.0])
+    assert booted.sync()
+    if hasattr(booted._protocol, "buffer_get"):
+        pytest.importorskip("numpy")
+        peak = float(abs(booted.get_buffer_data(buf)).max())
+        assert peak == pytest.approx(1.0, abs=0.01)
+
+
+def test_control_bus_get(booted: Server) -> None:
+    bus = booted.control_bus(2)
+    bus.set(0.25, 0.75)
+    assert booted.sync()
+    assert bus.get() == (0.25, 0.75)
+
+
+def test_quit_finalizes_recording(protocol_cls, tmp_path) -> None:
+    """Quitting mid-recording still closes the file with audio in it."""
+    import time
+    import wave
+
+    path = tmp_path / "rec.wav"
+    server = Server(Options(verbosity=-1), protocol=protocol_cls())
+    server.boot()
+    try:
+        server.record(path, num_channels=1)
+        time.sleep(0.5)
+    finally:
+        server.quit()
+    assert not server.is_recording
+    with wave.open(str(path)) as w:
+        seconds = w.getnframes() / w.getframerate()
+    # No leading buffer of silence (which added ~1.5 s at 44.1 kHz).
+    assert 0.3 < seconds < 1.0
+
+
+def test_print_func_none_restores_default(protocol_cls, capfd) -> None:
+    """set_print_func(None) sends engine output back to stdout."""
+    if protocol_cls is not EmbeddedProcessProtocol:
+        pytest.skip("scsynth print routing only")
+    import ctypes
+
+    from nanosynth import _scsynth  # type: ignore[attr-defined]
+
+    server = Server(Options(verbosity=0), protocol=protocol_cls())
+    server.boot()
+    try:
+        _scsynth.set_print_func(None)
+        server.send_msg("/s_new", "no_such_synthdef_xyz", -1, 0, 0)
+        assert server.sync()
+    finally:
+        server.quit()
+    ctypes.CDLL(None).fflush(None)  # vprintf output is stdio-buffered
+    assert "no_such_synthdef_xyz" in capfd.readouterr().out

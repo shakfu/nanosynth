@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsInt, Union
 
+from ._controls import SET_PARAMS, Controls, call, control_args
 from .enums import AddAction
 from .exceptions import EngineError, OscError
 from .osc import OscBundle, OscMessage
@@ -257,7 +258,7 @@ class Synth:
 
     def set(self, **params: float) -> None:
         """Set parameter values on this synth."""
-        self._server.set(self._node_id, **params)
+        call(self._server.set, self._node_id, params, SET_PARAMS)
 
     def free(self) -> None:
         """Free this synth node."""
@@ -430,6 +431,27 @@ class Bus:
                 args.append(self._bus_id + i)
                 args.append(float(v))
             self._server.send_msg("/c_set", *args)
+
+    def get(self, timeout: float = 5.0) -> tuple[float, ...]:
+        """Read control bus value(s) via ``/c_getn``. One value per channel.
+
+        Raises:
+            EngineError: If called on an audio-rate bus, or on reply timeout.
+        """
+        if self._rate != "control":
+            raise EngineError("get() is only valid for control-rate buses")
+        bus_id, count = self._bus_id, self._num_channels
+        reply = self._server.send_msg_sync(
+            "/c_getn",
+            bus_id,
+            count,
+            reply_address="/c_setn",
+            timeout=timeout,
+            match=lambda m: tuple(m.contents[:2]) == (bus_id, count),
+        )
+        if reply is None:
+            raise EngineError(f"no /c_setn reply for bus {bus_id}")
+        return tuple(_osc_float(v) for v in reply.contents[2 : 2 + count])
 
     def free(self) -> None:
         """Return this bus to the allocator pool."""
@@ -651,9 +673,15 @@ class Server:
         self.send_msg("/g_new", 1, 0, 0)
 
     def quit(self) -> None:
-        """Shut down the embedded engine."""
+        """Shut down the embedded engine, finalizing any active recording."""
         if not self.is_running:
             return
+        if self._recording is not None:
+            try:
+                self.stop_recording()
+            except (EngineError, OSError):
+                logger.exception("Could not finalize recording before quit")
+                self._recording = None
         # Send /quit OSC for scsynth (triggers internal shutdown).
         # Supernova handles shutdown via terminate() in its quit() method,
         # so sending /quit would cause a double-shutdown crash.
@@ -1161,6 +1189,8 @@ class Server:
         name: str,
         target: int = 1,
         action: AddAction | int = AddAction.ADD_TO_HEAD,
+        *,
+        controls: Controls = None,
         **params: float,
     ) -> Synth:
         """Create a synth node. Returns a Synth proxy.
@@ -1169,14 +1199,17 @@ class Server:
             name: SynthDef name.
             target: Target node for placement.
             action: Add action (AddAction enum or int 0-4).
+            controls: Initial values for any control name, including ones
+                that collide with this method's parameters (``name``,
+                ``target``, ``action``, ``controls``).
             **params: Initial synth parameter values.
+
+        Raises:
+            TypeError: If a control is given in both *controls* and *params*.
         """
+        args = control_args(controls, params)
         node_id = self.next_node_id()
-        args: list[OscArgument] = [name, node_id, int(action), int(target)]
-        for key, value in params.items():
-            args.append(key)
-            args.append(float(value))
-        self.send_msg("/s_new", *args)
+        self.send_msg("/s_new", name, node_id, int(action), int(target), *args)
         return Synth(self, node_id, name)
 
     def group(
@@ -1217,6 +1250,8 @@ class Server:
         name: str,
         target: int = 1,
         action: AddAction | int = AddAction.ADD_TO_HEAD,
+        *,
+        controls: Controls = None,
         **params: float,
     ) -> Iterator[Synth]:
         """Create a synth and free it on context exit.
@@ -1227,7 +1262,7 @@ class Server:
                 time.sleep(1)
             # node freed automatically
         """
-        node = self.synth(name, target=target, action=action, **params)
+        node = self.synth(name, target, action, controls=controls, **params)
         try:
             yield node
         finally:
@@ -1262,18 +1297,25 @@ class Server:
             if self.is_running:
                 self.free(node)
 
-    def set(self, node_id: SupportsInt, **params: float) -> None:
+    def set(
+        self,
+        node_id: SupportsInt,
+        *,
+        controls: Controls = None,
+        **params: float,
+    ) -> None:
         """Set parameter values on a running node.
 
         Args:
             node_id: The node to modify (int or Synth/Group proxy).
+            controls: Values for any control name, including ``node_id``
+                and ``controls``.
             **params: Parameter name-value pairs.
+
+        Raises:
+            TypeError: If a control is given in both *controls* and *params*.
         """
-        args: list[OscArgument] = [int(node_id)]
-        for key, value in params.items():
-            args.append(key)
-            args.append(float(value))
-        self.send_msg("/n_set", *args)
+        self.send_msg("/n_set", int(node_id), *control_args(controls, params))
 
     # -- Buffer management -----------------------------------------------------
 
@@ -1368,6 +1410,93 @@ class Server:
     def close_buffer(self, buffer_id: int) -> None:
         """Close the sound file associated with a buffer (after b_write)."""
         self.send_msg("/b_close", buffer_id)
+
+    def query_buffer(
+        self, buffer_id: SupportsInt, timeout: float = 5.0
+    ) -> tuple[int, int, float]:
+        """Return ``(frames, channels, sample_rate)`` via ``/b_query``.
+
+        Works with both engines; :meth:`buffer_info` reads the same data
+        in-process but requires scsynth.
+
+        Raises:
+            EngineError: If no ``/b_info`` reply arrives within *timeout*.
+        """
+        bufnum = int(buffer_id)
+        reply = self.send_msg_sync(
+            "/b_query",
+            bufnum,
+            reply_address="/b_info",
+            timeout=timeout,
+            match=lambda m: bool(m.contents) and m.contents[0] == bufnum,
+        )
+        if reply is None:
+            raise EngineError(f"no /b_info reply for buffer {bufnum}")
+        c = reply.contents
+        return _osc_int(c[1]), _osc_int(c[2]), _osc_float(c[3])
+
+    def gen_buffer(
+        self,
+        buffer_id: SupportsInt,
+        command: str,
+        *args: float,
+        normalize: bool = True,
+        wavetable: bool = True,
+        clear: bool = True,
+    ) -> None:
+        """Fill a buffer with a ``/b_gen`` wave-fill command.
+
+        Args:
+            buffer_id: Target buffer (must be allocated).
+            command: ``"sine1"``, ``"sine2"``, ``"sine3"`` or ``"cheby"``.
+            *args: Command arguments (amplitudes, or freq/amp/phase groups).
+            normalize: Scale the peak amplitude to 1.0.
+            wavetable: Write in wavetable format (for ``Osc``, ``Shaper``, ...).
+            clear: Zero the buffer first; otherwise add to its contents.
+        """
+        flags = (1 if normalize else 0) | (2 if wavetable else 0) | (4 if clear else 0)
+        self.send_msg(
+            "/b_gen", int(buffer_id), command, flags, *(float(a) for a in args)
+        )
+
+    def sine1(
+        self, buffer_id: SupportsInt, amplitudes: SequenceABC[float], **flags: bool
+    ) -> None:
+        """Fill with harmonic partials; ``amplitudes[i]`` is partial ``i + 1``."""
+        self.gen_buffer(buffer_id, "sine1", *amplitudes, **flags)
+
+    def sine2(
+        self,
+        buffer_id: SupportsInt,
+        frequencies: SequenceABC[float],
+        amplitudes: SequenceABC[float],
+        **flags: bool,
+    ) -> None:
+        """Fill with partials at arbitrary frequencies (in cycles per buffer)."""
+        if len(frequencies) != len(amplitudes):
+            raise ValueError("frequencies and amplitudes must have the same length")
+        pairs = [x for fa in zip(frequencies, amplitudes) for x in fa]
+        self.gen_buffer(buffer_id, "sine2", *pairs, **flags)
+
+    def sine3(
+        self,
+        buffer_id: SupportsInt,
+        frequencies: SequenceABC[float],
+        amplitudes: SequenceABC[float],
+        phases: SequenceABC[float],
+        **flags: bool,
+    ) -> None:
+        """Fill with partials at arbitrary frequencies and phases (radians)."""
+        if not len(frequencies) == len(amplitudes) == len(phases):
+            raise ValueError("frequencies, amplitudes and phases must match in length")
+        triples = [x for fap in zip(frequencies, amplitudes, phases) for x in fap]
+        self.gen_buffer(buffer_id, "sine3", *triples, **flags)
+
+    def cheby(
+        self, buffer_id: SupportsInt, amplitudes: SequenceABC[float], **flags: bool
+    ) -> None:
+        """Fill with a Chebyshev polynomial sum, a transfer function for ``Shaper``."""
+        self.gen_buffer(buffer_id, "cheby", *amplitudes, **flags)
 
     # -- Direct buffer data exchange (numpy) -----------------------------------
 
@@ -1576,8 +1705,10 @@ class Server:
                 ``"float"``).
 
         Raises:
-            EngineError: If already recording.
+            EngineError: If the server is not running, or already recording.
         """
+        if not self.is_running:
+            raise EngineError("Cannot record: the server is not running.")
         if self._recording is not None:
             raise EngineError("Already recording. Call stop_recording() first.")
 
@@ -1595,7 +1726,8 @@ class Server:
             path_str,
             header_format=header_format,
             sample_format=sample_format,
-            num_frames=-1,
+            # 0, not -1: -1 first writes the whole (silent) buffer to the file.
+            num_frames=0,
             start_frame=0,
             leave_open=True,
         )
@@ -1631,13 +1763,17 @@ class Server:
     def stop_recording(self) -> None:
         """Stop recording and finalize the audio file.
 
-        Safe to call when not recording (no-op).
+        Safe to call when not recording (no-op). If the engine has already
+        stopped, only the recording state is cleared.
         """
         if self._recording is None:
             return
 
         rec = self._recording
         self._recording = None
+        if not self.is_running:
+            logger.warning("Engine stopped before recording %s was finalized", rec.path)
+            return
 
         # 1. Free the recorder synth
         self.free(rec.synth_node_id)
@@ -1645,9 +1781,12 @@ class Server:
         # 2. Flush the freed synth's final samples before closing the file.
         self.sync()
 
-        # 3. Close and free the buffer
+        # 3. Close and free the buffer, then wait: /b_close rewrites the file
+        #    header asynchronously, and a quit() before it completes leaves an
+        #    unfinalized file (observed on supernova).
         self.close_buffer(rec.buffer_id)
         self.free_buffer(rec.buffer_id)
+        self.sync()
 
         logger.info("Stopped recording: %s", rec.path)
 

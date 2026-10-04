@@ -10,13 +10,19 @@ from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
 if TYPE_CHECKING:
+    from .score import Score
     from .synthdef import SynthDef
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    from . import __version__
+
     parser = argparse.ArgumentParser(
         prog="nanosynth",
         description="nanosynth -- minimal embedded SuperCollider synthesis engine",
+    )
+    parser.add_argument(
+        "-V", "--version", action="version", version=f"nanosynth {__version__}"
     )
     subparsers = parser.add_subparsers(dest="command")
 
@@ -64,6 +70,54 @@ def _build_parser() -> argparse.ArgumentParser:
         "--anonymous",
         action="store_true",
         help="Use MD5-hash names in the binary instead of declared names",
+    )
+
+    render_parser = subparsers.add_parser(
+        "render",
+        help="Render a Score from a Python file to an audio file (non-real-time)",
+    )
+    render_parser.add_argument(
+        "input",
+        metavar="FILE.py",
+        help="Python file defining a Score object at module level",
+    )
+    render_parser.add_argument(
+        "-o",
+        "--output",
+        metavar="FILE",
+        required=True,
+        help="Output audio file",
+    )
+    render_parser.add_argument(
+        "-n",
+        "--name",
+        metavar="NAME",
+        help="Module variable holding the Score, if the file defines several",
+    )
+    render_parser.add_argument(
+        "-r", "--sample-rate", type=int, default=44100, help="Default: 44100"
+    )
+    render_parser.add_argument(
+        "-c", "--channels", type=int, default=2, help="Output channels (default: 2)"
+    )
+    render_parser.add_argument(
+        "--header-format",
+        choices=["WAV", "AIFF"],
+        default="WAV",
+        help="Default: WAV",
+    )
+    render_parser.add_argument(
+        "--sample-format",
+        choices=["int16", "int24", "float"],
+        default="int16",
+        help="Default: int16",
+    )
+
+    subparsers.add_parser("midi-ports", help="List MIDI input and output ports")
+
+    subparsers.add_parser(
+        "selftest",
+        help="Boot the embedded engine, query it, and quit (checks audio setup)",
     )
 
     return parser
@@ -140,24 +194,24 @@ def _list_ugens() -> None:
         print(f"  {name}")
 
 
-def _error(message: str) -> NoReturn:
+def _error(message: str, command: str = "compile") -> NoReturn:
     """Print an error to stderr and exit with status 1."""
-    print(f"nanosynth compile: error: {message}", file=sys.stderr)
+    print(f"nanosynth {command}: error: {message}", file=sys.stderr)
     sys.exit(1)
 
 
-def _load_module_from_path(path: Path) -> object:
+def _load_module_from_path(path: Path, command: str = "compile") -> object:
     """Import a standalone .py file as a module and return it."""
     spec = importlib.util.spec_from_file_location(
         f"_nanosynth_compile_{path.stem}", path
     )
     if spec is None or spec.loader is None:
-        _error(f"cannot load {path} as a Python module")
+        _error(f"cannot load {path} as a Python module", command)
     module = importlib.util.module_from_spec(spec)
     try:
         spec.loader.exec_module(module)
     except Exception as exc:  # noqa: BLE001 -- report any error from user code
-        _error(f"failed to execute {path}: {exc}")
+        _error(f"failed to execute {path}: {exc}", command)
     return module
 
 
@@ -227,6 +281,80 @@ def _run_compile(args: argparse.Namespace) -> None:
         print(f"Wrote {out_path}")
 
 
+def _run_render(args: argparse.Namespace) -> None:
+    from .score import Score
+
+    input_path = Path(args.input)
+    if not input_path.is_file() or input_path.suffix != ".py":
+        _error(f"input must be an existing .py file: {input_path}", "render")
+    output_path = Path(args.output)
+    if not output_path.parent.is_dir():
+        _error(f"output directory does not exist: {output_path.parent}", "render")
+
+    module = _load_module_from_path(input_path.resolve(), "render")
+    scores = {k: v for k, v in vars(module).items() if isinstance(v, Score)}
+    score: Score
+    if args.name:
+        if args.name not in scores:
+            available = ", ".join(sorted(scores)) or "(none)"
+            _error(f"no Score named {args.name!r}. Available: {available}", "render")
+        score = scores[args.name]
+    elif len(scores) == 1:
+        score = next(iter(scores.values()))
+    elif not scores:
+        _error(f"no Score objects found in {input_path}", "render")
+    else:
+        _error(
+            f"several Scores found ({', '.join(sorted(scores))}); use --name", "render"
+        )
+
+    score.render(
+        output_path,
+        sample_rate=args.sample_rate,
+        header_format=args.header_format,
+        sample_format=args.sample_format,
+        output_channels=args.channels,
+    )
+    if not output_path.is_file():
+        _error(f"engine did not write {output_path}", "render")
+    print(f"Wrote {output_path} ({score.duration():.2f}s of events)")
+
+
+def _run_midi_ports() -> None:
+    try:
+        from .midi import MidiIn, MidiOut
+    except ImportError as exc:
+        _error(f"MIDI support unavailable: {exc}", "midi-ports")
+    for label, names in (
+        ("Inputs", MidiIn.list_ports()),
+        ("Outputs", MidiOut.list_ports()),
+    ):
+        print(f"{label}:")
+        for i, name in enumerate(names):
+            print(f"  {i}: {name}")
+        if not names:
+            print("  (none)")
+
+
+def _run_selftest() -> None:
+    from .exceptions import NanosynthError
+    from .server import Server
+
+    server = Server()
+    try:
+        server.boot()
+        version = server.version()
+        status = server.status()
+    except (NanosynthError, OSError) as exc:
+        _error(f"engine check failed: {exc}", "selftest")
+    finally:
+        if server.is_running:
+            server.quit()
+    print(f"Engine: {version.program} {version.major}.{version.minor}{version.patch}")
+    print(f"Sample rate: {status.actual_sample_rate:.0f} Hz")
+    print("OK")
+
+
 def main(argv: list[str] | None = None) -> NoReturn | None:
     """Entry point for the ``nanosynth`` CLI."""
     parser = _build_parser()
@@ -242,6 +370,18 @@ def main(argv: list[str] | None = None) -> NoReturn | None:
 
     if args.command == "compile":
         _run_compile(args)
+        return None
+
+    if args.command == "render":
+        _run_render(args)
+        return None
+
+    if args.command == "midi-ports":
+        _run_midi_ports()
+        return None
+
+    if args.command == "selftest":
+        _run_selftest()
         return None
 
     parser.print_help()

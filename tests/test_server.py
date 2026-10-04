@@ -1059,6 +1059,7 @@ class TestRecording:
         assert msg.contents[1] == "/tmp/test.wav"
         assert msg.contents[2] == "wav"
         assert msg.contents[3] == "int16"
+        assert msg.contents[4] == 0  # num_frames: -1 would prepend silence
         assert msg.contents[6] == 1  # leave_open = True
 
     @patch.object(Server, "sync")
@@ -1128,6 +1129,42 @@ class TestRecording:
 
     def test_stop_recording_when_not_recording_is_noop(self, server: Server) -> None:
         server.stop_recording()  # should not raise
+        assert server.is_recording is False
+
+    def test_record_requires_running_server(self, server: Server) -> None:
+        server._protocol.status = BootStatus.OFFLINE
+        with pytest.raises(EngineError, match="not running"):
+            server.record("/tmp/x.wav")
+        # Nothing was allocated or sent.
+        server._protocol.send_packet.assert_not_called()
+        assert server.next_buffer_id() == 0
+
+    @patch.object(Server, "sync")
+    def test_stop_recording_after_engine_died_clears_state(
+        self, mock_sync: MagicMock, server: Server
+    ) -> None:
+        server.record("/tmp/x.wav", num_channels=1)
+        server._protocol.status = BootStatus.OFFLINE
+        server._protocol.send_packet.reset_mock()
+        server.stop_recording()
+        assert server.is_recording is False
+        server._protocol.send_packet.assert_not_called()
+
+    @patch.object(Server, "sync")
+    def test_quit_finalizes_recording(
+        self, mock_sync: MagicMock, server: Server
+    ) -> None:
+        from nanosynth.osc import OscMessage
+
+        server.record("/tmp/x.wav", num_channels=1)
+        server._protocol.send_packet.reset_mock()
+        server.quit()
+        sent = [
+            OscMessage.from_datagram(c.args[0]).address
+            for c in server._protocol.send_packet.call_args_list
+        ]
+        assert sent[:3] == ["/n_free", "/b_close", "/b_free"]
+        assert sent[-1] == "/quit"
         assert server.is_recording is False
 
     @patch.object(Server, "sync")
@@ -1267,3 +1304,103 @@ class TestBundleScheduling:
             server.synth("default", freq=220.0)
         data = server._protocol.send_packet.call_args[0][0]
         assert OscBundle.from_datagram(data).to_datagram() == data
+
+
+class TestControlNameCollisions:
+    """Controls named like a method parameter still reach the synth."""
+
+    @pytest.fixture()
+    def server(self) -> Server:
+        s = Server()
+        s._protocol = MagicMock()
+        s._protocol.status = BootStatus.ONLINE
+        return s
+
+    def _sent(self, server: Server) -> tuple:
+        from nanosynth.osc import OscMessage
+
+        data = server._protocol.send_packet.call_args[0][0]
+        return tuple(OscMessage.from_datagram(data).contents)
+
+    def test_synth_controls_mapping(self, server: Server) -> None:
+        server.synth("x", 5, controls={"target": 3.0, "action": 1.0}, freq=2.0)
+        assert self._sent(server) == (
+            "x", 1000, 0, 5, "target", 3.0, "action", 1.0, "freq", 2.0,
+        )  # fmt: skip
+
+    def test_name_keyword_still_names_the_synthdef(self, server: Server) -> None:
+        server.synth(name="x", controls={"name": 4.0})
+        assert self._sent(server)[0] == "x"
+        assert self._sent(server)[4:] == ("name", 4.0)
+
+    def test_set_colliding_names_via_mapping(self, server: Server) -> None:
+        server.set(7, controls={"node_id": 1.0, "controls": 2.0})
+        assert self._sent(server) == (7, "node_id", 1.0, "controls", 2.0)
+
+    def test_numeric_controls_is_a_control_named_controls(self, server: Server) -> None:
+        """Pre-mapping callers passed a control named 'controls' as a keyword."""
+        server.set(7, controls=0.5)
+        assert self._sent(server) == (7, "controls", 0.5)
+
+    def test_duplicate_control_rejected(self, server: Server) -> None:
+        with pytest.raises(TypeError, match="freq"):
+            server.synth("x", controls={"freq": 1.0}, freq=2.0)
+
+    def test_synth_proxy_set_any_name(self, server: Server) -> None:
+        server.synth("x").set(controls=3.0)
+        assert self._sent(server) == (1000, "controls", 3.0)
+
+    def test_synthdef_play_forwards_colliding_names(self, server: Server) -> None:
+        from nanosynth.synthdef import SynthDefBuilder
+        from nanosynth.ugens import Out, SinOsc
+
+        with SynthDefBuilder() as builder:
+            Out.ar(bus=0, source=SinOsc.ar())
+        sd = builder.build(name="t")
+        server.send_synthdef = MagicMock()  # type: ignore[method-assign]
+        sd.play(server, 1, 0, controls={"target": 8.0, "server": 9.0}, name=2.0)
+        assert self._sent(server)[3] == 1  # target stays the placement
+        assert self._sent(server)[4:] == ("target", 8.0, "server", 9.0, "name", 2.0)
+
+    def test_duck_typed_server_without_controls(self) -> None:
+        """Servers predating controls= still work when no name collides."""
+        from nanosynth.patterns import Pbind, Pseq, _send_event
+
+        class OldServer:
+            def __init__(self) -> None:
+                self.calls: list = []
+
+            def at(self, t):  # noqa: ANN001
+                import contextlib
+
+                return contextlib.nullcontext()
+
+            def synth(self, name, target=1, action=0, **params):  # noqa: ANN001
+                self.calls.append(("synth", name, params))
+                return 1000
+
+            def set(self, node_id, **params):  # noqa: ANN001
+                self.calls.append(("set", node_id, params))
+
+        old = OldServer()
+        event = Pbind(instrument="v", freq=Pseq([100.0]), legato=1.0).take(1)[0]
+        _send_event(old, event, 0.0, 1.0, {})
+        assert old.calls[0][:2] == ("synth", "v")
+        assert old.calls[0][2]["freq"] == 100.0
+        assert old.calls[1] == ("set", 1000, {"gate": 0.0})
+
+    def test_player_forwards_target_control(self, server: Server) -> None:
+        from nanosynth.patterns import Pbind, Pseq, _send_event
+
+        event = Pbind(target=7.0, dur=Pseq([1.0]), legato=1.0).take(1)[0]
+        _send_event(server, event, 0.0, 1.0, {})
+        s_new = [
+            c.args[0]
+            for c in server._protocol.send_packet.call_args_list
+            if b"/s_new" in c.args[0]
+        ]
+        from nanosynth.osc import OscBundle
+
+        contents = OscBundle.from_datagram(s_new[0]).contents[0].contents
+        assert contents[3] == 1  # default group, not 7
+        assert contents[contents.index("target") + 1] == 7.0
