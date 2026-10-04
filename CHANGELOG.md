@@ -29,8 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`Score.to_binary()` includes the teardown guard** (`score.py`): the `/g_freeAll` + `/c_set` bundle that prevents NRT shutdown crashes was added only inside `render()`, so a hand-written score file lacked it. It is now emitted by `to_binary()`, 10 ms after the last event. At the same timestamp it freed a final `/s_new` in the block it started, so that synth rendered no audio
 
-- **Version is single-sourced** (`pyproject.toml`): scikit-build-core reads it from `src/nanosynth/__init__.py`, so the two can no longer drift
-
 ### Fixed
 
 - **`from nanosynth import *` raised `AttributeError`** (`__init__.py`): `__all__` listed `Resonz`, which does not exist
