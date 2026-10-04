@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2]
+
 ### Added
 
 - **MIDI output and clock** (`midi.py`, `_midi.cpp`): `MidiOut` sends message objects or raw bytes. `MidiClockOut` sends Timing Clock and transport following a `Clock`; `MidiClockIn` slaves a `Clock`'s tempo and beat grid to incoming clock. New message types: `ProgramChange`, `Aftertouch`, `PolyAftertouch`, `SongPosition`, `TimingClock`, `Start`, `Continue`, `Stop`. `MidiIn` gains generic `on(type, cb)`/`off(type, cb)` and `receive_clock=True`. See `docs/midi.md`
