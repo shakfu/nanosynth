@@ -381,7 +381,11 @@ void DiskOut_next(DiskOut* unit, int inNumSamples) {
         msg.mFrames = bufFrames2;
         msg.mChannels = bufChannels;
         // printf("sendMessage %d  %d %d %d\n", msg.mBufNum, msg.mPos, msg.mFrames, msg.mChannels);
-        gDiskIO->Write(msg);
+        // nanosynth: write inline in NRT, as DiskIn does; the IO thread races /b_close.
+        if (unit->mWorld->mRealTime)
+            gDiskIO->Write(msg);
+        else
+            msg.Perform();
     }
 }
 
@@ -407,7 +411,11 @@ void DiskOut_Dtor(DiskOut* unit) {
         msg.mFrames = framepos - writeStart;
         msg.mChannels = bufChannels;
         // printf("sendMessage %d  %d %d %d\n", msg.mBufNum, msg.mPos, msg.mFrames, msg.mChannels);
-        gDiskIO->Write(msg);
+        // nanosynth: write inline in NRT, as DiskIn does; the IO thread races /b_close.
+        if (unit->mWorld->mRealTime)
+            gDiskIO->Write(msg);
+        else
+            msg.Perform();
     }
 }
 

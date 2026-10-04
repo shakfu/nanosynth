@@ -634,14 +634,17 @@ def test_diskout_records_in_nrt(tmp_path: Path) -> None:
     score.add_synthdef(0.0, sd)
     score.add(0.0, OscMessage("/b_alloc", 0, 32768, 1))
     score.add(0.0, OscMessage("/b_write", 0, str(recorded), "wav", "int16", 0, 0, 1))
-    score.add_synth(0.0, "nrt_diskout", add_action=1, buffer_id=0.0)  # tail: after Out
-    score.add(1.0, OscMessage("/n_free", 1000))
+    node = score.add_synth(
+        0.0, "nrt_diskout", node_id=None, add_action=1, buffer_id=0.0
+    )  # tail: after Out
+    score.add(1.0, OscMessage("/n_free", node))
     score.add(1.0, OscMessage("/b_close", 0))
     out = _render_score(score, 1.1)
     try:
         nchannels, sampwidth, framerate, frames = _read_wav(recorded)
         assert nchannels == 1
-        assert len(frames) // sampwidth >= framerate // 2
+        # The free at 1.0 s flushes the partial half-buffer, so the whole second lands.
+        assert len(frames) // sampwidth >= framerate - 64
         assert _peak_amplitude(frames, sampwidth) > 0.4
     finally:
         out.unlink(missing_ok=True)

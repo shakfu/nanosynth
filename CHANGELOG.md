@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`Server.record()` crashed the engine** (`ugens/diskio.py`): `DiskOut` was declared with zero outputs, but `DiskOut_next` writes a frame counter to `OUT(0)` unconditionally, so it wrote through an unallocated output pointer and segfaulted on the audio thread. It now has its one output. Recording was only ever tested against a mocked engine
 
+- **`DiskOut` in NRT wrote empty files** (`thirdparty/.../DiskIO_UGens.cpp`): NRT runs `/b_close` inline, but `DiskOut` queued its writes to the disk IO thread. When the render outran that thread, `/b_close` closed the file first, and the writes then found no sndfile and were dropped. CI hit this on macOS and Windows. `DiskOut` now writes inline in NRT, as upstream `DiskIn` and `VDiskIn` already read inline
+
 - **Recordings began with 1.5 s of silence** (`server.py`): `record()` opened the file with `/b_write ... numFrames=-1`, which first wrote the whole zeroed 65536-frame disk buffer. It now uses 0, as sclang's `Recorder` does
 
 - **Recordings could be left unfinalized** (`server.py`): `/b_close` rewrites the file header asynchronously, and `stop_recording()` did not wait for it, so a `quit()` straight after left a WAV with no valid header (observed on supernova). `stop_recording()` now ends with `sync()`. `quit()` now finalizes an active recording first; previously the stale state also made the next `record()` after a reboot raise "Already recording". `record()` on a stopped server raises `EngineError` before allocating a buffer
