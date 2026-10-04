@@ -1,6 +1,17 @@
 """Filter UGens."""
 
-from ..synthdef import PseudoUGen, UGen, UGenOperable, UGenRecursiveInput, param, ugen
+from typing import Any
+
+from ..enums import CalculationRate
+from ..synthdef import (
+    Default,
+    PseudoUGen,
+    UGen,
+    UGenOperable,
+    UGenRecursiveInput,
+    param,
+    ugen,
+)
 
 
 @ugen(ar=True, kr=True, is_pure=True)
@@ -156,8 +167,21 @@ class Lag3UD(UGen):
 
 @ugen(ar=True, kr=True, is_pure=True)
 class LeakDC(UGen):
+    """DC blocker. ``coefficient`` defaults to 0.995 at audio rate, else 0.9, as sclang."""
+
     source = param()
-    coefficient = param(0.995)
+    coefficient = param(Default())
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, Any]]:
+        if isinstance(kwargs.get("coefficient"), Default):
+            audio = calculation_rate == CalculationRate.AUDIO
+            kwargs["coefficient"] = 0.995 if audio else 0.9
+        return calculation_rate, kwargs
 
 
 @ugen(ar=True, kr=True, is_pure=True)

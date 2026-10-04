@@ -18,8 +18,8 @@ class A2K(UGen):
 
 @ugen(ar=True, ir=True, kr=True, is_pure=True)
 class AmpComp(UGen):
-    frequency = param(1000.0)
-    root = param(0.0)
+    frequency = param(261.6255653005986)  # 60.midicps, as sclang
+    root = param(261.6255653005986)
     exp = param(0.3333)
 
 

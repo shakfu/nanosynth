@@ -90,14 +90,14 @@ class RunningMin(UGen):
     trigger = param(0)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, ir=True)
 class Schmidt(UGen):
     source = param()
     minimum = param(0.0)
     maximum = param(1.0)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, channel_count=0, fixed_channel_count=True)
 class SendTrig(UGen):
     trigger = param()
     id_ = param(0)
@@ -156,12 +156,19 @@ class Poll(UGen):
         self,
         *,
         calculation_rate: CalculationRate = CalculationRate.SCALAR,
+        source: UGenScalarInput,
+        trigger: UGenRecursiveInput,
         label: UGenRecursiveInput | None = None,
-        source: UGenScalarInput | None = None,
-        trigger: UGenScalarInput | None = None,
         trigger_id: UGenScalarInput = -1,
         **kwargs: UGenRecursiveInput | None,
     ) -> None:
+        # As sclang: a numeric trigger is a rate in Hz.
+        if isinstance(trigger, (int, float)):
+            from .osc import Impulse
+
+            trigger = Impulse._new_single(
+                calculation_rate=calculation_rate, frequency=trigger, phase=0
+            )
         if label is None:
             if isinstance(source, UGen):
                 label_str = type(source).__name__
@@ -184,9 +191,9 @@ class Poll(UGen):
     def ar(
         cls,
         *,
+        source: UGenRecursiveInput,
+        trigger: UGenRecursiveInput = 10,
         label: str | None = None,
-        source: UGenRecursiveInput | None = None,
-        trigger: UGenRecursiveInput | None = None,
         trigger_id: UGenRecursiveInput = -1,
     ) -> UGenOperable:
         return cls._new_expanded(
@@ -201,9 +208,9 @@ class Poll(UGen):
     def kr(
         cls,
         *,
+        source: UGenRecursiveInput,
+        trigger: UGenRecursiveInput = 10,
         label: str | None = None,
-        source: UGenRecursiveInput | None = None,
-        trigger: UGenRecursiveInput | None = None,
         trigger_id: UGenRecursiveInput = -1,
     ) -> UGenOperable:
         return cls._new_expanded(

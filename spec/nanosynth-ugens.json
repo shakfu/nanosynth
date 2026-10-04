@@ -22,38 +22,39 @@
       "GREATER_THAN": 9,
       "LESS_THAN_OR_EQUAL": 10,
       "GREATER_THAN_OR_EQUAL": 11,
-      "MINIMUM": 14,
-      "MAXIMUM": 15,
-      "BITWISE_AND": 16,
-      "BITWISE_OR": 17,
-      "BITWISE_XOR": 18,
-      "LCM": 19,
-      "GCD": 20,
-      "ROUND": 21,
-      "ROUND_UP": 22,
-      "TRUNCATION": 23,
-      "ATAN2": 24,
-      "HYPOT": 25,
-      "HYPOTX": 26,
-      "POWER": 27,
-      "SHIFT_LEFT": 28,
-      "SHIFT_RIGHT": 29,
-      "RING1": 32,
-      "RING2": 33,
-      "RING3": 34,
-      "RING4": 35,
-      "DIFFERENCE_OF_SQUARES": 36,
-      "SUM_OF_SQUARES": 37,
-      "SQUARE_OF_SUM": 38,
-      "SQUARE_OF_DIFFERENCE": 39,
-      "ABSOLUTE_DIFFERENCE": 40,
-      "THRESHOLD": 41,
-      "AMPLITUDE_CLIPPING": 42,
-      "SCALE_NEGATIVE": 43,
-      "CLIP2": 44,
-      "EXCESS": 45,
-      "FOLD2": 46,
-      "WRAP2": 47
+      "MINIMUM": 12,
+      "MAXIMUM": 13,
+      "BITWISE_AND": 14,
+      "BITWISE_OR": 15,
+      "BITWISE_XOR": 16,
+      "LCM": 17,
+      "GCD": 18,
+      "ROUND": 19,
+      "ROUND_UP": 20,
+      "TRUNCATION": 21,
+      "ATAN2": 22,
+      "HYPOT": 23,
+      "HYPOTX": 24,
+      "POWER": 25,
+      "SHIFT_LEFT": 26,
+      "SHIFT_RIGHT": 27,
+      "RING1": 30,
+      "RING2": 31,
+      "RING3": 32,
+      "RING4": 33,
+      "DIFFERENCE_OF_SQUARES": 34,
+      "SUM_OF_SQUARES": 35,
+      "SQUARE_OF_SUM": 36,
+      "SQUARE_OF_DIFFERENCE": 37,
+      "ABSOLUTE_DIFFERENCE": 38,
+      "THRESHOLD": 39,
+      "AMPLITUDE_CLIPPING": 40,
+      "SCALE_NEGATIVE": 41,
+      "CLIP2": 42,
+      "EXCESS": 43,
+      "FOLD2": 44,
+      "WRAP2": 45,
+      "FIRST_ARG": 46
     },
     "unary_operators": {
       "NEGATIVE": 0,
@@ -321,12 +322,12 @@
       "parameters": [
         {
           "name": "frequency",
-          "default": 1000.0,
+          "default": 261.6255653005986,
           "unexpanded": false
         },
         {
           "name": "root",
-          "default": 0.0,
+          "default": 261.6255653005986,
           "unexpanded": false
         },
         {
@@ -510,44 +511,6 @@
       ]
     },
     {
-      "name": "BHiCut",
-      "rates": [
-        "ar"
-      ],
-      "outputs": {
-        "kind": "fixed",
-        "count": 1
-      },
-      "flags": {
-        "pure": true,
-        "output": false,
-        "width_first": false,
-        "has_done_flag": false
-      },
-      "parameters": [
-        {
-          "name": "source",
-          "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "frequency",
-          "default": 1200.0,
-          "unexpanded": false
-        },
-        {
-          "name": "order",
-          "default": 2.0,
-          "unexpanded": false
-        },
-        {
-          "name": "max_order",
-          "default": 5.0,
-          "unexpanded": false
-        }
-      ]
-    },
-    {
       "name": "BHiPass",
       "rates": [
         "ar"
@@ -614,44 +577,6 @@
         {
           "name": "gain",
           "default": 0.0,
-          "unexpanded": false
-        }
-      ]
-    },
-    {
-      "name": "BLowCut",
-      "rates": [
-        "ar"
-      ],
-      "outputs": {
-        "kind": "fixed",
-        "count": 1
-      },
-      "flags": {
-        "pure": true,
-        "output": false,
-        "width_first": false,
-        "has_done_flag": false
-      },
-      "parameters": [
-        {
-          "name": "source",
-          "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "frequency",
-          "default": 1200.0,
-          "unexpanded": false
-        },
-        {
-          "name": "order",
-          "default": 2.0,
-          "unexpanded": false
-        },
-        {
-          "name": "max_order",
-          "default": 5.0,
           "unexpanded": false
         }
       ]
@@ -1141,8 +1066,7 @@
     {
       "name": "BufAllpassC",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -1163,11 +1087,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -1185,8 +1104,7 @@
     {
       "name": "BufAllpassL",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -1207,11 +1125,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -1229,8 +1142,7 @@
     {
       "name": "BufAllpassN",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -1251,11 +1163,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -1297,8 +1204,7 @@
     {
       "name": "BufCombC",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -1319,11 +1225,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -1341,8 +1242,7 @@
     {
       "name": "BufCombL",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -1363,11 +1263,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -1385,8 +1280,7 @@
     {
       "name": "BufCombN",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -1407,11 +1301,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -1454,11 +1343,6 @@
           "unexpanded": false
         },
         {
-          "name": "maximum_delay_time",
-          "default": 0.2,
-          "unexpanded": false
-        },
-        {
           "name": "delay_time",
           "default": 0.2,
           "unexpanded": false
@@ -1493,11 +1377,6 @@
           "unexpanded": false
         },
         {
-          "name": "maximum_delay_time",
-          "default": 0.2,
-          "unexpanded": false
-        },
-        {
           "name": "delay_time",
           "default": 0.2,
           "unexpanded": false
@@ -1529,11 +1408,6 @@
         {
           "name": "source",
           "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "maximum_delay_time",
-          "default": 0.2,
           "unexpanded": false
         },
         {
@@ -2235,7 +2109,8 @@
     {
       "name": "Convolution3",
       "rates": [
-        "ar"
+        "ar",
+        "kr"
       ],
       "outputs": {
         "kind": "fixed",
@@ -2411,6 +2286,11 @@
       },
       "parameters": [
         {
+          "name": "length",
+          "default": "inf",
+          "unexpanded": false
+        },
+        {
           "name": "minimum",
           "default": 0.0,
           "unexpanded": false
@@ -2423,11 +2303,6 @@
         {
           "name": "step",
           "default": 0.01,
-          "unexpanded": false
-        },
-        {
-          "name": "length",
-          "default": "inf",
           "unexpanded": false
         }
       ]
@@ -2482,17 +2357,17 @@
       },
       "parameters": [
         {
-          "name": "source",
-          "default": 0.0,
-          "unexpanded": false
-        },
-        {
           "name": "buffer_id",
           "default": 0.0,
           "unexpanded": false
         },
         {
           "name": "phase",
+          "default": 0.0,
+          "unexpanded": false
+        },
+        {
+          "name": "source",
           "default": 0.0,
           "unexpanded": false
         },
@@ -3031,6 +2906,11 @@
       },
       "parameters": [
         {
+          "name": "length",
+          "default": "inf",
+          "unexpanded": false
+        },
+        {
           "name": "start",
           "default": 1.0,
           "unexpanded": false
@@ -3038,11 +2918,6 @@
         {
           "name": "grow",
           "default": 2.0,
-          "unexpanded": false
-        },
-        {
-          "name": "length",
-          "default": "inf",
           "unexpanded": false
         }
       ]
@@ -3064,6 +2939,11 @@
       },
       "parameters": [
         {
+          "name": "length",
+          "default": "inf",
+          "unexpanded": false
+        },
+        {
           "name": "minimum",
           "default": 0.0,
           "unexpanded": false
@@ -3076,11 +2956,6 @@
         {
           "name": "step",
           "default": 1.0,
-          "unexpanded": false
-        },
-        {
-          "name": "length",
-          "default": "inf",
           "unexpanded": false
         }
       ]
@@ -3158,6 +3033,11 @@
       },
       "parameters": [
         {
+          "name": "length",
+          "default": "inf",
+          "unexpanded": false
+        },
+        {
           "name": "minimum",
           "default": 0.0,
           "unexpanded": false
@@ -3165,11 +3045,6 @@
         {
           "name": "maximum",
           "default": 1.0,
-          "unexpanded": false
-        },
-        {
-          "name": "length",
-          "default": "inf",
           "unexpanded": false
         }
       ]
@@ -3455,39 +3330,6 @@
       ]
     },
     {
-      "name": "Dunique",
-      "rates": [
-        "dr"
-      ],
-      "outputs": {
-        "kind": "fixed",
-        "count": 1
-      },
-      "flags": {
-        "pure": false,
-        "output": false,
-        "width_first": false,
-        "has_done_flag": false
-      },
-      "parameters": [
-        {
-          "name": "source",
-          "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "max_buffer_size",
-          "default": 1024.0,
-          "unexpanded": false
-        },
-        {
-          "name": "protected",
-          "default": 1.0,
-          "unexpanded": false
-        }
-      ]
-    },
-    {
       "name": "Dust",
       "rates": [
         "ar",
@@ -3563,13 +3405,13 @@
           "unexpanded": false
         },
         {
-          "name": "level",
-          "default": 1.0,
+          "name": "done_action",
+          "default": 0.0,
           "unexpanded": false
         },
         {
-          "name": "done_action",
-          "default": 0.0,
+          "name": "level",
+          "default": 1.0,
           "unexpanded": false
         }
       ]
@@ -3591,6 +3433,11 @@
       },
       "parameters": [
         {
+          "name": "length",
+          "default": "inf",
+          "unexpanded": false
+        },
+        {
           "name": "minimum",
           "default": 0.0,
           "unexpanded": false
@@ -3598,11 +3445,6 @@
         {
           "name": "maximum",
           "default": 1.0,
-          "unexpanded": false
-        },
-        {
-          "name": "length",
-          "default": "inf",
           "unexpanded": false
         }
       ]
@@ -3737,7 +3579,7 @@
       "parameters": [
         {
           "name": "minimum",
-          "default": 0.0,
+          "default": 0.01,
           "unexpanded": false
         },
         {
@@ -4375,12 +4217,12 @@
         },
         {
           "name": "min_frequency",
-          "default": 440.0,
+          "default": "computed",
           "unexpanded": false
         },
         {
           "name": "max_frequency",
-          "default": 660.0,
+          "default": "computed",
           "unexpanded": false
         },
         {
@@ -4444,12 +4286,12 @@
         },
         {
           "name": "min_frequency",
-          "default": 440.0,
+          "default": "computed",
           "unexpanded": false
         },
         {
           "name": "max_frequency",
-          "default": 660.0,
+          "default": "computed",
           "unexpanded": false
         },
         {
@@ -4931,34 +4773,6 @@
       ]
     },
     {
-      "name": "HilbertFIR",
-      "rates": [
-        "ar"
-      ],
-      "outputs": {
-        "kind": "fixed",
-        "count": 1
-      },
-      "flags": {
-        "pure": false,
-        "output": false,
-        "width_first": false,
-        "has_done_flag": false
-      },
-      "parameters": [
-        {
-          "name": "source",
-          "default": "required",
-          "unexpanded": false
-        },
-        {
-          "name": "buffer_id",
-          "default": "required",
-          "unexpanded": false
-        }
-      ]
-    },
-    {
       "name": "IFFT",
       "rates": [
         "ar",
@@ -5076,8 +4890,7 @@
     {
       "name": "InFeedback",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "variable",
@@ -6191,7 +6004,7 @@
         },
         {
           "name": "coefficient",
-          "default": 0.995,
+          "default": "computed",
           "unexpanded": false
         }
       ]
@@ -7131,7 +6944,7 @@
         },
         {
           "name": "n",
-          "default": 1.0,
+          "default": 0.0,
           "unexpanded": false
         }
       ]
@@ -7292,8 +7105,7 @@
     {
       "name": "OffsetOut",
       "rates": [
-        "ar",
-        "kr"
+        "ar"
       ],
       "outputs": {
         "kind": "fixed",
@@ -7887,6 +7699,7 @@
     {
       "name": "PV_HainsworthFoote",
       "rates": [
+        "ar",
         "kr"
       ],
       "outputs": {
@@ -7930,6 +7743,7 @@
     {
       "name": "PV_JensenAndersen",
       "rates": [
+        "ar",
         "kr"
       ],
       "outputs": {
@@ -9219,12 +9033,12 @@
       "parameters": [
         {
           "name": "trigger",
-          "default": null,
+          "default": "required",
           "unexpanded": false
         },
         {
           "name": "source",
-          "default": null,
+          "default": "required",
           "unexpanded": false
         },
         {
@@ -9558,7 +9372,7 @@
       "parameters": [
         {
           "name": "rand_id",
-          "default": 1.0,
+          "default": 0.0,
           "unexpanded": false
         }
       ]
@@ -9981,7 +9795,8 @@
       "name": "Schmidt",
       "rates": [
         "ar",
-        "kr"
+        "kr",
+        "ir"
       ],
       "outputs": {
         "kind": "fixed",
@@ -10214,7 +10029,7 @@
       ],
       "outputs": {
         "kind": "fixed",
-        "count": 1
+        "count": 0
       },
       "flags": {
         "pure": false,

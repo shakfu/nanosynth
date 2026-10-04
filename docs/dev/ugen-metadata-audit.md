@@ -1,6 +1,6 @@
 # UGen metadata audit
 
-Status: step 1 done, steps 2-4 proposed, 2026-10-04. Tracked in `TODO.md` (High, "UGen metadata has no independent reference").
+Status: steps 1-3 done 2026-10-05; step 4 open. Tracked in `TODO.md` (High, "UGen metadata has no independent reference").
 
 ## Problem
 
@@ -48,31 +48,54 @@ Checked against the class library at tag `Version-3.14.1`, matching `thirdparty/
 
 The step 2 scan must skip comments; three of the four false positives came from commented code.
 
-### 2. Static plugin scan as a test
+### 2. Static plugin scan as a test (done 2026-10-05)
 
-Turn the scan into `tests/test_ugen_plugin_scan.py`:
+`tests/test_ugen_plugin_scan.py` fails when a `<UGen>_next*`/`_Ctor` function writes `OUT(n)` or reads `IN(n)` beyond the counts in `spec/nanosynth-ugens.json`. It strips comments first and skips functions that read `mNumInputs`/`mNumOutputs`.
 
-- Fail when C++ writes `OUT(n)` with `n >= declared outputs`, or reads `IN(n)` with `n >= declared inputs` without an `mNumInputs` guard.
-- Keep an allowlist, `tests/fixtures/ugen_scan_allowlist.json`, with a reason per entry for verified false positives.
+- The allowlist is a dict in the test: `NumRunningSynths_Ctor` only.
 
-It needs no SuperCollider install and runs in under a second. It catches the `DiskOut`/`PanB` class only, so it is a tripwire, not the oracle.
+- A coverage test pins the 6 UGens with no matching function (`DC`, `K2A`, `MulAdd`, `Sum3`, `Sum4` are C++ structs; `PV_ChainUGen` is abstract).
 
-### 3. sclang reference (the oracle)
+- A self-test reintroduces the `DiskOut`, `PanB` and `Vibrato` errors and checks the scan reports them.
 
-sclang defines the SynthDef wire contract: input order, defaults, output count, rate and special index. Use it as the reference.
+### 3. sclang reference (done 2026-10-05)
 
-- `scripts/sclang_reference.scd`: for every `UGen.allSubclasses` and each rate method, build a SynthDef calling the method with its `prototypeFrame` defaults. From the resulting graph, record per UGen:
-  - argument names and defaults;
-  - input count;
-  - output count and output rates;
-  - special index;
-  - supported rates.
+`scripts/sclang_reference.scd` calls every rate method of every `UGen` subclass with its defaults, and records the args, inputs, outputs, output rates and special index of the last instance in the graph. `make sclang-reference` (`scripts/sclang_reference.py`) runs it with default class-library paths excluded, checks the version against `SCVersion.txt`, and writes `spec/sclang-reference.json`.
 
-  Write the results to `spec/sclang-reference.json`.
-- Run it with sclang at the vendored version, as a manual `workflow_dispatch` job. Regenerate only when `SCVersion.txt` changes, and commit the JSON.
-- `tests/test_ugen_reference.py` compares each nanosynth UGen's structural tuple against the reference. Deviations go in an allowlist with reasons: Python renames, nanosynth-only pseudo-UGens, UGens whose defaults sclang cannot instantiate.
+- Run it with the official 3.14.1 release, e.g. sclang from `SuperCollider-3.14.1-macOS-universal.dmg`. sclang 3.13 cannot parse the 3.14 library.
 
-The comparison is per UGen, not byte-for-byte on compiled SCgf. sclang and nanosynth optimize graphs differently (`MulAdd`, `Sum3`/`Sum4`, constant folding), so byte equality would fail on correct graphs.
+- Arguments with no default get `DC` at the method's rate. Seven named arguments get structured values (`envelope`, `numChannels`, Klank specs).
+
+- sclang 3.14 stores non-literal defaults (`root = 60.midicps`, `x1 = (in)`) as nil in `prototypeFrame`, and evaluates them when the argument is nil. The script reads the argument list from the method source, passes nil for those arguments, and records the expression text.
+
+- The probe reads the graph before `finishBuild`. sclang 3.14 drops unused pure UGens there.
+
+- If the class is missing from the graph, the probe retries with a UGen as the first argument (`Lag.ar(0)` returns 0).
+
+`tests/test_ugen_reference.py` probes each nanosynth UGen the same way and compares rates, output count, special index, input count and each constant input. A slot where either side has a UGen is skipped: that is a required argument on one side, not an order error. Deviations live in `tests/fixtures/ugen_reference_allowlist.json` with reasons; a stale entry fails.
+
+The first run found errors in 34 UGens. `tests/test_ugen_sclang_parity.py` renders the `Duty`/`Dwhite` and `BufDelayN` fixes.
+
+| Class | UGens | Action |
+|-|-|-|
+| `length` sent last; plugin reads `IN(0)` | `Dwhite`, `Dbrown`, `Diwhite`, `Dibrown`, `Dgeom` | Reordered |
+| `level`/`done_action` swapped | `Duty` | Reordered |
+| Extra `maximum_delay_time` read as the delay time | `BufDelay{N,L,C}`, `BufComb{N,L,C}`, `BufAllpass{N,L,C}` | Removed |
+| No plugin | `BHiCut`, `BLowCut` | Removed |
+| No plugin; sclang pseudo-UGen | `HilbertFIR`, `Dunique` | Pseudo-UGen, as sclang. `Dunique`'s graph matches sclang's UGen for UGen |
+| `kr` with no control-rate calc function | `InFeedback`, `OffsetOut`, `BufComb*`, `BufAllpass*` | `kr` removed |
+| Rate missing | `PV_HainsworthFoote`, `PV_JensenAndersen` (`ar`), `Convolution3` (`kr`), `Schmidt` (`ir`) | Added |
+| Output never written | `SendTrig` | 0 outputs |
+| Required inputs silently dropped | `Poll` | `source` required, `trigger` defaults to 10 |
+| Default differs | `AmpComp`, `ExpRand`, `NRand`, `RandID`, `LeakDC.kr`, `Gendy1.kr`, `Gendy2.kr` | sclang's default |
+
+Implementing `Dunique` found two more errors the comparison could not see:
+
+- `BinaryOperator` was 2 high from `MINIMUM` on. The probe compares UGen classes only, not operator indices. `test_ugen_plugin_scan.py` now checks both operator enums against the plugin enums.
+
+- `Dbufwr` sent its value first. sclang's defaults are 0, 0, 0, 1 and so are nanosynth's, so the swapped slots compared equal. Any UGen whose swapped inputs share a default passes the same way. Probing each argument with a distinct value would close this; see `TODO.md`.
+
+Kept against sclang (allowlisted): `Dibrown` defaults, because sclang's `step = 0.01` truncates to 0 in `Dibrown_next`; `kr` on the two PV detectors, because their plugin fills any block size.
 
 ### 4. Optional: dynamic sweep under AddressSanitizer
 

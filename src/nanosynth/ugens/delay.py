@@ -41,56 +41,50 @@ class AllpassN(UGen):
     decay_time = param(1.0)
 
 
-@ugen(ar=True, kr=True, is_pure=True)
+@ugen(ar=True, is_pure=True)
 class BufAllpassC(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
     decay_time = param(1.0)
 
 
-@ugen(ar=True, kr=True, is_pure=True)
+@ugen(ar=True, is_pure=True)
 class BufAllpassL(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
     decay_time = param(1.0)
 
 
-@ugen(ar=True, kr=True, is_pure=True)
+@ugen(ar=True, is_pure=True)
 class BufAllpassN(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
     decay_time = param(1.0)
 
 
-@ugen(ar=True, kr=True, is_pure=True)
+@ugen(ar=True, is_pure=True)
 class BufCombC(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
     decay_time = param(1.0)
 
 
-@ugen(ar=True, kr=True, is_pure=True)
+@ugen(ar=True, is_pure=True)
 class BufCombL(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
     decay_time = param(1.0)
 
 
-@ugen(ar=True, kr=True, is_pure=True)
+@ugen(ar=True, is_pure=True)
 class BufCombN(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
     decay_time = param(1.0)
 
@@ -99,7 +93,6 @@ class BufCombN(UGen):
 class BufDelayC(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
 
 
@@ -107,7 +100,6 @@ class BufDelayC(UGen):
 class BufDelayL(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
 
 
@@ -115,7 +107,6 @@ class BufDelayL(UGen):
 class BufDelayN(UGen):
     buffer_id = param()
     source = param()
-    maximum_delay_time = param(0.2)
     delay_time = param(0.2)
 
 

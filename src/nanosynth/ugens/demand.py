@@ -9,17 +9,20 @@ from ..synthdef import (
     UGenOperable,
     UGenRecursiveInput,
     UGenScalarInput,
+    UGenSerializable,
+    UGenVector,
     param,
     ugen,
 )
+from .bufio import ClearBuf, LocalBuf
 
 
 @ugen(dr=True)
 class Dbrown(UGen):
+    length = param(float("inf"))
     minimum = param(0.0)
     maximum = param(1.0)
     step = param(0.01)
-    length = param(float("inf"))
 
 
 @ugen(dr=True)
@@ -31,9 +34,9 @@ class Dbufrd(UGen):
 
 @ugen(dr=True)
 class Dbufwr(UGen):
-    source = param(0.0)
     buffer_id = param(0.0)
     phase = param(0.0)
+    source = param(0.0)
     loop = param(1.0)
 
 
@@ -72,24 +75,24 @@ class DemandEnvGen(UGen):
 
 @ugen(dr=True)
 class Dgeom(UGen):
+    length = param(float("inf"))
     start = param(1)
     grow = param(2)
-    length = param(float("inf"))
 
 
 @ugen(dr=True)
 class Dibrown(UGen):
+    length = param(float("inf"))
     minimum = param(0)
     maximum = param(12)
     step = param(1)
-    length = param(float("inf"))
 
 
 @ugen(dr=True)
 class Diwhite(UGen):
+    length = param(float("inf"))
     minimum = param(0)
     maximum = param(1)
-    length = param(float("inf"))
 
 
 @ugen(dr=True)
@@ -147,26 +150,88 @@ class Dswitch1(UGen):
     sequence = param(unexpanded=True)
 
 
-@ugen(dr=True)
-class Dunique(UGen):
-    source = param()
-    max_buffer_size = param(1024)
-    protected = param(True)
+class Dunique(UGenSerializable):
+    """Share one demand stream among several readers, as sclang's ``Dunique``.
+
+    Each use as a UGen input creates a reader. Every reader returns the values
+    ``source`` produces, in order, each once. With ``protected``, a reader that
+    falls ``max_buffer_size`` values behind ends instead of reading overwritten
+    values.
+    """
+
+    __slots__ = ("_buffer", "_frames", "_protected", "_write_index", "_writer")
+
+    def __init__(
+        self,
+        *,
+        source: UGenRecursiveInput,
+        max_buffer_size: int = 1024,
+        protected: bool = True,
+    ) -> None:
+        self._frames = max_buffer_size
+        self._protected = protected
+        self._buffer = _cleared_buffer(max_buffer_size)
+        self._write_index: UGenOperable | None = None
+        if protected:
+            self._write_index = _cleared_buffer(1)
+            # 2 ** 24: the largest integer a float32 phase can address exactly.
+            phase: UGenRecursiveInput = Dbufwr.dr(  # type: ignore[attr-defined]
+                source=Dseries.dr(start=0, step=1, length=2**24),  # type: ignore[attr-defined]
+                buffer_id=self._write_index,
+            )
+        else:
+            phase = Dseq.dr(  # type: ignore[attr-defined]
+                repeats=float("inf"),
+                sequence=[Dseries.dr(start=0, step=1, length=max_buffer_size)],  # type: ignore[attr-defined]
+            )
+        self._writer = Dbufwr.dr(  # type: ignore[attr-defined]
+            source=source, buffer_id=self._buffer, phase=phase, loop=int(protected)
+        )
+
+    def serialize(self) -> UGenVector:
+        """Create a reader. Each read pulls the writer first (``first_arg``)."""
+        buffer = self._buffer.first_arg(self._writer)
+        if self._write_index is not None:
+            read_index = _cleared_buffer(1)
+            index = Dbufwr.dr(  # type: ignore[attr-defined]
+                source=Dseries.dr(start=0, step=1, length=float("inf")),  # type: ignore[attr-defined]
+                buffer_id=read_index,
+            )
+            written = Dbufrd.dr(buffer_id=self._write_index)  # type: ignore[attr-defined]
+            read = Dbufrd.dr(buffer_id=read_index)  # type: ignore[attr-defined]
+            overrun = (written - read) > self._frames
+            # On overrun, switch to an empty series, which ends the stream.
+            buffer = Dswitch1.dr(  # type: ignore[attr-defined]
+                index_=overrun,
+                sequence=[buffer, Dseries.dr(length=0)],  # type: ignore[attr-defined]
+            )
+        else:
+            index = Dseq.dr(  # type: ignore[attr-defined]
+                repeats=float("inf"),
+                sequence=[Dseries.dr(start=0, step=1, length=self._frames)],  # type: ignore[attr-defined]
+            )
+        return UGenVector(Dbufrd.dr(buffer_id=buffer, phase=index, loop=1))  # type: ignore[attr-defined]
+
+
+def _cleared_buffer(frames: int) -> UGenOperable:
+    buffer: UGenOperable = LocalBuf.ir(frame_count=frames)  # type: ignore[attr-defined]
+    ClearBuf.ir(buffer_id=buffer)  # type: ignore[attr-defined]
+    return buffer
 
 
 @ugen(ar=True, kr=True)
 class Duty(UGen):
     duration = param(1.0)
     reset = param(0.0)
-    level = param(1.0)
     done_action = param(0.0)
+    level = param(1.0)
 
 
 @ugen(dr=True)
 class Dwhite(UGen):
+    length = param(float("inf"))
     minimum = param(0.0)
     maximum = param(1.0)
-    length = param(float("inf"))
 
 
 @ugen(dr=True)

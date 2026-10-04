@@ -1,0 +1,60 @@
+{
+  "Delay1": {
+    "reason": "Probe artifact. x1 defaults to the input at control rate; the probe gives nanosynth's required source a UGen, while sclang's in defaults to 0.",
+    "problems": ["kr: input 1 (x1) ours=ugen:DC sclang=0"]
+  },
+  "Delay2": {
+    "reason": "Probe artifact, as Delay1.",
+    "problems": [
+      "kr: input 1 (x1) ours=ugen:DC sclang=0",
+      "kr: input 2 (x2) ours=ugen:DC sclang=0"
+    ]
+  },
+  "Dibrown": {
+    "reason": "sclang's Dibrown inherits Dbrown's float defaults (hi 1, step 0.01); Dibrown_next truncates step to an integer, so sclang's default never moves. nanosynth keeps 12 and 1.",
+    "problems": [
+      "dr: input 2 (maximum) ours=12.0 sclang=1",
+      "dr: input 3 (step) ours=1.0 sclang=0.01"
+    ]
+  },
+  "Dstutter": {
+    "reason": "sclang 3.14 redirects Dstutter to Ddup; the Dstutter plugin is still registered (DemandUGens.cpp).",
+    "problems": ["pseudo-UGen in sclang, emits ['Ddup']"]
+  },
+  "Dwrand": {
+    "reason": "Probe artifact: sclang's probe passes a UGen as list, so its size is 0. The layout [repeats, size, weights..., list...] matches sclang.",
+    "problems": ["dr: inputs ours=[1.0, 1.0, 0.5, 0.5] sclang=[1, 0, 0.5]"]
+  },
+  "FFT": {
+    "reason": "nanosynth defaults buffer_id to a LocalBuf; sclang requires a buffer.",
+    "problems": ["kr: input 0 (buffer_id) ours=ugen:LocalBuf sclang=0.5"]
+  },
+  "LocalBuf": {
+    "reason": "nanosynth adds the MaxLocalBufs input at build time; the probe reads the graph before build.",
+    "problems": ["ir: inputs ours=[1.0, 1.0] sclang=[1, 1, 'ugen:MaxLocalBufs']"]
+  },
+  "MulAdd": {
+    "reason": "Optimizer UGen; sclang folds the constant probe away.",
+    "problems": ["pseudo-UGen in sclang, emits []"]
+  },
+  "PV_ChainUGen": {
+    "reason": "Abstract base class of the PV UGens.",
+    "problems": ["absent from sclang"]
+  },
+  "PV_HainsworthFoote": {
+    "reason": "sclang has ar only; the plugin fills any block size, so kr also works.",
+    "problems": ["rates ours=['ar', 'kr'] sclang=['ar']"]
+  },
+  "PV_JensenAndersen": {
+    "reason": "As PV_HainsworthFoote.",
+    "problems": ["rates ours=['ar', 'kr'] sclang=['ar']"]
+  },
+  "Sum3": {
+    "reason": "Optimizer UGen with no rate constructors; the graph optimizer creates it.",
+    "problems": ["rates ours=[] sclang=['ir']"]
+  },
+  "Sum4": {
+    "reason": "As Sum3.",
+    "problems": ["rates ours=[] sclang=['ir']"]
+  }
+}

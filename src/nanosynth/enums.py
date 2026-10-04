@@ -109,7 +109,7 @@ class BinaryOperator(enum.IntEnum):
     """SuperCollider binary operator special indices.
 
     Each member maps to a BinaryOpUGen ``special_index`` value that selects
-    the operation performed on two input signals. The 43 operators cover
+    the operation performed on two input signals. The 44 operators cover
     arithmetic, comparison, bitwise, power, trigonometric, ring modulation,
     and clipping operations.
     """
@@ -126,38 +126,39 @@ class BinaryOperator(enum.IntEnum):
     GREATER_THAN = 9
     LESS_THAN_OR_EQUAL = 10
     GREATER_THAN_OR_EQUAL = 11
-    MINIMUM = 14
-    MAXIMUM = 15
-    BITWISE_AND = 16
-    BITWISE_OR = 17
-    BITWISE_XOR = 18
-    LCM = 19
-    GCD = 20
-    ROUND = 21
-    ROUND_UP = 22
-    TRUNCATION = 23
-    ATAN2 = 24
-    HYPOT = 25
-    HYPOTX = 26
-    POWER = 27
-    SHIFT_LEFT = 28
-    SHIFT_RIGHT = 29
-    RING1 = 32
-    RING2 = 33
-    RING3 = 34
-    RING4 = 35
-    DIFFERENCE_OF_SQUARES = 36
-    SUM_OF_SQUARES = 37
-    SQUARE_OF_SUM = 38
-    SQUARE_OF_DIFFERENCE = 39
-    ABSOLUTE_DIFFERENCE = 40
-    THRESHOLD = 41
-    AMPLITUDE_CLIPPING = 42
-    SCALE_NEGATIVE = 43
-    CLIP2 = 44
-    EXCESS = 45
-    FOLD2 = 46
-    WRAP2 = 47
+    MINIMUM = 12
+    MAXIMUM = 13
+    BITWISE_AND = 14
+    BITWISE_OR = 15
+    BITWISE_XOR = 16
+    LCM = 17
+    GCD = 18
+    ROUND = 19
+    ROUND_UP = 20
+    TRUNCATION = 21
+    ATAN2 = 22
+    HYPOT = 23
+    HYPOTX = 24
+    POWER = 25
+    SHIFT_LEFT = 26
+    SHIFT_RIGHT = 27
+    RING1 = 30
+    RING2 = 31
+    RING3 = 32
+    RING4 = 33
+    DIFFERENCE_OF_SQUARES = 34
+    SUM_OF_SQUARES = 35
+    SQUARE_OF_SUM = 36
+    SQUARE_OF_DIFFERENCE = 37
+    ABSOLUTE_DIFFERENCE = 38
+    THRESHOLD = 39
+    AMPLITUDE_CLIPPING = 40
+    SCALE_NEGATIVE = 41
+    CLIP2 = 42
+    EXCESS = 43
+    FOLD2 = 44
+    WRAP2 = 45
+    FIRST_ARG = 46
 
     @classmethod
     def from_expr(cls, expr: object) -> "BinaryOperator":

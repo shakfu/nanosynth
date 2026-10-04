@@ -1,5 +1,5 @@
 .PHONY: all dev sync remake build sdist check clean demos demos-supernova help \
-		lint format typecheck qa test publish publish-test reset \
+		lint format typecheck qa test publish publish-test reset sclang-reference \
 		docs docs-serve docs-deploy bench bench-check bench-baseline
 # .DEFAULT_GOAL := help
 
@@ -31,6 +31,9 @@ sdist: ## Build source distribution
 
 test: ## Run tests via uv
 	@uv run pytest tests/  --cov=nanosynth --cov-report term-missing:skip-covered
+
+sclang-reference: ## Regenerate spec/sclang-reference.json (needs sclang 3.14.1; SCLANG=/path/to/sclang)
+	@uv run python scripts/sclang_reference.py
 
 lint:
 	@uv run ruff check --fix src/ tests/ demos/ benchmarks/

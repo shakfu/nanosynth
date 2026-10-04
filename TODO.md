@@ -2,8 +2,6 @@
 
 Remaining improvement tasks, grouped by category and ordered by priority within each section.
 
-The sections from **Correctness & API Gaps** onward were migrated here from `REVIEW.md` (a full architecture/code review of 0.1.6) when that file was retired; everything it recorded as done or resolved was dropped, and only open items were carried over. `REVIEW.md` was gitignored and untracked, so the only copy in history is the pre-`13525fb` one, which predates the fixes tracked against it -- treat this file as the sole live record of that review's open items.
-
 ---
 
 ## Critical
@@ -12,15 +10,11 @@ The sections from **Correctness & API Gaps** onward were migrated here from `REV
 
 ### Correctness & API Gaps
 
-- [ ] **UGen metadata has no independent reference.** `DiskOut` was declared with 0 outputs while `DiskOut_next` writes `OUT(0)`, so every `Server.record()` segfaulted the engine (fixed 2026-10-04). Nothing caught it: `spec/nanosynth-ugens.json` is generated from the Python classes and the SCgf golden fixtures are nanosynth's own output, so both agree with any metadata error. A static scan of the plugin sources then found `PanB` (3 outputs declared, 4 written) and 4 UGens missing inputs (`Delay1`, `Delay2`, `Vibrato`, `SpecPcile`); all fixed 2026-10-04 (step 1). Steps 2-4 remain. Audit output counts, rates, input order and defaults for all 341 UGens against sclang and the plugin sources; see `docs/dev/ugen-metadata-audit.md`. Priority: **high**, effort: **medium**.
-
-- [x] **`Score.to_binary()` emits an unguarded score.** The `/g_freeAll` + `/c_set` safety bundle that `render()` documents as necessary to avoid engine crashes is appended inside `render()` (`score.py:126-127`), not in the public `to_binary()`. Anyone writing a score file themselves gets the unguarded version. Fold the guard into `to_binary()` and have `render()` call it. Priority: **high**, effort: **low**.
+- [x] **UGen metadata has no independent reference.** Steps 1-3 of `docs/dev/ugen-metadata-audit.md` done 2026-10-05: `tests/test_ugen_plugin_scan.py` and `tests/test_ugen_reference.py` check all UGens against the plugin C++ and sclang 3.14.1. They found errors in 34 more UGens, all fixed in 0.4.0 (see CHANGELOG). Step 4 is tracked under Medium. Priority: **high**, effort: **medium**.
 
 ### Packaging / CI
 
 - [ ] **Tests are biased toward mocks; realtime coverage is opt-in.** Three crash or data-loss bugs (`DiskOut` outputs, recording silence and finalization, `MidiIn.close()` deadlock) passed ~1200 tests, because recording and MIDI teardown were only exercised against mocks. `tests/test_realtime_smoke.py` runs only with `NANOSYNTH_TEST_REALTIME` set, and CI runs it for scsynth on Linux alone. Every engine-touching feature should have at least one test against a live engine or an NRT render, and the realtime job should run on every push. Priority: **high**, effort: **medium**.
-
-- [x] **Version is hard-coded in two places.** `pyproject.toml:3` and `src/nanosynth/__init__.py:3` both carry the version with nothing asserting they match, so they will drift. Single-source it via scikit-build-core metadata and add a drift test. Priority: **high**, effort: **low**.
 
 ## Medium
 
@@ -28,39 +22,21 @@ The sections from **Correctness & API Gaps** onward were migrated here from `REV
 
 - [ ] **Supernova reboot/teardown crash; print redirection is a no-op.** Booting supernova a second time in one process segfaults in `_run_loop` (`test_reboot_in_same_process[supernova]`), so the realtime file must run one test per process for that engine and CI does not run supernova realtime at all (see `build.yml`). Separately, `_supernova.cpp` defines a `SetPrintFunc` shim that stores the function in a static nothing reads, so `set_print_func` has no effect on supernova output. Priority: **medium**, effort: **medium**.
 
-- [x] **Terminal `/g_freeAll` truncates the final event.** It is appended at exactly `end_time` (`score.py:126`), so the last event can be cut off. Use `end_time + epsilon`. Priority: **medium**, effort: **low**.
+- [ ] **UGen overruns with computed indices are unchecked.** The plugin scan sees only literal `IN(n)`/`OUT(n)`; sclang checks only the wire contract. Step 4 of `docs/dev/ugen-metadata-audit.md`: build the plugins with AddressSanitizer and NRT-render every UGen with default inputs. Priority: **medium**, effort: **medium**.
 
-- [x] **`Score.add_synth` ergonomics.** Takes raw ints -- no node-id allocation, no `AddAction` -- unlike `Server.synth`. Also `preferred_hardware_buffer_size=8192` is hard-coded at `score.py:167`, ignoring the passed `options`. Priority: **medium**, effort: **low**.
+- [ ] **The sclang comparison cannot see swapped inputs with equal defaults.** `Dbufwr` sent `[value, buffer, phase, loop]` against the plugin's `[buffer, phase, value, loop]` and passed, because the first three defaults are all 0. Perturb one argument at a time in `scripts/sclang_reference.scd`, record which input slot changes, and compare the slot-to-argument map per UGen. Needs an sclang-to-nanosynth argument name table. Priority: **medium**, effort: **medium**.
 
-- [x] **MIDI handler lists are mutated without a lock.** `midi.py:203-241` appends to and removes from the handler lists from the user thread while the RtMidi thread iterates them. (Distinct from the GIL/mutex ordering bug fixed in `_midi.cpp` -- this is the Python side.) Priority: **medium**, effort: **low**. Resolved: handler lists are now copy-on-write under a lock; dispatch reads a list reference without locking.
-
-- [x] **MIDI C++ handler exceptions vanish.** `_midi.cpp:69` swallows them with `catch (...)`, so a broken handler fails invisibly during live performance. Route to `PyErr_WriteUnraisable`. Priority: **medium**, effort: **low**. Already resolved before this pass: `_midi.cpp` routes both `python_error` and unknown exceptions to `PyErr_WriteUnraisable`.
+- [ ] **`Dwrand` rejects UGens in `sequence` and `weights`.** `Dwrand.dr` calls `float()` on every element, so `Dwrand.dr(sequence=[Dseq.dr(...), 1])` raises. sclang accepts any input there. Priority: **medium**, effort: **low**.
 
 ### Packaging / CI
 
 - [ ] **macOS and Windows are tested only inside wheel builds.** `qa`, `test-source` and `test-realtime` run on Linux only; macOS/Windows run the suite once per wheel under cibuildwheel, with no realtime engine boot and no MIDI ports. Timing-sensitive code (`MidiClockOut` tick jitter under Windows' ~15.6 ms wait granularity, `Clock` scheduling) is unmeasured there. Add a non-wheel test job per OS, including a realtime boot where a virtual audio device is available. Overlaps the mock-bias item under High. Priority: **medium**, effort: **medium**.
 
-- [x] **No `concurrency: cancel-in-progress` in `build.yml`.** Rapid pushes queue redundant, expensive wheel builds. Priority: **medium**, effort: **low**. Already resolved before this pass: `build.yml` sets `concurrency` with `cancel-in-progress: true`.
-
 ### Feature Gaps (engine & composition)
-
-- [x] **MIDI output and clock.** `MidiOut`, plus MIDI clock/transport send and receive (slaving a `Clock` to incoming clock). Also missing: Program Change and Aftertouch message types. Priority: **medium**, effort: **medium**.
-
-- [x] **CLI beyond `info` and `compile`.** `nanosynth render score.py -o out.wav`, `nanosynth midi-ports`, a boot self-test, and a top-level `--version`. Priority: **medium**, effort: **low**.
-
-- [x] **Buffer introspection and generators.** `/b_query`, and `/b_gen` wavetable helpers (`sine1`/`sine2`/`sine3`, `cheby`). The direct numpy buffer path already covers bulk data exchange; these cover the rest. Also missing: control-bus `get()`. Priority: **medium**, effort: **low**.
-
-- [x] **Pattern gaps.** `Pbindef` (per-key updates to a running `Pbind`), `PmonoArtic`, array-valued event keys for chords (one event expanding to several synths), and `Score.from_pattern(pattern, duration)` -- the realtime pattern engine and NRT scoring currently share no code path. These are the deliberate exclusions listed under "Not yet implemented" in `docs/patterns.md`. Priority: **medium**, effort: **medium**.
 
 ## Low
 
 ### Correctness & API Gaps
-
-- [x] **`record()` has no `is_running` guard** and remains single-stream (one recording at a time). The sleep-based sequencing it used to rely on is already replaced by `sync()`. Priority: **low**, effort: **low**. Resolved, along with three real recording bugs found while testing against a live engine; see CHANGELOG. Still single-stream.
-
-- [x] **`Options.maximum_logins` default disagrees with the engine.** Python defaults to 1 (`scsynth.py:60`), the C++ default is 64. Harmless but confusing; align them. Priority: **low**, effort: **low**. Resolved: default is now 64.
-
-- [x] **`set_print_func(None)` installs a no-op rather than restoring the default.** Output is silently dropped instead of reverting to scsynth's own printer. Priority: **low**, effort: **low**. Resolved for scsynth. Supernova's `SetPrintFunc` shim stores the function but nothing reads it, so print redirection there is a no-op either way.
 
 - [ ] **Single-World constraint is implicit.** A process-global live World is enforced via a class-level `_active_world` flag plus process-global print/reply callbacks in `_scsynth.cpp`. It leaks into behaviour: quitting one server clears the print callback process-wide, and TCP transport and `maximum_logins > 1` are wired in C++ but unreachable from Python. Document the singleton constraint explicitly; longer term, key the callbacks by World handle. Note (2026-10-04): the constraint is still absent from the `Server` and `Options` docstrings and from `docs/`, and `set_print_func`/`set_reply_func` remain process-global. Priority: **low**, effort: **medium**.
 

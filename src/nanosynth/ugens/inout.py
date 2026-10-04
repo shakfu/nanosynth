@@ -13,7 +13,7 @@ class In(UGen):
     bus = param(0.0)
 
 
-@ugen(ar=True, kr=True, is_multichannel=True)
+@ugen(ar=True, is_multichannel=True)
 class InFeedback(UGen):
     bus = param(0.0)
 
@@ -48,7 +48,7 @@ class LocalOut(UGen):
     source = param(unexpanded=True)
 
 
-@ugen(ar=True, kr=True, is_output=True, channel_count=0, fixed_channel_count=True)
+@ugen(ar=True, is_output=True, channel_count=0, fixed_channel_count=True)
 class OffsetOut(UGen):
     bus = param(0)
     source = param(unexpanded=True)

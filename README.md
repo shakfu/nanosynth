@@ -12,7 +12,7 @@ nanosynth is a Python package that embeds SuperCollider's [libscsynth](https://g
 
 - **340+ UGens** -- oscillators, filters, delays, noise, chaos, granular, demand, dynamics, panning, physical modeling, reverb, phase vocoder, machine listening, stochastic synthesis, and more
 
-- **Rich operator algebra** -- 43 binary and 34 unary operators on all UGen signals, including arithmetic, comparison, bitwise, power, trig, pitch conversion (`midicps`/`cpsmidi`), clipping (`clip2`/`fold2`/`wrap2`), and more. Compile-time constant folding and algebraic optimizations
+- **Rich operator algebra** -- 44 binary and 34 unary operators on all UGen signals, including arithmetic, comparison, bitwise, power, trig, pitch conversion (`midicps`/`cpsmidi`), clipping (`clip2`/`fold2`/`wrap2`), and more. Compile-time constant folding and algebraic optimizations
 
 - **Non-real-time (NRT) rendering** -- `Score` class for offline audio rendering to WAV/AIFF files without audio hardware. Timestamped OSC commands are serialized and rendered by the embedded engine
 
@@ -832,7 +832,7 @@ Organized by category:
 |---|---|
 | **Oscillators** | `SinOsc`, `Saw`, `Pulse`, `Blip`, `Klank`, `LFSaw`, `LFPulse`, `LFTri`, `LFCub`, `LFPar`, `VarSaw`, `SyncSaw`, `Impulse`, `FSinOsc`, `LFGauss`, `Vibrato`, `Osc`, `OscN`, `COsc`, `VOsc`, `VOsc3` |
 | **Filters** | `LPF`, `HPF`, `BPF`, `BRF`, `RLPF`, `RHPF`, `MoogFF`, `Lag`, `Lag2`, `Lag3`, `LagUD`, `Lag2UD`, `Lag3UD`, `Ramp`, `Decay`, `Decay2`, `Ringz`, `Formlet`, `Median`, `LeakDC`, `OnePole`, `OneZero`, `TwoPole`, `TwoZero`, `APF`, `FOS`, `SOS`, `MidEQ`, `Slew`, `Slope`, `Integrator`, `DetectSilence`, `Changed` |
-| **BEQ Filters** | `BLowPass`, `BHiPass`, `BBandPass`, `BBandStop`, `BAllPass`, `BLowShelf`, `BHiShelf`, `BPeakEQ`, `BLowCut`, `BHiCut` |
+| **BEQ Filters** | `BLowPass`, `BHiPass`, `BBandPass`, `BBandStop`, `BAllPass`, `BLowShelf`, `BHiShelf`, `BPeakEQ` |
 | **Noise** | `WhiteNoise`, `PinkNoise`, `BrownNoise`, `GrayNoise`, `ClipNoise`, `Dust`, `Dust2`, `Crackle`, `LFNoise0`, `LFNoise1`, `LFNoise2`, `LFDNoise0`, `LFDNoise1`, `LFDNoise3`, `LFClipNoise`, `LFDClipNoise`, `Logistic` |
 | **Stochastic** | `Gendy1`, `Gendy2`, `Gendy3` |
 | **Delays** | `DelayN`, `DelayL`, `DelayC`, `Delay1`, `Delay2`, `CombN`, `CombL`, `CombC`, `AllpassN`, `AllpassL`, `AllpassC`, `BufDelayN`, `BufDelayL`, `BufDelayC`, `BufCombN`, `BufCombL`, `BufCombC`, `BufAllpassN`, `BufAllpassL`, `BufAllpassC`, `DelTapRd`, `DelTapWr` |

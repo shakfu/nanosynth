@@ -966,6 +966,14 @@ class UGenOperable:
             special_index=BinaryOperator.WRAP2,
         )
 
+    def first_arg(self, expr: UGenRecursiveInput) -> "UGenOperable":
+        """Return self, evaluating expr first (sclang ``<!``); orders side effects."""
+        return _compute_binary_op(
+            left=self,
+            right=expr,
+            special_index=BinaryOperator.FIRST_ARG,
+        )
+
     # -- Named unary methods ---------------------------------------------------
 
     def ceil_(self) -> "UGenOperable":
@@ -1368,8 +1376,13 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
                     raise ValueError(
                         f"Sequence input for '{key}' requires unexpanded=True in param()"
                     )
+                flat = [
+                    y
+                    for x in value
+                    for y in (x.serialize() if isinstance(x, UGenSerializable) else [x])
+                ]
                 iterator: Iterable[tuple[int | None, Any]] = (
-                    (i, v) for i, v in enumerate(value)
+                    (i, v) for i, v in enumerate(flat)
                 )
             else:
                 iterator = ((None, v) for v in [value])

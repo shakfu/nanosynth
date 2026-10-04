@@ -36,7 +36,7 @@ class Dust2(UGen):
 
 @ugen(ir=True)
 class ExpRand(UGen):
-    minimum = param(0.0)
+    minimum = param(0.01)
     maximum = param(1.0)
 
 
@@ -120,7 +120,7 @@ class MantissaMask(UGen):
 class NRand(UGen):
     minimum = param(0.0)
     maximum = param(1.0)
-    n = param(1)
+    n = param(0)
 
 
 @ugen(ar=True, kr=True)
@@ -136,7 +136,7 @@ class Rand(UGen):
 
 @ugen(kr=True, ir=True, is_width_first=True)
 class RandID(UGen):
-    rand_id = param(1)
+    rand_id = param(0)
 
 
 @ugen(ar=True, kr=True, ir=True, is_width_first=True)

@@ -24,6 +24,20 @@ from ..synthdef import (
 )
 
 
+def _frequency_range(
+    calculation_rate: CalculationRate, kwargs: dict[str, Any]
+) -> dict[str, Any]:
+    """Resolve Default() min/max frequency like sclang: 440/660 at audio rate, else 20/1000."""
+    audio = calculation_rate == CalculationRate.AUDIO
+    for name, ar, kr in (
+        ("min_frequency", 440.0, 20.0),
+        ("max_frequency", 660.0, 1000.0),
+    ):
+        if isinstance(kwargs.get(name), Default):
+            kwargs[name] = ar if audio else kr
+    return kwargs
+
+
 @ugen(ar=True, kr=True)
 class Gendy1(UGen):
     """Gendy1 -- ZIN0 order: whichamp(0), whichdur(1), adparam(2),
@@ -34,8 +48,8 @@ class Gendy1(UGen):
     duration_distribution = param(1)
     amplitude_parameter = param(1.0)
     duration_parameter = param(1.0)
-    min_frequency = param(440.0)
-    max_frequency = param(660.0)
+    min_frequency = param(Default())
+    max_frequency = param(Default())
     amplitude_scale = param(0.5)
     duration_scale = param(0.5)
     init_cps = param(12)
@@ -49,7 +63,7 @@ class Gendy1(UGen):
     ) -> tuple[CalculationRate, dict[str, Any]]:
         if isinstance(kwargs.get("knum"), Default):
             kwargs["knum"] = kwargs.get("init_cps")
-        return calculation_rate, kwargs
+        return calculation_rate, _frequency_range(calculation_rate, kwargs)
 
 
 @ugen(ar=True, kr=True)
@@ -62,8 +76,8 @@ class Gendy2(UGen):
     duration_distribution = param(1)
     amplitude_parameter = param(1.0)
     duration_parameter = param(1.0)
-    min_frequency = param(440.0)
-    max_frequency = param(660.0)
+    min_frequency = param(Default())
+    max_frequency = param(Default())
     amplitude_scale = param(0.5)
     duration_scale = param(0.5)
     init_cps = param(12)
@@ -79,7 +93,7 @@ class Gendy2(UGen):
     ) -> tuple[CalculationRate, dict[str, Any]]:
         if isinstance(kwargs.get("knum"), Default):
             kwargs["knum"] = kwargs.get("init_cps")
-        return calculation_rate, kwargs
+        return calculation_rate, _frequency_range(calculation_rate, kwargs)
 
 
 @ugen(ar=True, kr=True)

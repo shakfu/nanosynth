@@ -25,14 +25,6 @@ class BBandStop(UGen):
 
 
 @ugen(ar=True, is_pure=True)
-class BHiCut(UGen):
-    source = param()
-    frequency = param(1200.0)
-    order = param(2.0)
-    max_order = param(5.0)
-
-
-@ugen(ar=True, is_pure=True)
 class BHiPass(UGen):
     source = param()
     frequency = param(1200.0)
@@ -45,14 +37,6 @@ class BHiShelf(UGen):
     frequency = param(1200.0)
     reciprocal_of_s = param(1.0)
     gain = param(0.0)
-
-
-@ugen(ar=True, is_pure=True)
-class BLowCut(UGen):
-    source = param()
-    frequency = param(1200.0)
-    order = param(2.0)
-    max_order = param(5.0)
 
 
 @ugen(ar=True, is_pure=True)

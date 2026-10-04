@@ -135,7 +135,7 @@ class PV_Div(PV_ChainUGen):
     pv_chain_b = param()
 
 
-@ugen(kr=True, is_width_first=True)
+@ugen(ar=True, kr=True, is_width_first=True)
 class PV_HainsworthFoote(PV_ChainUGen):
     pv_chain = param()
     proph = param(0)
@@ -144,7 +144,7 @@ class PV_HainsworthFoote(PV_ChainUGen):
     waittime = param(0.04)
 
 
-@ugen(kr=True, is_width_first=True)
+@ugen(ar=True, kr=True, is_width_first=True)
 class PV_JensenAndersen(PV_ChainUGen):
     pv_chain = param()
     propsc = param(0.25)

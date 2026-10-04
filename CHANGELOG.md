@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0]
+
+An audit of UGen metadata against sclang 3.14.1 and the plugin sources found wrong operators, input orders, rates and defaults. The fixes change the compiled SynthDef for affected code, and some break the API.
+
+### Upgrading
+
+- **Recompile SynthDefs** saved by 0.3.x that use any operator from `min_` to `wrap2`, or any UGen under Fixed. Their bytes encode the wrong operation or input order
+
+- **`BufDelay*`, `BufComb*`, `BufAllpass*`:** drop `maximum_delay_time=`. The buffer size bounds the delay
+
+- **`.kr` removed** from `BufComb*`, `BufAllpass*`, `InFeedback` and `OffsetOut`. Use `.ar`
+
+- **`BHiCut`, `BLowCut` removed.** Cascade `BHiPass` or `BLowPass` instead
+
+- **`Poll` needs `source=`**
+
+- **`BinaryOperator` values from `MINIMUM` on are 2 lower.** Code that stores or compares the integers must use the new values
+
+- **Changed defaults** (under Changed) alter the sound of code that relied on them. Pass the old value to keep it, e.g. `LeakDC.kr(coefficient=0.995)`
+
+- **`SendTrig` has no output.** Code that used its return value as a signal must drop it
+
+### Added
+
+- **UGen metadata checked against sclang** (`tests/test_ugen_reference.py`, `tests/test_ugen_plugin_scan.py`): `spec/sclang-reference.json` records the inputs, outputs, rates and defaults that sclang 3.14.1 emits for every UGen. Each nanosynth UGen must match it or carry an allowlist entry with a reason. A static scan fails when plugin C++ reads or writes past the declared counts. Regenerate the reference with `make sclang-reference`. See `docs/dev/ugen-metadata-audit.md`
+
+- **`UGenOperable.first_arg(expr)`** (sclang `<!`): returns self and evaluates `expr` first. `Dunique` uses it to run its writer before each read
+
+### Changed
+
+- **Removed `BHiCut` and `BLowCut`** (`ugens/beq.py`): neither has a plugin or an sclang class, so any SynthDef using one failed to load
+
+- **`Dunique` is a pseudo-UGen** (`ugens/demand.py`): it had no plugin, so any SynthDef using it failed to load. It now builds sclang's graph: one buffered writer, and a reader for each use as an input, so several readers share one stream. `protected=True` ends a reader that falls `max_buffer_size` values behind
+
+- **`HilbertFIR` is a pseudo-UGen** (`ugens/hilbert.py`): it had no plugin. It now builds sclang's graph (`FFT`, `PV_PhaseShift90`, `IFFT`) and returns `[source delayed, source shifted 90 degrees]`
+
+- **Rates follow the plugins and sclang**: `BufComb*`, `BufAllpass*`, `InFeedback` and `OffsetOut` are audio rate only; their plugins have no control-rate calc function. `PV_HainsworthFoote` and `PV_JensenAndersen` gain `ar`, `Convolution3` gains `kr`, `Schmidt` gains `ir`
+
+- **`Poll` requires `source`** (`ugens/triggers.py`): an omitted `source` or `trigger` dropped its input, so the plugin read every later input from the wrong slot. `trigger` defaults to 10; a number becomes an `Impulse` at that rate, as in sclang
+
+- **Defaults match sclang**: `AmpComp` `frequency` and `root` are 261.63 Hz (`60.midicps`; `root=0` made the output 0). `ExpRand` `minimum` is 0.01. `NRand` `n` and `RandID` `rand_id` are 0. At control rate, `LeakDC` `coefficient` is 0.9 and the `Gendy1`/`Gendy2` frequency range is 20-1000 Hz
+
+### Fixed
+
+- **Binary operators from `min` on computed the wrong operation** (`enums.py`): `BinaryOperator` numbered them 2 higher than the plugin's enum, which comments out `opIdentical` and `opNotIdentical`. `min_` ran as bitwise AND, `**` as a right shift and `fold2` as firstArg. Affected: every operator from `MINIMUM` (now 12) to `WRAP2` (now 45). Arithmetic and comparison operators were correct. A test now checks both operator enums against the plugin sources
+
+- **`Dbufwr` sent its value first** (`ugens/demand.py`): the plugin reads the buffer from `IN(0)`, the phase from `IN(1)` and the value from `IN(2)`. Every write went to the wrong buffer and index
+
+- **`Dwhite`, `Dbrown`, `Diwhite`, `Dibrown` and `Dgeom` sent `length` last** (`ugens/demand.py`): their plugins read it from `IN(0)`. `Dwhite()` therefore ran with length 0 and ended at once
+
+- **`Duty` swapped `level` and `done_action`** (`ugens/demand.py`): the plugin reads the done action from `IN(2)`, so `level` was taken as a done action and the output was 0
+
+- **`BufDelay*`, `BufComb*` and `BufAllpass*` ignored `delay_time`** (`ugens/delay.py`): they sent an extra `maximum_delay_time`, which the plugin read as the delay time. The parameter is removed; the buffer size bounds the delay
+
+- **`SendTrig` declared an output** (`ugens/triggers.py`): the plugin never writes one, so reading it gave a stale wire buffer
+
 ## [0.3.2]
 
 ### Added
