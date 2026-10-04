@@ -2728,6 +2728,11 @@
           "name": "source",
           "default": "required",
           "unexpanded": false
+        },
+        {
+          "name": "x1",
+          "default": "computed",
+          "unexpanded": false
         }
       ]
     },
@@ -2751,6 +2756,16 @@
         {
           "name": "source",
           "default": "required",
+          "unexpanded": false
+        },
+        {
+          "name": "x1",
+          "default": "computed",
+          "unexpanded": false
+        },
+        {
+          "name": "x2",
+          "default": "computed",
           "unexpanded": false
         }
       ]
@@ -8713,7 +8728,7 @@
       ],
       "outputs": {
         "kind": "fixed",
-        "count": 3
+        "count": 4
       },
       "flags": {
         "pure": false,
@@ -10388,6 +10403,11 @@
           "name": "interpolate",
           "default": 0.0,
           "unexpanded": false
+        },
+        {
+          "name": "bin_out",
+          "default": 0.0,
+          "unexpanded": false
         }
       ]
     },
@@ -11196,6 +11216,11 @@
         },
         {
           "name": "initial_phase",
+          "default": 0.0,
+          "unexpanded": false
+        },
+        {
+          "name": "trigger",
           "default": 0.0,
           "unexpanded": false
         }

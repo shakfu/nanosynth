@@ -12,15 +12,21 @@ The sections from **Correctness & API Gaps** onward were migrated here from `REV
 
 ### Correctness & API Gaps
 
+- [ ] **UGen metadata has no independent reference.** `DiskOut` was declared with 0 outputs while `DiskOut_next` writes `OUT(0)`, so every `Server.record()` segfaulted the engine (fixed 2026-10-04). Nothing caught it: `spec/nanosynth-ugens.json` is generated from the Python classes and the SCgf golden fixtures are nanosynth's own output, so both agree with any metadata error. A static scan of the plugin sources then found `PanB` (3 outputs declared, 4 written) and 4 UGens missing inputs (`Delay1`, `Delay2`, `Vibrato`, `SpecPcile`); all fixed 2026-10-04 (step 1). Steps 2-4 remain. Audit output counts, rates, input order and defaults for all 341 UGens against sclang and the plugin sources; see `docs/dev/ugen-metadata-audit.md`. Priority: **high**, effort: **medium**.
+
 - [x] **`Score.to_binary()` emits an unguarded score.** The `/g_freeAll` + `/c_set` safety bundle that `render()` documents as necessary to avoid engine crashes is appended inside `render()` (`score.py:126-127`), not in the public `to_binary()`. Anyone writing a score file themselves gets the unguarded version. Fold the guard into `to_binary()` and have `render()` call it. Priority: **high**, effort: **low**.
 
 ### Packaging / CI
+
+- [ ] **Tests are biased toward mocks; realtime coverage is opt-in.** Three crash or data-loss bugs (`DiskOut` outputs, recording silence and finalization, `MidiIn.close()` deadlock) passed ~1200 tests, because recording and MIDI teardown were only exercised against mocks. `tests/test_realtime_smoke.py` runs only with `NANOSYNTH_TEST_REALTIME` set, and CI runs it for scsynth on Linux alone. Every engine-touching feature should have at least one test against a live engine or an NRT render, and the realtime job should run on every push. Priority: **high**, effort: **medium**.
 
 - [x] **Version is hard-coded in two places.** `pyproject.toml:3` and `src/nanosynth/__init__.py:3` both carry the version with nothing asserting they match, so they will drift. Single-source it via scikit-build-core metadata and add a drift test. Priority: **high**, effort: **low**.
 
 ## Medium
 
 ### Correctness & API Gaps
+
+- [ ] **Supernova reboot/teardown crash; print redirection is a no-op.** Booting supernova a second time in one process segfaults in `_run_loop` (`test_reboot_in_same_process[supernova]`), so the realtime file must run one test per process for that engine and CI does not run supernova realtime at all (see `build.yml`). Separately, `_supernova.cpp` defines a `SetPrintFunc` shim that stores the function in a static nothing reads, so `set_print_func` has no effect on supernova output. Priority: **medium**, effort: **medium**.
 
 - [x] **Terminal `/g_freeAll` truncates the final event.** It is appended at exactly `end_time` (`score.py:126`), so the last event can be cut off. Use `end_time + epsilon`. Priority: **medium**, effort: **low**.
 
@@ -31,6 +37,8 @@ The sections from **Correctness & API Gaps** onward were migrated here from `REV
 - [x] **MIDI C++ handler exceptions vanish.** `_midi.cpp:69` swallows them with `catch (...)`, so a broken handler fails invisibly during live performance. Route to `PyErr_WriteUnraisable`. Priority: **medium**, effort: **low**. Already resolved before this pass: `_midi.cpp` routes both `python_error` and unknown exceptions to `PyErr_WriteUnraisable`.
 
 ### Packaging / CI
+
+- [ ] **macOS and Windows are tested only inside wheel builds.** `qa`, `test-source` and `test-realtime` run on Linux only; macOS/Windows run the suite once per wheel under cibuildwheel, with no realtime engine boot and no MIDI ports. Timing-sensitive code (`MidiClockOut` tick jitter under Windows' ~15.6 ms wait granularity, `Clock` scheduling) is unmeasured there. Add a non-wheel test job per OS, including a realtime boot where a virtual audio device is available. Overlaps the mock-bias item under High. Priority: **medium**, effort: **medium**.
 
 - [x] **No `concurrency: cancel-in-progress` in `build.yml`.** Rapid pushes queue redundant, expensive wheel builds. Priority: **medium**, effort: **low**. Already resolved before this pass: `build.yml` sets `concurrency` with `cancel-in-progress: true`.
 
@@ -54,7 +62,7 @@ The sections from **Correctness & API Gaps** onward were migrated here from `REV
 
 - [x] **`set_print_func(None)` installs a no-op rather than restoring the default.** Output is silently dropped instead of reverting to scsynth's own printer. Priority: **low**, effort: **low**. Resolved for scsynth. Supernova's `SetPrintFunc` shim stores the function but nothing reads it, so print redirection there is a no-op either way.
 
-- [ ] **Single-World constraint is implicit.** A process-global live World is enforced via a class-level `_active_world` flag plus process-global print/reply callbacks in `_scsynth.cpp`. It leaks into behaviour: quitting one server clears the print callback process-wide, and TCP transport and `maximum_logins > 1` are wired in C++ but unreachable from Python. Document the singleton constraint explicitly; longer term, key the callbacks by World handle. Priority: **low**, effort: **medium**.
+- [ ] **Single-World constraint is implicit.** A process-global live World is enforced via a class-level `_active_world` flag plus process-global print/reply callbacks in `_scsynth.cpp`. It leaks into behaviour: quitting one server clears the print callback process-wide, and TCP transport and `maximum_logins > 1` are wired in C++ but unreachable from Python. Document the singleton constraint explicitly; longer term, key the callbacks by World handle. Note (2026-10-04): the constraint is still absent from the `Server` and `Options` docstrings and from `docs/`, and `set_print_func`/`set_reply_func` remain process-global. Priority: **low**, effort: **medium**.
 
 ### Packaging / CI
 

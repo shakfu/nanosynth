@@ -133,6 +133,7 @@ class Vibrato(UGen):
     rate_variation = param(0.04)
     depth_variation = param(0.1)
     initial_phase = param(0)
+    trigger = param(0)
 
 
 @ugen(ar=True, kr=True, is_pure=True)

@@ -1,6 +1,20 @@
 """Delay line UGens."""
 
-from ..synthdef import UGen, param, ugen
+from typing import Any
+
+from ..enums import CalculationRate
+from ..synthdef import Default, UGen, UGenRecursiveInput, param, ugen
+
+
+def _initial_state(
+    calculation_rate: CalculationRate, kwargs: dict[str, Any], *names: str
+) -> dict[str, Any]:
+    """Resolve Default() delay state like sclang: 0 at audio rate, else the input."""
+    for name in names:
+        if isinstance(kwargs.get(name), Default):
+            audio = calculation_rate == CalculationRate.AUDIO
+            kwargs[name] = 0.0 if audio else kwargs.get("source")
+    return kwargs
 
 
 @ugen(ar=True, kr=True, is_pure=True)
@@ -166,9 +180,32 @@ class DelayN(UGen):
 
 @ugen(ar=True, kr=True, is_pure=True)
 class Delay1(UGen):
+    """One-sample delay. ``x1`` is the initial previous sample."""
+
     source = param()
+    x1 = param(Default())
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, Any]]:
+        return calculation_rate, _initial_state(calculation_rate, kwargs, "x1")
 
 
 @ugen(ar=True, kr=True, is_pure=True)
 class Delay2(UGen):
+    """Two-sample delay. ``x1``/``x2`` are the initial previous samples."""
+
     source = param()
+    x1 = param(Default())
+    x2 = param(Default())
+
+    def _postprocess_kwargs(
+        self,
+        *,
+        calculation_rate: CalculationRate,
+        **kwargs: UGenRecursiveInput | None,
+    ) -> tuple[CalculationRate, dict[str, Any]]:
+        return calculation_rate, _initial_state(calculation_rate, kwargs, "x1", "x2")

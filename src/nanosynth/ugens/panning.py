@@ -64,8 +64,15 @@ class PanAz(UGen):
     orientation = param(0.5)
 
 
-@ugen(ar=True, kr=True, channel_count=3, fixed_channel_count=True)
+# Four outputs (W, X, Y, Z: first-order 3D B-format), as PanB_next writes.
+@ugen(ar=True, kr=True, channel_count=4, fixed_channel_count=True)
 class PanB(UGen):
+    """First-order 3D B-format panner. Outputs W, X, Y, Z.
+
+    ``azimuth`` is in units of pi (-1 to 1) and ``elevation`` in units of
+    pi/2 (-1 to 1), as ``PanB_next`` scales them; neither is in radians.
+    """
+
     source = param()
     azimuth = param(0)
     elevation = param(0)

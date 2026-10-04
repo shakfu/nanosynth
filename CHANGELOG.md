@@ -43,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`MidiIn.close()` could deadlock** (`_midi.cpp`): on ALSA, RtMidi's `closePort()` joins the input thread. It was called with the GIL held, while that thread could be blocked in the callback waiting for the GIL. Busy ports (e.g. 24 clock ticks per beat) hung reliably. The GIL is now released around `closePort()` and around the `RtMidiIn` delete in the handle destructor
 
+- **`PanB` crashed the engine** (`ugens/panning.py`): it was declared with 3 outputs, but `PanB_next` writes 4 (W, X, Y, Z), so the Z channel was written into unallocated memory. Rendering any `PanB` segfaulted. Found by a static scan of the plugin sources (`docs/dev/ugen-metadata-audit.md`)
+
+- **`Delay1`, `Delay2`, `Vibrato` and `SpecPcile` were missing inputs** (`ugens/delay.py`, `ugens/osc.py`, `ugens/ml.py`): their plugins read inputs nanosynth did not send, so they read past the input array. Added from the sclang 3.14.1 class library: `Delay1.x1`, `Delay2.x1`/`x2` (initial state; 0 at audio rate, the input at control rate, as in sclang), `Vibrato.trigger`, `SpecPcile.bin_out`
+
 - **`set_print_func(None)` dropped engine output** (`_scsynth.cpp`): it installed a no-op callback. It now restores scsynth's default printer (stdout)
 
 ## [0.3.1]

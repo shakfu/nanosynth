@@ -94,3 +94,4 @@ class SpecPcile(UGen):
     pv_chain = param()
     fraction = param(0.5)
     interpolate = param(0)
+    bin_out = param(0)
