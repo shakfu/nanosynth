@@ -24,7 +24,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "APF": {
    "methods": {
@@ -105,7 +111,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "TwoPole"
+   "superclass": "TwoPole",
+   "superclasses": [
+    "TwoPole",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AllpassC": {
    "methods": {
@@ -198,7 +212,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "CombN"
+   "superclass": "CombN",
+   "superclasses": [
+    "CombN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AllpassL": {
    "methods": {
@@ -291,7 +312,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "CombN"
+   "superclass": "CombN",
+   "superclasses": [
+    "CombN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AllpassN": {
    "methods": {
@@ -384,7 +412,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "CombN"
+   "superclass": "CombN",
+   "superclasses": [
+    "CombN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AmpComp": {
    "methods": {
@@ -480,7 +515,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AmpCompA": {
    "methods": {
@@ -590,7 +631,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AmpComp"
+   "superclass": "AmpComp",
+   "superclasses": [
+    "AmpComp",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Amplitude": {
    "methods": {
@@ -671,7 +719,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AnalogIn": {
    "methods": {
@@ -732,7 +785,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AnalogOut": {
    "methods": {
@@ -799,7 +857,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "AudioControl": {
    "methods": {
@@ -823,7 +886,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BAllPass": {
    "methods": {
@@ -867,7 +936,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BBandPass": {
    "methods": {
@@ -911,7 +988,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BBandStop": {
    "methods": {
@@ -955,7 +1040,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BHiPass": {
    "methods": {
@@ -999,7 +1092,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BHiShelf": {
    "methods": {
@@ -1048,7 +1149,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BLowPass": {
    "methods": {
@@ -1092,7 +1201,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BLowShelf": {
    "methods": {
@@ -1141,7 +1258,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BPF": {
    "methods": {
@@ -1222,7 +1347,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BPZ2": {
    "methods": {
@@ -1283,7 +1415,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LPZ2"
+   "superclass": "LPZ2",
+   "superclasses": [
+    "LPZ2",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BPeakEQ": {
    "methods": {
@@ -1332,7 +1472,15 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BEQSuite"
+   "superclass": "BEQSuite",
+   "superclasses": [
+    "BEQSuite",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BRF": {
    "methods": {
@@ -1413,7 +1561,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BPF"
+   "superclass": "BPF",
+   "superclasses": [
+    "BPF",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BRZ2": {
    "methods": {
@@ -1474,7 +1630,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LPZ2"
+   "superclass": "LPZ2",
+   "superclasses": [
+    "LPZ2",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Balance2": {
    "methods": {
@@ -1551,7 +1715,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Ball": {
    "methods": {
@@ -1626,7 +1796,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BeatTrack": {
    "methods": {
@@ -1665,7 +1840,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BeatTrack2": {
    "methods": {
@@ -1719,7 +1900,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BelaScopeOut": {
    "methods": {
@@ -1748,7 +1935,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "AbstractOut"
+   "superclass": "AbstractOut",
+   "superclasses": [
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BiPanB2": {
    "methods": {
@@ -1825,7 +2018,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BinaryOpUGen": {
    "methods": {
@@ -1858,7 +2057,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BasicOpUGen"
+   "superclass": "BasicOpUGen",
+   "superclasses": [
+    "BasicOpUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Blip": {
    "methods": {
@@ -1929,7 +2134,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BlockSize": {
    "methods": {
@@ -1947,7 +2157,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BrownNoise": {
    "methods": {
@@ -1996,7 +2212,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "WhiteNoise"
+   "superclass": "WhiteNoise",
+   "superclasses": [
+    "WhiteNoise",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufAllpassC": {
    "methods": {
@@ -2046,7 +2268,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BufCombN"
+   "superclass": "BufCombN",
+   "superclasses": [
+    "BufCombN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufAllpassL": {
    "methods": {
@@ -2096,7 +2324,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BufCombN"
+   "superclass": "BufCombN",
+   "superclasses": [
+    "BufCombN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufAllpassN": {
    "methods": {
@@ -2146,7 +2380,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BufCombN"
+   "superclass": "BufCombN",
+   "superclasses": [
+    "BufCombN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufChannels": {
    "methods": {
@@ -2191,7 +2431,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufInfoUGenBase"
+   "superclass": "BufInfoUGenBase",
+   "superclasses": [
+    "BufInfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufCombC": {
    "methods": {
@@ -2241,7 +2487,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BufCombN"
+   "superclass": "BufCombN",
+   "superclasses": [
+    "BufCombN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufCombL": {
    "methods": {
@@ -2291,7 +2543,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BufCombN"
+   "superclass": "BufCombN",
+   "superclasses": [
+    "BufCombN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufCombN": {
    "methods": {
@@ -2341,7 +2599,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufDelayC": {
    "methods": {
@@ -2424,7 +2687,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufDelayN"
+   "superclass": "BufDelayN",
+   "superclasses": [
+    "BufDelayN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufDelayL": {
    "methods": {
@@ -2507,7 +2776,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufDelayN"
+   "superclass": "BufDelayN",
+   "superclasses": [
+    "BufDelayN",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufDelayN": {
    "methods": {
@@ -2590,7 +2865,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufDur": {
    "methods": {
@@ -2635,7 +2915,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufInfoUGenBase"
+   "superclass": "BufInfoUGenBase",
+   "superclasses": [
+    "BufInfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufFrames": {
    "methods": {
@@ -2680,7 +2966,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufInfoUGenBase"
+   "superclass": "BufInfoUGenBase",
+   "superclasses": [
+    "BufInfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufInfoUGenBase": {
    "methods": {
@@ -2725,7 +3017,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufRateScale": {
    "methods": {
@@ -2770,7 +3067,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufInfoUGenBase"
+   "superclass": "BufInfoUGenBase",
+   "superclasses": [
+    "BufInfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufRd": {
    "methods": {
@@ -2851,7 +3154,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufSampleRate": {
    "methods": {
@@ -2896,7 +3205,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufInfoUGenBase"
+   "superclass": "BufInfoUGenBase",
+   "superclasses": [
+    "BufInfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufSamples": {
    "methods": {
@@ -2941,7 +3256,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "BufInfoUGenBase"
+   "superclass": "BufInfoUGenBase",
+   "superclasses": [
+    "BufInfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "BufWr": {
    "methods": {
@@ -3018,7 +3339,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "COsc": {
    "methods": {
@@ -3101,7 +3427,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Changed": {
    "methods": {
@@ -3144,7 +3476,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CheckBadValues": {
    "methods": {
@@ -3209,7 +3548,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ClearBuf": {
    "methods": {
@@ -3233,7 +3577,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "WidthFirstUGen"
+   "superclass": "WidthFirstUGen",
+   "superclasses": [
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Clip": {
    "methods": {
@@ -3329,7 +3679,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "InRange"
+   "superclass": "InRange",
+   "superclasses": [
+    "InRange",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ClipNoise": {
    "methods": {
@@ -3378,7 +3734,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "WhiteNoise"
+   "superclass": "WhiteNoise",
+   "superclasses": [
+    "WhiteNoise",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CoinGate": {
    "methods": {
@@ -3433,7 +3795,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CombC": {
    "methods": {
@@ -3526,7 +3893,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "CombN"
+   "superclass": "CombN",
+   "superclasses": [
+    "CombN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CombL": {
    "methods": {
@@ -3619,7 +3993,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "CombN"
+   "superclass": "CombN",
+   "superclasses": [
+    "CombN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CombN": {
    "methods": {
@@ -3712,7 +4093,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Compander": {
    "methods": {
@@ -3775,7 +4162,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CompanderD": {
    "methods": {
@@ -3823,7 +4215,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Control": {
    "methods": {
@@ -3864,7 +4261,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ControlDur": {
    "methods": {
@@ -3882,7 +4285,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ControlRate": {
    "methods": {
@@ -3900,7 +4309,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Convolution": {
    "methods": {
@@ -3943,7 +4358,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Convolution2": {
    "methods": {
@@ -3991,7 +4411,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Convolution2L": {
    "methods": {
@@ -4044,7 +4469,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Convolution3": {
    "methods": {
@@ -4135,7 +4565,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Crackle": {
    "methods": {
@@ -4196,7 +4631,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CuspL": {
    "methods": {
@@ -4244,7 +4684,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "CuspN"
+   "superclass": "CuspN",
+   "superclasses": [
+    "CuspN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "CuspN": {
    "methods": {
@@ -4292,7 +4739,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DC": {
    "methods": {
@@ -4337,7 +4790,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureMultiOutUGen"
+   "superclass": "PureMultiOutUGen",
+   "superclasses": [
+    "PureMultiOutUGen",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dbrown": {
    "methods": {
@@ -4377,7 +4837,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dbufrd": {
    "methods": {
@@ -4412,7 +4878,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dbufwr": {
    "methods": {
@@ -4452,7 +4924,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dconst": {
    "methods": {
@@ -4485,7 +4963,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Ddup": {
    "methods": {
@@ -4513,7 +4997,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Decay": {
    "methods": {
@@ -4584,7 +5074,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Decay2": {
    "methods": {
@@ -4665,7 +5162,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DecodeB2": {
    "methods": {
@@ -4746,7 +5250,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DegreeToKey": {
    "methods": {
@@ -4829,7 +5339,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DelTapRd": {
    "methods": {
@@ -4918,7 +5434,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DelTapWr": {
    "methods": {
@@ -4973,7 +5494,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Delay1": {
    "methods": {
@@ -5044,7 +5570,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Delay2": {
    "methods": {
@@ -5125,7 +5658,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DelayC": {
    "methods": {
@@ -5208,7 +5748,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "DelayN"
+   "superclass": "DelayN",
+   "superclasses": [
+    "DelayN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DelayL": {
    "methods": {
@@ -5291,7 +5838,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "DelayN"
+   "superclass": "DelayN",
+   "superclasses": [
+    "DelayN",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DelayN": {
    "methods": {
@@ -5374,7 +5928,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Demand": {
    "methods": {
@@ -5437,7 +5997,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DemandEnvGen": {
    "methods": {
@@ -5572,7 +6138,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DetectIndex": {
    "methods": {
@@ -5645,7 +6216,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Index"
+   "superclass": "Index",
+   "superclasses": [
+    "Index",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DetectSilence": {
    "methods": {
@@ -5720,7 +6298,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dgeom": {
    "methods": {
@@ -5755,7 +6340,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dibrown": {
    "methods": {
@@ -5795,7 +6386,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "Dbrown"
+   "superclass": "Dbrown",
+   "superclasses": [
+    "Dbrown",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DigitalIO": {
    "methods": {
@@ -5876,7 +6474,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DigitalIn": {
    "methods": {
@@ -5937,7 +6540,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DigitalOut": {
    "methods": {
@@ -6004,7 +6612,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DiskIn": {
    "methods": {
@@ -6038,7 +6651,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DiskOut": {
    "methods": {
@@ -6068,7 +6687,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Diwhite": {
    "methods": {
@@ -6103,7 +6727,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "Dwhite"
+   "superclass": "Dwhite",
+   "superclasses": [
+    "Dwhite",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Done": {
    "methods": {
@@ -6129,7 +6760,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dpoll": {
    "methods": {
@@ -6168,7 +6804,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Drand": {
    "methods": {
@@ -6197,7 +6839,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "ListDUGen"
+   "superclass": "ListDUGen",
+   "superclasses": [
+    "ListDUGen",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dreset": {
    "methods": {
@@ -6226,7 +6875,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dseq": {
    "methods": {
@@ -6255,7 +6910,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "ListDUGen"
+   "superclass": "ListDUGen",
+   "superclasses": [
+    "ListDUGen",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dser": {
    "methods": {
@@ -6284,7 +6946,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "ListDUGen"
+   "superclass": "ListDUGen",
+   "superclasses": [
+    "ListDUGen",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dseries": {
    "methods": {
@@ -6319,7 +6988,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dshuf": {
    "methods": {
@@ -6348,7 +7023,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "ListDUGen"
+   "superclass": "ListDUGen",
+   "superclasses": [
+    "ListDUGen",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dstutter": {
    "methods": {
@@ -6368,7 +7050,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dswitch": {
    "methods": {
@@ -6396,7 +7084,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "Dswitch1"
+   "superclass": "Dswitch1",
+   "superclasses": [
+    "Dswitch1",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dswitch1": {
    "methods": {
@@ -6424,7 +7119,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dunique": {
    "methods": {
@@ -6453,7 +7154,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dust": {
    "methods": {
@@ -6514,7 +7220,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dust2": {
    "methods": {
@@ -6575,7 +7286,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Duty": {
    "methods": {
@@ -6650,7 +7366,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dwhite": {
    "methods": {
@@ -6685,7 +7406,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dwrand": {
    "methods": {
@@ -6718,7 +7445,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Dxrand": {
    "methods": {
@@ -6747,7 +7480,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "ListDUGen"
+   "superclass": "ListDUGen",
+   "superclasses": [
+    "ListDUGen",
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DynKlang": {
    "methods": {
@@ -6792,7 +7532,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "DynKlank": {
    "methods": {
@@ -6853,7 +7598,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "EnvGen": {
    "methods": {
@@ -6968,7 +7718,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ExpRand": {
    "methods": {
@@ -6998,7 +7753,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FBSineC": {
    "methods": {
@@ -7061,7 +7821,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "FBSineN"
+   "superclass": "FBSineN",
+   "superclasses": [
+    "FBSineN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FBSineL": {
    "methods": {
@@ -7124,7 +7891,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "FBSineN"
+   "superclass": "FBSineN",
+   "superclasses": [
+    "FBSineN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FBSineN": {
    "methods": {
@@ -7187,7 +7961,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FFT": {
    "methods": {
@@ -7236,7 +8016,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FFTTrigger": {
    "methods": {
@@ -7270,7 +8057,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FOS": {
    "methods": {
@@ -7361,7 +8155,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FSinOsc": {
    "methods": {
@@ -7432,7 +8233,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Fold": {
    "methods": {
@@ -7528,7 +8334,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "InRange"
+   "superclass": "InRange",
+   "superclasses": [
+    "InRange",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FoldIndex": {
    "methods": {
@@ -7601,7 +8413,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Index"
+   "superclass": "Index",
+   "superclasses": [
+    "Index",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Formant": {
    "methods": {
@@ -7644,7 +8463,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Formlet": {
    "methods": {
@@ -7735,7 +8560,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Free": {
    "methods": {
@@ -7765,7 +8597,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FreeSelf": {
    "methods": {
@@ -7791,7 +8628,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FreeSelfWhenDone": {
    "methods": {
@@ -7817,7 +8659,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FreeVerb": {
    "methods": {
@@ -7866,7 +8713,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FreeVerb2": {
    "methods": {
@@ -7920,7 +8774,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "FreqShift": {
    "methods": {
@@ -7964,7 +8824,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GVerb": {
    "methods": {
@@ -8044,7 +8909,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Gate": {
    "methods": {
@@ -8099,7 +8970,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Latch"
+   "superclass": "Latch",
+   "superclasses": [
+    "Latch",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GbmanL": {
    "methods": {
@@ -8142,7 +9019,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "GbmanN"
+   "superclass": "GbmanN",
+   "superclasses": [
+    "GbmanN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GbmanN": {
    "methods": {
@@ -8185,7 +9069,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Gendy1": {
    "methods": {
@@ -8338,7 +9228,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Gendy2": {
    "methods": {
@@ -8511,7 +9406,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Gendy3": {
    "methods": {
@@ -8654,7 +9554,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GrainBuf": {
    "methods": {
@@ -8732,7 +9637,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GrainFM": {
    "methods": {
@@ -8804,7 +9715,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GrainIn": {
    "methods": {
@@ -8867,7 +9784,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GrainSin": {
    "methods": {
@@ -8929,7 +9852,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "GrayNoise": {
    "methods": {
@@ -8978,7 +9907,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "WhiteNoise"
+   "superclass": "WhiteNoise",
+   "superclasses": [
+    "WhiteNoise",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HPF": {
    "methods": {
@@ -9049,7 +9984,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LPF"
+   "superclass": "LPF",
+   "superclasses": [
+    "LPF",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HPZ1": {
    "methods": {
@@ -9110,7 +10053,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LPZ1"
+   "superclass": "LPZ1",
+   "superclasses": [
+    "LPZ1",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HPZ2": {
    "methods": {
@@ -9171,7 +10122,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LPZ2"
+   "superclass": "LPZ2",
+   "superclasses": [
+    "LPZ2",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Hasher": {
    "methods": {
@@ -9232,7 +10191,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HenonC": {
    "methods": {
@@ -9285,7 +10249,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "HenonN"
+   "superclass": "HenonN",
+   "superclasses": [
+    "HenonN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HenonL": {
    "methods": {
@@ -9338,7 +10309,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "HenonN"
+   "superclass": "HenonN",
+   "superclasses": [
+    "HenonN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HenonN": {
    "methods": {
@@ -9391,7 +10369,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Hilbert": {
    "methods": {
@@ -9426,7 +10410,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "HilbertFIR": {
    "methods": {
@@ -9451,7 +10441,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "IEnvGen": {
    "methods": {
@@ -9544,7 +10539,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "IFFT": {
    "methods": {
@@ -9640,7 +10640,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "WidthFirstUGen"
+   "superclass": "WidthFirstUGen",
+   "superclasses": [
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "IRand": {
    "methods": {
@@ -9670,7 +10676,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Impulse": {
    "methods": {
@@ -9741,7 +10752,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "In": {
    "methods": {
@@ -9794,7 +10811,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractIn"
+   "superclass": "AbstractIn",
+   "superclasses": [
+    "AbstractIn",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "InBus": {
    "methods": {
@@ -9835,7 +10859,12 @@
      "error": "ERROR: Message 'asBus' not understood. Perhaps you misspelled 'abs', or meant to call 'asBus' on another receiver?"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "InFeedback": {
    "methods": {
@@ -9864,7 +10893,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "AbstractIn"
+   "superclass": "AbstractIn",
+   "superclasses": [
+    "AbstractIn",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "InRange": {
    "methods": {
@@ -9960,7 +10996,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "InRect": {
    "methods": {
@@ -10029,7 +11070,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "InTrig": {
    "methods": {
@@ -10058,7 +11104,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractIn"
+   "superclass": "AbstractIn",
+   "superclasses": [
+    "AbstractIn",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Index": {
    "methods": {
@@ -10131,7 +11184,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "IndexInBetween": {
    "methods": {
@@ -10204,7 +11263,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Index"
+   "superclass": "Index",
+   "superclasses": [
+    "Index",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "IndexL": {
    "methods": {
@@ -10277,7 +11343,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Index"
+   "superclass": "Index",
+   "superclasses": [
+    "Index",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "InfoUGenBase": {
    "methods": {
@@ -10295,7 +11368,12 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Integrator": {
    "methods": {
@@ -10366,7 +11444,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "K2A": {
    "methods": {
@@ -10391,7 +11476,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "KeyState": {
    "methods": {
@@ -10431,7 +11522,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "KeyTrack": {
    "methods": {
@@ -10467,7 +11563,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Klang": {
    "methods": {
@@ -10503,7 +11604,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Klank": {
    "methods": {
@@ -10550,7 +11656,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFClipNoise": {
    "methods": {
@@ -10611,7 +11722,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFCub": {
    "methods": {
@@ -10682,7 +11799,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFSaw"
+   "superclass": "LFSaw",
+   "superclasses": [
+    "LFSaw",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFDClipNoise": {
    "methods": {
@@ -10743,7 +11867,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFDNoise0": {
    "methods": {
@@ -10804,7 +11934,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFDNoise1": {
    "methods": {
@@ -10865,7 +12001,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFDNoise3": {
    "methods": {
@@ -10926,7 +12068,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFGauss": {
    "methods": {
@@ -11011,7 +12159,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFNoise0": {
    "methods": {
@@ -11072,7 +12225,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFNoise1": {
    "methods": {
@@ -11133,7 +12291,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFNoise2": {
    "methods": {
@@ -11194,7 +12358,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFNoise0"
+   "superclass": "LFNoise0",
+   "superclasses": [
+    "LFNoise0",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFPar": {
    "methods": {
@@ -11265,7 +12435,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFSaw"
+   "superclass": "LFSaw",
+   "superclasses": [
+    "LFSaw",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFPulse": {
    "methods": {
@@ -11346,7 +12523,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFSaw": {
    "methods": {
@@ -11417,7 +12600,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LFTri": {
    "methods": {
@@ -11488,7 +12677,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LFSaw"
+   "superclass": "LFSaw",
+   "superclasses": [
+    "LFSaw",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LPF": {
    "methods": {
@@ -11559,7 +12755,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LPZ1": {
    "methods": {
@@ -11620,7 +12823,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LPZ2": {
    "methods": {
@@ -11681,7 +12891,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Lag": {
    "methods": {
@@ -11756,7 +12973,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Lag2": {
    "methods": {
@@ -11831,7 +13055,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Lag"
+   "superclass": "Lag",
+   "superclasses": [
+    "Lag",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Lag2UD": {
    "methods": {
@@ -11916,7 +13148,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LagUD"
+   "superclass": "LagUD",
+   "superclasses": [
+    "LagUD",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Lag3": {
    "methods": {
@@ -11991,7 +13231,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Lag"
+   "superclass": "Lag",
+   "superclasses": [
+    "Lag",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Lag3UD": {
    "methods": {
@@ -12076,7 +13324,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "LagUD"
+   "superclass": "LagUD",
+   "superclasses": [
+    "LagUD",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LagControl": {
    "methods": {
@@ -12126,7 +13382,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Control"
+   "superclass": "Control",
+   "superclasses": [
+    "Control",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LagIn": {
    "methods": {
@@ -12160,7 +13423,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractIn"
+   "superclass": "AbstractIn",
+   "superclasses": [
+    "AbstractIn",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LagUD": {
    "methods": {
@@ -12245,7 +13515,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LastValue": {
    "methods": {
@@ -12300,7 +13577,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Latch": {
    "methods": {
@@ -12355,7 +13637,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LatoocarfianC": {
    "methods": {
@@ -12418,7 +13705,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "LatoocarfianN"
+   "superclass": "LatoocarfianN",
+   "superclasses": [
+    "LatoocarfianN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LatoocarfianL": {
    "methods": {
@@ -12481,7 +13775,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "LatoocarfianN"
+   "superclass": "LatoocarfianN",
+   "superclasses": [
+    "LatoocarfianN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LatoocarfianN": {
    "methods": {
@@ -12544,7 +13845,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LeakDC": {
    "methods": {
@@ -12615,7 +13922,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LeastChange": {
    "methods": {
@@ -12670,7 +13984,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MostChange"
+   "superclass": "MostChange",
+   "superclasses": [
+    "MostChange",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Limiter": {
    "methods": {
@@ -12705,7 +14025,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "Normalizer"
+   "superclass": "Normalizer",
+   "superclasses": [
+    "Normalizer",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinCongC": {
    "methods": {
@@ -12758,7 +14084,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "LinCongN"
+   "superclass": "LinCongN",
+   "superclasses": [
+    "LinCongN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinCongL": {
    "methods": {
@@ -12811,7 +14144,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "LinCongN"
+   "superclass": "LinCongN",
+   "superclasses": [
+    "LinCongN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinCongN": {
    "methods": {
@@ -12864,7 +14204,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinExp": {
    "methods": {
@@ -12949,7 +14295,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinPan2": {
    "methods": {
@@ -13018,7 +14370,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Pan2"
+   "superclass": "Pan2",
+   "superclasses": [
+    "Pan2",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinRand": {
    "methods": {
@@ -13053,7 +14412,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LinXFade2": {
    "methods": {
@@ -13128,7 +14492,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Line": {
    "methods": {
@@ -13219,7 +14588,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Linen": {
    "methods": {
@@ -13264,7 +14638,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ListDUGen": {
    "methods": {
@@ -13293,7 +14672,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "DUGen"
+   "superclass": "DUGen",
+   "superclasses": [
+    "DUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LocalBuf": {
    "methods": {
@@ -13326,7 +14711,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "WidthFirstUGen"
+   "superclass": "WidthFirstUGen",
+   "superclasses": [
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LocalIn": {
    "methods": {
@@ -13379,7 +14770,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractIn"
+   "superclass": "AbstractIn",
+   "superclasses": [
+    "AbstractIn",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LocalOut": {
    "methods": {
@@ -13422,7 +14820,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractOut"
+   "superclass": "AbstractOut",
+   "superclasses": [
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Logistic": {
    "methods": {
@@ -13503,7 +14907,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "LorenzL": {
    "methods": {
@@ -13571,7 +14980,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Loudness": {
    "methods": {
@@ -13607,7 +15022,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MFCC": {
    "methods": {
@@ -13650,7 +15070,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MantissaMask": {
    "methods": {
@@ -13721,7 +15147,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MaxLocalBufs": {
    "methods": {
@@ -13741,7 +15172,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Median": {
    "methods": {
@@ -13812,7 +15248,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MidEQ": {
    "methods": {
@@ -13903,7 +15346,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ModDif": {
    "methods": {
@@ -13998,7 +15448,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MoogFF": {
    "methods": {
@@ -14091,7 +15546,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MostChange": {
    "methods": {
@@ -14146,7 +15608,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MouseButton": {
    "methods": {
@@ -14181,7 +15648,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MouseX": {
    "methods": {
@@ -14221,7 +15693,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MouseY": {
    "methods": {
@@ -14261,7 +15738,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MouseX"
+   "superclass": "MouseX",
+   "superclasses": [
+    "MouseX",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MulAdd": {
    "methods": {
@@ -14284,7 +15767,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "MultiplexAnalogIn": {
    "methods": {
@@ -14355,7 +15843,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NRand": {
    "methods": {
@@ -14390,7 +15883,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NodeID": {
    "methods": {
@@ -14408,7 +15906,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Normalizer": {
    "methods": {
@@ -14443,7 +15947,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NumAudioBuses": {
    "methods": {
@@ -14461,7 +15970,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NumBuffers": {
    "methods": {
@@ -14479,7 +15994,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NumControlBuses": {
    "methods": {
@@ -14497,7 +16018,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NumInputBuses": {
    "methods": {
@@ -14515,7 +16042,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NumOutputBuses": {
    "methods": {
@@ -14533,7 +16066,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "NumRunningSynths": {
    "methods": {
@@ -14564,7 +16103,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "OffsetOut": {
    "methods": {
@@ -14596,7 +16141,14 @@
      "error": "ERROR: 'Meta_OffsetOut-kr' Message not valid for this subclass: Meta_OffsetOut."
     }
    },
-   "superclass": "Out"
+   "superclass": "Out",
+   "superclasses": [
+    "Out",
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "OnePole": {
    "methods": {
@@ -14667,7 +16219,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "OneZero": {
    "methods": {
@@ -14738,7 +16297,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "OnePole"
+   "superclass": "OnePole",
+   "superclasses": [
+    "OnePole",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Onsets": {
    "methods": {
@@ -14804,7 +16371,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Osc": {
    "methods": {
@@ -14887,7 +16459,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "OscN": {
    "methods": {
@@ -14970,7 +16548,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Out": {
    "methods": {
@@ -15021,7 +16605,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractOut"
+   "superclass": "AbstractOut",
+   "superclasses": [
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "OutputProxy": {
    "methods": {
@@ -15040,7 +16630,12 @@
      "error": "ERROR: rate must be Symbol."
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PSinGrain": {
    "methods": {
@@ -15075,7 +16670,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Add": {
    "methods": {
@@ -15103,7 +16703,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_BinScramble": {
    "methods": {
@@ -15142,7 +16750,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_BinShift": {
    "methods": {
@@ -15181,7 +16796,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_BinWipe": {
    "methods": {
@@ -15214,7 +16836,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_BrickWall": {
    "methods": {
@@ -15243,7 +16872,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_ConformalMap": {
    "methods": {
@@ -15277,7 +16913,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Conj": {
    "methods": {
@@ -15301,7 +16944,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagSquared"
+   "superclass": "PV_MagSquared",
+   "superclasses": [
+    "PV_MagSquared",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Copy": {
    "methods": {
@@ -15329,7 +16980,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_CopyPhase": {
    "methods": {
@@ -15357,7 +17016,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Diffuser": {
    "methods": {
@@ -15386,7 +17053,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Div": {
    "methods": {
@@ -15414,7 +17088,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_HainsworthFoote": {
    "methods": {
@@ -15460,7 +17142,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_JensenAndersen": {
    "methods": {
@@ -15516,7 +17205,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_LocalMax": {
    "methods": {
@@ -15545,7 +17241,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagAbove"
+   "superclass": "PV_MagAbove",
+   "superclasses": [
+    "PV_MagAbove",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagAbove": {
    "methods": {
@@ -15574,7 +17278,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagBelow": {
    "methods": {
@@ -15603,7 +17314,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagAbove"
+   "superclass": "PV_MagAbove",
+   "superclasses": [
+    "PV_MagAbove",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagClip": {
    "methods": {
@@ -15632,7 +17351,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagAbove"
+   "superclass": "PV_MagAbove",
+   "superclasses": [
+    "PV_MagAbove",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagDiv": {
    "methods": {
@@ -15665,7 +17392,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagFreeze": {
    "methods": {
@@ -15694,7 +17428,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagMul": {
    "methods": {
@@ -15722,7 +17463,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagNoise": {
    "methods": {
@@ -15746,7 +17494,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagSquared"
+   "superclass": "PV_MagSquared",
+   "superclasses": [
+    "PV_MagSquared",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagShift": {
    "methods": {
@@ -15780,7 +17536,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagSmear": {
    "methods": {
@@ -15809,7 +17572,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_MagSquared": {
    "methods": {
@@ -15833,7 +17603,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Max": {
    "methods": {
@@ -15861,7 +17638,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Min": {
    "methods": {
@@ -15889,7 +17674,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_Mul": {
    "methods": {
@@ -15917,7 +17710,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagMul"
+   "superclass": "PV_MagMul",
+   "superclasses": [
+    "PV_MagMul",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_PhaseShift": {
    "methods": {
@@ -15950,7 +17751,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_PhaseShift270": {
    "methods": {
@@ -15974,7 +17782,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagSquared"
+   "superclass": "PV_MagSquared",
+   "superclasses": [
+    "PV_MagSquared",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_PhaseShift90": {
    "methods": {
@@ -15998,7 +17814,15 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_MagSquared"
+   "superclass": "PV_MagSquared",
+   "superclasses": [
+    "PV_MagSquared",
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_RandComb": {
    "methods": {
@@ -16032,7 +17856,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_RandWipe": {
    "methods": {
@@ -16070,7 +17901,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_RectComb": {
    "methods": {
@@ -16109,7 +17947,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PV_RectComb2": {
    "methods": {
@@ -16152,7 +17997,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PackFFT": {
    "methods": {
@@ -16199,7 +18051,14 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "PV_ChainUGen"
+   "superclass": "PV_ChainUGen",
+   "superclasses": [
+    "PV_ChainUGen",
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Pan2": {
    "methods": {
@@ -16268,7 +18127,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Pan4": {
    "methods": {
@@ -16351,7 +18216,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PanAz": {
    "methods": {
@@ -16446,7 +18317,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PanB": {
    "methods": {
@@ -16529,7 +18406,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PanB2": {
    "methods": {
@@ -16600,7 +18483,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PartConv": {
    "methods": {
@@ -16642,7 +18531,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Pause": {
    "methods": {
@@ -16672,7 +18566,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PauseSelf": {
    "methods": {
@@ -16698,7 +18597,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PauseSelfWhenDone": {
    "methods": {
@@ -16724,7 +18628,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Peak": {
    "methods": {
@@ -16779,7 +18688,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PeakFollower": {
    "methods": {
@@ -16834,7 +18748,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Phasor": {
    "methods": {
@@ -16919,7 +18838,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PinkNoise": {
    "methods": {
@@ -16968,7 +18892,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "WhiteNoise"
+   "superclass": "WhiteNoise",
+   "superclasses": [
+    "WhiteNoise",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Pitch": {
    "methods": {
@@ -17044,7 +18974,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PitchShift": {
    "methods": {
@@ -17097,7 +19033,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PlayBuf": {
    "methods": {
@@ -17198,7 +19139,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Pluck": {
    "methods": {
@@ -17256,7 +19203,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Poll": {
    "methods": {
@@ -17366,7 +19318,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Pulse": {
    "methods": {
@@ -17437,7 +19394,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PulseCount": {
    "methods": {
@@ -17492,7 +19454,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "PulseDivider": {
    "methods": {
@@ -17557,7 +19524,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "QuadC": {
    "methods": {
@@ -17610,7 +19582,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "QuadN"
+   "superclass": "QuadN",
+   "superclasses": [
+    "QuadN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "QuadL": {
    "methods": {
@@ -17663,7 +19642,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "QuadN"
+   "superclass": "QuadN",
+   "superclasses": [
+    "QuadN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "QuadN": {
    "methods": {
@@ -17716,7 +19702,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RHPF": {
    "methods": {
@@ -17797,7 +19789,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "RLPF"
+   "superclass": "RLPF",
+   "superclasses": [
+    "RLPF",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RLPF": {
    "methods": {
@@ -17878,7 +19878,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RadiansPerSample": {
    "methods": {
@@ -17896,7 +19903,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Ramp": {
    "methods": {
@@ -17971,7 +19984,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Lag"
+   "superclass": "Lag",
+   "superclasses": [
+    "Lag",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Rand": {
    "methods": {
@@ -18001,7 +20022,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RandID": {
    "methods": {
@@ -18046,7 +20072,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "WidthFirstUGen"
+   "superclass": "WidthFirstUGen",
+   "superclasses": [
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RandSeed": {
    "methods": {
@@ -18126,7 +20158,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "WidthFirstUGen"
+   "superclass": "WidthFirstUGen",
+   "superclasses": [
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RecordBuf": {
    "methods": {
@@ -18253,7 +20291,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ReplaceOut": {
    "methods": {
@@ -18304,7 +20347,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Out"
+   "superclass": "Out",
+   "superclasses": [
+    "Out",
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Resonz": {
    "methods": {
@@ -18385,7 +20435,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Ringz": {
    "methods": {
@@ -18466,7 +20523,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Rotate2": {
    "methods": {
@@ -18533,7 +20597,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RunningMax": {
    "methods": {
@@ -18588,7 +20658,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Peak"
+   "superclass": "Peak",
+   "superclasses": [
+    "Peak",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RunningMin": {
    "methods": {
@@ -18643,7 +20719,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Peak"
+   "superclass": "Peak",
+   "superclasses": [
+    "Peak",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "RunningSum": {
    "methods": {
@@ -18700,7 +20782,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SOS": {
    "methods": {
@@ -18811,7 +20898,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SampleDur": {
    "methods": {
@@ -18829,7 +20923,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SampleRate": {
    "methods": {
@@ -18847,7 +20947,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Sanitize": {
    "methods": {
@@ -18902,7 +21008,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Saw": {
    "methods": {
@@ -18963,7 +21074,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Schmidt": {
    "methods": {
@@ -19059,7 +21175,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "InRange"
+   "superclass": "InRange",
+   "superclasses": [
+    "InRange",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ScopeOut": {
    "methods": {
@@ -19116,7 +21238,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ScopeOut2": {
    "methods": {
@@ -19191,7 +21318,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Select": {
    "methods": {
@@ -19246,7 +21378,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SendPeakRMS": {
    "methods": {
@@ -19343,7 +21481,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SendReply": {
    "methods": {
@@ -19428,7 +21571,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "SendTrig"
+   "superclass": "SendTrig",
+   "superclasses": [
+    "SendTrig",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SendTrig": {
    "methods": {
@@ -19489,7 +21638,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SetBuf": {
    "methods": {
@@ -19523,7 +21677,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "WidthFirstUGen"
+   "superclass": "WidthFirstUGen",
+   "superclasses": [
+    "WidthFirstUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SetResetFF": {
    "methods": {
@@ -19578,7 +21738,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PulseCount"
+   "superclass": "PulseCount",
+   "superclasses": [
+    "PulseCount",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Shaper": {
    "methods": {
@@ -19651,7 +21817,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Index"
+   "superclass": "Index",
+   "superclasses": [
+    "Index",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SharedIn": {
    "methods": {
@@ -19680,7 +21853,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractIn"
+   "superclass": "AbstractIn",
+   "superclasses": [
+    "AbstractIn",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SharedOut": {
    "methods": {
@@ -19708,7 +21888,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractOut"
+   "superclass": "AbstractOut",
+   "superclasses": [
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SinOsc": {
    "methods": {
@@ -19779,7 +21965,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SinOscFB": {
    "methods": {
@@ -19850,7 +22042,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Slew": {
    "methods": {
@@ -19935,7 +22133,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Slope": {
    "methods": {
@@ -19996,7 +22201,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SpecCentroid": {
    "methods": {
@@ -20022,7 +22234,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SpecFlatness": {
    "methods": {
@@ -20048,7 +22265,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SpecPcile": {
    "methods": {
@@ -20089,7 +22311,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Splay": {
    "methods": {
@@ -20154,7 +22381,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SplayAz": {
    "methods": {
@@ -20231,7 +22463,12 @@
      "error": "ERROR: Primitive '_BasicNew' failed. Index not an Integer"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Spring": {
    "methods": {
@@ -20296,7 +22533,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "StandardL": {
    "methods": {
@@ -20344,7 +22586,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "StandardN"
+   "superclass": "StandardN",
+   "superclasses": [
+    "StandardN",
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "StandardN": {
    "methods": {
@@ -20392,7 +22641,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "ChaosGen"
+   "superclass": "ChaosGen",
+   "superclasses": [
+    "ChaosGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Stepper": {
    "methods": {
@@ -20489,7 +22744,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "StereoConvolution2L": {
    "methods": {
@@ -20547,7 +22807,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SubsampleOffset": {
    "methods": {
@@ -20565,7 +22831,13 @@
      "substitute_rate": "ir"
     }
    },
-   "superclass": "InfoUGenBase"
+   "superclass": "InfoUGenBase",
+   "superclasses": [
+    "InfoUGenBase",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Sum3": {
    "methods": {
@@ -20597,7 +22869,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Sum4": {
    "methods": {
@@ -20633,7 +22910,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Sweep": {
    "methods": {
@@ -20688,7 +22970,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "SyncSaw": {
    "methods": {
@@ -20759,7 +23046,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "T2A": {
    "methods": {
@@ -20789,7 +23082,14 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "K2A"
+   "superclass": "K2A",
+   "superclasses": [
+    "K2A",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "T2K": {
    "methods": {
@@ -20814,7 +23114,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "A2K"
+   "superclass": "A2K",
+   "superclasses": [
+    "A2K",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TBall": {
    "methods": {
@@ -20889,7 +23196,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TDelay": {
    "methods": {
@@ -20944,7 +23256,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Trig1"
+   "superclass": "Trig1",
+   "superclasses": [
+    "Trig1",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TDuty": {
    "methods": {
@@ -21029,7 +23347,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Duty"
+   "superclass": "Duty",
+   "superclasses": [
+    "Duty",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TExpRand": {
    "methods": {
@@ -21094,7 +23418,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TGrains": {
    "methods": {
@@ -21157,7 +23486,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TIRand": {
    "methods": {
@@ -21222,7 +23557,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TRand": {
    "methods": {
@@ -21287,7 +23627,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TWindex": {
    "methods": {
@@ -21352,7 +23697,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Tap": {
    "methods": {
@@ -21383,7 +23733,12 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Timer": {
    "methods": {
@@ -21428,7 +23783,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ToggleFF": {
    "methods": {
@@ -21473,7 +23833,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Trig": {
    "methods": {
@@ -21528,7 +23893,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Trig1"
+   "superclass": "Trig1",
+   "superclasses": [
+    "Trig1",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Trig1": {
    "methods": {
@@ -21583,7 +23954,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TrigControl": {
    "methods": {
@@ -21624,7 +24000,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Control"
+   "superclass": "Control",
+   "superclasses": [
+    "Control",
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TwoPole": {
    "methods": {
@@ -21705,7 +24088,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "TwoZero": {
    "methods": {
@@ -21786,7 +24176,15 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "TwoPole"
+   "superclass": "TwoPole",
+   "superclasses": [
+    "TwoPole",
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "UnaryOpUGen": {
    "methods": {
@@ -21815,7 +24213,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "BasicOpUGen"
+   "superclass": "BasicOpUGen",
+   "superclasses": [
+    "BasicOpUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Unpack1FFT": {
    "methods": {
@@ -21852,7 +24256,12 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "UnpackFFT": {
    "methods": {
@@ -21879,7 +24288,13 @@
      "substitute_rate": "new"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "VDiskIn": {
    "methods": {
@@ -21923,7 +24338,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "VOsc": {
    "methods": {
@@ -22006,7 +24427,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "VOsc3": {
    "methods": {
@@ -22099,7 +24526,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "VarLag": {
    "methods": {
@@ -22186,7 +24619,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Filter"
+   "superclass": "Filter",
+   "superclasses": [
+    "Filter",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "VarSaw": {
    "methods": {
@@ -22267,7 +24707,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Vibrato": {
    "methods": {
@@ -22392,7 +24838,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "PureUGen"
+   "superclass": "PureUGen",
+   "superclasses": [
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Warp1": {
    "methods": {
@@ -22464,7 +24916,13 @@
      "substitute_rate": "ar"
     }
    },
-   "superclass": "MultiOutUGen"
+   "superclass": "MultiOutUGen",
+   "superclasses": [
+    "MultiOutUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "WhiteNoise": {
    "methods": {
@@ -22513,7 +24971,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "Wrap": {
    "methods": {
@@ -22609,7 +25072,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "InRange"
+   "superclass": "InRange",
+   "superclasses": [
+    "InRange",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "WrapIndex": {
    "methods": {
@@ -22682,7 +25151,14 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "Index"
+   "superclass": "Index",
+   "superclasses": [
+    "Index",
+    "PureUGen",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "XFade2": {
    "methods": {
@@ -22759,7 +25235,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "XLine": {
    "methods": {
@@ -22850,7 +25331,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "XOut": {
    "methods": {
@@ -22909,7 +25395,13 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "AbstractOut"
+   "superclass": "AbstractOut",
+   "superclasses": [
+    "AbstractOut",
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   },
   "ZeroCrossing": {
    "methods": {
@@ -22954,7 +25446,12 @@
      "substitute_rate": "kr"
     }
    },
-   "superclass": "UGen"
+   "superclass": "UGen",
+   "superclasses": [
+    "UGen",
+    "AbstractFunction",
+    "Object"
+   ]
   }
  }
 }

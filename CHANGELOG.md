@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **sc3-plugins UGens** in `nanosynth.ugens.sc3`: 458 of sc3-plugins 3.14.1's 483 UGen classes. 452 are generated from sclang's own output (`spec/sc3-plugins-reference.json`), not from parsing the `.sc` files. 18 of those need a table of the order sclang sends their inputs in, because its method reorders, drops or appends arguments. 6 whose sclang methods compute inputs (counts, strings as character codes) are hand-written in `sc3_custom`. Each class builds the same inputs, outputs and rates as sclang; the 3 deliberate differences are in `tests/fixtures/sc3_reference_allowlist.json` with reasons. The 25 left out are sclang-only classes, classes sclang cannot build, and one pseudo-UGen, listed in `spec/sc3-plugins-skipped.json`. A SynthDef using them needs a server with sc3-plugins installed. Regenerating, and updating for a new release: `docs/dev/sc3-plugins-wrappers.md`.
+
+  ```python
+  from nanosynth.ugens.sc3 import DFM1
+  DFM1.ar(source=Saw.ar(), freq=800, res=0.5)
+  ```
+
+- **`param()` accepts a tuple default** for an array (`unexpanded`) parameter. It already worked at run time; the annotation now allows it.
+
 ## [0.4.0]
 
 An audit of UGen metadata against sclang 3.14.1 and the plugin sources found wrong operators, input orders, rates and defaults. The fixes change the compiled SynthDef for affected code, and some break the API.

@@ -1,0 +1,20 @@
+{
+ "NovaDiskOut": {
+  "problems": [
+   "ar: inputs ours=[1.0, 'ugen:DC', 12.0, 60.0, 68.0, 67.0, 46.0, 97.0, 114.0, 40.0, 41.0, 91.0, 48.0, 93.0, 62.0] sclang=[0, 'ugen:DC', 0, 97, 110, 32, 79, 117, 116, 112, 117, 116, 80, 114, 111, 120, 121]"
+  ],
+  "reason": "Slot 0 is the channel count: sclang sends signal.size, 0 for a single UGen, so the plugin records nothing; nanosynth sends 1. The filename slots differ because the probe passes a UGen as the filename."
+ },
+ "StkInst": {
+  "problems": [
+   "ar: inputs ours=[220.0, 1.0, 1.0, 0.5, 6.0] sclang=[220, 1, 1, 0.5, 6, 'ugen:DC']"
+  ],
+  "reason": "args defaults to an empty array, as sclang's nil.asArray does; the probe substituted a DC for it in sclang."
+ },
+ "TextVU": {
+  "problems": [
+   "kr: input 1 (level) ours=ugen:Amplitude sclang=0.5"
+  ],
+  "reason": "The probe passed 0.5 as sclang's analysis function; nanosynth measures the source's amplitude, as sclang does by default."
+ }
+}

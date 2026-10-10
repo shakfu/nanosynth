@@ -155,7 +155,11 @@ UGen.allSubclasses.reject { |c| c.isMetaClass }.sortMap(_.name).do { |cls|
 		}
 	};
 	if(methods.size > 0) {
-		entries[cls.name] = Dictionary[\superclass -> cls.superclass.name, \methods -> methods];
+		entries[cls.name] = Dictionary[
+			\superclass -> cls.superclass.name,
+			\superclasses -> cls.superclasses.collect(_.name),
+			\methods -> methods
+		];
 	};
 };
 

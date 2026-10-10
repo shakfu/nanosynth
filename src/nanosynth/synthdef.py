@@ -96,7 +96,7 @@ class Default:
 
 
 class Param(NamedTuple):
-    default: "Missing | Default | float | None" = MISSING
+    default: "Missing | Default | float | tuple[float, ...] | None" = MISSING
     unexpanded: bool = False
 
 
@@ -332,7 +332,7 @@ def _process_class(
 
 
 def param(
-    default: Missing | Default | float | None = MISSING,
+    default: Missing | Default | float | tuple[float, ...] | None = MISSING,
     *,
     unexpanded: bool = False,
 ) -> Param:
