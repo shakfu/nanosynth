@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -1069,7 +1069,7 @@ wheels = [
 
 [[package]]
 name = "nanosynth"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "." }
 
 [package.optional-dependencies]
