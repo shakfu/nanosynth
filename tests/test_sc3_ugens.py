@@ -11,6 +11,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import wave
 from pathlib import Path
 from typing import Any
@@ -56,6 +57,7 @@ def test_reference_matches_vendored_version() -> None:
     assert REFERENCE["sc3_plugins_version"] == version
 
 
+@pytest.mark.skipif(shutil.which("ruff") is None, reason="generator formats with ruff")
 def test_module_is_generated_from_the_reference() -> None:
     text, skipped = _generator.generate()
     assert (ROOT / "src" / "nanosynth" / "ugens" / "sc3.py").read_text() == text
