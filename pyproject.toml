@@ -80,6 +80,8 @@ build-backend = "scikit_build_core.build"
 [tool.scikit-build]
 wheel.packages = ["src/nanosynth"]
 wheel.exclude = ["*.cpp"]
+# abi3 wheel on CPython >= 3.12; older versions get version-specific wheels.
+wheel.py-api = "cp312"
 sdist.include = ["thirdparty/", "spec/"]
 build-dir = "build/{wheel_tag}"
 

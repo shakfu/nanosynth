@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **abi3 wheels.** CPython 3.12+ now gets one `cp312-abi3` wheel per platform instead of one wheel per version, for both release and local builds. 3.10 and 3.11 still get version-specific wheels. The release job checks each abi3 wheel with `abi3audit --strict`. Measured cost on 3.13: under 1 us per OSC encode/decode or `buffer_info` call (+3% to +27%). Other benchmarks are within noise.
+- **Release workflow publishes to PyPI only on request.** `release.yml` is now `release-abi3.yml`. A tag push now creates a GitHub release and skips PyPI. Tags must be `<major>.<minor>.<patch>`, optionally with a PEP 440 pre-release suffix (`a`, `b`, `rc` plus a number), and no `v` prefix; the old `v*` filter never matched this repo's tags. A first job fails the run, before any build, if the tag is malformed or differs from `project.version`. Pre-release tags create a GitHub pre-release. `workflow_dispatch` takes `publish` (`none` by default, `testpypi`, `pypi`), `github-release` (on by default) and `tag_name`. From a branch, `tag_name` creates that tag at the dispatched commit as a draft release; with it empty, a branch run creates no release. The release body is the version's CHANGELOG section, extracted by `scripts/release_notes.py`, instead of GitHub's generated notes. A final release from a tag fails if that version has no section; branch drafts and pre-releases fall back to `[Unreleased]` (new `--no-fallback` flag).
+- **`release-opt.yml`** builds version-specific (non-abi3) wheels for every CPython, by overriding `wheel.py-api` to empty. It attaches them to the existing GitHub release that `release-abi3.yml` created, for users who want a non-abi3 wheel. It cannot create a release, set its notes or upload to PyPI, and fails if the release does not exist. It runs only on `workflow_dispatch`; `tag_name` selects the release when run from a branch.
+
 ## [0.4.1]
 
 ### Added

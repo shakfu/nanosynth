@@ -6,11 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+# SKBUILD_SABI_COMPONENT is set only when wheel.py-api requests abi3.
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module
+             ${SKBUILD_SABI_COMPONENT})
 find_package(nanobind CONFIG REQUIRED)
 
 # --- _osc: OSC encode/decode ---
-nanobind_add_module(_osc src/nanosynth/_osc.cpp)
+nanobind_add_module(_osc STABLE_ABI src/nanosynth/_osc.cpp)
 if(MSVC)
     target_compile_options(_osc PRIVATE /W4)
 else()
@@ -22,7 +24,7 @@ install(TARGETS _osc DESTINATION nanosynth)
 option(NANOSYNTH_EMBED_SCSYNTH "Build _scsynth extension with embedded libscsynth" ON)
 
 if(NANOSYNTH_EMBED_SCSYNTH)
-    nanobind_add_module(_scsynth src/nanosynth/_scsynth.cpp)
+    nanobind_add_module(_scsynth STABLE_ABI src/nanosynth/_scsynth.cpp)
 
     # --- Vendored libsndfile (static, tailored -- no external codec deps) ---
     # NOTE: this FORCEs BUILD_SHARED_LIBS OFF into the cache, so it also governs
@@ -181,7 +183,7 @@ if(NANOSYNTH_EMBED_SCSYNTH)
 
     # --- _supernova: embedded supernova (parallel DSP engine) ---
     if(NANOSYNTH_EMBED_SUPERNOVA)
-        nanobind_add_module(_supernova src/nanosynth/_supernova.cpp)
+        nanobind_add_module(_supernova STABLE_ABI src/nanosynth/_supernova.cpp)
 
         # Mark libsupernova for embedded build (skips boost::program_options)
         target_compile_definitions(libsupernova PUBLIC NANOSYNTH_EMBEDDED)
@@ -280,7 +282,7 @@ if(NANOSYNTH_EMBED_MIDI)
 
     add_subdirectory(thirdparty/rtmidi-6.0.0 EXCLUDE_FROM_ALL)
 
-    nanobind_add_module(_midi src/nanosynth/_midi.cpp)
+    nanobind_add_module(_midi STABLE_ABI src/nanosynth/_midi.cpp)
     target_include_directories(_midi PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/rtmidi-6.0.0
     )

@@ -1,0 +1,188 @@
+name: Release-ABI3
+
+on:
+  push:
+    # <major>.<minor>.<patch>, optionally a PEP 440 pre-release suffix (checked in `tag`).
+    tags: ["[0-9]+.[0-9]+.[0-9]+*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Package index upload target"
+        required: true
+        default: "none"
+        type: choice
+        options:
+          - none
+          - testpypi
+          - pypi
+      github-release:
+        description: "Create a GitHub release"
+        required: true
+        default: true
+        type: boolean
+      tag_name:
+        description: "Tag for a draft release when run from a branch (created at this commit)"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  # Resolves the release tag (empty on a branch dispatch without tag_name) and
+  # fails fast, before any build, if it is malformed or not the package version.
+  tag:
+    runs-on: ubuntu-latest
+    name: resolve tag
+    outputs:
+      name: ${{ steps.tag.outputs.name }}
+      prerelease: ${{ steps.tag.outputs.prerelease }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve and check tag
+        id: tag
+        env:
+          TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || inputs.tag_name }}
+        run: |
+          if [[ -n "$TAG" ]]; then
+            [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]] \
+              || { echo "::error::tag '$TAG' is not <major>.<minor>.<patch>[a|b|rc<N>]"; exit 1; }
+            VERSION=$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+            [[ "$TAG" == "$VERSION" ]] \
+              || { echo "::error::tag '$TAG' does not match pyproject.toml version '$VERSION'"; exit 1; }
+          fi
+          echo "name=$TAG" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$([[ "$TAG" =~ [a-z] ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  build-wheels:
+    needs: [tag]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            arch: arm64
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: windows-latest
+            arch: AMD64
+
+    runs-on: ${{ matrix.os }}
+    name: wheels / ${{ matrix.os }} (${{ matrix.arch }})
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install ALSA dev headers (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v4.3.0
+        env:
+          CIBW_ARCHS: ${{ matrix.arch }}
+          # cp312 builds an abi3 wheel; cibuildwheel reuses it for cp313+ and
+          # runs the tests on each of those interpreters.
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-* cp315-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_TEST_REQUIRES: pytest numpy hypothesis
+          CIBW_TEST_COMMAND: pytest {project}/tests/
+          CIBW_BEFORE_ALL_LINUX: yum install -y alsa-lib-devel || apt-get install -y libasound2-dev
+
+      - name: Audit abi3 wheels
+        shell: bash
+        run: pipx run abi3audit==0.0.26 --strict --report wheelhouse/*-abi3-*.whl
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
+        with:
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
+          path: wheelhouse/*.whl
+
+  build-sdist:
+    needs: [tag]
+    runs-on: ubuntu-latest
+    name: sdist
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+
+      - name: Build sdist
+        run: uv build --sdist
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v7
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  publish:
+    needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    name: publish
+    if: github.event_name == 'workflow_dispatch' && inputs.publish != 'none'
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -lh dist/
+
+      - name: Publish to TestPyPI
+        if: inputs.publish == 'testpypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+
+      - name: Publish to PyPI
+        if: inputs.publish == 'pypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
+  github-release:
+    needs: [tag, build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    name: github release
+    if: needs.tag.outputs.name != '' && (github.event_name == 'push' || inputs.github-release)
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist/
+          merge-multiple: true
+
+      # A final release from a tag needs its own CHANGELOG section; branch
+      # drafts and pre-releases may fall back to [Unreleased].
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          TAG: ${{ needs.tag.outputs.name }}
+          STRICT: ${{ startsWith(github.ref, 'refs/tags/') && needs.tag.outputs.prerelease == 'false' && '--no-fallback' || '' }}
+        run: python3 scripts/release_notes.py "$TAG" -o "$RUNNER_TEMP/release-notes.md" $STRICT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.tag.outputs.name }}
+          target_commitish: ${{ github.sha }}
+          # A branch dispatch has no tag ref: create the tag at this commit as
+          # a draft, so nothing goes public without review.
+          draft: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          prerelease: ${{ needs.tag.outputs.prerelease == 'true' }}
+          body_path: ${{ runner.temp }}/release-notes.md
+          files: dist/*
