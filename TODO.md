@@ -8,6 +8,9 @@ Remaining improvement tasks, grouped by category and ordered by priority within 
 
 ## High
 
+- [ ] Add support for `Resonz` ugen (resonant filter):
+    <https://doc.sccode.org/Classes/Resonz.html>
+
 ### Correctness & API Gaps
 
 - [x] **UGen metadata has no independent reference.** Steps 1-3 of `docs/dev/ugen-metadata-audit.md` done 2026-10-05: `tests/test_ugen_plugin_scan.py` and `tests/test_ugen_reference.py` check all UGens against the plugin C++ and sclang 3.14.1. They found errors in 34 more UGens, all fixed in 0.4.0 (see CHANGELOG). Step 4 is tracked under Medium. Priority: **high**, effort: **medium**.
