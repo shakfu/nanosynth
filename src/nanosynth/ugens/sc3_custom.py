@@ -12,6 +12,7 @@ from typing import Any
 
 from ..enums import CalculationRate
 from ..synthdef import (
+    PseudoUGen,
     UGen,
     UGenOperable,
     UGenRecursiveInput,
@@ -23,6 +24,7 @@ from ..synthdef import (
 from .dynamics import Amplitude
 from .lines import A2K
 from .osc import Impulse
+from .triggers import Wrap
 
 
 def _as_list(x: Any) -> list[Any]:
@@ -314,11 +316,86 @@ class SOMRd(UGen):
         )
 
 
+def _matrix(rows: Any, width: int, name: str) -> list[Any]:
+    """A 6-row matrix flattened row by row, as sclang's ``flatten(1)``; zeros if None."""
+    if rows is None:
+        return [0] * (6 * width)
+    rows = list(rows)
+    if len(rows) != 6 or any(len(row) != width for row in rows):
+        raise ValueError(f"{name} must be 6 rows of {width}")
+    return [x for row in rows for x in row]
+
+
+@ugen(ar=True, is_multichannel=True, channel_count=6)
+class FM7(UGen):
+    """Six sine operators, each phase-modulated by any of the six outputs (SkUGens).
+
+    ``ctl_matrix`` is 6 rows of ``[freq, phase, amp]``, one per operator.
+    ``mod_matrix[i][j]`` is how much operator ``j`` modulates operator ``i``.
+    Either defaults to zeros, as sclang's. Returns the 6 operator outputs.
+    """
+
+    ctl_matrix = param(unexpanded=True)
+    mod_matrix = param(unexpanded=True)
+
+    @classmethod
+    def ar(cls, *, ctl_matrix: Any = None, mod_matrix: Any = None) -> UGenOperable:
+        return cls._new_single(
+            calculation_rate=CalculationRate.AUDIO,
+            ctl_matrix=_matrix(ctl_matrix, 3, "ctl_matrix"),
+            mod_matrix=_matrix(mod_matrix, 6, "mod_matrix"),
+        )
+
+
+class PulseDPW(PseudoUGen):
+    """Band-limited pulse: the difference of two SawDPW (MCLDUGens), as sclang's.
+
+    The second saw's phase is ``(2 * width)`` wrapped into [-1, 1).
+    """
+
+    @staticmethod
+    def _iphase(width: Any) -> Any:
+        """``(width + width).wrap(-1, 1)``, element by element for an array."""
+        if isinstance(width, (int, float)):
+            return (2 * width + 1) % 2 - 1
+        if isinstance(width, (list, tuple, UGenVector)):
+            return [PulseDPW._iphase(w) for w in width]
+        doubled = width + width
+        token = CalculationRate.from_expr(doubled).token
+        return getattr(Wrap, token)(source=doubled, minimum=-1, maximum=1)
+
+    @classmethod
+    def _build(
+        cls, rate: str, freq: UGenRecursiveInput, width: UGenRecursiveInput
+    ) -> UGenOperable:
+        from .sc3 import SawDPW  # sc3 imports this module
+
+        saw = getattr(SawDPW, rate)
+        result: UGenOperable = saw(freq=freq, iphase=0) - saw(
+            freq=freq, iphase=cls._iphase(width)
+        )
+        return result
+
+    @classmethod
+    def ar(
+        cls, *, freq: UGenRecursiveInput = 440, width: UGenRecursiveInput = 0.5
+    ) -> UGenOperable:
+        return cls._build("ar", freq, width)
+
+    @classmethod
+    def kr(
+        cls, *, freq: UGenRecursiveInput = 440, width: UGenRecursiveInput = 0.5
+    ) -> UGenOperable:
+        return cls._build("kr", freq, width)
+
+
 __all__ = [
+    "FM7",
     "FeatureSave",
     "Getenv",
     "MatchingPResynth",
     "NovaDiskOut",
+    "PulseDPW",
     "SOMRd",
     "TextVU",
 ]

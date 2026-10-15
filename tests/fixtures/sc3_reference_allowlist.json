@@ -1,4 +1,10 @@
 {
+ "FM7": {
+  "problems": [
+   "pseudo-UGen in sclang, emits []"
+  ],
+  "reason": "sclang 3.14.1 could not build FM7 ('flatten' not understood), so the reference has no inputs. The wrapper follows FM7.sc and FM7.cpp: 18 control inputs, then 36 modulation inputs, 6 outputs; test_computed_inputs checks them."
+ },
  "NovaDiskOut": {
   "problems": [
    "ar: inputs ours=[1.0, 'ugen:DC', 12.0, 60.0, 68.0, 67.0, 46.0, 97.0, 114.0, 40.0, 41.0, 91.0, 48.0, 93.0, 62.0] sclang=[0, 'ugen:DC', 0, 97, 110, 32, 79, 117, 116, 112, 117, 116, 80, 114, 111, 120, 121]"

@@ -1,6 +1,6 @@
 # sc3-plugins wrappers
 
-`nanosynth.ugens.sc3` wraps 458 of the 483 UGen classes in sc3-plugins 3.14.1. A SynthDef that uses them needs a server with sc3-plugins installed.
+`nanosynth.ugens.sc3` wraps 459 of the 483 UGen classes in sc3-plugins 3.14.1. The wheel bundles the plugins, except HOA, NovaDiskIO and LADSPA, and PitchDetection outside macOS (`sc3-plugins-build.md`).
 
 ```python
 from nanosynth.ugens.sc3 import DFM1
@@ -64,7 +64,7 @@ Read the sclang method in the sc3-plugins `.sc` file before editing any of these
 
 - Classes that compute inputs build the expected inputs from real arguments; the probe passes only placeholders.
 
-With `NANOSYNTH_SC3_PLUGINS` set to a directory of built sc3-plugins:
+Against the bundled plugins, or a directory in `NANOSYNTH_SC3_PLUGINS`:
 
 - Every wrapped name is registered by some plugin. NovaDiskOut is exempt: NovaDiskIO is off in a default build.
 
@@ -132,7 +132,7 @@ sc3-plugins is released with SuperCollider's version number, and its plugins mus
 
    - A new class with no unit, or one sclang cannot build, needs nothing.
 
-5. Run `make test` with `NANOSYNTH_SC3_PLUGINS` set to the new plugins, built against the new headers.
+5. Re-vendor with `scripts/vendor_sc3_plugins.py`, rebuild, and run `make test`.
 
 Renamed sclang arguments rename the Python parameters. Note that in the CHANGELOG under Upgrading: it breaks callers.
 

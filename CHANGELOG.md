@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **sc3-plugins in the wheel.** 75 sc3-plugins 3.14.1 libraries, for scsynth and supernova, install next to the core plugins, so `nanosynth.ugens.sc3` works with no separate install. Left out: HOAUGens (96 libraries, unused by SuperDirt), NovaDiskIO, LadspaUGen, and PitchDetection off macOS (it needs FFTW). The wheel grows by about 4 MB. Disable with `-Ccmake.define.NANOSYNTH_SC3_PLUGINS=OFF`. New wrappers `FM7` and `PulseDPW`. The vendored tree at `thirdparty/sc3-plugins/` patches `SMS.cpp`, whose buffer-index check was always true; see `docs/dev/sc3-plugins-build.md`.
+
 ### Changed
 
 - **abi3 wheels.** CPython 3.12+ now gets one `cp312-abi3` wheel per platform instead of one wheel per version, for both release and local builds. 3.10 and 3.11 still get version-specific wheels. The release job checks each abi3 wheel with `abi3audit --strict`. Measured cost on 3.13: under 1 us per OSC encode/decode or `buffer_info` call (+3% to +27%). Other benchmarks are within noise.

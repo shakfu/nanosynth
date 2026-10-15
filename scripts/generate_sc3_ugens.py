@@ -370,7 +370,8 @@ the classes left out, and why, are in
 spec/sc3-plugins-skipped.json. Parameters follow the sclang arguments: camelCase becomes
 snake_case and ``in`` becomes ``source``.
 
-A SynthDef using these needs a server with sc3-plugins installed.
+The wheel bundles the plugins, except HOAUGens, NovaDiskIO, LadspaUGen and,
+off macOS, PitchDetection (CMake option NANOSYNTH_SC3_PLUGINS).
 """
 
 from ..synthdef import UGen, param, ugen

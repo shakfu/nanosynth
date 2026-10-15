@@ -1,0 +1,11 @@
+--- a/source/NCAnalysisUGens/SMS.cpp
++++ b/source/NCAnalysisUGens/SMS.cpp
+@@ -439,7 +439,7 @@
+ 
+ 		int bufnum= (int)fbufnum;
+ 
+-	if(0<=bufnum<= world->mNumSndBufs) {
++	if(0 <= bufnum && bufnum < world->mNumSndBufs) {
+ 		SndBuf * buf;
+ 
+ 		buf = world->mSndBufs + bufnum;

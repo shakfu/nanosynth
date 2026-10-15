@@ -99,6 +99,12 @@ if(NANOSYNTH_EMBED_SCSYNTH)
 
     add_subdirectory(thirdparty/supercollider EXCLUDE_FROM_ALL)
 
+    # sc3-plugins, installed next to the core plugins (no name clashes).
+    option(NANOSYNTH_SC3_PLUGINS "Build sc3-plugins into nanosynth/plugins" ON)
+    if(NANOSYNTH_SC3_PLUGINS)
+        include(cmake/sc3_plugins.cmake)
+    endif()
+
     target_include_directories(_scsynth PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/server
         ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/supercollider/include/common
@@ -116,6 +122,7 @@ if(NANOSYNTH_EMBED_SCSYNTH)
         MulAddUGens NoiseUGens OscUGens PanUGens PhysicalModelingUGens
         ReverbUGens TestUGens TriggerUGens UnaryOpUGens UnpackFFTUGens
         FFT_UGens PV_ThirdParty ML_UGens DiskIO_UGens
+        ${SC3_SCSYNTH_PLUGIN_TARGETS}
     )
     # Ensure plugins are built alongside _scsynth (needed with EXCLUDE_FROM_ALL)
     add_dependencies(_scsynth ${SCSYNTH_PLUGIN_TARGETS})
@@ -214,6 +221,7 @@ if(NANOSYNTH_EMBED_SCSYNTH)
             UnaryOpUGens_supernova UnpackFFTUGens_supernova
             FFT_UGens_supernova PV_ThirdParty_supernova ML_UGens_supernova
             DiskIO_UGens_supernova
+            ${SC3_SUPERNOVA_PLUGIN_TARGETS}
         )
         add_dependencies(_supernova ${SUPERNOVA_PLUGIN_TARGETS})
 
