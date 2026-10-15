@@ -2,13 +2,14 @@
 
 Maps each classic Dirt `/dirt/play` field to nanosynth UGens, as the spec for a native `/dirt/play` receiver. Assessed 2026-10-14 against [codeberg.org/uzu/dirt](https://codeberg.org/uzu/dirt) at `123b399` (2026-06-21). File and function names below refer to that repo.
 
-Dirt is chosen over SuperDirt as the reference because its feature set is closed and plain C. No sc3-plugins UGens are needed.
+Superseded as the reference (2026-10-15). The target users (Tidal, Strudel, vortex) write for SuperDirt, whose levels, filters, interpolation and effects differ from Dirt's. The reference is now nanodirt `docs/dev/superdirt-parameter-mapping.md`. This document remains the record of classic Dirt's behaviour.
 
 ## Fields with no effect in Dirt
 
 `dirt.h` (`DIRT_FIELDS`) declares 32 fields. Four do not change the sound:
 
 - `offset`, `velocity`, `kriole`: stored in `play_dispatch` (`libdirt.c`), never read by `audio.c`.
+
 - `orbit`: used only for RMS metering, compiled out by default (`SEND_RMS`). Dirt has no per-orbit effects; the delay is one global line.
 
 ## Per-sound chain
@@ -52,9 +53,13 @@ Abbreviations: F = sample frames, SR = engine sample rate, R = `CUTOFFRATIO` = 3
 From `playback_finalize`:
 
 - **Delay return**: added to the dry mix before compression.
+
 - **`dirty` compressor (default)**: peak gain rider. Gain drops instantly to `1/abs(peak)` and recovers linearly at 50/s. Output then scales by `g_gain/5`. No core UGen matches it per sample; a `LocalIn` loop adds a block of delay. `Normalizer` is nearest but uses lookahead. Approximate.
+
 - **`clean`**: RMS follower plus `tanh`. Map to `Amplitude` or an RMS follower, gain, then `.tanh`. Approximate.
+
 - **`none`**: multiply by `g_gain`. Exact.
+
 - **NaN and Inf guard** (`playback_sanitize`): `Sanitize` plus a clamp.
 
 ## SynthDef strategy
@@ -72,8 +77,11 @@ Forward each incoming bundle timetag unchanged into the bundle sent to scsynth. 
 ## Open points
 
 - `PanAz` orientation and position convention, against Dirt's channel layout.
+
 - Ladder filter frequency: measured at `resonance` 0.01 with a 1e-3 impulse. At high resonance, or with the cubic saturation driven, the two models diverge further.
+
 - Compressor parity is approximate only.
+
 - `begin < 0` (cut-continue) is deferred.
 
 ## Method

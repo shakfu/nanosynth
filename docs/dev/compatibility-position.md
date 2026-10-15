@@ -44,15 +44,19 @@ nanosynth sends a UGen's inputs in its parameter declaration order; the plugin r
 
 **Input rates are not validated.** sclang's `checkInputs` rejects graphs where an audio-rate UGen gets a scalar or control-rate signal in a slot it reads as audio. nanosynth has no equivalent. The plugin then reads 64 samples from a 1-sample wire.
 - 6 rules are violated by nanosynth's own defaults, so omitting the argument is enough: `AmpComp.frequency`, `AmpCompA.frequency`, `BufRd.phase`, `BufWr.phase`, `Demand.trigger`, `XFade2.in_b`. Observed effects: `BufWr` crash, `AmpCompA` and `XFade2` NaN/inf.
+
 - 81 more are violated when a user passes a non-audio signal, for example `LPF.ar(source=Saw.kr(...))`.
 
 **Engine cannot load 8 UGens** ("UGen not installed"):
 - `Dunique` and `HilbertFIR` are pseudo-UGens in sclang, but nanosynth emits them as units.
+
 - `BHiCut` and `BLowCut` exist in neither sclang 3.14.1 nor the plugins.
+
 - `MouseX`, `MouseY`, `MouseButton` and `KeyState`: their plugin (UIUGens) is not shipped.
 
 **Wrong defaults that break output:**
 - `AmpComp`: `root=0` and `frequency=1000`; sclang uses `60.midicps` for both. Division by zero.
+
 - `ExpRand`: `minimum=0`; sclang uses 0.01. Output is -inf.
 
 **`Envelope.linen` is not linear by default.** Its default `curve=1` is encoded as curvature 1 (shape `CUSTOM`), not as the linear shape. sclang's default is `\lin`.
@@ -63,8 +67,11 @@ nanosynth sends a UGen's inputs in its parameter declaration order; the plugin r
 
 **Defaults differing from sclang:**
 - `NRand.n`: 1 vs 0.
+
 - `RandID.rand_id`: 1 vs 0.
+
 - `Dibrown.hi`/`step`: 12 and 1 vs 1 and 0.01 (sclang inherits them from `Dbrown`).
+
 - `Gendy1`, `Gendy2`, `LeakDC`: sclang uses different defaults at control rate; nanosynth uses the audio-rate ones at both rates.
 
 **Rates sclang does not offer:** `Buf*` delays at kr, `InFeedback` at kr, and `PV_HainsworthFoote`/`PV_JensenAndersen` at kr only, where sclang has ar only.
@@ -75,8 +82,11 @@ nanosynth sends a UGen's inputs in its parameter declaration order; the plugin r
 
 **Coverage:** 51 plugin units have no class. 7 are Bela hardware I/O; `OutputProxy` is not a UGen. Musical gaps include:
 - `Klang`, `Formant`, `Shaper`, `SinOscFB`, `IndexL`;
+
 - `Stepper`, `Timer`, `PulseCount`, `PulseDivider`, `SetResetFF`, `TDuty`;
+
 - `GVerb`, `FreeVerb2`, `Resonz`, `TGrains`, `GrainSin`, `GrainFM`, `PartConv`;
+
 - `LinPan2`, `LinXFade2`, `IEnvGen`, `T2A`, `T2K`.
 
 Missing sclang pseudo-UGens: `Splay`, `SplayAz`, `DynKlank`, `DynKlang`, `VarLag`, `Changed`, `CompanderD`, `Tap`, `UnpackFFT`.
@@ -95,9 +105,13 @@ Missing sclang pseudo-UGens: `Splay`, `SplayAz`, `DynKlank`, `DynKlang`, `VarLag
 ## Not verified
 
 - **Supernova.** All renders used scsynth.
+
 - **Arguments that are symbols, strings or arrays.** The extractor does not track them. Their UGens (`Onsets`, `Poll`, `SendReply`, `SendPeakRMS`, `Klank`) were checked by hand.
+
 - **Renames.** Synonyms in `scripts/ugen_position.py`; 2 remain unexplained and were reviewed by hand.
+
 - **Behaviour beyond 0.1-0.25 s renders with default or recipe inputs.** Effects that need specific input ranges, long run time or buffers holding data were not exercised.
+
 - **The pattern, server and MIDI layers.** They are compared to nothing here.
 
 ## Reproduce

@@ -29,9 +29,13 @@ The reference comes from sclang, not from parsing `.sc` files, so any argument h
 For each class in the reference, `generate_sc3_ugens.py`:
 
 1. Skips it if `has_unit` is false. The class is sclang-only: a server has no unit to run.
+
 2. Skips it if sclang could not build it, or if it builds only other UGens (a pseudo-UGen).
+
 3. Writes a class whose parameters are the sclang method's arguments. `mul` and `add` are dropped. camelCase becomes snake_case, `in` becomes `source`, and a name that is a keyword or a `UGen` attribute gets a trailing `_`. A `numChannels` or `numChans` argument that sclang does not send becomes `channel_count`.
+
 4. Takes the parameter order from `WIRE_ORDER` instead, when the class has an entry there.
+
 5. Builds the class and compares it with sclang input by input, at every rate. Rates that differ are dropped. A class that still differs is skipped, unless its differences match its allowlist entry exactly.
 
 Classes in `sc3_custom.__all__` are not generated. `sc3.py` imports and re-exports them.
@@ -51,14 +55,19 @@ Read the sclang method in the sc3-plugins `.sc` file before editing any of these
 `tests/test_sc3_ugens.py`:
 
 - The reference was made by sclang and sc3-plugins at the vendored SuperCollider version.
+
 - `sc3.py` and the skipped list are what the generator writes now.
+
 - Every reference class is wrapped or skipped with a reason.
+
 - Every wrapped class matches sclang, apart from its allowlist entry.
+
 - Classes that compute inputs build the expected inputs from real arguments; the probe passes only placeholders.
 
 With `NANOSYNTH_SC3_PLUGINS` set to a directory of built sc3-plugins:
 
 - Every wrapped name is registered by some plugin. NovaDiskOut is exempt: NovaDiskIO is off in a default build.
+
 - DFM1 renders through the plugin.
 
 ## Skipped classes (25)
@@ -110,12 +119,19 @@ The script refuses an sclang or an sc3-plugins source at another version. Use th
 sc3-plugins is released with SuperCollider's version number, and its plugins must be built against the same SuperCollider headers: scsynth checks `api_version` when it loads one.
 
 1. Update the vendored SuperCollider in `thirdparty/supercollider`. The reference test then fails until step 2.
+
 2. Build sclang at the new version, as above, and run `make sclang-reference`. Fix the core UGens it flags, or allowlist them in `tests/fixtures/ugen_reference_allowlist.json`.
+
 3. Regenerate the sc3-plugins reference and wrappers against the new sc3-plugins source, as above.
+
 4. Read the changes to `spec/sc3-plugins-skipped.json`:
+
    - A class newly skipped as "differs from sclang" changed its sclang method. Give it a `WIRE_ORDER` entry, or write it in `sc3_custom.py`.
+
    - A `WIRE_ORDER` entry or `sc3_custom` class that fails names a method that changed. Read the new `.sc` and update it.
+
    - A new class with no unit, or one sclang cannot build, needs nothing.
+
 5. Run `make test` with `NANOSYNTH_SC3_PLUGINS` set to the new plugins, built against the new headers.
 
 Renamed sclang arguments rename the Python parameters. Note that in the CHANGELOG under Upgrading: it breaks callers.

@@ -7,6 +7,7 @@ Status: steps 1-3 done 2026-10-05; step 4 open. Tracked in `TODO.md` (High, "UGe
 Each UGen's metadata (rates, input names, order and defaults, output count) is hand-written in `src/nanosynth/ugens/*.py`. Nothing checks it against an independent source:
 
 - `spec/nanosynth-ugens.json` is generated from those classes.
+
 - `tests/fixtures/scgf/` holds nanosynth's own compiled output.
 
 Both agree with any metadata error. Wrong metadata fails in three ways:
@@ -20,9 +21,13 @@ Both agree with any metadata error. Wrong metadata fails in three ways:
 ## Evidence
 
 - `DiskOut` declared 0 outputs and writes `OUT(0)`. Every `Server.record()` crashed the engine (fixed).
+
 - A static scan of `thirdparty/supercollider/server/plugins/*.cpp` compares the highest literal `OUT(n)`/`IN(n)` index per `<UGen>_next*`/`_Ctor` function with the declared counts. It found:
+
   - `PanB`: declares 3 outputs, writes 4 (W, X, Y, Z). Confirmed.
+
   - 8 UGens whose C++ reads more inputs than nanosynth declares, with no `mNumInputs` guard: `Delay1`, `Delay2`, `KeyTrack`, `NumRunningSynths`, `PV_HainsworthFoote`, `PV_JensenAndersen`, `SpecPcile`, `Vibrato`. Unverified.
+
 - The scan cannot see 10 UGens with no matching plugin function, indices computed in loops or macros, input order, or defaults.
 
 ## Proposal
@@ -100,6 +105,7 @@ Kept against sclang (allowlisted): `Dibrown` defaults, because sclang's `step = 
 ### 4. Optional: dynamic sweep under AddressSanitizer
 
 - Build the plugins with `-fsanitize=address`.
+
 - NRT-render every UGen with default inputs, one subprocess each.
 
 This catches overruns with computed indices, which steps 2 and 3 miss. Run it nightly or on demand; the ASan build is slow.
@@ -107,6 +113,7 @@ This catches overruns with computed indices, which steps 2 and 3 miss. Run it ni
 ## Alternatives considered
 
 - **Compare against supriya's UGen definitions.** No sclang needed. But nanosynth was ported from supriya, so shared errors would pass. Weak independence.
+
 - **Parse the `.sc` class files directly.** Output counts are set in `init` methods (`initOutputs(n)`, `^0.0`, computed counts), so a parser would be brittle. Running sclang avoids parsing it.
 
 ## Effort (estimates)
