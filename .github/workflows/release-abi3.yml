@@ -119,8 +119,27 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  publish:
+  collect:
     needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    name: collect
+
+    # One artifact holding every wheel and the sdist, for a single download.
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Upload combined artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/*
+
+  publish:
+    needs: [collect]
     runs-on: ubuntu-latest
     name: publish
     if: github.event_name == 'workflow_dispatch' && inputs.publish != 'none'
@@ -128,11 +147,11 @@ jobs:
       id-token: write
 
     steps:
-      - name: Download all artifacts
+      - name: Download combined artifact
         uses: actions/download-artifact@v8
         with:
+          name: dist
           path: dist/
-          merge-multiple: true
 
       - name: List artifacts
         run: ls -lh dist/
@@ -151,7 +170,7 @@ jobs:
           packages-dir: dist/
 
   github-release:
-    needs: [tag, build-wheels, build-sdist]
+    needs: [tag, collect]
     runs-on: ubuntu-latest
     name: github release
     if: needs.tag.outputs.name != '' && (github.event_name == 'push' || inputs.github-release)
@@ -161,11 +180,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Download all artifacts
+      - name: Download combined artifact
         uses: actions/download-artifact@v8
         with:
+          name: dist
           path: dist/
-          merge-multiple: true
 
       # A final release from a tag needs its own CHANGELOG section; branch
       # drafts and pre-releases may fall back to [Unreleased].

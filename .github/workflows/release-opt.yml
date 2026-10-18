@@ -90,8 +90,27 @@ jobs:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: wheelhouse/*.whl
 
+  collect:
+    needs: [build-wheels]
+    runs-on: ubuntu-latest
+    name: collect
+
+    # One artifact holding every wheel, for a single download.
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Upload combined artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/*.whl
+
   github-release:
-    needs: [tag, build-wheels]
+    needs: [tag, collect]
     runs-on: ubuntu-latest
     name: github release assets
     if: needs.tag.outputs.name != '' && inputs.github-release
@@ -99,11 +118,11 @@ jobs:
       contents: write
 
     steps:
-      - name: Download all artifacts
+      - name: Download combined artifact
         uses: actions/download-artifact@v8
         with:
+          name: dist
           path: dist/
-          merge-multiple: true
 
       # Attach only: fails if release-abi3.yml has not created the release, and
       # never touches its title or notes.
