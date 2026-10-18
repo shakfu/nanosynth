@@ -241,7 +241,7 @@ Option 1 is the oracle. Send the same timestamped `/dirt/play` bundle to SuperDi
 
 ### Risks
 
-- **Licence.** SuperDirt and vortex are GPL-3; Strudel is AGPL-3. Translating SuperDirt's SynthDefs and classes produces GPL-3 code. Put nanodirt in its own GPL-3 package that depends on nanosynth, rather than in the MIT package. Writing from behaviour alone is possible, but slower and gives worse parity.
+- **Licence.** SuperDirt is GPL-2.0-or-later (`LICENSE`; `SuperDirt.sc` header), vortex GPL-3.0-or-later, Strudel AGPL-3, and the Vowel quark LGPL-2.1. Translating SuperDirt's SynthDefs and classes produces a derivative work under SuperDirt's GPL; nanodirt takes the "or later" option and is GPL-3.0-or-later, which vortex also requires. Put nanodirt in its own GPL-3 package that depends on nanosynth, rather than in the MIT package. Writing from behaviour alone is possible, but slower and gives worse parity.
 
 - **Parity drift.** SuperDirt changes; nanodirt follows by hand. Pin a SuperDirt revision and record it.
 

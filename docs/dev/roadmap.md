@@ -27,7 +27,7 @@ Let TidalCycles, Strudel and vortex play through `pip install nanodirt` with no 
 | SuperDirt + Vowel quark | `/dirt/play`, event model, orbits, effects, samples, instruments | nanodirt |
 | Node bridge (Strudel) | WebSocket 8080 to UDP 57120 | nanodirt WebSocket adapter |
 
-nanodirt is GPL-3 and depends on MIT nanosynth. A translation of SuperDirt is GPL-3, so it cannot live in nanosynth (`livecoding.md`, "Risks").
+nanodirt is GPL-3.0-or-later and depends on MIT nanosynth. A translation of SuperDirt (GPL-2.0-or-later) is a derivative work under the GPL, so it cannot ship inside MIT nanosynth. Packaging options: `nanodirt-integration.md`.
 
 ## Division of work
 
