@@ -128,6 +128,7 @@ from .envelopes import (
     PauseSelfWhenDone,
 )
 from .ffsinosc import (
+    DynKlank,
     Blip,
     FSinOsc,
     Klank,
@@ -135,6 +136,7 @@ from .ffsinosc import (
     Saw,
 )
 from .filters import (
+    Resonz,
     APF,
     BPF,
     BPZ2,
@@ -214,6 +216,7 @@ from .info import (
     SubsampleOffset,
 )
 from .inout import (
+    SoundIn,
     In,
     InFeedback,
     LocalIn,
@@ -224,6 +227,7 @@ from .inout import (
     XOut,
 )
 from .lines import (
+    Silent,
     A2K,
     AmpComp,
     AmpCompA,
@@ -287,6 +291,9 @@ from .noise import (
     WhiteNoise,
 )
 from .osc import (
+    PMOsc,
+    SelectX,
+    SinOscFB,
     COsc,
     DegreeToKey,
     Impulse,
@@ -309,6 +316,8 @@ from .osc import (
     WrapIndex,
 )
 from .panning import (
+    LinXFade2,
+    SplayAz,
     Balance2,
     BiPanB2,
     DecodeB2,
@@ -367,7 +376,7 @@ from .pv import (
     PV_RectComb2,
     RunningSum,
 )
-from .reverb import FreeVerb
+from .reverb import FreeVerb, GVerb
 from .safety import (
     CheckBadValues,
     Sanitize,
@@ -772,4 +781,14 @@ __all__ = [
     "Trig1",
     "Wrap",
     "ZeroCrossing",
+    "DynKlank",
+    "GVerb",
+    "LinXFade2",
+    "PMOsc",
+    "Resonz",
+    "SelectX",
+    "Silent",
+    "SinOscFB",
+    "SoundIn",
+    "SplayAz",
 ]

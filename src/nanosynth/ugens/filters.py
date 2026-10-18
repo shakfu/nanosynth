@@ -262,6 +262,13 @@ class Ringz(UGen):
 
 
 @ugen(ar=True, kr=True, is_pure=True)
+class Resonz(UGen):
+    source = param()
+    frequency = param(440.0)
+    bandwidth_ratio = param(1.0)
+
+
+@ugen(ar=True, kr=True, is_pure=True)
 class SOS(UGen):
     source = param()
     a_0 = param(0.0)

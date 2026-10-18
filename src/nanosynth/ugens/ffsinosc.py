@@ -6,10 +6,12 @@ from typing import Any
 
 from ..enums import CalculationRate
 from ..synthdef import (
+    PseudoUGen,
     UGen,
     UGenOperable,
     UGenRecursiveInput,
     UGenScalarInput,
+    UGenVector,
     param,
     ugen,
 )
@@ -73,6 +75,110 @@ class Klank(UGen):
             frequency_scale=frequency_scale,
             source=source,
             specifications=specs,
+        )
+
+
+class DynKlank(PseudoUGen):
+    """A bank of ``Ringz`` resonators whose parameters may be signals, as sclang."""
+
+    @staticmethod
+    def _build(
+        rate: CalculationRate,
+        source: UGenRecursiveInput,
+        frequencies: Sequence[UGenRecursiveInput] | None,
+        amplitudes: Sequence[UGenRecursiveInput] | None,
+        decay_times: Sequence[UGenRecursiveInput] | None,
+        frequency_scale: UGenRecursiveInput,
+        frequency_offset: UGenRecursiveInput,
+        decay_scale: UGenRecursiveInput,
+    ) -> UGenOperable:
+        from .filters import Ringz
+
+        # sclang's multiNew expands over every argument but the spec: one bank
+        # of resonators per channel of a multichannel source or scale.
+        expanding = [source, frequency_scale, frequency_offset, decay_scale]
+        widths = [len(x) for x in expanding if isinstance(x, (list, tuple, UGenVector))]
+        if widths:
+
+            def at(x: Any, i: int) -> Any:
+                if isinstance(x, (list, tuple, UGenVector)):
+                    return x[i % len(x)]
+                return x
+
+            return UGenVector(
+                *(
+                    DynKlank._build(
+                        rate,
+                        at(source, i),
+                        frequencies,
+                        amplitudes,
+                        decay_times,
+                        at(frequency_scale, i),
+                        at(frequency_offset, i),
+                        at(decay_scale, i),
+                    )
+                    for i in range(max(widths))
+                )
+            )
+
+        def vector(values: Sequence[Any] | None, default: float) -> UGenVector:
+            return UGenVector(*(values or [default]))
+
+        freqs = vector(frequencies, 440.0) * frequency_scale + frequency_offset
+        decays = vector(decay_times, 1.0) * decay_scale
+        amps = vector(amplitudes, 1.0)
+        method = Ringz.ar if rate == CalculationRate.AUDIO else Ringz.kr  # type: ignore[attr-defined]
+        rings = method(source=source, frequency=freqs, decay_time=decays) * amps
+        # sclang Array.sum: a left-to-right chain of +, not Sum3/Sum4.
+        total: UGenOperable = rings[0]
+        for ring in list(rings)[1:]:
+            total = total + ring
+        return total
+
+    @classmethod
+    def ar(
+        cls,
+        *,
+        source: UGenRecursiveInput,
+        frequencies: Sequence[UGenRecursiveInput] | None = None,
+        amplitudes: Sequence[UGenRecursiveInput] | None = None,
+        decay_times: Sequence[UGenRecursiveInput] | None = None,
+        frequency_scale: UGenRecursiveInput = 1.0,
+        frequency_offset: UGenRecursiveInput = 0.0,
+        decay_scale: UGenRecursiveInput = 1.0,
+    ) -> UGenOperable:
+        return cls._build(
+            CalculationRate.AUDIO,
+            source,
+            frequencies,
+            amplitudes,
+            decay_times,
+            frequency_scale,
+            frequency_offset,
+            decay_scale,
+        )
+
+    @classmethod
+    def kr(
+        cls,
+        *,
+        source: UGenRecursiveInput,
+        frequencies: Sequence[UGenRecursiveInput] | None = None,
+        amplitudes: Sequence[UGenRecursiveInput] | None = None,
+        decay_times: Sequence[UGenRecursiveInput] | None = None,
+        frequency_scale: UGenRecursiveInput = 1.0,
+        frequency_offset: UGenRecursiveInput = 0.0,
+        decay_scale: UGenRecursiveInput = 1.0,
+    ) -> UGenOperable:
+        return cls._build(
+            CalculationRate.CONTROL,
+            source,
+            frequencies,
+            amplitudes,
+            decay_times,
+            frequency_scale,
+            frequency_offset,
+            decay_scale,
         )
 
 

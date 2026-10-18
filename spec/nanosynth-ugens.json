@@ -4084,6 +4084,74 @@
       ]
     },
     {
+      "name": "GVerb",
+      "rates": [
+        "ar"
+      ],
+      "outputs": {
+        "kind": "fixed",
+        "count": 2
+      },
+      "flags": {
+        "pure": false,
+        "output": false,
+        "width_first": false,
+        "has_done_flag": false
+      },
+      "parameters": [
+        {
+          "name": "source",
+          "default": "required",
+          "unexpanded": false
+        },
+        {
+          "name": "room_size",
+          "default": 10.0,
+          "unexpanded": false
+        },
+        {
+          "name": "reverb_time",
+          "default": 3.0,
+          "unexpanded": false
+        },
+        {
+          "name": "damping",
+          "default": 0.5,
+          "unexpanded": false
+        },
+        {
+          "name": "input_bandwidth",
+          "default": 0.5,
+          "unexpanded": false
+        },
+        {
+          "name": "spread",
+          "default": 15.0,
+          "unexpanded": false
+        },
+        {
+          "name": "dry_level",
+          "default": 1.0,
+          "unexpanded": false
+        },
+        {
+          "name": "early_reflection_level",
+          "default": 0.7,
+          "unexpanded": false
+        },
+        {
+          "name": "tail_level",
+          "default": 0.5,
+          "unexpanded": false
+        },
+        {
+          "name": "maximum_room_size",
+          "default": 300.0,
+          "unexpanded": false
+        }
+      ]
+    },
+    {
       "name": "Gate",
       "rates": [
         "ar",
@@ -6272,6 +6340,40 @@
         },
         {
           "name": "skew",
+          "default": 0.0,
+          "unexpanded": false
+        }
+      ]
+    },
+    {
+      "name": "LinXFade2",
+      "rates": [
+        "ar",
+        "kr"
+      ],
+      "outputs": {
+        "kind": "fixed",
+        "count": 1
+      },
+      "flags": {
+        "pure": false,
+        "output": false,
+        "width_first": false,
+        "has_done_flag": false
+      },
+      "parameters": [
+        {
+          "name": "in_a",
+          "default": "required",
+          "unexpanded": false
+        },
+        {
+          "name": "in_b",
+          "default": 0.0,
+          "unexpanded": false
+        },
+        {
+          "name": "pan",
           "default": 0.0,
           "unexpanded": false
         }
@@ -9501,6 +9603,40 @@
       ]
     },
     {
+      "name": "Resonz",
+      "rates": [
+        "ar",
+        "kr"
+      ],
+      "outputs": {
+        "kind": "fixed",
+        "count": 1
+      },
+      "flags": {
+        "pure": true,
+        "output": false,
+        "width_first": false,
+        "has_done_flag": false
+      },
+      "parameters": [
+        {
+          "name": "source",
+          "default": "required",
+          "unexpanded": false
+        },
+        {
+          "name": "frequency",
+          "default": 440.0,
+          "unexpanded": false
+        },
+        {
+          "name": "bandwidth_ratio",
+          "default": 1.0,
+          "unexpanded": false
+        }
+      ]
+    },
+    {
       "name": "Ringz",
       "rates": [
         "ar",
@@ -10079,6 +10215,35 @@
         },
         {
           "name": "phase",
+          "default": 0.0,
+          "unexpanded": false
+        }
+      ]
+    },
+    {
+      "name": "SinOscFB",
+      "rates": [
+        "ar",
+        "kr"
+      ],
+      "outputs": {
+        "kind": "fixed",
+        "count": 1
+      },
+      "flags": {
+        "pure": true,
+        "output": false,
+        "width_first": false,
+        "has_done_flag": false
+      },
+      "parameters": [
+        {
+          "name": "frequency",
+          "default": 440.0,
+          "unexpanded": false
+        },
+        {
+          "name": "feedback",
           "default": 0.0,
           "unexpanded": false
         }

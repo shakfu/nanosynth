@@ -257,6 +257,10 @@ def arguments(name: str, record: dict[str, Any]) -> list[tuple[str, Any, bool]]:
     return out
 
 
+# sc3-plugins classes whose sclang signalRange is unipolar (sclang 3.14.1).
+UNIPOLAR = frozenset({"GaussTrig"})
+
+
 def class_source(name: str, entry: dict[str, Any], tokens: list[str]) -> str:
     record = by_rate(entry)[tokens[0]]
     chain = entry.get("superclasses", [])
@@ -272,6 +276,8 @@ def class_source(name: str, entry: dict[str, Any], tokens: list[str]) -> str:
         flags.append("is_width_first=True")
     if "PureUGen" in chain or "PureMultiOutUGen" in chain:
         flags.append("is_pure=True")
+    if name in UNIPOLAR:
+        flags.append("unipolar=True")
     base = "PV_ChainUGen" if "PV_ChainUGen" in chain else "UGen"
     lines = [f"@ugen({', '.join(flags)})", f"class {name}({base}):"]
     for arg, default, array in arguments(name, record):

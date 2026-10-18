@@ -3,7 +3,7 @@
 from ..synthdef import UGen, param, ugen
 
 
-@ugen(kr=True)
+@ugen(kr=True, unipolar=True)
 class KeyState(UGen):
     keycode = param(0)
     minimum = param(0.0)
@@ -11,14 +11,14 @@ class KeyState(UGen):
     lag = param(0.2)
 
 
-@ugen(kr=True)
+@ugen(kr=True, unipolar=True)
 class MouseButton(UGen):
     minimum = param(0.0)
     maximum = param(1.0)
     lag = param(0.2)
 
 
-@ugen(kr=True)
+@ugen(kr=True, unipolar=True)
 class MouseX(UGen):
     minimum = param(0.0)
     maximum = param(1.0)
@@ -26,7 +26,7 @@ class MouseX(UGen):
     lag = param(0.2)
 
 
-@ugen(kr=True)
+@ugen(kr=True, unipolar=True)
 class MouseY(UGen):
     minimum = param(0.0)
     maximum = param(1.0)

@@ -160,7 +160,6 @@ class NodeProxy:
         self._monitor_synth = self._server.synth(
             monitor_name,
             action=AddAction.ADD_TO_TAIL,
-            target=1,
             in_bus=float(bus.bus_id),
             out_bus=float(out),
         )

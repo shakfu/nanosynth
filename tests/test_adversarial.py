@@ -280,17 +280,17 @@ class TestDegenerateGraphs:
             SynthDef([], name="empty")
 
     def test_constants_only_graph(self):
-        """A graph that outputs only a constant compiles."""
+        """A graph that outputs only a constant compiles (Out.kr: ar needs audio)."""
         with SynthDefBuilder() as builder:
-            Out.ar(bus=0, source=0.5)
+            Out.kr(bus=0, source=0.5)
         sd = builder.build(name="const_only")
         data = sd.compile()
         assert data[:4] == b"SCgf"
 
     def test_parameter_only_graph(self):
-        """A graph that outputs only a parameter compiles."""
+        """A graph that outputs only a parameter compiles (Out.kr: ar needs audio)."""
         with SynthDefBuilder(amp=0.5) as builder:
-            Out.ar(bus=0, source=builder["amp"])
+            Out.kr(bus=0, source=builder["amp"])
         sd = builder.build(name="param_only")
         data = sd.compile()
         assert data[:4] == b"SCgf"

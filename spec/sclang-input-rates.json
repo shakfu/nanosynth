@@ -1,0 +1,11363 @@
+{
+ "sclang_version": "3.14.1",
+ "ugens": {
+  "A2B": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "APF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "AmpComp": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "AmpCompA": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "B2A": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "B2Ster": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "B2UHJ": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BAllPass": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BBandPass": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BBandStop": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BFDecode1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BFEncode1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BFEncodeSter": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 8,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BFManipulate": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BHiPass": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BHiShelf": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BLowPass": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BLowShelf": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "BPZ2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "BPeakEQ": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BRF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "BRZ2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Balance2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BelaScopeOut": {
+   "ar": {
+    "baseline_error": "arg: channelOffset must be a positive number, but an OutputProxy is provided.",
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {}
+   }
+  },
+  "BiPanB2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BufRd": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "BufWr": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "CheckBadValues": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "CircleRamp": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Clip": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Decay": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Decay2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "DecodeB2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Delay1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Delay2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Demand": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "DetectSilence": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "DiskOut": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "EnvDetect": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "FMHDecode1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 11,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "FOS": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "FaustGreyholeRaw": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Fold": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Formlet": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "FreeVerb": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "FreeVerb2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Friction": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "GVerb": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "GlitchBPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "GlitchBRF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "GlitchHPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "GlitchRHPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "GreyholeRaw": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator10": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 122,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "100": [
+      "audio"
+     ],
+     "101": [
+      "audio"
+     ],
+     "102": [
+      "audio"
+     ],
+     "103": [
+      "audio"
+     ],
+     "104": [
+      "audio"
+     ],
+     "105": [
+      "audio"
+     ],
+     "106": [
+      "audio"
+     ],
+     "107": [
+      "audio"
+     ],
+     "108": [
+      "audio"
+     ],
+     "109": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "110": [
+      "audio"
+     ],
+     "111": [
+      "audio"
+     ],
+     "112": [
+      "audio"
+     ],
+     "113": [
+      "audio"
+     ],
+     "114": [
+      "audio"
+     ],
+     "115": [
+      "audio"
+     ],
+     "116": [
+      "audio"
+     ],
+     "117": [
+      "audio"
+     ],
+     "118": [
+      "audio"
+     ],
+     "119": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "120": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 17,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 26,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator5": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 37,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator6": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 50,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator7": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 65,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator8": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 82,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAAzimuthRotator9": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 101,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 11,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA10": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 128,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "100": [
+      "audio"
+     ],
+     "101": [
+      "audio"
+     ],
+     "102": [
+      "audio"
+     ],
+     "103": [
+      "audio"
+     ],
+     "104": [
+      "audio"
+     ],
+     "105": [
+      "audio"
+     ],
+     "106": [
+      "audio"
+     ],
+     "107": [
+      "audio"
+     ],
+     "108": [
+      "audio"
+     ],
+     "109": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "110": [
+      "audio"
+     ],
+     "111": [
+      "audio"
+     ],
+     "112": [
+      "audio"
+     ],
+     "113": [
+      "audio"
+     ],
+     "114": [
+      "audio"
+     ],
+     "115": [
+      "audio"
+     ],
+     "116": [
+      "audio"
+     ],
+     "117": [
+      "audio"
+     ],
+     "118": [
+      "audio"
+     ],
+     "119": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "120": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 16,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 23,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 32,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA5": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 43,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA6": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 56,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA7": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 71,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA8": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 88,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamDirac2HOA9": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 107,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamHCardio2HOA1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 8,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamHCardio2HOA2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 13,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamHCardio2HOA3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 20,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamHCardio2Mono1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamHCardio2Mono2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 14,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOABeamHCardio2Mono3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 21,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d10": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 121,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "100": [
+      "audio"
+     ],
+     "101": [
+      "audio"
+     ],
+     "102": [
+      "audio"
+     ],
+     "103": [
+      "audio"
+     ],
+     "104": [
+      "audio"
+     ],
+     "105": [
+      "audio"
+     ],
+     "106": [
+      "audio"
+     ],
+     "107": [
+      "audio"
+     ],
+     "108": [
+      "audio"
+     ],
+     "109": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "110": [
+      "audio"
+     ],
+     "111": [
+      "audio"
+     ],
+     "112": [
+      "audio"
+     ],
+     "113": [
+      "audio"
+     ],
+     "114": [
+      "audio"
+     ],
+     "115": [
+      "audio"
+     ],
+     "116": [
+      "audio"
+     ],
+     "117": [
+      "audio"
+     ],
+     "118": [
+      "audio"
+     ],
+     "119": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "120": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 16,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 25,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d5": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 36,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d6": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 49,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d7": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 64,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d8": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 81,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2AcnSn3d9": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 100,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2FuMa1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2FuMa2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnN3d2FuMa3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 16,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnSn3d2FuMa1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnSn3d2FuMa2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterAcnSn3d2FuMa3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 16,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterFuma2AcnN3d1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterFuma2AcnN3d2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterFuma2AcnN3d3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 16,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterFuma2AcnSn3d1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterFuma2AcnSn3d2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAConverterFuma2AcnSn3d3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 16,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecBinaural1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecBinaural2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 11,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev061": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 8,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev261": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 8,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev262": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 13,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev263": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 20,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev501": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 8,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev502": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 13,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev503": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 20,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev504": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 29,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOADecLebedev505": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 40,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncEigenMike1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 27,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncEigenMike2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 27,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncEigenMike3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 27,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncEigenMike4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 33,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncLebedev501": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 51,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncLebedev502": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 51,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncLebedev503": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 51,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncLebedev504": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 51,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncLebedev505": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 51,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncoder1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncoder2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncoder3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncoder4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAEncoder5": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror10": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 124,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "100": [
+      "audio"
+     ],
+     "101": [
+      "audio"
+     ],
+     "102": [
+      "audio"
+     ],
+     "103": [
+      "audio"
+     ],
+     "104": [
+      "audio"
+     ],
+     "105": [
+      "audio"
+     ],
+     "106": [
+      "audio"
+     ],
+     "107": [
+      "audio"
+     ],
+     "108": [
+      "audio"
+     ],
+     "109": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "110": [
+      "audio"
+     ],
+     "111": [
+      "audio"
+     ],
+     "112": [
+      "audio"
+     ],
+     "113": [
+      "audio"
+     ],
+     "114": [
+      "audio"
+     ],
+     "115": [
+      "audio"
+     ],
+     "116": [
+      "audio"
+     ],
+     "117": [
+      "audio"
+     ],
+     "118": [
+      "audio"
+     ],
+     "119": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "120": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 12,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 19,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 28,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror5": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 39,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror6": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 52,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror7": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 67,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror8": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 84,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAMirror9": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 103,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "25": [
+      "audio"
+     ],
+     "26": [
+      "audio"
+     ],
+     "27": [
+      "audio"
+     ],
+     "28": [
+      "audio"
+     ],
+     "29": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "30": [
+      "audio"
+     ],
+     "31": [
+      "audio"
+     ],
+     "32": [
+      "audio"
+     ],
+     "33": [
+      "audio"
+     ],
+     "34": [
+      "audio"
+     ],
+     "35": [
+      "audio"
+     ],
+     "36": [
+      "audio"
+     ],
+     "37": [
+      "audio"
+     ],
+     "38": [
+      "audio"
+     ],
+     "39": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "40": [
+      "audio"
+     ],
+     "41": [
+      "audio"
+     ],
+     "42": [
+      "audio"
+     ],
+     "43": [
+      "audio"
+     ],
+     "44": [
+      "audio"
+     ],
+     "45": [
+      "audio"
+     ],
+     "46": [
+      "audio"
+     ],
+     "47": [
+      "audio"
+     ],
+     "48": [
+      "audio"
+     ],
+     "49": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "50": [
+      "audio"
+     ],
+     "51": [
+      "audio"
+     ],
+     "52": [
+      "audio"
+     ],
+     "53": [
+      "audio"
+     ],
+     "54": [
+      "audio"
+     ],
+     "55": [
+      "audio"
+     ],
+     "56": [
+      "audio"
+     ],
+     "57": [
+      "audio"
+     ],
+     "58": [
+      "audio"
+     ],
+     "59": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "60": [
+      "audio"
+     ],
+     "61": [
+      "audio"
+     ],
+     "62": [
+      "audio"
+     ],
+     "63": [
+      "audio"
+     ],
+     "64": [
+      "audio"
+     ],
+     "65": [
+      "audio"
+     ],
+     "66": [
+      "audio"
+     ],
+     "67": [
+      "audio"
+     ],
+     "68": [
+      "audio"
+     ],
+     "69": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "70": [
+      "audio"
+     ],
+     "71": [
+      "audio"
+     ],
+     "72": [
+      "audio"
+     ],
+     "73": [
+      "audio"
+     ],
+     "74": [
+      "audio"
+     ],
+     "75": [
+      "audio"
+     ],
+     "76": [
+      "audio"
+     ],
+     "77": [
+      "audio"
+     ],
+     "78": [
+      "audio"
+     ],
+     "79": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "80": [
+      "audio"
+     ],
+     "81": [
+      "audio"
+     ],
+     "82": [
+      "audio"
+     ],
+     "83": [
+      "audio"
+     ],
+     "84": [
+      "audio"
+     ],
+     "85": [
+      "audio"
+     ],
+     "86": [
+      "audio"
+     ],
+     "87": [
+      "audio"
+     ],
+     "88": [
+      "audio"
+     ],
+     "89": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ],
+     "90": [
+      "audio"
+     ],
+     "91": [
+      "audio"
+     ],
+     "92": [
+      "audio"
+     ],
+     "93": [
+      "audio"
+     ],
+     "94": [
+      "audio"
+     ],
+     "95": [
+      "audio"
+     ],
+     "96": [
+      "audio"
+     ],
+     "97": [
+      "audio"
+     ],
+     "98": [
+      "audio"
+     ],
+     "99": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev061": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev261": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev262": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev263": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 11,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev501": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 9,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev502": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev503": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 11,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev504": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 12,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOAPanLebedev505": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 13,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOARotator1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOARotator2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 12,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOARotator3": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 19,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HOARotator4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 28,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ],
+     "10": [
+      "audio"
+     ],
+     "11": [
+      "audio"
+     ],
+     "12": [
+      "audio"
+     ],
+     "13": [
+      "audio"
+     ],
+     "14": [
+      "audio"
+     ],
+     "15": [
+      "audio"
+     ],
+     "16": [
+      "audio"
+     ],
+     "17": [
+      "audio"
+     ],
+     "18": [
+      "audio"
+     ],
+     "19": [
+      "audio"
+     ],
+     "2": [
+      "audio"
+     ],
+     "20": [
+      "audio"
+     ],
+     "21": [
+      "audio"
+     ],
+     "22": [
+      "audio"
+     ],
+     "23": [
+      "audio"
+     ],
+     "24": [
+      "audio"
+     ],
+     "3": [
+      "audio"
+     ],
+     "4": [
+      "audio"
+     ],
+     "5": [
+      "audio"
+     ],
+     "6": [
+      "audio"
+     ],
+     "7": [
+      "audio"
+     ],
+     "8": [
+      "audio"
+     ],
+     "9": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "HPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "HPZ1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "HPZ2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Hasher": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "InGrainBBF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 8,
+    "rate": "audio",
+    "slots": {
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "InGrainBF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 7,
+    "rate": "audio",
+    "slots": {
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "InGrainIBF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "audio",
+    "slots": {
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "InRange": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "InRect": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "InsideOut": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Integrator": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "JPverbRaw": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 13,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "LPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "LPZ1": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "LPZ2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "LeakDC": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "LinExp": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "LinPan2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "LinXFade2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "LocalOut": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "MeanTriggered": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Median": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "MedianTriggered": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "MembraneCircle": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "MembraneHexagon": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "MidEQ": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "MoogFF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "OffsetOut": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "OnePole": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "OneZero": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Out": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Pan2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Pan4": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "PanAz": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "PanB": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "PanB2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Peak": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "audio",
+      "control"
+     ]
+    }
+   }
+  },
+  "PermMod": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "PermModArray": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "PermModT": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "PitchShift": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Poll": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 5,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "PulseCount": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "RHPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "RLPF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "ReplaceOut": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Resonz": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Ringz": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Rotate2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "RunningMax": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "audio",
+      "control"
+     ]
+    }
+   }
+  },
+  "RunningMin": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "audio",
+      "control"
+     ]
+    }
+   }
+  },
+  "SOS": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Sanitize": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Schmidt": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "Select": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "SendReply": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 10,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "SendTrig": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "SetResetFF": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Slope": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Stepper": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Summer": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "T2K": {
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "TDelay": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Timer": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "TwoPole": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "TwoZero": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "UHJ2B": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 2,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "WaveLoss": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "Wrap": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "WrapSummer": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 6,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  },
+  "XFade2": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 4,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ],
+     "1": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "XOut": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 3,
+    "rate": "audio",
+    "slots": {
+     "2": [
+      "audio"
+     ]
+    }
+   }
+  },
+  "ZeroCrossing": {
+   "ar": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "audio",
+    "slots": {
+     "0": [
+      "audio"
+     ]
+    }
+   },
+   "kr": {
+    "baseline_error": null,
+    "inputs": 1,
+    "rate": "control",
+    "slots": {
+     "0": [
+      "control"
+     ]
+    }
+   }
+  }
+ }
+}

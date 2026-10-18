@@ -185,7 +185,7 @@ The cmake recipe in `compatibility-position.md` ("Reproduce") builds sclang with
 
 ## Option 2: nanodirt
 
-Chosen. nanodirt is a separate GPL-3 package (`~/projects/personal/nanodirt`). Its front-end design (Tidal, Strudel, vortex) is in that repo: `docs/dev/integration.md`. This section keeps the scope survey.
+Chosen. nanodirt is a separate GPL-3 package (`~/projects/nanodirt`). Its front-end design (Tidal, Strudel, vortex) is in that repo: `docs/dev/integration.md`. This section keeps the scope survey.
 
 ### Layout
 

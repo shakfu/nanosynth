@@ -253,46 +253,56 @@ class Sum4(UGen):
 
 
 class Mix(PseudoUGen):
-    """A down-to-mono signal mixer."""
+    """Sum the elements of an array, as sclang's ``Mix``.
+
+    Only the outer level is summed: each element may be multichannel, so
+    ``Mix.new(Pan2.ar(source=[a, b]))`` stays stereo. A single multi-output
+    UGen is the array of its outputs, so ``Mix.new(Pan2.ar(source=a))`` is
+    mono. Use :meth:`multichannel` to fold a flat list into a fixed width.
+    """
 
     @classmethod
     def new(
         cls,
         sources: UGenRecursiveInput | Sequence[UGenRecursiveInput],
     ) -> UGenOperable:
-        if not isinstance(sources, Sequence):
-            sources = [sources]
-        flat = _flatten(sources, terminal_types=UGenScalar)
-        summed_sources: list[UGenOperable] = []
-        for part in _group_by_count(flat, 4):
+        items = (
+            list(sources)
+            if isinstance(sources, Iterable) and not isinstance(sources, UGenScalar)
+            else [sources]
+        )
+        # Nested Python lists become vectors so that + expands per channel.
+        items = [UGenVector(*x) if isinstance(x, (list, tuple)) else x for x in items]
+        mixed: list[Any] = []
+        for part in _group_by_count(items, 4):
             if len(part) == 4:
-                result = Sum4.new(  # type: ignore[attr-defined]
-                    input_one=part[0],
-                    input_two=part[1],
-                    input_three=part[2],
-                    input_four=part[3],
+                mixed.append(
+                    Sum4.new(  # type: ignore[attr-defined]
+                        input_one=part[0],
+                        input_two=part[1],
+                        input_three=part[2],
+                        input_four=part[3],
+                    )
                 )
-                if isinstance(result, UGenVector):
-                    summed_sources.extend(result)
-                else:
-                    summed_sources.append(result)
             elif len(part) == 3:
-                result = Sum3.new(  # type: ignore[attr-defined]
-                    input_one=part[0],
-                    input_two=part[1],
-                    input_three=part[2],
+                mixed.append(
+                    Sum3.new(  # type: ignore[attr-defined]
+                        input_one=part[0], input_two=part[1], input_three=part[2]
+                    )
                 )
-                if isinstance(result, UGenVector):
-                    summed_sources.extend(result)
-                else:
-                    summed_sources.append(result)
             elif len(part) == 2:
-                summed_sources.append(part[0] + part[1])
+                mixed.append(part[0] + part[1])
             else:
-                summed_sources.append(part[0])
-        if len(summed_sources) == 1:
-            return summed_sources[0]
-        return Mix.new(summed_sources)
+                mixed.append(part[0])
+        if len(mixed) == 1:
+            return mixed[0]  # type: ignore[no-any-return]
+        if len(mixed) == 2:
+            return mixed[0] + mixed[1]  # type: ignore[no-any-return]
+        if len(mixed) == 3:
+            return Sum3.new(  # type: ignore[attr-defined,no-any-return]
+                input_one=mixed[0], input_two=mixed[1], input_three=mixed[2]
+            )
+        return Mix.new(mixed)
 
     @classmethod
     def multichannel(

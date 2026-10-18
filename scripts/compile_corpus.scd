@@ -148,6 +148,43 @@ var cases = [
 	},
 	\lines -> {
 		Out.ar(0, [Line.ar(0, 1, 0.2, doneAction: 0), XLine.ar(0.01, 1, 0.2, doneAction: 0)])
+	},
+	\mapping -> {
+		var s = SinOsc.ar(3, 0), p = LFPulse.ar(5, 0, 0.5), k = SinOsc.kr(2, 0);
+		Out.ar(0, [
+			(SinOsc.ar(s.range(200, 400), 0) * 0.1)
+				+ (SinOsc.ar(p.range(300, 600), 0) * 0.1)
+				+ (SinOsc.ar(s.exprange(100, 800), 0) * 0.1)
+				+ ((s * 2).linlin(-1, 1, 0, 0.3))
+				+ ((s * 2).linlin(-1, 1, 0, 0.3, nil) * 0.1)
+				+ (SinOsc.ar(k.linexp(-1, 1, 200, 800), 0) * 0.1)
+				+ (Mix.new(SinOsc.ar(SinOsc.kr([2, 3], 0).range(200, 300), 0)) * 0.05),
+			((s * 3).clip(-0.5, 0.5) * 0.2)
+				+ ((s * 3).fold(-0.4, 0.4) * 0.2)
+				+ ((s * 3).wrap(-0.3, 0.3) * 0.2)
+				+ (p.lag(0.05) * 0.1)
+				+ (p.lag(0.01, 0.1) * 0.1)
+				+ (SinOsc.ar(k.range(1, 2).expexp(1, 2, 200, 800), 0) * 0.1)
+				+ (s.linlin(0, 1, 0, 0.2, \min) * 0.1)
+				+ (s.linlin(0, 1, 0, 0.2, \max) * 0.1)
+				+ (LFGauss.ar(0.1, 0.2, 0, 1, 0).range(-0.3, 0.3))
+		])
+	},
+	\superdirt_ugens -> {
+		var s = SinOsc.ar(220, 0), t = Saw.ar(330), p = Pulse.ar(110, 0.5), k = SinOsc.kr(3, 0);
+		var g = GVerb.ar(s * 0.2, 10, 3, 0.5, 0.5, 15, 1, 0.7, 0.5, 300);
+		var z = SplayAz.ar(2, [s, t, p], 1, 1, 2, 0, 0.5, true);
+		Out.ar(0, [
+			((g[0] + g[1]) * 0.3)
+				+ (Resonz.ar(Impulse.ar(10, 0), 800, 0.1) * 2)
+				+ (SinOscFB.ar(220, 0.8) * 0.2)
+				+ (LinXFade2.ar(s, t, k, 0.5) * 0.3)
+				+ (SelectX.ar(k.range(0, 2), [s, t, p]) * 0.2),
+			(PMOsc.ar(300, 200, 2, 0) * 0.2)
+				+ DynKlank.ar(`[[400, 700], [0.3, 0.2], [0.2, 0.3]], Impulse.ar(8, 0), 1, 0, 1)
+				+ ((z[0] + z[1]) * 0.3)
+				+ (SinOsc.ar(SinOscFB.kr(2, 0.5).range(200, 300), 0) * 0.1)
+		])
 	}
 ];
 cases.do { |assoc|

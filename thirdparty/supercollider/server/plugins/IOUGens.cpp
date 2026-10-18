@@ -1595,8 +1595,10 @@ void LocalIn_Ctor(LocalIn* unit) {
     unit->m_bus = alignment ? (float*)(size_t(unit->m_realData + 32) & ~31) : unit->m_realData;
 
     unit->m_busTouched = (int32*)(unit->m_bus + busDataSize);
+    // Stale by 2 blocks, so the first block reads the default input. -1 made
+    // diff == 1 when mBufCounter is 0 (NRT start), reading uninitialized m_bus.
     for (int i = 0; i < numChannels; ++i)
-        unit->m_busTouched[i] = -1;
+        unit->m_busTouched[i] = world->mBufCounter - 2;
 
     if (unit->mCalcRate == calc_FullRate) {
         if (unit->mParent->mLocalAudioBusUnit) {

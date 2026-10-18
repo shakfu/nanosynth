@@ -109,3 +109,14 @@ class XLine(UGen):
     stop = param(2.0)
     duration = param(1.0)
     done_action = param(0)
+
+
+class Silent(PseudoUGen):
+    """Silence: ``DC.ar(0)``, repeated for each channel."""
+
+    @staticmethod
+    def ar(channel_count: int = 1) -> UGenOperable:
+        signal = DC.ar(source=0)  # type: ignore[attr-defined]
+        if channel_count == 1:
+            return signal  # type: ignore[no-any-return]
+        return UGenVector(*[signal] * channel_count)

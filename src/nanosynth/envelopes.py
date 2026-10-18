@@ -231,7 +231,7 @@ class Envelope(UGenSerializable):
         sustain_time: float = 1.0,
         release_time: float = 1.0,
         level: float = 1.0,
-        curve: float | int = 1,
+        curve: EnvelopeShape | float | str = EnvelopeShape.LINEAR,
     ) -> "Envelope":
         """Linear envelope with fixed sustain duration.
 
@@ -242,8 +242,7 @@ class Envelope(UGenSerializable):
         """
         amplitudes = [0, level, level, 0]
         durations = [attack_time, sustain_time, release_time]
-        curves: list[float | int] = [curve]
-        return Envelope(amplitudes=amplitudes, durations=durations, curves=curves)
+        return Envelope(amplitudes=amplitudes, durations=durations, curves=[curve])
 
     @classmethod
     def percussive(

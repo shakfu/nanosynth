@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from ..enums import CalculationRate
-from ..synthdef import UGen, UGenRecursiveInput, param, ugen
+from ..synthdef import PseudoUGen, UGen, UGenOperable, UGenRecursiveInput, param, ugen
 
 
 @ugen(ar=True, kr=True, is_multichannel=True)
@@ -71,3 +71,18 @@ class XOut(UGen):
     bus = param(0)
     crossfade = param(0.0)
     source = param(unexpanded=True)
+
+
+class SoundIn(PseudoUGen):
+    """Read hardware input channels: ``In`` offset by ``NumOutputBuses``, as sclang."""
+
+    @classmethod
+    def ar(cls, *, bus: int | Sequence[int] = 0) -> UGenOperable:
+        from .info import NumOutputBuses
+
+        offset = NumOutputBuses.ir()  # type: ignore[attr-defined]
+        if not isinstance(bus, Sequence):
+            return In.ar(bus=offset + bus, channel_count=1)  # type: ignore[attr-defined,no-any-return]
+        if all(b == bus[0] + i for i, b in enumerate(bus)):
+            return In.ar(bus=offset + bus[0], channel_count=len(bus))  # type: ignore[attr-defined,no-any-return]
+        return In.ar(bus=[offset + b for b in bus], channel_count=1)  # type: ignore[attr-defined,no-any-return]

@@ -172,7 +172,7 @@ class NeedleRect(UGen):
 
 @ugen(ar=True)
 class SkipNeedle(UGen):
-    range = param(44100)
+    range_ = param(44100)
     rate = param(10)
     offset = param(0)
 
@@ -448,7 +448,7 @@ class FhnTrig(UGen):
     w0 = param(0)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, unipolar=True)
 class GaussTrig(UGen):
     freq = param(440)
     dev = param(0.3)

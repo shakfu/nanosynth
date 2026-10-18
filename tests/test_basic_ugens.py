@@ -9,7 +9,7 @@ from nanosynth.synthdef import (
     UGenVector,
     UnaryOpUGen,
 )
-from nanosynth.ugens import Out, SinOsc
+from nanosynth.ugens import Out, Pan2, SinOsc
 from nanosynth.ugens.basic import Mix, MulAdd, Sum3, Sum4
 
 
@@ -409,17 +409,26 @@ class TestMix:
         # First pass: 2 x Sum4 = 2 results, second pass: binary add
         assert len(sum4s) == 2
 
-    def test_nested_sources_flattened(self):
-        """Mix flattens nested lists of sources."""
+    def test_nested_sources_sum_per_channel(self):
+        """Mix sums the outer level only, as sclang: [[a, b], c] -> [a+c, b+c]."""
         with SynthDefBuilder() as builder:
             a = SinOsc.ar(frequency=440)
             b = SinOsc.ar(frequency=550)
             c = SinOsc.ar(frequency=660)
             result = Mix.new([[a, b], c])
             Out.ar(bus=0, source=result)
+        assert isinstance(result, UGenVector) and len(result) == 2
         sd = builder.build(name="test")
-        sum3s = [u for u in sd.ugens if isinstance(u, Sum3)]
-        assert len(sum3s) == 1
+        assert not [u for u in sd.ugens if isinstance(u, Sum3)]
+
+    def test_stereo_elements_stay_stereo(self):
+        """Mix(Pan2.ar([a, b])) is stereo; Mix(Pan2.ar(a)) is mono."""
+        with SynthDefBuilder():
+            sources = [SinOsc.ar(frequency=220), SinOsc.ar(frequency=330)]
+            stereo = Mix.new(Pan2.ar(source=sources, position=[-0.5, 0.5]))
+            mono = Mix.new(Pan2.ar(source=sources[0]))
+        assert isinstance(stereo, UGenVector) and len(stereo) == 2
+        assert len(list(mono)) == 1
 
     def test_non_sequence_wrapped(self):
         """Mix.new(single_ugen) wraps non-sequence in list and passes through."""
@@ -480,3 +489,12 @@ class TestMix:
             return builder.build(name="det").compile()
 
         assert build_mix() == build_mix()
+
+
+def test_dynklank_expands_over_a_multichannel_source():
+    """sclang's DynKlank gives one resonator bank per input channel, not a mono sum."""
+    from nanosynth.ugens import DynKlank, Saw
+
+    with SynthDefBuilder():
+        k = DynKlank.ar(source=[SinOsc.ar(), Saw.ar()], frequencies=[100, 200])
+    assert isinstance(k, UGenVector) and len(k) == 2

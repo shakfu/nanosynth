@@ -110,24 +110,24 @@ class Sweep(UGen):
     rate = param(1.0)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, unipolar=True)
 class TDelay(UGen):
     source = param()
     duration = param(0.1)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, unipolar=True)
 class ToggleFF(UGen):
     trigger = param(0)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, unipolar=True)
 class Trig1(UGen):
     source = param()
     duration = param(0.1)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, unipolar=True)
 class Trig(UGen):
     source = param()
     duration = param(0.1)

@@ -54,7 +54,7 @@ class ServerProtocol(Protocol):
     def send_synthdef(self, synthdef: "SynthDef") -> None: ...
 
     def synth(
-        self, name: str, target: int = ..., action: int = ..., **params: Any
+        self, name: str, target: int | None = ..., action: int = ..., **params: Any
     ) -> SupportsInt: ...
 
 
@@ -278,6 +278,7 @@ def _process_class(
     is_width_first: bool = False,
     channel_count: int = 1,
     fixed_channel_count: bool = False,
+    unipolar: bool = False,
 ) -> type["UGen"]:
     params: dict[str, Param] = {}
     unexpanded_keys = []
@@ -308,6 +309,7 @@ def _process_class(
     cls._is_output = bool(is_output)
     cls._is_pure = bool(is_pure)
     cls._is_width_first = bool(is_width_first)
+    cls._is_unipolar = bool(unipolar)
     # Output-arity declaration, kept for introspection (e.g. the UGen spec).
     # Runtime output count lives in the per-instance _channel_count; these
     # record the class-level declaration without affecting it.
@@ -354,8 +356,13 @@ def ugen(
     is_width_first: bool = False,
     channel_count: int = 1,
     fixed_channel_count: bool = False,
+    unipolar: bool = False,
 ) -> Callable[[type["UGen"]], type["UGen"]]:
-    """Decorate a UGen class. Akin to dataclasses.dataclass."""
+    """Decorate a UGen class. Akin to dataclasses.dataclass.
+
+    ``unipolar`` marks output in [0, 1] (sclang ``signalRange``); ``range``
+    and ``exprange`` read it.
+    """
 
     def wrap(cls: type[UGen]) -> type[UGen]:
         return _process_class(
@@ -372,6 +379,7 @@ def ugen(
             is_width_first=is_width_first,
             channel_count=channel_count,
             fixed_channel_count=fixed_channel_count,
+            unipolar=unipolar,
         )
 
     if is_multichannel and fixed_channel_count:
@@ -1195,6 +1203,184 @@ class UGenOperable:
             special_index=UnaryOperator.SOFTCLIP,
         )
 
+    # -- sclang mapping helpers (UGen.sc) ----------------------------------------
+    # Vectors and multi-output UGens apply these per channel, as sclang arrays do.
+
+    def _rate(self) -> CalculationRate:
+        return getattr(self, "calculation_rate", CalculationRate.SCALAR)
+
+    def _channels(self) -> list["UGenOperable"]:
+        return list(cast("Iterable[UGenOperable]", self))
+
+    def _is_bipolar(self) -> bool:
+        # sclang: only a single-output UGen carries its class's signalRange;
+        # an OutputProxy of a multi-output UGen is bipolar.
+        return not (
+            isinstance(self, OutputProxy)
+            and self.ugen._is_unipolar
+            and self.ugen._channel_count == 1
+        )
+
+    def range(
+        self, lo: UGenRecursiveInput = 0.0, hi: UGenRecursiveInput = 1.0
+    ) -> "UGenOperable":
+        """Map the signal's natural range (-1..1, or 0..1 if unipolar) to lo..hi."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(*(x.range(lo, hi) for x in self._channels()))
+        # A UGen class may define its own range, as sclang's LFGauss does.
+        custom = getattr(type(getattr(self, "ugen", None)), "_range", None)
+        if custom is not None:
+            return custom(self, lo, hi)  # type: ignore[no-any-return]
+        from .ugens.basic import MulAdd
+
+        if self._is_bipolar():
+            mul = (hi - lo) * 0.5  # type: ignore[operator]
+            add = mul + lo
+        else:
+            mul = hi - lo  # type: ignore[operator]
+            add = lo
+        return MulAdd.new(source=self, multiplier=mul, addend=add)  # type: ignore[attr-defined,no-any-return]
+
+    def exprange(
+        self, lo: UGenRecursiveInput = 0.01, hi: UGenRecursiveInput = 1.0
+    ) -> "UGenOperable":
+        """Map the signal's natural range exponentially to lo..hi (unclipped)."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(*(x.exprange(lo, hi) for x in self._channels()))
+        in_min = -1 if self._is_bipolar() else 0
+        return self.linexp(in_min, 1, lo, hi, clip=None)
+
+    def _prune(
+        self, lo: UGenRecursiveInput, hi: UGenRecursiveInput, clip: str | None
+    ) -> "UGenOperable":
+        if clip == "minmax":
+            return self.clip(lo, hi)
+        if clip == "min":
+            return self.max_(lo)
+        if clip == "max":
+            return self.min_(hi)
+        if clip is None:
+            return self
+        raise ValueError(f"clip must be 'minmax', 'min', 'max' or None, not {clip!r}")
+
+    def linlin(
+        self,
+        in_min: UGenRecursiveInput,
+        in_max: UGenRecursiveInput,
+        out_min: UGenRecursiveInput,
+        out_max: UGenRecursiveInput,
+        clip: str | None = "minmax",
+    ) -> "UGenOperable":
+        """Map in_min..in_max linearly to out_min..out_max; clip as sclang."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(
+                *(
+                    x.linlin(in_min, in_max, out_min, out_max, clip)
+                    for x in self._channels()
+                )
+            )
+        from .ugens.lines import LinLin
+
+        method = LinLin.ar if self._rate() == CalculationRate.AUDIO else LinLin.kr
+        return method(
+            source=self._prune(in_min, in_max, clip),
+            input_minimum=in_min,
+            input_maximum=in_max,
+            output_minimum=out_min,
+            output_maximum=out_max,
+        )
+
+    def linexp(
+        self,
+        in_min: UGenRecursiveInput,
+        in_max: UGenRecursiveInput,
+        out_min: UGenRecursiveInput,
+        out_max: UGenRecursiveInput,
+        clip: str | None = "minmax",
+    ) -> "UGenOperable":
+        """Map in_min..in_max exponentially to out_min..out_max (``LinExp``)."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(
+                *(
+                    x.linexp(in_min, in_max, out_min, out_max, clip)
+                    for x in self._channels()
+                )
+            )
+        from .ugens.lines import LinExp
+
+        return LinExp._new_expanded(
+            calculation_rate=self._rate(),
+            source=self._prune(in_min, in_max, clip),
+            input_minimum=in_min,
+            input_maximum=in_max,
+            output_minimum=out_min,
+            output_maximum=out_max,
+        )
+
+    def expexp(
+        self,
+        in_min: UGenRecursiveInput,
+        in_max: UGenRecursiveInput,
+        out_min: UGenRecursiveInput,
+        out_max: UGenRecursiveInput,
+        clip: str | None = "minmax",
+    ) -> "UGenOperable":
+        """Map in_min..in_max to out_min..out_max, exponential on both sides."""
+
+        def log(x: Any) -> Any:
+            return x.log_() if isinstance(x, UGenOperable) else math.log(x)
+
+        pruned = self._prune(in_min, in_max, clip)
+        ratio = log(pruned / in_min) / log(in_max / in_min)  # type: ignore[operator]
+        return (out_max / out_min) ** ratio * out_min  # type: ignore[operator,no-any-return]
+
+    def _bounded(
+        self, cls_name: str, lo: UGenRecursiveInput, hi: UGenRecursiveInput
+    ) -> "UGenOperable":
+        from .ugens import triggers
+
+        return getattr(triggers, cls_name)._new_expanded(  # type: ignore[no-any-return]
+            calculation_rate=self._rate(), source=self, minimum=lo, maximum=hi
+        )
+
+    def clip(
+        self, lo: UGenRecursiveInput = 0.0, hi: UGenRecursiveInput = 1.0
+    ) -> "UGenOperable":
+        """Constrain to lo..hi (``Clip``; ``max``/``min`` at demand rate)."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(*(x.clip(lo, hi) for x in self._channels()))
+        if self._rate() == CalculationRate.DEMAND:
+            # sclang: max(lo, min(hi, this)), operands in that order.
+            inner = _compute_binary_op(
+                left=hi,
+                right=self,
+                special_index=BinaryOperator.MINIMUM,
+                float_operator=min,
+            )
+            return _compute_binary_op(
+                left=lo,
+                right=inner,
+                special_index=BinaryOperator.MAXIMUM,
+                float_operator=max,
+            )
+        return self._bounded("Clip", lo, hi)
+
+    def fold(
+        self, lo: UGenRecursiveInput = 0.0, hi: UGenRecursiveInput = 0.0
+    ) -> "UGenOperable":
+        """Fold (reflect) into lo..hi (``Fold``). sclang's default hi is 0."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(*(x.fold(lo, hi) for x in self._channels()))
+        return self._bounded("Fold", lo, hi)
+
+    def wrap(
+        self, lo: UGenRecursiveInput = 0.0, hi: UGenRecursiveInput = 1.0
+    ) -> "UGenOperable":
+        """Wrap into lo..hi (``Wrap``)."""
+        if not isinstance(self, UGenScalar):
+            return UGenVector(*(x.wrap(lo, hi) for x in self._channels()))
+        return self._bounded("Wrap", lo, hi)
+
 
 class UGenScalar(UGenOperable):
     """A UGen scalar."""
@@ -1203,6 +1389,27 @@ class UGenScalar(UGenOperable):
 
     def __iter__(self) -> Iterator["UGenOperable"]:
         yield self
+
+    def lag(
+        self, t1: UGenRecursiveInput = 0.1, t2: UGenRecursiveInput | None = None
+    ) -> "UGenOperable":
+        """Exponential lag (``Lag``), or ``LagUD`` with separate up/down times.
+
+        Defined on scalars and vectors only: ``Parameter`` and some UGens use
+        ``lag`` as an attribute or parameter name.
+        """
+        from .ugens.filters import Lag, LagUD
+
+        if t2 is None:
+            return Lag._new_expanded(
+                calculation_rate=self._rate(), source=self, lag_time=t1
+            )
+        return LagUD._new_expanded(
+            calculation_rate=self._rate(),
+            source=self,
+            lag_time_up=t1,
+            lag_time_down=t2,
+        )
 
 
 class OutputProxy(UGenScalar):
@@ -1287,6 +1494,12 @@ class UGenVector(UGenOperable, SequenceABC["UGenOperable"]):
     def __iter__(self) -> Iterator[UGenOperable]:
         yield from self._values
 
+    def lag(
+        self, t1: UGenRecursiveInput = 0.1, t2: UGenRecursiveInput | None = None
+    ) -> "UGenVector":
+        """Per-channel :meth:`UGenScalar.lag`."""
+        return UGenVector(*(x.lag(t1, t2) for x in self))  # type: ignore[attr-defined]
+
     def __len__(self) -> int:
         return len(self._values)
 
@@ -1339,6 +1552,7 @@ class UGen(UGenOperable, SequenceABC["UGenOperable"]):
     _is_output = False
     _is_pure = False
     _is_width_first = False
+    _is_unipolar = False
     _declared_channel_count = 1
     _declared_is_multichannel = False
     _ordered_keys: tuple[str, ...] = ()
@@ -2155,7 +2369,7 @@ class SynthDef:
     def play(
         self,
         server: ServerProtocol,
-        target: int = 1,
+        target: int | None = None,
         action: int = 0,
         *,
         controls: Mapping[str, SupportsFloat] | None = None,
@@ -2164,7 +2378,8 @@ class SynthDef:
         """Send this SynthDef, then create a synth. Returns a Synth proxy.
 
         The SynthDef is sent unconditionally (there is no caching), so calling
-        ``play`` repeatedly re-sends it each time.
+        ``play`` repeatedly re-sends it each time. ``target=None`` is the
+        server's default group.
         """
         self.send(server)
         # Same call shape as before controls= existed unless it is needed, so
@@ -2556,9 +2771,52 @@ class SynthDefBuilder:
                 ugens = self._sort_topologically(ugens)
                 if optimize:
                     ugens = self._optimize(ugens)
+                _check_input_rates(ugens, name)
         finally:
             self._building = False
         return SynthDef(ugens, name=name)
+
+
+_RATE_NAMES = {"ar": "audio", "kr": "control", "ir": "scalar", "dr": "demand"}
+
+
+def _check_input_rates(ugens: list["UGen"], name: str | None) -> None:
+    """Raise SynthDefError where sclang's ``checkInputs`` would reject the graph.
+
+    Rules come from ``_input_rates`` and apply to nanosynth's own UGen classes.
+    A rule on an array parameter's first slot covers the whole array.
+    """
+    from ._input_rates import RULES
+
+    for ugen in ugens:
+        cls = type(ugen)
+        rules = RULES.get(cls.__name__)
+        if not rules or not cls.__module__.startswith("nanosynth.ugens"):
+            continue
+        token = ugen.calculation_rate.token
+        slots = rules.get(token)
+        if not slots:
+            continue
+        keys = cls._ordered_keys
+        first_array = next(
+            (i for i, k in enumerate(keys) if k in cls._unexpanded_keys), len(keys)
+        )
+        inputs = ugen.inputs
+        for slot, allowed in slots.items():
+            span = range(slot, len(inputs)) if slot >= first_array else (slot,)
+            for i in span:
+                if i >= len(inputs):
+                    continue
+                got = CalculationRate.from_expr(inputs[i]).token
+                if got in allowed:
+                    continue
+                key = keys[min(i, first_array)] if keys else str(i)
+                want = " or ".join(_RATE_NAMES[a] for a in allowed)
+                raise SynthDefError(
+                    f"SynthDef {name or '(anonymous)'}: {cls.__name__}.{token} input "
+                    f"{i} ({key!r}) must be {want} rate, got {_RATE_NAMES[got]} "
+                    f"rate ({inputs[i]!r})"
+                )
 
 
 from .compiler import _compile_ugen_graph, compile_synthdefs  # noqa: E402

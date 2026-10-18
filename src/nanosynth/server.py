@@ -610,17 +610,33 @@ class Server:
     ) -> None:
         self._options = options or Options()
         self._protocol: ServerProtocol = protocol or EmbeddedProcessProtocol()
-        self._node_allocator = _NodeIdAllocator()
+        opts = self._options
+        audio_count = opts.private_audio_bus_channel_count
+        audio_start = opts.first_private_bus_id
+        buffer_count = opts.buffer_count
+        control_count = opts.control_bus_channel_count
+        buffer_start = control_start = 0
+        if opts.client_id is None:
+            self._node_allocator = _NodeIdAllocator()
+        else:
+            # Same slices as sclang's Server.newAllocators.
+            cid, clients = opts.client_id, opts.maximum_logins
+            mask = cid << 26
+            self._node_allocator = _NodeIdAllocator(mask + 1000, mask + 0x03FFFFFF)
+            buffer_count //= clients
+            buffer_start = buffer_count * cid
+            control_count //= clients
+            control_start = control_count * cid
+            audio_count //= clients
+            audio_start += audio_count * cid
         self._buffer_allocator = _BlockAllocator(
-            self._options.buffer_count, name="buffer"
+            buffer_count, start=buffer_start, name="buffer"
         )
         self._audio_bus_allocator = _BlockAllocator(
-            self._options.private_audio_bus_channel_count,
-            start=self._options.first_private_bus_id,
-            name="audio bus",
+            audio_count, start=audio_start, name="audio bus"
         )
         self._control_bus_allocator = _BlockAllocator(
-            self._options.control_bus_channel_count, name="control bus"
+            control_count, start=control_start, name="control bus"
         )
         # Live base-id sets, owned by the allocators and exposed for inspection.
         self._allocated_buffers = self._buffer_allocator.allocated
@@ -669,8 +685,8 @@ class Server:
         # A fresh World has no /notify registration; re-enable lazily on next use.
         self._notifications_enabled = False
         self._protocol.boot(self._options)
-        # Create the default group (group 1, add to head of root node 0)
-        self.send_msg("/g_new", 1, 0, 0)
+        # Create the default group (add to head of root node 0)
+        self.send_msg("/g_new", self.default_group_id, 0, 0)
 
     def quit(self) -> None:
         """Shut down the embedded engine, finalizing any active recording."""
@@ -702,6 +718,11 @@ class Server:
         return self._options
 
     # -- Node ID allocation ----------------------------------------------------
+
+    @property
+    def default_group_id(self) -> int:
+        """Node ID of this client's default group (1 unless ``client_id`` is set)."""
+        return self._options.default_group_id
 
     def next_node_id(self) -> int:
         """Return a unique node ID (cycling from 1000 within scsynth's range)."""
@@ -1049,10 +1070,17 @@ class Server:
         and recreates the default group. Loaded SynthDefs, buffers, and buses
         are left intact (``/g_freeAll`` does not free them); only the node-id
         allocator is reset.
+
+        With ``Options.client_id`` set, only this client's default group is
+        emptied and the shared scheduler is left alone, as sclang's
+        ``freeMyDefaultGroup`` does, so other clients keep playing.
         """
-        self.send_msg("/g_freeAll", 0)
-        self.send_msg("/clearSched")
-        self.send_msg("/g_new", 1, 0, 0)
+        if self._options.client_id is not None:
+            self.send_msg("/g_freeAll", self.default_group_id)
+        else:
+            self.send_msg("/g_freeAll", 0)
+            self.send_msg("/clearSched")
+            self.send_msg("/g_new", self.default_group_id, 0, 0)
         self._node_allocator.reset()
 
     # -- Node lifecycle notifications ------------------------------------------
@@ -1081,9 +1109,12 @@ class Server:
                 self._node_dispatch_installed = True
             if self._notifications_enabled:
                 return
+            notify_args = [1]
+            if self._options.client_id is not None:
+                notify_args.append(self._options.client_id)
             self.send_msg_sync(
                 "/notify",
-                1,
+                *notify_args,
                 reply_address="/done",
                 match=lambda m: bool(m.contents) and m.contents[0] == "/notify",
                 timeout=timeout,
@@ -1187,7 +1218,7 @@ class Server:
     def synth(
         self,
         name: str,
-        target: int = 1,
+        target: int | None = None,
         action: AddAction | int = AddAction.ADD_TO_HEAD,
         *,
         controls: Controls = None,
@@ -1197,7 +1228,7 @@ class Server:
 
         Args:
             name: SynthDef name.
-            target: Target node for placement.
+            target: Target node for placement; ``None`` is the default group.
             action: Add action (AddAction enum or int 0-4).
             controls: Initial values for any control name, including ones
                 that collide with this method's parameters (``name``,
@@ -1209,6 +1240,8 @@ class Server:
         """
         args = control_args(controls, params)
         node_id = self.next_node_id()
+        if target is None:
+            target = self.default_group_id
         self.send_msg("/s_new", name, node_id, int(action), int(target), *args)
         return Synth(self, node_id, name)
 
@@ -1248,7 +1281,7 @@ class Server:
     def managed_synth(
         self,
         name: str,
-        target: int = 1,
+        target: int | None = None,
         action: AddAction | int = AddAction.ADD_TO_HEAD,
         *,
         controls: Controls = None,

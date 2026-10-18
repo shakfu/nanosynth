@@ -345,3 +345,66 @@ def test_print_func_none_restores_default(protocol_cls, capfd) -> None:
         server.quit()
     ctypes.CDLL(None).fflush(None)  # vprintf output is stdio-buffered
     assert "no_such_synthdef_xyz" in capfd.readouterr().out
+
+
+def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
+    """Bundles timetagged ahead, as Tidal and Strudel send them, keep their spacing.
+
+    ``OffsetOut`` places each click at its sample offset within the block, so the
+    recorded gaps must equal the timetag gaps to within a few samples.
+    """
+    import time
+    import wave
+
+    from nanosynth.synthdef import SynthDefBuilder
+    from nanosynth.ugens import Impulse, Line, OffsetOut
+
+    with SynthDefBuilder() as b:
+        Line.kr(duration=0.01, done_action=2)
+        OffsetOut.ar(bus=0, source=Impulse.ar(frequency=0))
+    booted.send_synthdef(b.build(name="click"))
+    booted.sync()
+    path = tmp_path / "clicks.wav"
+    booted.record(path, num_channels=1)
+    gap = 0.25
+    start = time.time() + 0.3  # Tidal's lookahead
+    for k in range(4):
+        with booted.at(start + k * gap):
+            booted.synth("click")
+    time.sleep(0.3 + 4 * gap + 0.2)
+    booted.stop_recording()
+    with wave.open(str(path)) as w:
+        rate = w.getframerate()
+        raw = w.readframes(w.getnframes())
+    import struct
+
+    samples = struct.unpack(f"<{len(raw) // 2}h", raw)
+    clicks = [i for i, x in enumerate(samples) if x > 16384]
+    assert len(clicks) == 4, clicks
+    gaps = [(b - a) / rate for a, b in zip(clicks, clicks[1:])]
+    assert all(abs(g - gap) < 0.0005 for g in gaps), gaps
+
+
+def test_udp_port_answers_after_reboot(protocol_cls) -> None:
+    """A second World in the process serves its UDP port (patches/sc-asio-restart.patch).
+
+    Clients such as sclang and Tidal's ``/c_set`` reach the engine only over UDP;
+    the in-process round trip in test_reboot_in_same_process does not cover it.
+    """
+    import socket
+
+    from nanosynth.osc import OscMessage
+
+    if protocol_cls is EmbeddedSupernovaProtocol:
+        pytest.skip("supernova reboot is a known crash (TODO.md)")
+    for _ in range(2):
+        server = Server(Options(verbosity=-1), protocol=protocol_cls())
+        server.boot()
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+                sock.settimeout(2)
+                sock.sendto(OscMessage("/status").to_datagram(), ("127.0.0.1", 57110))
+                reply = OscMessage.from_datagram(sock.recvfrom(4096)[0])
+            assert reply.address == "/status.reply"
+        finally:
+            server.quit()

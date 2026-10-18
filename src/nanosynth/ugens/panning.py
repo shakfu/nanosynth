@@ -1,6 +1,7 @@
 """Panning UGens."""
 
 import math
+from typing import Any, cast
 from collections.abc import Sequence
 
 from ..enums import CalculationRate
@@ -209,3 +210,139 @@ class XFade2(UGen):
     in_b = param(0)
     pan = param(0)
     level = param(1)
+
+
+@ugen(ar=True, kr=True)
+class LinXFade2(UGen):
+    """Linear crossfade. As in sclang, ``level`` scales the output; it is not an input."""
+
+    in_a = param()
+    in_b = param(0)
+    pan = param(0)
+
+    @classmethod
+    def ar(
+        cls,
+        *,
+        in_a: UGenRecursiveInput,
+        in_b: UGenRecursiveInput = 0,
+        pan: UGenRecursiveInput = 0,
+        level: UGenRecursiveInput = 1,
+    ) -> UGenOperable:
+        signal = cls._new_expanded(
+            calculation_rate=CalculationRate.AUDIO, in_a=in_a, in_b=in_b, pan=pan
+        )
+        return signal * level
+
+    @classmethod
+    def kr(
+        cls,
+        *,
+        in_a: UGenRecursiveInput,
+        in_b: UGenRecursiveInput = 0,
+        pan: UGenRecursiveInput = 0,
+        level: UGenRecursiveInput = 1,
+    ) -> UGenOperable:
+        signal = cls._new_expanded(
+            calculation_rate=CalculationRate.CONTROL, in_a=in_a, in_b=in_b, pan=pan
+        )
+        return signal * level
+
+
+class SplayAz(PseudoUGen):
+    """Spread an array of signals across ``channel_count`` outputs with ``PanAz``."""
+
+    @staticmethod
+    def _build(
+        rate: CalculationRate,
+        channel_count: int,
+        source: Sequence[UGenRecursiveInput] | UGenRecursiveInput,
+        spread: UGenRecursiveInput,
+        level: UGenRecursiveInput,
+        width: UGenRecursiveInput,
+        center: UGenRecursiveInput,
+        orientation: UGenRecursiveInput,
+        level_comp: bool | UGenRecursiveInput,
+    ) -> UGenOperable:
+        from .basic import Mix
+
+        sources = list(source) if isinstance(source, Sequence) else [source]
+        n = max(1, len(sources))
+        norm_spread = (n - 1) / n * spread  # type: ignore[operator]
+        if n == 1:
+            position: UGenRecursiveInput = center
+        else:
+            # sclang [center - s, center + s].resamp1(n)
+            lo, hi = center - norm_spread, center + norm_spread  # type: ignore[operator]
+            position = [lo + (hi - lo) * (i / (n - 1)) for i in range(n)]
+        comp: Any
+        if level_comp is True:
+            comp = math.sqrt(1 / n) if rate == CalculationRate.AUDIO else 1 / n
+        elif level_comp is False:
+            comp = 1
+        elif isinstance(level_comp, UGenOperable):
+            comp = (1 / n) ** level_comp.clip(0.0, 1.0)
+        else:  # LevelComp: n.reciprocal ** levelComp.clip(0, 1)
+            comp = (1 / n) ** min(max(float(cast(float, level_comp)), 0.0), 1.0)
+        method = PanAz.ar if rate == CalculationRate.AUDIO else PanAz.kr  # type: ignore[attr-defined]
+        panners = method(
+            channel_count=channel_count,
+            source=sources,
+            position=position,
+            amplitude=level * comp,
+            width=width,
+            orientation=orientation,
+        )
+        # .flop.collect(Mix(_)): one Mix per output channel, over all sources.
+        per_source = [list(p) for p in (panners if n > 1 else [panners])]
+        return UGenVector(*(Mix.new(list(ch)) for ch in zip(*per_source)))
+
+    @classmethod
+    def ar(
+        cls,
+        *,
+        channel_count: int = 4,
+        source: Sequence[UGenRecursiveInput] | UGenRecursiveInput,
+        spread: UGenRecursiveInput = 1,
+        level: UGenRecursiveInput = 1,
+        width: UGenRecursiveInput = 2,
+        center: UGenRecursiveInput = 0.0,
+        orientation: UGenRecursiveInput = 0.5,
+        level_comp: bool | UGenRecursiveInput = True,
+    ) -> UGenOperable:
+        return cls._build(
+            CalculationRate.AUDIO,
+            channel_count,
+            source,
+            spread,
+            level,
+            width,
+            center,
+            orientation,
+            level_comp,
+        )
+
+    @classmethod
+    def kr(
+        cls,
+        *,
+        channel_count: int = 4,
+        source: Sequence[UGenRecursiveInput] | UGenRecursiveInput,
+        spread: UGenRecursiveInput = 1,
+        level: UGenRecursiveInput = 1,
+        width: UGenRecursiveInput = 2,
+        center: UGenRecursiveInput = 0.0,
+        orientation: UGenRecursiveInput = 0.5,
+        level_comp: bool | UGenRecursiveInput = True,
+    ) -> UGenOperable:
+        return cls._build(
+            CalculationRate.CONTROL,
+            channel_count,
+            source,
+            spread,
+            level,
+            width,
+            center,
+            orientation,
+            level_comp,
+        )

@@ -24,7 +24,7 @@ class Crackle(UGen):
     chaos_parameter = param(1.5)
 
 
-@ugen(ar=True, kr=True)
+@ugen(ar=True, kr=True, unipolar=True)
 class Dust(UGen):
     density = param(0.0)
 

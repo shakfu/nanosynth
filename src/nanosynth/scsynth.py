@@ -45,11 +45,15 @@ class Options:
     - ``block_size`` -- control block size in samples (default 64).
     - ``ugen_plugins_path`` -- override UGen plugin search path (normally
       auto-detected from the installed wheel or ``SC_PLUGIN_PATH``).
+    - ``client_id`` -- share the engine with other clients such as sclang.
+      ``None`` (default) uses every ID; an int restricts nodes, buffers and
+      buses to that client's slice of ``maximum_logins``, as sclang does.
     """
 
     audio_bus_channel_count: int = 1024
     block_size: int = 64
     buffer_count: int = 1024
+    client_id: int | None = None
     control_bus_channel_count: int = 16384
     hardware_buffer_size: int | None = None
     input_bus_channel_count: int = 8
@@ -83,6 +87,18 @@ class Options:
             self.input_bus_channel_count + self.output_bus_channel_count
         ):
             raise ValueError("Insufficient audio buses")
+        if self.client_id is not None and not (
+            0 <= self.client_id < min(self.maximum_logins, 32)
+        ):
+            raise ValueError(
+                f"client_id {self.client_id} is outside "
+                f"0..{min(self.maximum_logins, 32) - 1}"
+            )
+
+    @property
+    def default_group_id(self) -> int:
+        """This client's default group: 1 for client 0, ``(id << 26) + 1`` else."""
+        return ((self.client_id or 0) << 26) + 1
 
     @property
     def first_private_bus_id(self) -> int:

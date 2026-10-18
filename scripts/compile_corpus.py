@@ -177,7 +177,7 @@ def case_env_curves() -> None:
 
 def case_env_scaled() -> None:
     e1 = Envelope.linen(
-        attack_time=0.02, sustain_time=0.05, release_time=0.03, level=0.8, curve=1
+        attack_time=0.02, sustain_time=0.05, release_time=0.03, level=0.8
     )
     e2 = Envelope.triangle(duration=0.1, amplitude=0.9)
     U.Out.ar(bus=0, source=[env(e1, scale=0.5, bias=0.1, time=1.5), env(e2, time=0.5)])
@@ -395,6 +395,98 @@ def case_lines() -> None:
         source=[
             U.Line.ar(start=0, stop=1, duration=0.2, done_action=0),
             U.XLine.ar(start=0.01, stop=1, duration=0.2, done_action=0),
+        ],
+    )
+
+
+def case_mapping() -> None:
+    s = sin(3)
+    p = U.LFPulse.ar(frequency=5, initial_phase=0, width=0.5)
+    k = U.SinOsc.kr(frequency=2, phase=0)
+    U.Out.ar(
+        bus=0,
+        source=[
+            sin(s.range(200, 400)) * 0.1
+            + sin(p.range(300, 600)) * 0.1
+            + sin(s.exprange(100, 800)) * 0.1
+            + (s * 2).linlin(-1, 1, 0, 0.3)
+            + (s * 2).linlin(-1, 1, 0, 0.3, clip=None) * 0.1
+            + sin(k.linexp(-1, 1, 200, 800)) * 0.1
+            + U.Mix.new(sin(U.SinOsc.kr(frequency=[2, 3], phase=0).range(200, 300)))
+            * 0.05,
+            (s * 3).clip(-0.5, 0.5) * 0.2
+            + (s * 3).fold(-0.4, 0.4) * 0.2
+            + (s * 3).wrap(-0.3, 0.3) * 0.2
+            + p.lag(0.05) * 0.1
+            + p.lag(0.01, 0.1) * 0.1
+            + sin(k.range(1, 2).expexp(1, 2, 200, 800)) * 0.1
+            + s.linlin(0, 1, 0, 0.2, clip="min") * 0.1
+            + s.linlin(0, 1, 0, 0.2, clip="max") * 0.1
+            + U.LFGauss.ar(
+                duration=0.1, width=0.2, initial_phase=0, loop=1, done_action=0
+            ).range(-0.3, 0.3),
+        ],
+    )
+
+
+def case_superdirt_ugens() -> None:
+    s = sin(220)
+    t = U.Saw.ar(frequency=330)
+    p = U.Pulse.ar(frequency=110, width=0.5)
+    k = U.SinOsc.kr(frequency=3, phase=0)
+    g = U.GVerb.ar(
+        source=s * 0.2,
+        room_size=10,
+        reverb_time=3,
+        damping=0.5,
+        input_bandwidth=0.5,
+        spread=15,
+        dry_level=1,
+        early_reflection_level=0.7,
+        tail_level=0.5,
+        maximum_room_size=300,
+    )
+    z = U.SplayAz.ar(
+        channel_count=2,
+        source=[s, t, p],
+        spread=1,
+        level=1,
+        width=2,
+        center=0,
+        orientation=0.5,
+        level_comp=True,
+    )
+    U.Out.ar(
+        bus=0,
+        source=[
+            (g[0] + g[1]) * 0.3
+            + U.Resonz.ar(
+                source=U.Impulse.ar(frequency=10, phase=0),
+                frequency=800,
+                bandwidth_ratio=0.1,
+            )
+            * 2
+            + U.SinOscFB.ar(frequency=220, feedback=0.8) * 0.2
+            + U.LinXFade2.ar(in_a=s, in_b=t, pan=k, level=0.5) * 0.3
+            + U.SelectX.ar(which=k.range(0, 2), sources=[s, t, p]) * 0.2,
+            U.PMOsc.ar(
+                carrier_frequency=300,
+                modulator_frequency=200,
+                pm_index=2,
+                modulator_phase=0,
+            )
+            * 0.2
+            + U.DynKlank.ar(
+                source=U.Impulse.ar(frequency=8, phase=0),
+                frequencies=[400, 700],
+                amplitudes=[0.3, 0.2],
+                decay_times=[0.2, 0.3],
+                frequency_scale=1,
+                frequency_offset=0,
+                decay_scale=1,
+            )
+            + (z[0] + z[1]) * 0.3
+            + sin(U.SinOscFB.kr(frequency=2, feedback=0.5).range(200, 300)) * 0.1,
         ],
     )
 

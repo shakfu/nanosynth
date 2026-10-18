@@ -1523,8 +1523,9 @@ class TestSynthDefSendPlay:
         node_id = sd.play(server, frequency=440.0)
         assert node_id == 1000
         server.send_synthdef.assert_called_once_with(sd)
+        # target=None: the server places the synth in its default group.
         server.synth.assert_called_once_with(
-            "test", target=1, action=0, frequency=440.0
+            "test", target=None, action=0, frequency=440.0
         )
 
     def test_play_custom_target_action(self):
@@ -1707,7 +1708,7 @@ class TestExtendedOperators:
         assert CalculationRate.from_expr(r) == CalculationRate.SCALAR
         # And it compiles inside a SynthDef rather than raising.
         with SynthDefBuilder() as builder:
-            Out.ar(bus=0, source=ConstantProxy(0.0).log_() + 0.0)
+            Out.kr(bus=0, source=ConstantProxy(0.0).log_() + 0.0)
         assert builder.build(name="t").compile()[:4] == b"SCgf"
 
     def test_complex_result_pow_fold_defers_to_ugen(self):
