@@ -131,6 +131,9 @@ jobs:
           if [ "$backend" = pulse ]; then
             printf 'pcm.!default { type pulse }\nctl.!default { type pulse }\n' > "$HOME/.asoundrc"
             echo "PULSE_SERVER=unix:$XDG_RUNTIME_DIR/pulse/native" >> "$GITHUB_ENV"
+            # With libpulse's default 2 s buffer, scsynth's clock lagged wall time
+            # by 1.7 s and test_future_bundles_play_on_time recorded no clicks.
+            echo "PULSE_LATENCY_MSEC=20" >> "$GITHUB_ENV"
             # scsynth opens an input stream too; the sink's monitor is the only
             # source there is. (It clamps its 8-in/8-out request to whatever
             # the device reports, so a stereo null sink is enough.)
