@@ -1,0 +1,2524 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://shakfu.github.io/nanosynth/dev/dirt-parameter-mapping/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Dirt parameter mapping - nanosynth</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dirt-parameter-mapping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="nanosynth" class="md-header__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nanosynth
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Dirt parameter mapping
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="nanosynth" class="md-nav__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nanosynth
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../server-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../threading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threading Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying SynthDefs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scgf-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SCgf Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_2" id="__nav_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/synthdef/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SynthDef Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OSC Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scsynth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_3" id="__nav_12_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composition
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Composition
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Score (NRT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_4" id="__nav_12_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engines & I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engines & I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_5" id="__nav_12_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UGens
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oscillators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/beq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BEQ Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/noise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Noise & Random
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/delay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delays
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/panning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/demand/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demand
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/chaos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/granular/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/bufio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/diskio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/physical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/reverb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/convolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/pv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Vocoder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Listening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/gendyn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stochastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/hilbert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hilbert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/inout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/mac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mouse/Keyboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/info/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Info
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/ffsinosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Band-limited
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../related-projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Related Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fields-with-no-effect-in-dirt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields with no effect in Dirt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-sound-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-sound chain
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#master-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Master stage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synthdef-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SynthDef strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="dirt-parameter-mapping">Dirt parameter mapping<a class="headerlink" href="#dirt-parameter-mapping" title="Permanent link">&para;</a></h1>
+<p>Maps each classic Dirt <code>/dirt/play</code> field to nanosynth UGens, as the spec for a native <code>/dirt/play</code> receiver. Assessed 2026-10-14 against <a href="https://codeberg.org/uzu/dirt">codeberg.org/uzu/dirt</a> at <code>123b399</code> (2026-06-21). File and function names below refer to that repo.</p>
+<p>Superseded as the reference (2026-10-15). The target users (Tidal, Strudel, vortex) write for SuperDirt, whose levels, filters, interpolation and effects differ from Dirt's. The reference is now nanodirt <code>docs/dev/superdirt-parameter-mapping.md</code>. This document remains the record of classic Dirt's behaviour.</p>
+<h2 id="fields-with-no-effect-in-dirt">Fields with no effect in Dirt<a class="headerlink" href="#fields-with-no-effect-in-dirt" title="Permanent link">&para;</a></h2>
+<p><code>dirt.h</code> (<code>DIRT_FIELDS</code>) declares 32 fields. Four do not change the sound:</p>
+<ul>
+<li>
+<p><code>offset</code>, <code>velocity</code>, <code>kriole</code>: stored in <code>play_dispatch</code> (<code>libdirt.c</code>), never read by <code>audio.c</code>.</p>
+</li>
+<li>
+<p><code>orbit</code>: used only for RMS metering, compiled out by default (<code>SEND_RMS</code>). Dirt has no per-orbit effects; the delay is one global line.</p>
+</li>
+</ul>
+<h2 id="per-sound-chain">Per-sound chain<a class="headerlink" href="#per-sound-chain" title="Permanent link">&para;</a></h2>
+<p>Order, from <code>playback_effects</code> (<code>audio.c</code>):</p>
+<p>source -&gt; vowel -&gt; lpf -&gt; hpf -&gt; bpf or notch -&gt; coarse -&gt; shape -&gt; crush -&gt; envelope -&gt; 16-sample fades -&gt; pan -&gt; out, plus delay send.</p>
+<p>SuperDirt uses a different order. Dirt parity requires this one.</p>
+<h2 id="mapping">Mapping<a class="headerlink" href="#mapping" title="Permanent link">&para;</a></h2>
+<p>Abbreviations: F = sample frames, SR = engine sample rate, R = <code>CUTOFFRATIO</code> = 30000.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Dirt behaviour</th>
+<th>nanosynth mapping</th>
+<th>Parity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>s</code>, <code>n</code></td>
+<td><code>s</code> is a folder under the sample root. Its <code>.wav</code> files are sorted (<code>alphasort</code>); file <code>abs(floor(n)) % count</code> plays. A name with a path component is used as given. Loading is lazy, so the first hit plays late.</td>
+<td>Resolve in Python and preload with <code>read_buffer</code>. Select the SynthDef by sample channel count (1 or 2), since <code>BufRd</code> fixes its channel count at build time.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>speed</code></td>
+<td>0 drops the event. Negative plays the segment backwards.</td>
+<td><code>Phasor.ar(0, rate * BufRateScale.kr(b), start, end)</code> into <code>BufRd.ar(..., interpolation=2)</code> (linear, as in Dirt). Reverse: negative rate, starting at <code>end</code>.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>accelerate</code></td>
+<td>Per sample, <code>speed += accelerate/SR</code>, applied to <code>abs(speed)</code>.</td>
+<td><code>rate = dir * (abs(speed) + accelerate * Sweep.ar(0, 1))</code>.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td><code>r</code>: plain rate. <code>s</code>: rate = F/speed/SR, so the sample lasts <code>speed</code> seconds. <code>c</code>: rate = F<em>speed</em>cps/SR. <code>accelerate</code> is rescaled the same way.</td>
+<td>Convert in Python before <code>/s_new</code>. <code>cps</code> is used only here.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>begin</code>, <code>end</code></td>
+<td>Fractions of the sample. Reverse swaps them to <code>1-end</code>, <code>1-begin</code>. <code>end</code> applies only when 0 &lt; <code>end</code> &lt; 1. <code>begin &lt; 0</code> means "continue from where the cut sound left off".</td>
+<td>Compute start and end frames in Python. For <code>begin &lt; 0</code>, Python can compute the cut sound's position from its start time, rate and accel. Deferred.</td>
+<td>exact, except <code>begin &lt; 0</code></td>
+</tr>
+<tr>
+<td><code>loop</code></td>
+<td>Total play count. At segment end, position resets to <code>start</code>.</td>
+<td><code>Phasor</code> wraps by itself. Python computes total duration from <code>loop</code>, segment length and rate (closed form; quadratic when accelerating).</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>gain</code></td>
+<td>Level = <code>(gain/2)^4</code>. <code>gain=1</code> gives 0.0625.</td>
+<td>Same formula, as a multiplier.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>pan</code></td>
+<td>Sample channel <code>i</code> goes to <code>c = i + pan</code>, equal-power between output channels <code>floor(c)</code> and <code>floor(c)+1</code>, wrapping. With more than 2 outputs, <code>pan</code> is first multiplied by the channel count (<code>-DSCALEPAN</code> in the Makefile). A stereo sample at <code>pan=0.5</code> on 2 outputs plays straight through.</td>
+<td><code>PanAz.ar(N, ch_i, pos=2*(i+pan)/N, width=2, orientation=0)</code> for every N, including 2. The wrap matters for stereo samples, so <code>Pan2</code> is only right for mono samples.</td>
+<td>exact if the <code>PanAz</code> convention matches (unverified)</td>
+</tr>
+<tr>
+<td><code>vowel</code></td>
+<td><code>a/e/i/o/u</code> select a 10-pole all-pole IIR with fixed coefficients (<code>formant_filter</code>). A deliberate bug shares one filter state across all channels.</td>
+<td>Factor each polynomial offline into 5 <code>SOS</code> stages: <code>a0 = c0</code> on the first, <code>b1 = 2*Re(p)</code>, <code>b2 = -abs(p)^2</code>. For <code>a</code>: max pole radius 0.9942 (stable), formants 793, 1156, 2899, 3900, 4950 Hz at 44.1k. Coefficients do not scale with SR, in Dirt or here.</td>
+<td>exact for mono. Stereo differs: the shared state is not reproduced</td>
+</tr>
+<tr>
+<td><code>cutoff</code>, <code>resonance</code></td>
+<td>4-pole ladder (musicdsp style) with cubic soft saturation (<code>effect_vcf</code>). Active only if 0 &lt; <code>resonance</code> &lt; 1 and <code>cutoff</code> &lt; R*SR/44100. <code>cutoff</code> alone, with <code>resonance = 0</code>, does nothing.</td>
+<td><code>MoogFF.ar(sig, freq, gain=4*resonance)</code>. Measured -3 dB corner over <code>cutoff</code>: 0.82 at 500 Hz, 0.86 at 1 kHz, 1.13 at 4 kHz. <code>freq = cutoff</code> is within about 15%; a fitted curve would do better.</td>
+<td>approximate (different ladder model)</td>
+</tr>
+<tr>
+<td><code>hcutoff</code>, <code>hresonance</code></td>
+<td>The same ladder, output as <code>in - lowpass</code> (<code>effect_hpf</code>). Same activation rule.</td>
+<td><code>sig - MoogFF.ar(...)</code>.</td>
+<td>approximate</td>
+</tr>
+<tr>
+<td><code>bandf</code>, <code>bandq</code></td>
+<td>2-pole resonator (<code>effect_bpf</code>). Requires <code>bandq &gt; 0</code>. Negative <code>bandf</code> gives a notch (<code>in - bpf</code>).</td>
+<td><code>BPF.ar(sig, 0.234*abs(bandf), rq=1/bandq)</code>, or <code>sig - BPF</code> for the notch. Measured: centre 0.232 x <code>bandf</code> (theory 44100/(R<em>2</em>pi) = 0.2340), unity peak gain, effective Q = <code>bandq</code> (1.01 and 4.1 measured).</td>
+<td>close</td>
+</tr>
+<tr>
+<td><code>coarse</code></td>
+<td>n &gt; 0: sample-and-hold every n samples. n &lt; 0: mean of each n-sample block, held.</td>
+<td>n &gt; 0: <code>Latch.ar(sig, Impulse.ar(SampleRate.ir/n))</code>. n &lt; 0: <code>Latch.ar(RunningSum.ar(sig, abs(n))/abs(n), same trigger)</code>.</td>
+<td>close (trigger phase may differ by one sample)</td>
+</tr>
+<tr>
+<td><code>shape</code></td>
+<td><code>k = 2s/(1-s)</code>, <code>s = min(abs(shape), 0.99)</code>; <code>y = (1+k)*x/(1+k*abs(x))</code>.</td>
+<td>Arithmetic on the signal; compute <code>k</code> in Python.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>crush</code></td>
+<td>Positive: <code>r = 2^(bits-1)</code>, <code>y = trunc(r*x)/r</code>, rounding toward zero. Negative: the same on <code>abs(x)^0.125</code>, then raised to the 8th power, sign restored.</td>
+<td><code>x.sign() * (abs(x) * r).floor_() / r</code>. Not SC's <code>trunc</code> binary op, which floors toward minus infinity. <code>Decimator</code> is sc3-plugins; avoid.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>attack</code>, <code>hold</code>, <code>release</code></td>
+<td>Active only if <code>attack &gt;= 0</code> and <code>release &gt;= 0</code> (default -1, off). Attack <code>1.0524*(1-e^(-3t/a))</code>, release <code>1.0524*e^(-3t/r) - 0.0524</code>. The sound keeps running at zero level until the sample ends.</td>
+<td><code>Envelope([0,1,1,0], [a,h,r], curves=-3)</code>. SC's curve formula at c=-3 reduces to exactly Dirt's expressions. Free at the earlier of envelope end and sample end.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td>(none)</td>
+<td>16-sample linear fade at segment start and end (<code>ROUNDOFF</code>, <code>effect_roundoff</code>).</td>
+<td>Fold into the free envelope: 16/SR fade in and out.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>cut</code></td>
+<td>On start, playing sounds in the same group get a 16-sample fade-out. Negative <code>cut</code> restricts this to the same sample (<code>cut</code>).</td>
+<td>One <code>Group</code> per positive <code>cut</code> value, or per (cut, sample) for negative values. In one bundle, send <code>/n_set &lt;group&gt; gate 0</code> before <code>/s_new</code> into that group: scsynth sets the group's children, and the new node does not exist yet. A gated 16-sample release frees each node. No node tracking needed.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>delay</code></td>
+<td>Post-pan send level, clamped to at most 1.</td>
+<td>Extra <code>Out.ar(delay_bus, sig*delay)</code> in SynthDef variants that use delay.</td>
+<td>exact</td>
+</tr>
+<tr>
+<td><code>delaytime</code>, <code>delayfeedback</code></td>
+<td>Global and sticky: the last event that sets them wins. Time is a fraction of a 44100-sample line, so <code>delaytime*44100/SR</code> seconds. Feedback clamped to +/-0.9999. Dirt updates these at receive time (<code>init_sound</code>), not play time.</td>
+<td>One global FX synth: <code>CombN(x, 44100/SR, D, sign(fb)*D*ln(0.001)/ln(abs(fb)))</code>, which gives <code>y = x(t-D) + fb*y(t-D)</code>, Dirt's recurrence. Update with timestamped <code>/n_set</code>.</td>
+<td>exact, except the receive-time update (a quirk; not worth copying)</td>
+</tr>
+<tr>
+<td><code>orbit</code>, <code>velocity</code>, <code>offset</code>, <code>kriole</code></td>
+<td>No effect.</td>
+<td>Ignore.</td>
+<td>exact</td>
+</tr>
+</tbody>
+</table>
+<h2 id="master-stage">Master stage<a class="headerlink" href="#master-stage" title="Permanent link">&para;</a></h2>
+<p>From <code>playback_finalize</code>:</p>
+<ul>
+<li>
+<p><strong>Delay return</strong>: added to the dry mix before compression.</p>
+</li>
+<li>
+<p><strong><code>dirty</code> compressor (default)</strong>: peak gain rider. Gain drops instantly to <code>1/abs(peak)</code> and recovers linearly at 50/s. Output then scales by <code>g_gain/5</code>. No core UGen matches it per sample; a <code>LocalIn</code> loop adds a block of delay. <code>Normalizer</code> is nearest but uses lookahead. Approximate.</p>
+</li>
+<li>
+<p><strong><code>clean</code></strong>: RMS follower plus <code>tanh</code>. Map to <code>Amplitude</code> or an RMS follower, gain, then <code>.tanh</code>. Approximate.</p>
+</li>
+<li>
+<p><strong><code>none</code></strong>: multiply by <code>g_gain</code>. Exact.</p>
+</li>
+<li>
+<p><strong>NaN and Inf guard</strong> (<code>playback_sanitize</code>): <code>Sanitize</code> plus a clamp.</p>
+</li>
+</ul>
+<h2 id="synthdef-strategy">SynthDef strategy<a class="headerlink" href="#synthdef-strategy" title="Permanent link">&para;</a></h2>
+<p>Cached variants over one monolithic SynthDef. A monolithic SynthDef with bypass flags makes every voice compute every effect, at up to 128 voices (<code>DEFAULT_POLYPHONY</code>).</p>
+<p>The variant key is the event's active set: <code>(nch, vowel, lpf, hpf, bpf|notch, coarse+/-, shape, crush+/-, env, delay)</code>. Build each variant on first use and cache it; only realized combinations are built. To avoid first-use latency, pre-build common variants, or send <code>/d_recv</code> with the <code>/s_new</code> as its completion message.</p>
+<p>SuperDirt instead chains one synth per effect on a private bus. That needs no codegen but uses more nodes per event.</p>
+<h2 id="timing">Timing<a class="headerlink" href="#timing" title="Permanent link">&para;</a></h2>
+<p>Forward each incoming bundle timetag unchanged into the bundle sent to scsynth. Dirt schedules from the same timetag (<code>dirt_play_handler</code>, <code>server.c</code>).</p>
+<h2 id="open-points">Open points<a class="headerlink" href="#open-points" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><code>PanAz</code> orientation and position convention, against Dirt's channel layout.</p>
+</li>
+<li>
+<p>Ladder filter frequency: measured at <code>resonance</code> 0.01 with a 1e-3 impulse. At high resonance, or with the cubic saturation driven, the two models diverge further.</p>
+</li>
+<li>
+<p>Compressor parity is approximate only.</p>
+</li>
+<li>
+<p><code>begin &lt; 0</code> (cut-continue) is deferred.</p>
+</li>
+</ul>
+<h2 id="method">Method<a class="headerlink" href="#method" title="Permanent link">&para;</a></h2>
+<p>Filter figures come from a numpy port of <code>effect_vcf</code>, <code>effect_bpf</code> and the vowel coefficients at SR = 44100. The port takes the FFT of a 1e-3 impulse response (2^15 points) and reads the -3 dB points. For the vowel filter it takes the roots of the denominator polynomial. No nanosynth code was run.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">SR</span><span class="o">=</span><span class="mf">44100.0</span><span class="p">;</span> <span class="n">R</span><span class="o">=</span><span class="mf">30000.0</span><span class="p">;</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">15</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">vcf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+    <span class="n">f</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">cutoff</span><span class="o">/</span><span class="n">R</span><span class="o">*</span><span class="mi">44100</span><span class="o">/</span><span class="n">SR</span><span class="p">;</span> <span class="n">k</span><span class="o">=</span><span class="mf">3.6</span><span class="o">*</span><span class="n">f</span><span class="o">-</span><span class="mf">1.6</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">f</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">p</span><span class="o">=</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mf">.5</span><span class="p">;</span> <span class="n">sc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span><span class="o">*</span><span class="mf">1.386249</span><span class="p">);</span> <span class="n">r</span><span class="o">=</span><span class="n">res</span><span class="o">*</span><span class="n">sc</span>
+    <span class="n">y1</span><span class="o">=</span><span class="n">y2</span><span class="o">=</span><span class="n">y3</span><span class="o">=</span><span class="n">y4</span><span class="o">=</span><span class="n">ox</span><span class="o">=</span><span class="n">o1</span><span class="o">=</span><span class="n">o2</span><span class="o">=</span><span class="n">o3</span><span class="o">=</span><span class="mf">0.0</span><span class="p">;</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">xx</span><span class="o">=</span><span class="n">v</span><span class="o">-</span><span class="n">r</span><span class="o">*</span><span class="n">y4</span><span class="p">;</span> <span class="n">xp</span><span class="p">,</span><span class="n">y1p</span><span class="p">,</span><span class="n">y2p</span><span class="p">,</span><span class="n">y3p</span><span class="o">=</span><span class="n">xx</span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="n">y1</span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="n">y2</span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="n">y3</span><span class="o">*</span><span class="n">p</span>
+        <span class="n">y1</span><span class="o">=</span><span class="n">xp</span><span class="o">+</span><span class="n">ox</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">y1</span><span class="p">;</span> <span class="n">y2</span><span class="o">=</span><span class="n">y1p</span><span class="o">+</span><span class="n">o1</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">y2</span><span class="p">;</span> <span class="n">y3</span><span class="o">=</span><span class="n">y2p</span><span class="o">+</span><span class="n">o2</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">y3</span><span class="p">;</span> <span class="n">y4</span><span class="o">=</span><span class="n">y3p</span><span class="o">+</span><span class="n">o3</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">y4</span>
+        <span class="n">y4</span><span class="o">=</span><span class="n">y4</span><span class="o">-</span><span class="n">y4</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="mi">6</span><span class="p">;</span> <span class="n">ox</span><span class="p">,</span><span class="n">o1</span><span class="p">,</span><span class="n">o2</span><span class="p">,</span><span class="n">o3</span><span class="o">=</span><span class="n">xp</span><span class="p">,</span><span class="n">y1p</span><span class="p">,</span><span class="n">y2p</span><span class="p">,</span><span class="n">y3p</span><span class="p">;</span> <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">y4</span>
+    <span class="k">return</span> <span class="n">out</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bpf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bandf</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="n">f</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="n">bandf</span><span class="o">/</span><span class="n">R</span><span class="o">*</span><span class="mi">44100</span><span class="o">/</span><span class="n">SR</span><span class="p">);</span> <span class="n">k</span><span class="o">=</span><span class="n">f</span><span class="o">/</span><span class="n">q</span><span class="p">;</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="o">-</span><span class="n">f</span><span class="o">*</span><span class="n">f</span><span class="p">;</span> <span class="n">sc</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">y1</span><span class="o">=</span><span class="n">y2</span><span class="o">=</span><span class="n">ox</span><span class="o">=</span><span class="mf">0.0</span><span class="p">;</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">y3</span><span class="o">=</span><span class="n">sc</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">y2</span><span class="o">-</span><span class="n">y1</span><span class="o">+</span><span class="n">k</span><span class="o">*</span><span class="p">(</span><span class="n">v</span><span class="o">-</span><span class="n">ox</span><span class="o">+</span><span class="n">y2</span><span class="p">));</span> <span class="n">ox</span><span class="o">=</span><span class="n">v</span><span class="p">;</span> <span class="n">y1</span><span class="o">=</span><span class="n">y2</span><span class="p">;</span> <span class="n">y2</span><span class="o">=</span><span class="n">y3</span><span class="p">;</span> <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">y3</span>
+    <span class="k">return</span> <span class="n">out</span>
+<span class="n">imp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">);</span> <span class="n">imp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">1e-3</span>   <span class="c1"># small: keeps the cubic saturation linear</span>
+<span class="n">fr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">SR</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">4000</span><span class="p">):</span>
+    <span class="n">H</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">vcf</span><span class="p">(</span><span class="n">imp</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="mf">0.01</span><span class="p">)))</span><span class="o">/</span><span class="mf">1e-3</span><span class="p">;</span> <span class="n">H</span><span class="o">/=</span><span class="n">H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;vcf cutoff=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">: -3dB at </span><span class="si">{</span><span class="n">fr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">H</span><span class="o">&lt;</span><span class="mf">0.7071</span><span class="p">)]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span><span class="p">,</span><span class="n">q</span> <span class="ow">in</span> <span class="p">((</span><span class="mi">1000</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="mi">1000</span><span class="p">,</span><span class="mi">4</span><span class="p">),(</span><span class="mi">4000</span><span class="p">,</span><span class="mi">4</span><span class="p">)):</span>
+    <span class="n">H</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">bpf</span><span class="p">(</span><span class="n">imp</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">q</span><span class="p">)))</span><span class="o">/</span><span class="mf">1e-3</span><span class="p">;</span> <span class="n">i</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">=</span><span class="n">H</span><span class="o">&gt;</span><span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="n">lo</span><span class="p">,</span><span class="n">hi</span><span class="o">=</span><span class="n">fr</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">fr</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bpf bandf=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> q=</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">: peak </span><span class="si">{</span><span class="n">fr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> Hz, gain </span><span class="si">{</span><span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, Q_eff </span><span class="si">{</span><span class="n">fr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">hi</span><span class="o">-</span><span class="n">lo</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">c</span><span class="o">=</span><span class="p">[</span><span class="mf">3.11044e-06</span><span class="p">,</span><span class="mf">8.943665402</span><span class="p">,</span><span class="o">-</span><span class="mf">36.83889529</span><span class="p">,</span><span class="mf">92.01697887</span><span class="p">,</span><span class="o">-</span><span class="mf">154.337906</span><span class="p">,</span><span class="mf">181.6233289</span><span class="p">,</span>
+   <span class="o">-</span><span class="mf">151.8651235</span><span class="p">,</span><span class="mf">89.09614114</span><span class="p">,</span><span class="o">-</span><span class="mf">35.10298511</span><span class="p">,</span><span class="mf">8.388101016</span><span class="p">,</span><span class="o">-</span><span class="mf">0.923313471</span><span class="p">]</span>  <span class="c1"># vowel &#39;a&#39;</span>
+<span class="n">poles</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">:])])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;max |pole|&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">poles</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;formants Hz&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">poles</span><span class="p">[</span><span class="n">poles</span><span class="o">.</span><span class="n">imag</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">SR</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
