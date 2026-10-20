@@ -45,6 +45,12 @@ int64 oscTimeNow() { return sc_PAOSCTime(); }
 
 void initializeScheduler() {}
 
+// NANOSYNTH_CLOCK_DEBUG: temporary diagnostic of the DLL after stream start. Remove
+// once the CI clock-lag investigation is done (see test_future_bundles_play_on_time).
+static const bool gClockDebug = getenv("NANOSYNTH_CLOCK_DEBUG") != nullptr;
+static double gClockDebugStart;
+static int gClockDebugCount;
+
 #else // SC_PA_USE_DLL
 
 int64 gOSCoffset = 0;
@@ -130,6 +136,14 @@ int SC_PortAudioDriver::PortAudioCallback(const void* input, void* output, unsig
     (void)frameCount, timeInfo, statusFlags; // suppress unused parameter warnings
 #ifdef SC_PA_USE_DLL
     mDLL.Update(sc_PAOSCTimeSeconds());
+    if (gClockDebug) {
+        // err < 0: the engine clock trails wall time, so timed bundles play late.
+        double now = sc_PAOSCTimeSeconds();
+        int n = gClockDebugCount++, perSec = (int)(mSampleRate / NumSamplesPerCallback());
+        if (n < 12 || (n % perSec == 0 && n <= 20 * perSec))
+            fprintf(stderr, "clock cb=%d t=%.4f frames=%lu err=%.4f\n", n, now - gClockDebugStart, frameCount,
+                    mDLL.PeriodTime() + mMaxOutputLatency - now);
+    }
 
 #    if SC_PA_DEBUG_DLL
     static int tick = 0;
@@ -412,9 +426,14 @@ bool SC_PortAudioDriver::DriverStart() {
     if (!mStream)
         return false;
 
+    gClockDebugStart = sc_PAOSCTimeSeconds();
+    gClockDebugCount = 0;
     PaError paerror = Pa_StartStream(mStream);
     if (paerror != paNoError)
         PRINT_PORTAUDIO_ERROR(Pa_StartStream, paerror);
+    if (gClockDebug)
+        fprintf(stderr, "clock Pa_StartStream took %.4f s, latency out %.4f s, %d frames/callback\n",
+                sc_PAOSCTimeSeconds() - gClockDebugStart, mMaxOutputLatency, NumSamplesPerCallback());
 
     // sync times
     mPaStreamStartupTimeOSC = 0;
@@ -424,6 +443,9 @@ bool SC_PortAudioDriver::DriverStart() {
     // mPaStreamStartupTime = Pa_GetStreamTime(mStream);
 #ifdef SC_PA_USE_DLL
     mDLL.Reset(mSampleRate, mNumSamplesPerCallback, SC_TIME_DLL_BW, sc_PAOSCTimeSeconds());
+    if (gClockDebug)
+        fprintf(stderr, "clock DLL reset at t=%.4f after %d callbacks\n", sc_PAOSCTimeSeconds() - gClockDebugStart,
+                gClockDebugCount);
 #endif
     return paerror == paNoError;
 }

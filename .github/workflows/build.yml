@@ -151,6 +151,19 @@ jobs:
       - name: Sync (builds the C extension from the source tree)
         run: uv sync
 
+      - name: Clock diagnostic (temporary)
+        # Logs callback timing and engine clock error after stream start; see
+        # NANOSYNTH_CLOCK_DEBUG in SC_PortAudio.cpp. Remove with that code.
+        env:
+          NANOSYNTH_CLOCK_DEBUG: "1"
+        run: |
+          uv run python -c "
+          import time
+          from nanosynth.server import Server
+          from nanosynth.scsynth import Options
+          s = Server(Options(verbosity=-1)); s.boot(); time.sleep(20); s.quit()
+          " 2>&1 | grep '^clock' || true
+
       - name: Realtime smoke (scsynth)
         env:
           NANOSYNTH_TEST_REALTIME: scsynth
