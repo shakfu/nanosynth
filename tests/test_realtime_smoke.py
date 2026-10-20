@@ -353,7 +353,7 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     ``OffsetOut`` places each click at its sample offset within the block, so the
     recorded gaps must equal the timetag gaps to within a few samples. Absolute
     latency is not asserted: on CI's PulseAudio null sink the engine clock trails
-    time.time() by ~1.7 s, so the timetags are offset by the measured lag.
+    time.time() by ~1.7 s, so recording runs on for the measured lag.
     """
     import time
     import wave
@@ -376,7 +376,7 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     path = tmp_path / "clicks.wav"
     booted.record(path, num_channels=1)
     gap = 0.25
-    start = time.time() + lag + 0.3  # Tidal's lookahead
+    start = time.time() + 0.3  # Tidal's lookahead
     for k in range(4):
         with booted.at(start + k * gap):
             booted.synth("click")
