@@ -1,0 +1,50 @@
+--- a/server/scsynth/SC_PortAudio.cpp
++++ b/server/scsynth/SC_PortAudio.cpp
+@@ -26,6 +26,7 @@
+ #include <math.h>
+ #include <stdlib.h>
+ #include "SC_PaUtils.hpp"
++#include <atomic>
+ 
+ #include "portaudio.h"
+ #define SC_PA_USE_DLL
+@@ -73,6 +74,7 @@
+ #ifdef SC_PA_USE_DLL
+     double mMaxOutputLatency;
+     SC_TimeDLL mDLL;
++    std::atomic<bool> mDLLResetPending { false };
+ #endif
+ protected:
+     // Driver interface methods
+@@ -129,7 +131,12 @@
+     World* world = mWorld;
+     (void)frameCount, timeInfo, statusFlags; // suppress unused parameter warnings
+ #ifdef SC_PA_USE_DLL
+-    mDLL.Update(sc_PAOSCTimeSeconds());
++    // Reset on the first callback, not in DriverStart(): a stream whose first
++    // callback came 2 s late left the clock 2 s behind for about a minute.
++    if (mDLLResetPending.exchange(false))
++        mDLL.Reset(mSampleRate, mNumSamplesPerCallback, SC_TIME_DLL_BW, sc_PAOSCTimeSeconds());
++    else
++        mDLL.Update(sc_PAOSCTimeSeconds());
+ 
+ #    if SC_PA_DEBUG_DLL
+     static int tick = 0;
+@@ -412,6 +419,9 @@
+     if (!mStream)
+         return false;
+ 
++#ifdef SC_PA_USE_DLL
++    mDLLResetPending = true;
++#endif
+     PaError paerror = Pa_StartStream(mStream);
+     if (paerror != paNoError)
+         PRINT_PORTAUDIO_ERROR(Pa_StartStream, paerror);
+@@ -423,7 +433,6 @@
+     // mPaStreamStartupTimeOSC = GetCurrentOSCTime();
+     // mPaStreamStartupTime = Pa_GetStreamTime(mStream);
+ #ifdef SC_PA_USE_DLL
+-    mDLL.Reset(mSampleRate, mNumSamplesPerCallback, SC_TIME_DLL_BW, sc_PAOSCTimeSeconds());
+ #endif
+     return paerror == paNoError;
+ }

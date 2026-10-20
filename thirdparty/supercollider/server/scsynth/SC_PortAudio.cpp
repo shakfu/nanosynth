@@ -26,6 +26,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "SC_PaUtils.hpp"
+#include <atomic>
 
 #include "portaudio.h"
 #define SC_PA_USE_DLL
@@ -79,6 +80,7 @@ class SC_PortAudioDriver : public SC_AudioDriver {
 #ifdef SC_PA_USE_DLL
     double mMaxOutputLatency;
     SC_TimeDLL mDLL;
+    std::atomic<bool> mDLLResetPending { false };
 #endif
 protected:
     // Driver interface methods
@@ -135,7 +137,12 @@ int SC_PortAudioDriver::PortAudioCallback(const void* input, void* output, unsig
     World* world = mWorld;
     (void)frameCount, timeInfo, statusFlags; // suppress unused parameter warnings
 #ifdef SC_PA_USE_DLL
-    mDLL.Update(sc_PAOSCTimeSeconds());
+    // Reset on the first callback, not in DriverStart(): a stream whose first
+    // callback came 2 s late left the clock 2 s behind for about a minute.
+    if (mDLLResetPending.exchange(false))
+        mDLL.Reset(mSampleRate, mNumSamplesPerCallback, SC_TIME_DLL_BW, sc_PAOSCTimeSeconds());
+    else
+        mDLL.Update(sc_PAOSCTimeSeconds());
     if (gClockDebug) {
         // err < 0: the engine clock trails wall time, so timed bundles play late.
         double now = sc_PAOSCTimeSeconds();
@@ -428,6 +435,9 @@ bool SC_PortAudioDriver::DriverStart() {
 
     gClockDebugStart = sc_PAOSCTimeSeconds();
     gClockDebugCount = 0;
+#ifdef SC_PA_USE_DLL
+    mDLLResetPending = true;
+#endif
     PaError paerror = Pa_StartStream(mStream);
     if (paerror != paNoError)
         PRINT_PORTAUDIO_ERROR(Pa_StartStream, paerror);
@@ -441,12 +451,6 @@ bool SC_PortAudioDriver::DriverStart() {
     // it would be better to do the sync here, but the timeInfo in the callback is incomplete
     // mPaStreamStartupTimeOSC = GetCurrentOSCTime();
     // mPaStreamStartupTime = Pa_GetStreamTime(mStream);
-#ifdef SC_PA_USE_DLL
-    mDLL.Reset(mSampleRate, mNumSamplesPerCallback, SC_TIME_DLL_BW, sc_PAOSCTimeSeconds());
-    if (gClockDebug)
-        fprintf(stderr, "clock DLL reset at t=%.4f after %d callbacks\n", sc_PAOSCTimeSeconds() - gClockDebugStart,
-                gClockDebugCount);
-#endif
     return paerror == paNoError;
 }
 

@@ -351,9 +351,7 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     """Bundles timetagged ahead, as Tidal and Strudel send them, keep their spacing.
 
     ``OffsetOut`` places each click at its sample offset within the block, so the
-    recorded gaps must equal the timetag gaps to within a few samples. Absolute
-    latency is not asserted: on CI's PulseAudio null sink the engine clock trails
-    time.time() by ~1.7 s, so recording runs on for the measured lag.
+    recorded gaps must equal the timetag gaps to within a few samples.
     """
     import time
     import wave
@@ -380,7 +378,7 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     for k in range(4):
         with booted.at(start + k * gap):
             booted.synth("click")
-    time.sleep(lag + 0.3 + 4 * gap + 0.2)
+    time.sleep(0.3 + 4 * gap + 0.2)
     booted.stop_recording()
     with wave.open(str(path)) as w:
         rate = w.getframerate()

@@ -14,6 +14,9 @@ patch -p1 -N -i "$PATCHES_DIR/sc-localin-first-block.patch" || true
 # 1c. A rebooted World read no UDP packets: restart the stopped io_context
 patch -p1 -N -i "$PATCHES_DIR/sc-asio-restart.patch" || true
 
+# 1d. A late first PortAudio callback left the clock behind: reset the DLL there
+patch -p1 -N -i "$PATCHES_DIR/sc-portaudio-dll-first-callback.patch" || true
+
 # 2. Fix CMAKE_SOURCE_DIR for subdirectory builds.
 #    SC's cmake uses CMAKE_SOURCE_DIR to locate sources in common/, include/,
 #    etc. When SC is a subdirectory (FetchContent), CMAKE_SOURCE_DIR points to

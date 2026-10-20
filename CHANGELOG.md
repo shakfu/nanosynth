@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **A rebooted engine ignored UDP** (`thirdparty/.../SC_ComPort.cpp`, `patches/sc-asio-restart.patch`): quitting stops the shared asio `io_context`, and a stopped context returns from `run()` at once until restarted. A second `Server` in the same process therefore read no UDP packets, so sclang, Tidal's `/c_set` and any other client got no reply. In-process messages were unaffected, which is why the reboot test passed. The restart runs before the asio thread spawns. Inside the thread, a short-lived World's `stop()` could land first; `restart()` then cleared it and `join()` hung. A 6 h hang of macOS wheel tests in NRT renders showed this.
 
+- **Timed bundles played late after boot on slow-starting PortAudio streams** (`thirdparty/.../SC_PortAudio.cpp`, `patches/sc-portaudio-dll-first-callback.patch`): the clock's DLL was reset in `DriverStart()`, assuming callbacks begin at once. On CI's PulseAudio null sink the first callback came 1.99 s later, and the 0.012 Hz DLL took about a minute to remove that error. Bundles timetagged by Tidal or Strudel played up to 2 s late and 11% too close together. The DLL now resets on the first callback. Linux and Windows use PortAudio; macOS uses CoreAudio and was unaffected.
+
 - **`DynKlank` mixed a multichannel source to mono** (`ugens/ffsinosc.py`): it wrapped the source channels across the resonator frequencies and summed them. sclang expands over the source first, one resonator bank per channel.
 
 - **`LFGauss(...).range()` used the generic bipolar mapping**: sclang's `LFGauss` maps from the curve's minimum, `exp(-1 / (2 width^2))`, to 1, with clipping. UGen classes can now define their own `range`.
