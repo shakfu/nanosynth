@@ -364,6 +364,12 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
         OffsetOut.ar(bus=0, source=Impulse.ar(frequency=0))
     booted.send_synthdef(b.build(name="click"))
     booted.sync()
+    # Time a bundle tagged "now" to its /n_end: the engine clock's lag behind time.time().
+    booted.enable_notifications()
+    sent = time.time()
+    with booted.at(sent):
+        probe = booted.synth("click")
+    lag = time.time() - sent if probe.wait_free(timeout=5.0) else None
     path = tmp_path / "clicks.wav"
     booted.record(path, num_channels=1)
     gap = 0.25
@@ -382,7 +388,7 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     clicks = [i for i, x in enumerate(samples) if x > 16384]
     # Duration ~1.5 s with no clicks means the engine clock lags; shorter means a short recording.
     seconds, peak = len(samples) / rate, max(map(abs, samples), default=0)
-    assert len(clicks) == 4, f"{clicks=} {seconds=:.3f} {peak=}"
+    assert len(clicks) == 4, f"{clicks=} {seconds=:.3f} {peak=} {lag=}"
     gaps = [(b - a) / rate for a, b in zip(clicks, clicks[1:])]
     assert all(abs(g - gap) < 0.0005 for g in gaps), gaps
 
