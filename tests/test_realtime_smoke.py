@@ -380,7 +380,9 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
 
     samples = struct.unpack(f"<{len(raw) // 2}h", raw)
     clicks = [i for i, x in enumerate(samples) if x > 16384]
-    assert len(clicks) == 4, clicks
+    # Duration ~1.5 s with no clicks means the engine clock lags; shorter means a short recording.
+    seconds, peak = len(samples) / rate, max(map(abs, samples), default=0)
+    assert len(clicks) == 4, f"{clicks=} {seconds=:.3f} {peak=}"
     gaps = [(b - a) / rate for a, b in zip(clicks, clicks[1:])]
     assert all(abs(g - gap) < 0.0005 for g in gaps), gaps
 

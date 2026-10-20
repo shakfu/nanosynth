@@ -499,15 +499,16 @@ static void asioFunction() {
     nova::thread_set_priority_rt(priority);
 #endif
 
-    // A context stopped by a previous World's stopAsioThread() returns from
-    // run() at once until restarted, so a second World read no UDP packets.
-    ioContext.restart();
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work =
         boost::asio::make_work_guard(ioContext);
     ioContext.run();
 }
 
 void startAsioThread() {
+    // A context stopped by a previous World's stopAsioThread() returns from
+    // run() at once until restarted, so a second World read no UDP packets.
+    // Restart here, not in the thread: a stop() racing ahead of it would be lost.
+    ioContext.restart();
     SC_Thread asioThread(&asioFunction);
     gAsioThread = std::move(asioThread);
 }
