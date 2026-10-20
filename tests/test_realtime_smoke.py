@@ -351,7 +351,9 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     """Bundles timetagged ahead, as Tidal and Strudel send them, keep their spacing.
 
     ``OffsetOut`` places each click at its sample offset within the block, so the
-    recorded gaps must equal the timetag gaps to within a few samples.
+    recorded gaps must equal the timetag gaps to within a few samples. Absolute
+    latency is not asserted: on CI's PulseAudio null sink the engine clock trails
+    time.time() by ~1.7 s, so the timetags are offset by the measured lag.
     """
     import time
     import wave
@@ -369,15 +371,16 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
     sent = time.time()
     with booted.at(sent):
         probe = booted.synth("click")
-    lag = time.time() - sent if probe.wait_free(timeout=5.0) else None
+    assert probe.wait_free(timeout=5.0), "a bundle tagged now never ran"
+    lag = time.time() - sent
     path = tmp_path / "clicks.wav"
     booted.record(path, num_channels=1)
     gap = 0.25
-    start = time.time() + 0.3  # Tidal's lookahead
+    start = time.time() + lag + 0.3  # Tidal's lookahead
     for k in range(4):
         with booted.at(start + k * gap):
             booted.synth("click")
-    time.sleep(0.3 + 4 * gap + 0.2)
+    time.sleep(lag + 0.3 + 4 * gap + 0.2)
     booted.stop_recording()
     with wave.open(str(path)) as w:
         rate = w.getframerate()
@@ -386,9 +389,8 @@ def test_future_bundles_play_on_time(booted: Server, tmp_path) -> None:
 
     samples = struct.unpack(f"<{len(raw) // 2}h", raw)
     clicks = [i for i, x in enumerate(samples) if x > 16384]
-    # Duration ~1.5 s with no clicks means the engine clock lags; shorter means a short recording.
     seconds, peak = len(samples) / rate, max(map(abs, samples), default=0)
-    assert len(clicks) == 4, f"{clicks=} {seconds=:.3f} {peak=} {lag=}"
+    assert len(clicks) == 4, f"{clicks=} {seconds=:.3f} {peak=} {lag=:.3f}"
     gaps = [(b - a) / rate for a, b in zip(clicks, clicks[1:])]
     assert all(abs(g - gap) < 0.0005 for g in gaps), gaps
 
