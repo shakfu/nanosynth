@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0]
+
 ### Upgrading
 
 - **`Mix` sums the outer array only.** `Mix.new([[a, b], c])` is now `[a + c, b + c]`, not one mono sum. Code that relied on flattening must flatten first or use `Mix.multichannel`
