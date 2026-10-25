@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Source builds under CPython 3.15 produced abi3 wheels that 3.12-3.14 cannot load** (`CMakeLists.txt`): CMake's FindPython takes the first abi3 suffix, and 3.15 lists `.abi3-<platform>.so` first. The wheel kept its `cp312-abi3` tag, so pip or uv could reuse a cached build on an older Python, where every extension failed to import. Released wheels are built with 3.12 and were unaffected.
+
 - **`LocalIn` output stale memory in its first block** (`thirdparty/.../IOUGens.cpp`, `patches/sc-localin-first-block.patch`): the constructor marked the bus as written at block -1, so at block 0 (the start of every NRT render) it copied its uninitialized bus instead of `default`. A fresh process reads zeroed pages; a second render in the same process read samples left by the first, up to 1e37.
 
 - **A rebooted engine ignored UDP** (`thirdparty/.../SC_ComPort.cpp`, `patches/sc-asio-restart.patch`): quitting stops the shared asio `io_context`, and a stopped context returns from `run()` at once until restarted. A second `Server` in the same process therefore read no UDP packets, so sclang, Tidal's `/c_set` and any other client got no reply. In-process messages were unaffected, which is why the reboot test passed. The restart runs before the asio thread spawns. Inside the thread, a short-lived World's `stop()` could land first; `restart()` then cleared it and `join()` hung. A 6 h hang of macOS wheel tests in NRT renders showed this.

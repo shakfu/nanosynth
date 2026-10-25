@@ -9,6 +9,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # SKBUILD_SABI_COMPONENT is set only when wheel.py-api requests abi3.
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module
              ${SKBUILD_SABI_COMPONENT})
+# FindPython takes the first abi3 suffix; CPython 3.15 lists `.abi3-<platform>.so`
+# first, which 3.12-3.14 cannot load. nanobind prefers SKBUILD_SOSABI.
+if(SKBUILD_SABI_COMPONENT AND NOT WIN32)
+    set(SKBUILD_SOSABI "abi3")
+endif()
 find_package(nanobind CONFIG REQUIRED)
 
 # --- _osc: OSC encode/decode ---
