@@ -64,7 +64,7 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 ### Packaging / CI
 
-- [ ] **macOS and Windows are tested only inside wheel builds.** `qa`, `test-source` and `test-realtime` run on Linux only; macOS/Windows run the suite once per wheel under cibuildwheel, with no realtime engine boot and no MIDI ports. Timing-sensitive code (`MidiClockOut` tick jitter under Windows' ~15.6 ms wait granularity, `Clock` scheduling) is unmeasured there. Add a non-wheel test job per OS, including a realtime boot where a virtual audio device is available. Overlaps the mock-bias item under High. Priority: **medium**, effort: **medium**.
+- [ ] **macOS and Windows are tested only inside wheel builds.** `qa`, `test-source` and `test-realtime` run on Linux only; macOS/Windows run the suite once per wheel under cibuildwheel, with no realtime engine boot and no MIDI ports. Timing-sensitive code (`MidiClockOut` tick jitter under Windows' ~15.6 ms wait granularity, `Clock` scheduling) is unmeasured there. Add a non-wheel test job per OS, including a realtime boot where a virtual audio device is available. Overlaps the mock-bias item under High. 2026-10-27: `test-realtime-macos` (BlackHole as the device) runs the realtime suite on every push; first run green (40518894009). Windows is not a target. Remaining: MIDI ports and `MidiClockOut` jitter on macOS. Priority: **medium**, effort: **medium**.
 
 ### Feature Gaps (engine & composition)
 
