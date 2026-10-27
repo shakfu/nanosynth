@@ -20,7 +20,7 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 - [ ] **(nanodirt) M5: superdough controls need a semantics decision.** For Strudel's WebSocket events, follow superdough (Strudel code sounds as on strudel.cc) or SuperDirt (as Strudel + SuperDirt sounds today)? They disagree on shared controls: the gain curve, `room`, `delay`, filter resonance. Superdough is about 5,000 lines of JavaScript (`packages/superdough` at Strudel `a3302cf`, 1,572 of them AudioWorklet DSP) with no headless reference to test against, so the result cannot be checked as M1-M4 were. Decide, then specify the 167 controls against superdough before implementing. Priority: **high**, effort: **high**.
 
-- [ ] **No release ships sc3-plugins.** They are in `[Unreleased]`; nanodirt pins nanosynth by local path (`[tool.uv.sources]`) and cannot pin a released version with them, and the `super*` synths need them. Priority: **high**, effort: **low**.
+- [x] **No release ships sc3-plugins.** They are in `[Unreleased]`; nanodirt pins nanosynth by local path (`[tool.uv.sources]`) and cannot pin a released version with them, and the `super*` synths need them. Done: released in 0.5.0; nanodirt 0.1.0 from PyPI resolves it, and its suite passes against it (2026-10-27). Priority: **high**, effort: **low**.
 
 ### Correctness & API Gaps
 
@@ -44,11 +44,11 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 - [ ] **(nanodirt) Random SynthDef constants cannot match SuperDirt.** SuperDirt redraws `superhammond`'s oscillator phases (`(2pi ! 9).rand`) and `superfm`'s five presets and `detune` defaults on every load, so no two SuperDirt sessions agree; nanodirt draws them from a fixed seed. Keep the seed, or expose it as an option. The parity tests compare these by level only. Priority: **medium**, effort: **low**.
 
-- [ ] **(nanodirt) `superprimes` renders silence.** In NRT, SuperDirt's own compiled SynthDef is silent for every setting tried (voice 0.1-2, sustain 0.2-1, rate 1-8), and so is nanodirt's translation; the parity test asserts both are silent. Not investigated: check SuperDirt in realtime, then the GVerb and SplayAz stages. Priority: **medium**, effort: **low**.
+- [x] **(nanodirt) `superprimes` renders silence.** In NRT, SuperDirt's own compiled SynthDef is silent for every setting tried (voice 0.1-2, sustain 0.2-1, rate 1-8), and so is nanodirt's translation; the parity test asserts both are silent. Not investigated: check SuperDirt in realtime, then the GVerb and SplayAz stages. Done 2026-10-27: a test-harness fault. The parity render used the default 64 wire buffers; `superprimes` needs more, so `/d_recv` failed for both defs. Users were unaffected: `cli.engine_options` sets SuperDirt's 2048. Priority: **medium**, effort: **low**.
 
 - [ ] **(nanodirt) Strudel in Safari and Firefox, and vortex's GUI and REPL, are untested.** Safari made no connection in the spike (error not captured); Firefox was never tried. vortex was tested headless through `vortex_dsl()` only. Priority: **medium**, effort: **low**.
 
-- [ ] **(nanodirt) No CI.** `make test` runs locally only; the oracle, audio and vortex tests are opt-in. Priority: **medium**, effort: **low**.
+- [ ] **(nanodirt) No CI.** `make test` runs locally only; the oracle, audio and vortex tests are opt-in. 2026-10-27: `.github/workflows/ci.yml` added (Linux and macOS, Python 3.10-3.14, against PyPI nanosynth via `--no-sources`); close after its first green run. Priority: **medium**, effort: **low**.
 
 ### Correctness & API Gaps
 
@@ -80,7 +80,7 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 - [ ] **The compilation corpus has no positive control.** `duty_positive_control` used `Duty`'s wrong input order to prove the comparison detects a difference; 0.4.0 fixed `Duty`, so the case now matches and `scripts/compile_corpus.py`'s docstring is stale. Add a case that differs on purpose (e.g. swapped `SinOsc` inputs) and assert it fails in `tests/test_sclang_corpus.py`. Priority: **low**, effort: **low**.
 
-- [ ] **`maximum_synthdef_count=1024` is unmeasured against SuperDirt.** With all 43 SuperDirt synths and nanodirt's own defs loaded it may be too low. Measure once nanodirt loads them. Priority: **low**, effort: **low**.
+- [x] **`maximum_synthdef_count=1024` is unmeasured against SuperDirt.** With all 43 SuperDirt synths and nanodirt's own defs loaded it may be too low. Measure once nanodirt loads them. Done 2026-10-27: nanodirt loads 88 SynthDefs; its `engine_options` sets 4096. Priority: **low**, effort: **low**.
 
 ### Correctness & API Gaps
 

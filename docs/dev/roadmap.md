@@ -43,7 +43,7 @@ Order follows nanodirt `integration.md`, "Order of work".
 | | Milestone | Delivers | Owner | Status |
 |-|-|-|-|-|
 | S | Spike | Tidal handshake, vortex in-process, Strudel over WS, all recorded and checked | nanodirt | Done 2026-10-15 (`spike/`, uncommitted, throwaway) |
-| P | Package setup | `pyproject.toml`, Makefile, CI, Python 3.10-3.14 | nanodirt | Done except CI |
+| P | Package setup | `pyproject.toml`, Makefile, CI, Python 3.10-3.14 | nanodirt | Done; CI workflow added 2026-10-27, first run pending |
 | M1 | Core phase 1 + UDP adapter | Samples, event model, basic fields, `lpf`/`hpf`/`bpf`, handshake. Tidal works | nanodirt | Done: 34 events match SuperDirt bundle for bundle; audio envelope correlation 0.9997 |
 | M2 | WebSocket adapter + Strudel sample maps | Strudel works with default banks, no Node | nanodirt | Done; browsers other than Chrome untested |
 | M3 | `nanodirt vortex` | Replacement `vortex.boot`, Link clock, no OSC | nanodirt | Done, headless; GUI not driven |
@@ -60,7 +60,7 @@ Order follows nanodirt `integration.md`, "Order of work".
 | UDP port 57110 | Done | `scsynth.py:22`; `world_open_udp`, `scsynth.py:290` |
 | Tidal `/c_set` and `"cN"` bus strings | Done | Spike: `cutoff: "c1"` mapped via handshake index (`spike-results.md`) |
 | Concurrent senders from Qt/IPython threads | Done | `world_send_packet` releases the GIL (nanodirt `integration.md`, "vortex") |
-| sc3-plugins built on all wheel platforms | Done, unreleased | Build run 38678335191 for `7a212da`: Linux, Windows, macOS wheels passed with `NANOSYNTH_SC3_PLUGINS` on by default (`CMakeLists.txt:103`) |
+| sc3-plugins built on all wheel platforms | Released in 0.5.0 | Build run 38678335191 for `7a212da`: Linux, Windows, macOS wheels passed with `NANOSYNTH_SC3_PLUGINS` on by default (`CMakeLists.txt:103`) |
 | Second client on the engine (oracle O) | Done | `Options.client_id`; SuperDirt confirmed as client 1 with `maxLogins` 4 |
 
 nanodirt runs in-process and allocates through nanosynth, so it needs neither N1 nor N2. Only oracle O does.
@@ -98,7 +98,7 @@ nanodirt uses only the realtime path: timetagged bundles 0.1-0.25 s ahead, buffe
 | Buffer read without blocking the sender | Done | Header parsed on first use; `/b_allocRead` sent without waiting |
 | UDP after a reboot in one process | Fixed in engine | `patches/sc-asio-restart.patch`; a second World read no UDP packets |
 | Supernova reboot in one process | Broken | Segfault in `_run_loop` (TODO, Medium). Not blocking: nanodirt uses scsynth |
-| macOS and Windows realtime | Spike on macOS only | TODO, Medium |
+| macOS realtime | Done 2026-10-27 | `test_realtime_smoke.py` passes for scsynth on macOS 26.7 (18 tests); nanodirt over UDP plays samples, synths and global effects with no late drops. Windows is not a target |
 
 ### R5. Dirt protocol (nanodirt)
 
@@ -120,7 +120,7 @@ Spec: nanodirt `superdirt-parameter-mapping.md`. Pinned SuperDirt revision: `650
 
 | Item | Status |
 |-|-|
-| sc3-plugins in the nanosynth wheel | Done, unreleased. nanodirt needs a nanosynth release containing them |
+| sc3-plugins in the nanosynth wheel | Released in 0.5.0; nanodirt 0.1.0 requires it |
 | Dirt-Samples | Done: `nanodirt samples fetch`, cache at `~/.cache/nanodirt` |
 | Strudel default banks | Done: the maps `prebake.mjs` loads, downloaded on first use; MP3 needs ffmpeg (TODO) |
 | vortex | git install only; Python 3.11-3.13 |
@@ -138,4 +138,3 @@ Decided 2026-10-18: build oracle O; change `Mix` to sclang's semantics; raise on
 - **Safari.** Strudel in Safari did not connect. If Safari blocks `ws://localhost` from https, Safari users need the desktop app or the Node bridge.
 - **Port 8080.** Strudel hardcodes it and llama.cpp uses it by default. An upstream Strudel change is the only fix.
 - **vortex packaging.** No current PyPI release; `nanodirt[vortex]` cannot depend on a git URL.
-- **`maximum_synthdef_count=1024`** may be too low with all `super*` synths loaded. Not measured.
