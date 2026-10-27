@@ -43,7 +43,7 @@ Order follows nanodirt `integration.md`, "Order of work".
 | | Milestone | Delivers | Owner | Status |
 |-|-|-|-|-|
 | S | Spike | Tidal handshake, vortex in-process, Strudel over WS, all recorded and checked | nanodirt | Done 2026-10-15 (`spike/`, uncommitted, throwaway) |
-| P | Package setup | `pyproject.toml`, Makefile, CI, Python 3.10-3.14 | nanodirt | Done; CI workflow added 2026-10-27, first run pending |
+| P | Package setup | `pyproject.toml`, Makefile, CI, Python 3.10-3.14 | nanodirt | Done; CI green on Linux and macOS, Python 3.10-3.14 (run 40504664337) |
 | M1 | Core phase 1 + UDP adapter | Samples, event model, basic fields, `lpf`/`hpf`/`bpf`, handshake. Tidal works | nanodirt | Done: 34 events match SuperDirt bundle for bundle; audio envelope correlation 0.9997 |
 | M2 | WebSocket adapter + Strudel sample maps | Strudel works with default banks, no Node | nanodirt | Done; browsers other than Chrome untested |
 | M3 | `nanodirt vortex` | Replacement `vortex.boot`, Link clock, no OSC | nanodirt | Done, headless; GUI not driven |

@@ -169,6 +169,36 @@ jobs:
           NANOSYNTH_TEST_REALTIME: scsynth
         run: uv run pytest tests/test_realtime_smoke.py -v
 
+  test-realtime-macos:
+    # The Linux job above, on CoreAudio. Windows is not a target platform.
+    runs-on: macos-latest
+    name: test (realtime, scsynth, macOS)
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Provide a virtual audio device
+        # Hosted macOS runners may have no audio device; BlackHole is a
+        # userspace CoreAudio driver, loaded after coreaudiod restarts.
+        run: |
+          brew install --cask blackhole-2ch
+          sudo killall coreaudiod || true
+          sleep 5
+          system_profiler SPAudioDataType
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+        with:
+          python-version: "3.12"
+
+      - name: Sync (builds the C extension from the source tree)
+        run: uv sync
+
+      - name: Realtime smoke (scsynth)
+        env:
+          NANOSYNTH_TEST_REALTIME: scsynth
+        run: uv run pytest tests/test_realtime_smoke.py -v
+
   benchmarks:
     # Manual only: the double build (HEAD + HEAD^) is expensive, so this runs
     # on demand via the Actions "Run workflow" button, not on every push/PR.

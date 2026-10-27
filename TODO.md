@@ -18,7 +18,9 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 - [x] **N8. No sclang range helpers on signals.** `range`, `exprange`, `linlin` and `linexp` are missing; only `midicps` exists (`synthdef.py:1044`). SuperDirt's SynthDefs use them throughout, so each translation spells the arithmetic out by hand. Match sclang's argument order and clip defaults. Done 2026-10-18: plus `expexp`, `clip`, `fold`, `wrap`, `lag`, and the `unipolar` flag `range` reads. Priority: **high**, effort: **low**.
 
-- [ ] **(nanodirt) M5: superdough controls need a semantics decision.** For Strudel's WebSocket events, follow superdough (Strudel code sounds as on strudel.cc) or SuperDirt (as Strudel + SuperDirt sounds today)? They disagree on shared controls: the gain curve, `room`, `delay`, filter resonance. Superdough is about 5,000 lines of JavaScript (`packages/superdough` at Strudel `a3302cf`, 1,572 of them AudioWorklet DSP) with no headless reference to test against, so the result cannot be checked as M1-M4 were. Decide, then specify the 167 controls against superdough before implementing. Priority: **high**, effort: **high**.
+- [ ] **(nanodirt) superdough sound sources are silent.** `s("sawtooth")`, `sine`, `triangle`, `square`, noise and `gm_` soundfonts are unknown sounds, so they play nothing. Across 136 GitHub repos with `.strudel` files, oscillators appear in 61% (54-68%) of a repo's files and soundfonts in 28% (22-35%), repo-weighted (nanodirt `docs/dev/strudel-usage.md`). Oscillators first; check the soundfont data source and licence before planning those. Priority: **high**, effort: **medium**.
+
+- [ ] **(nanodirt) M5: superdough controls need a semantics decision.** For Strudel's WebSocket events, follow superdough (Strudel code sounds as on strudel.cc) or SuperDirt (as Strudel + SuperDirt sounds today)? They disagree on shared controls: the gain curve, `room`, `delay`, filter resonance. Superdough is about 5,000 lines of JavaScript (`packages/superdough` at Strudel `a3302cf`, 1,572 of them AudioWorklet DSP) with no headless reference to test against, so the result cannot be checked as M1-M4 were. Decide, then specify the 167 controls against superdough before implementing. Usage sample 2026-10-27 (nanodirt `docs/dev/strudel-usage.md`): 15 controls in five groups cover every unhandled control at 3% or more of a repo's files; 58 appear in two or more repos. Priority: **high**, effort: **high**.
 
 - [x] **No release ships sc3-plugins.** They are in `[Unreleased]`; nanodirt pins nanosynth by local path (`[tool.uv.sources]`) and cannot pin a released version with them, and the `super*` synths need them. Done: released in 0.5.0; nanodirt 0.1.0 from PyPI resolves it, and its suite passes against it (2026-10-27). Priority: **high**, effort: **low**.
 
@@ -48,7 +50,7 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 - [ ] **(nanodirt) Strudel in Safari and Firefox, and vortex's GUI and REPL, are untested.** Safari made no connection in the spike (error not captured); Firefox was never tried. vortex was tested headless through `vortex_dsl()` only. Priority: **medium**, effort: **low**.
 
-- [ ] **(nanodirt) No CI.** `make test` runs locally only; the oracle, audio and vortex tests are opt-in. 2026-10-27: `.github/workflows/ci.yml` added (Linux and macOS, Python 3.10-3.14, against PyPI nanosynth via `--no-sources`); close after its first green run. Priority: **medium**, effort: **low**.
+- [x] **(nanodirt) No CI.** `make test` runs locally only; the oracle, audio and vortex tests are opt-in. 2026-10-27: `.github/workflows/ci.yml` added (Linux and macOS, Python 3.10-3.14, against PyPI nanosynth via `--no-sources`); first run green (40504664337). Priority: **medium**, effort: **low**.
 
 ### Correctness & API Gaps
 
