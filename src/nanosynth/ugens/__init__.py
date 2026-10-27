@@ -56,6 +56,7 @@ from .convolution import (
     Convolution2,
     Convolution2L,
     Convolution3,
+    PartConv,
 )
 from .delay import (
     AllpassC,
@@ -461,6 +462,7 @@ __all__ = [
     "Convolution2",
     "Convolution2L",
     "Convolution3",
+    "PartConv",
     # delay
     "AllpassC",
     "AllpassL",

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `PartConv`, partitioned convolution with an impulse response prepared by `/b_gen ... "PreparePartConv"`. The plugin was already built; nanodirt's Strudel reverb needs the class.
+
 ## [0.5.0]
 
 ### Upgrading

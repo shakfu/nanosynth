@@ -33,3 +33,10 @@ class Convolution3(UGen):
     kernel = param()
     trigger = param(0.0)
     framesize = param(2048)
+
+
+@ugen(ar=True)
+class PartConv(UGen):
+    source = param()
+    fft_size = param()
+    ir_buffer_id = param()

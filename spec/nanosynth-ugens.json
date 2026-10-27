@@ -8710,6 +8710,39 @@
       ]
     },
     {
+      "name": "PartConv",
+      "rates": [
+        "ar"
+      ],
+      "outputs": {
+        "kind": "fixed",
+        "count": 1
+      },
+      "flags": {
+        "pure": false,
+        "output": false,
+        "width_first": false,
+        "has_done_flag": false
+      },
+      "parameters": [
+        {
+          "name": "source",
+          "default": "required",
+          "unexpanded": false
+        },
+        {
+          "name": "fft_size",
+          "default": "required",
+          "unexpanded": false
+        },
+        {
+          "name": "ir_buffer_id",
+          "default": "required",
+          "unexpanded": false
+        }
+      ]
+    },
+    {
       "name": "Pause",
       "rates": [
         "kr"
