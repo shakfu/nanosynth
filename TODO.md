@@ -52,7 +52,7 @@ Requirements, status and milestones: `docs/dev/roadmap.md`. Items marked **(nano
 
 - [x] **(nanodirt) No CI.** `make test` runs locally only; the oracle, audio and vortex tests are opt-in. 2026-10-27: `.github/workflows/ci.yml` added (Linux and macOS, Python 3.10-3.14, against PyPI nanosynth via `--no-sources`); first run green (40504664337). Priority: **medium**, effort: **low**.
 
-- [ ] **(nanodirt) Strudel code cannot run without a browser.** Scope in nanodirt `docs/dev/strudel-headless.md`: Strudel's pattern engine runs in QuickJS (probe: 17 of 46 tunes identical to Node, none failing only in QuickJS). Needs `nanosynth._quickjs`: quickjs-ng (MIT) vendored in `thirdparty/` behind `NANOSYNTH_EMBED_QUICKJS`, wrapped with nanobind, no third-party runtime dependency. The AGPL Strudel bundle goes in a separate pure-Python `nanodirt-strudel`. After the superdough voice chain. Priority: **medium**, effort: **high**.
+- [ ] **(nanodirt) Strudel code cannot run without a browser.** Scope in nanodirt `docs/dev/strudel-headless.md`: Strudel's pattern engine runs in QuickJS (probe: 17 of 46 tunes identical to Node, none failing only in QuickJS). Decided 2026-11-11: QuickJS (vendored quickjs-ng, MIT), the AGPL Strudel bundle and the harness all go in nanodirt, which becomes a compiled package; no nanosynth change. Priority: **medium**, effort: **high**.
 
 ### Correctness & API Gaps
 
