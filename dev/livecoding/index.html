@@ -1,0 +1,2997 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://shakfu.github.io/nanosynth/dev/livecoding/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Livecoding with Dirt-protocol front ends - nanosynth</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#livecoding-with-dirt-protocol-front-ends" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="nanosynth" class="md-header__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nanosynth
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Livecoding with Dirt-protocol front ends
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="nanosynth" class="md-nav__button md-logo" aria-label="nanosynth" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nanosynth
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/shakfu/nanosynth" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    shakfu/nanosynth
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../server-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../threading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threading Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying SynthDefs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scgf-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SCgf Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_2" id="__nav_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/synthdef/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SynthDef Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OSC Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scsynth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_3" id="__nav_12_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composition
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Composition
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Score (NRT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_4" id="__nav_12_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engines & I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engines & I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/supernova/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supernova
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MIDI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_12_5" id="__nav_12_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_12_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UGens
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UGens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/osc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oscillators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/beq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BEQ Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/noise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Noise & Random
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/delay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delays
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/envelopes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Envelopes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/panning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/demand/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demand
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/chaos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/granular/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/bufio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/diskio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/physical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/reverb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/convolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/pv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Vocoder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine Listening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/gendyn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stochastic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/hilbert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hilbert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/inout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/lines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/mac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mouse/Keyboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/info/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Info
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ugens/ffsinosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Band-limited
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../related-projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Related Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-front-ends-send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the front ends send
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-1-superdirt-on-nanosynths-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1: SuperDirt on nanosynth's engine
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Option 1: SuperDirt on nanosynth&#39;s engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#already-in-place" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Already in place
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-super-synths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The super* synths
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#front-ends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Front ends
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#headless-sclang" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Headless sclang
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-nanodirt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2: nanodirt
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Option 2: nanodirt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layout_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#front-end-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Front-end adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parity-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parity testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-3-uzudirt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 3: uzu/dirt
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Option 3: uzu/dirt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3a-separate-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3a. Separate process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3b-libdirt-as-an-scsynth-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3b. libdirt as an scsynth plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remaining-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remaining use
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="livecoding-with-dirt-protocol-front-ends">Livecoding with Dirt-protocol front ends<a class="headerlink" href="#livecoding-with-dirt-protocol-front-ends" title="Permanent link">&para;</a></h1>
+<p>Status: proposal, 2026-10-15. Nothing here has been run. Claims about external code cite the revision read; claims marked "inference" were not checked.</p>
+<p>Revisions read:</p>
+<ul>
+<li>
+<p>SuperDirt <code>650a1d6</code> (2025-12-06)</p>
+</li>
+<li>
+<p>Tidal <code>5ae6552</code> (codeberg.org/uzu/tidal, 2026-07-02). The GitHub repo is stale; the protocol files are identical</p>
+</li>
+<li>
+<p>Strudel <code>a3302cf</code> (2026-10-13)</p>
+</li>
+<li>
+<p>vortex <code>aefea84</code> (2025-12-26)</p>
+</li>
+<li>
+<p>uzu/dirt <code>123b399</code> (2026-06-21)</p>
+</li>
+</ul>
+<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
+<p>Let users of TidalCycles, Strudel and vortex play through nanosynth.</p>
+<h2 id="what-the-front-ends-send">What the front ends send<a class="headerlink" href="#what-the-front-ends-send" title="Permanent link">&para;</a></h2>
+<p>All three emit SuperDirt's protocol. None targets classic Dirt by default.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Tidal</th>
+<th>Strudel</th>
+<th>vortex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language</td>
+<td>Haskell</td>
+<td>JavaScript (browser)</td>
+<td>Python (GPL-3)</td>
+</tr>
+<tr>
+<td>Transport</td>
+<td>UDP</td>
+<td>WebSocket <code>ws://localhost:8080</code> to a Node bridge (<code>packages/osc/server.js</code>), then UDP</td>
+<td>UDP via pyliblo3</td>
+</tr>
+<tr>
+<td>Default target</td>
+<td><code>127.0.0.1:57120</code> (<code>superdirtTarget</code>, <code>Stream/Target.hs</code>)</td>
+<td><code>127.0.0.1:57120</code></td>
+<td><code>57120</code> (<code>SuperDirtStream</code>, <code>stream.py</code>)</td>
+</tr>
+<tr>
+<td>Message</td>
+<td>bundle, <code>/dirt/play</code> name/value pairs</td>
+<td>same</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Latency default</td>
+<td>0.2 s</td>
+<td>set by the scheduler</td>
+<td>0.2 s</td>
+</tr>
+<tr>
+<td>Added fields</td>
+<td><code>cps</code>, <code>cycle</code>, <code>delta</code></td>
+<td><code>cps</code>, <code>cycle</code>, <code>delta</code>; <code>midinote</code> computed from <code>note</code> (octave default 3); <code>size</code> from <code>roomsize</code></td>
+<td><code>cps</code>, <code>cycle</code>, <code>delta</code></td>
+</tr>
+<tr>
+<td>Other traffic</td>
+<td><code>/dirt/handshake</code> every 2 s until <code>/dirt/handshake/reply</code>; <code>/c_set</code> to port 57110 for bus-mapped controls</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Clock</td>
+<td>Tidal clock, optional Link</td>
+<td>browser <code>performance</code> clock</td>
+<td>Ableton Link (<code>LinkClock</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Consequences:</p>
+<ul>
+<li>
+<p><strong>The reference semantics are SuperDirt's.</strong> Users write <code>note</code>, <code>room</code>, <code>size</code>, <code>orbit</code> and synth names (<code>superpiano</code>, <code>supersaw</code>). Classic Dirt ignores all of these.</p>
+</li>
+<li>
+<p><strong>The level scale differs.</strong> SuperDirt's level is <code>amp * (min(gain, 2) + overgain)^4</code> with <code>amp = 0.4</code> (<code>core-synths.scd</code>, <code>dirt_gate</code>; <code>DirtOrbit.sc</code>, <code>makeDefaultParentEvent</code>). Classic Dirt uses <code>(gain/2)^4</code>. At <code>gain=1</code> the two levels are 0.4 and 0.0625.</p>
+</li>
+<li>
+<p><strong>The choice in <code>dirt-parameter-mapping.md</code> should be revisited.</strong> It picked classic Dirt as the reference for a native receiver. For these users that reference is wrong. Its field analysis is still useful where Dirt and SuperDirt agree.</p>
+</li>
+<li>
+<p><strong>Tidal's <code>/c_set</code> messages reach nanosynth's engine directly.</strong> Tidal sends them to port 57110 (<code>oBusPort</code>). That is nanosynth's default engine port. It uses the bus indices from the handshake reply (<code>Stream/Process.hs</code>). With no reply it keeps resending the handshake, logs "Waiting for SuperDirt", and plays anyway. Bus-mapped controls then go to raw bus numbers.</p>
+</li>
+<li>
+<p><strong>vortex can skip OSC.</strong> <code>BaseStream.notify_event(event, timestamp, cps, cycle, delta)</code> is the only output hook. A subclass can call into nanosynth in the same process.</p>
+</li>
+</ul>
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>SuperDirt on nanosynth's engine.</strong> sclang runs the SuperDirt quark and treats nanosynth's embedded scsynth as a remote server.</p>
+</li>
+<li>
+<p><strong><code>nanodirt</code>.</strong> A Python reimplementation of SuperDirt's event model on nanosynth. No sclang.</p>
+</li>
+<li>
+<p><strong>uzu/dirt.</strong> The classic C Dirt sampler, either as a separate process or with <code>libdirt</code> loaded into the engine as a plugin.</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>1. SuperDirt</th>
+<th>2. nanodirt</th>
+<th>3a. dirt process</th>
+<th>3b. libdirt plugin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Processes</td>
+<td>Python + sclang (+ Node for Strudel)</td>
+<td>Python (+ Node for Strudel unless bridged)</td>
+<td>dirt + front end</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>Tidal</td>
+<td>full</td>
+<td>the subset implemented</td>
+<td>samples only; ignores <code>note</code>, <code>room</code>, synths</td>
+<td>same as 3a</td>
+</tr>
+<tr>
+<td>Strudel</td>
+<td>full</td>
+<td>subset</td>
+<td>same as 3a</td>
+<td>same as 3a</td>
+</tr>
+<tr>
+<td>vortex</td>
+<td>full</td>
+<td>subset; can run in-process</td>
+<td>same as 3a</td>
+<td>same as 3a</td>
+</tr>
+<tr>
+<td>nanosynth changes</td>
+<td>allocator client slice</td>
+<td>new package</td>
+<td>none</td>
+<td>C++ plugin + build</td>
+</tr>
+<tr>
+<td>New runtime deps</td>
+<td>sclang, SuperDirt + Vowel quarks</td>
+<td>none</td>
+<td>dirt, liblo, libsamplerate, audio backend</td>
+<td>libdirt</td>
+</tr>
+<tr>
+<td>Effort (estimate)</td>
+<td>small</td>
+<td>large</td>
+<td>none</td>
+<td>medium-large</td>
+</tr>
+</tbody>
+</table>
+<h2 id="option-1-superdirt-on-nanosynths-engine">Option 1: SuperDirt on nanosynth's engine<a class="headerlink" href="#option-1-superdirt-on-nanosynths-engine" title="Permanent link">&para;</a></h2>
+<h3 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Tidal / Strudel bridge / vortex
+        |  /dirt/play, /dirt/handshake  (UDP 57120)
+        v
+sclang (SuperDirt, client 1)              Tidal /c_set (UDP 57110)
+        |  /s_new, /b_allocRead, /d_recv          |
+        v  (UDP 57110)                            v
+embedded scsynth  &lt;--in-process--  Python (nanosynth, client 0)
+        |
+        v
+  audio device
+</code></pre></div>
+<h3 id="already-in-place">Already in place<a class="headerlink" href="#already-in-place" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>The embedded engine opens a real UDP port (<code>src/nanosynth/scsynth.py:290</code>, <code>DEFAULT_PORT = 57110</code>). sclang attaches with <code>Server.remote</code>. Tidal's <code>/c_set</code> arrives on the same port.</p>
+</li>
+<li>
+<p>SuperDirt compiles its SynthDefs in sclang and sends them with <code>/d_recv</code>. nanosynth's graph compiler is not involved.</p>
+</li>
+<li>
+<p>The core SynthDefs use only UGens from shipped plugins. These are <code>core-synths.scd</code>, <code>core-synths-global.scd</code> and <code>default-synths.scd</code>. For example, <code>PitchShift</code> and <code>BufRd</code> are in <code>DelayUGens</code>, <code>CheckBadValues</code> is in <code>TestUGens</code>, <code>SendPeakRMS</code> is in <code>TriggerUGens</code>, and <code>PanAz</code> is in <code>PanUGens</code>. <code>SwitchDelay</code> (sc3-plugins) is used only when it exists; the fallback is <code>CombL</code>.</p>
+</li>
+<li>
+<p>SuperDirt reads <code>wav</code>, <code>aif</code>, <code>aiff</code> and <code>aifc</code> only (<code>DirtSoundLibrary.sc</code>, <code>fileExtensions</code>). The vendored libsndfile reads all four.</p>
+</li>
+</ul>
+<h3 id="the-super-synths">The <code>super*</code> synths<a class="headerlink" href="#the-super-synths" title="Permanent link">&para;</a></h3>
+<p><code>library/default-synths-extra.scd</code> defines 32 synths. They load only when sclang has the class <code>MembraneHexagon</code>, i.e. sc3-plugins is installed on the sclang side (<code>try-load-extra-synths.scd</code>).</p>
+<p>7 of the 32 also need sc3-plugins binaries in the engine:</p>
+<table>
+<thead>
+<tr>
+<th>Synth</th>
+<th>sc3-plugins UGen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>superpiano</code></td>
+<td><code>MdaPiano</code></td>
+</tr>
+<tr>
+<td><code>superhex</code></td>
+<td><code>MembraneHexagon</code></td>
+</tr>
+<tr>
+<td><code>superchip</code></td>
+<td><code>AY</code></td>
+</tr>
+<tr>
+<td><code>supernoise</code></td>
+<td><code>BMoog</code></td>
+</tr>
+<tr>
+<td><code>supersaw</code></td>
+<td><code>SawDPW</code></td>
+</tr>
+<tr>
+<td><code>superpwm</code></td>
+<td><code>PulseDPW</code></td>
+</tr>
+<tr>
+<td><code>superfm</code></td>
+<td><code>FM7</code></td>
+</tr>
+</tbody>
+</table>
+<p>The other 25 use core UGens only. Without sc3-plugins in the engine, the 7 fail to load (<code>/d_recv</code> reports the missing UGen) and the other 25 work. sc3-plugins builds against the vendored SC tree and is planned for the wheel: <code>sc3-plugins-build.md</code>.</p>
+<h3 id="required-changes">Required changes<a class="headerlink" href="#required-changes" title="Permanent link">&para;</a></h3>
+<p><strong>1. Partition IDs between clients.</strong> sclang gives each client a slice: <code>numBuffers div: maxNumClients</code> buffers, likewise for control buses, and an audio-bus offset (<code>Server.sc</code> 3.14.1, <code>newBufferAllocators</code>, <code>newBusAllocators</code>). nanosynth uses the whole range:</p>
+<ul>
+<li>
+<p>buffers start at 0 (<code>src/nanosynth/server.py:614</code>);</p>
+</li>
+<li>
+<p>buses take the full private range (<code>server.py:617</code>, <code>server.py:622</code>);</p>
+</li>
+<li>
+<p>node IDs start at 1000 (<code>server.py:72</code>), the same as sclang's client 0;</p>
+</li>
+<li>
+<p><code>/g_new 1</code> is the default group (<code>server.py:673</code>). That is also client 0's default group in sclang (inference from <code>makeDefaultGroups</code>).</p>
+</li>
+</ul>
+<p>Fix: add <code>Options.client_id</code> (default 0). The allocators then use slice <code>client_id</code> of <code>maximum_logins</code>, with the same arithmetic as <code>Server.sc</code>. sclang attaches as client 1. Without this, SuperDirt's sample buffers and nanosynth's buffers overwrite each other.</p>
+<p><strong>2. Engine options sized for SuperDirt.</strong> The values are from <code>superdirt_startup.scd</code>, with <code>maximum_logins</code> lowered:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">nanosynth</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span><span class="p">,</span> <span class="n">Server</span>
+
+<span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span>
+    <span class="n">buffer_count</span><span class="o">=</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">256</span><span class="p">,</span>    <span class="c1"># 65536 per client with maximum_logins=4</span>
+    <span class="n">maximum_logins</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>           <span class="c1"># default 64 leaves 16 buffers per client</span>
+    <span class="n">memory_size</span><span class="o">=</span><span class="mi">8192</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">maximum_node_count</span><span class="o">=</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">wire_buffer_count</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
+    <span class="n">input_bus_channel_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">output_bus_channel_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">Server</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>3. sclang attaches; it does not boot.</strong> <code>Server.boot</code> on a remote server only prints "can't boot a remote server" (<code>Server.sc</code>).</p>
+<div class="highlight"><pre><span></span><code><span class="p">(</span>
+<span class="nx">o</span> <span class="o">=</span> <span class="nx">ServerOptions</span><span class="p">.</span><span class="k">new</span>
+    <span class="p">.</span><span class="nx">numBuffers_</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">256</span><span class="p">).</span><span class="nx">maxLogins_</span><span class="p">(</span><span class="mi">4</span><span class="p">).</span><span class="nx">memSize_</span><span class="p">(</span><span class="mi">8192</span> <span class="o">*</span> <span class="mi">32</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">maxNodes_</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">32</span><span class="p">).</span><span class="nx">numWireBufs_</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">numInputBusChannels_</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="nx">numOutputBusChannels_</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="nx">s</span> <span class="o">=</span> <span class="nx">Server</span><span class="p">.</span><span class="nx">remote</span><span class="p">(</span><span class="ss">\nano</span><span class="p">,</span> <span class="nx">NetAddr</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">57110</span><span class="p">),</span> <span class="nx">o</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="nx">Server</span><span class="p">.</span><span class="k">default</span> <span class="o">=</span> <span class="nx">s</span><span class="p">;</span>
+<span class="nx">s</span><span class="p">.</span><span class="nx">doWhenBooted</span> <span class="p">{</span>
+    <span class="o">~</span><span class="nx">dirt</span> <span class="o">=</span> <span class="nx">SuperDirt</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nx">s</span><span class="p">);</span>
+    <span class="o">~</span><span class="nx">dirt</span><span class="p">.</span><span class="nx">doNotReadYet</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>   <span class="c1">// headers only at startup; read on first use</span>
+    <span class="o">~</span><span class="nx">dirt</span><span class="p">.</span><span class="nx">loadSoundFiles</span><span class="p">;</span>
+    <span class="o">~</span><span class="nx">dirt</span><span class="p">.</span><span class="nx">start</span><span class="p">(</span><span class="mi">57120</span><span class="p">,</span> <span class="mi">0</span> <span class="o">!</span> <span class="mi">12</span><span class="p">);</span>
+<span class="p">};</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>sclang takes <code>maxLogins</code> and <code>clientID</code> from the engine's <code>/notify</code> reply (<code>prHandleClientLoginInfoFromServer</code>). The bus and buffer counts in <code>ServerOptions</code> still have to match <code>Options</code> by hand.</p>
+<h3 id="front-ends">Front ends<a class="headerlink" href="#front-ends" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Tidal:</strong> works unchanged. The handshake reply carries SuperDirt's control-bus indices on nanosynth's engine, so <code>/c_set</code> reaches the right buses.</p>
+</li>
+<li>
+<p><strong>Strudel:</strong> needs its Node bridge (<code>npx @strudel/osc</code>; <code>bin</code> in <code>packages/osc/package.json</code>) as with stock SuperDirt.</p>
+</li>
+<li>
+<p><strong>vortex:</strong> works unchanged.</p>
+</li>
+</ul>
+<h3 id="headless-sclang">Headless sclang<a class="headerlink" href="#headless-sclang" title="Permanent link">&para;</a></h3>
+<p>The cmake recipe in <code>compatibility-position.md</code> ("Reproduce") builds sclang without Qt. Add the <code>SuperDirt</code> and <code>Vowel</code> quarks, cloned into the <code>includePaths</code> of <code>sclang_conf.yaml</code>, and Dirt-Samples. On macOS, <code>sclang script.scd</code> from SuperCollider.app also works without opening a window. Memory figures for either build have not been measured.</p>
+<h3 id="risks">Risks<a class="headerlink" href="#risks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>nanosynth's <code>/notify</code> handling receives <code>/n_go</code> and <code>/n_end</code> for SuperDirt's nodes. <code>Synth</code> and <code>Group</code> bookkeeping must ignore node IDs it did not allocate.</p>
+</li>
+<li>
+<p>One SynthDef namespace for both clients. Avoid SuperDirt names (<code>dirt_*</code>, <code>imp</code>, <code>psin</code>, <code>gabor</code>, <code>super*</code>, ...) in nanosynth code.</p>
+</li>
+<li>
+<p><code>maximum_synthdef_count=1024</code> may be too low with the extras loaded. Not measured.</p>
+</li>
+<li>
+<p>sclang is still a second interpreter. This option does not reduce footprint.</p>
+</li>
+</ul>
+<h2 id="option-2-nanodirt">Option 2: nanodirt<a class="headerlink" href="#option-2-nanodirt" title="Permanent link">&para;</a></h2>
+<p>Chosen. nanodirt is a separate GPL-3 package (<code>~/projects/nanodirt</code>). Its front-end design (Tidal, Strudel, vortex) is in that repo: <code>docs/dev/integration.md</code>. This section keeps the scope survey.</p>
+<h3 id="layout_1">Layout<a class="headerlink" href="#layout_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Tidal ----UDP 57120----+
+Strudel --WS 8080------+--&gt; nanodirt --in-process--&gt; embedded scsynth
+vortex ---Python call--+
+</code></pre></div>
+<h3 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h3>
+<p>SuperDirt is about 2000 lines of sclang classes plus SynthDef files. Each part and what it needs:</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Source</th>
+<th>Work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Receiver</td>
+<td><code>SuperDirt.sc</code>, <code>connect</code></td>
+<td><code>/dirt/play</code>; <code>/dirt/handshake</code> -&gt; <code>/dirt/handshake/reply</code> with <code>&amp;serverHostname</code>, <code>&amp;serverPort</code>, <code>&amp;controlBusIndices</code>; <code>/dirt/hello</code> -&gt; <code>/dirt/hello/reply</code></td>
+</tr>
+<tr>
+<td>Event model</td>
+<td><code>DirtEvent.sc</code> (229 lines)</td>
+<td>Duration from <code>sustain</code>, <code>legato</code>, <code>delta</code> and <code>unit</code>; fade times; sample vs synth dispatch; one bundle per event</td>
+</tr>
+<tr>
+<td>Defaults and pitch</td>
+<td><code>DirtOrbit.sc</code>, <code>makeDefaultParentEvent</code></td>
+<td><code>midinote = note ? n + octave*12</code> (octave 5), <code>freq = midicps(midinote)</code>, <code>amp = 0.4</code>, and so on</td>
+</tr>
+<tr>
+<td>Orbits</td>
+<td><code>DirtOrbit.sc</code> (218 lines)</td>
+<td>Per-orbit synth bus, group and global effect chain; <code>dry</code> mix</td>
+</tr>
+<tr>
+<td>Per-event modules</td>
+<td><code>core-modules.scd</code>, <code>core-synths.scd</code></td>
+<td>13 modules: <code>vowel</code>, <code>shape</code>, <code>hpf</code>, <code>bpf</code>, <code>crush</code>, <code>coarse</code>, <code>lpf</code>, <code>pshift</code>, <code>envelope</code>, <code>grenvelo</code>, <code>tremolo</code>, <code>phaser</code>, <code>sound</code></td>
+</tr>
+<tr>
+<td>Global effects</td>
+<td><code>core-synths-global.scd</code></td>
+<td><code>dirt_delay</code>, <code>dirt_reverb</code>, <code>dirt_leslie</code>, <code>dirt_monitor</code>, <code>dirt_rms</code></td>
+</tr>
+<tr>
+<td>Sample library</td>
+<td><code>DirtSoundLibrary.sc</code></td>
+<td>folder <code>s</code>, index <code>n</code>; lazy read (<code>doNotReadYet</code>)</td>
+</tr>
+<tr>
+<td>Instruments</td>
+<td><code>default-synths.scd</code> (11), <code>default-synths-extra.scd</code> (32)</td>
+<td>Rewrite in the nanosynth DSL</td>
+</tr>
+<tr>
+<td>Control buses</td>
+<td><code>SuperDirt.sc</code>, <code>controlBusses</code></td>
+<td>Allocate, report in the handshake, read in SynthDefs</td>
+</tr>
+</tbody>
+</table>
+<p>nanosynth lacks classes used by the 25 core-only extras: <code>SinOscFB</code>, <code>GVerb</code>, <code>Resonz</code>, <code>PMOsc</code>, <code>SelectX</code>, <code>SplayAz</code> (<code>compatibility-position.md</code>, "Coverage", plus this survey). Each is a small <code>@ugen</code> or <code>PseudoUGen</code> addition.</p>
+<p><code>vowel</code> needs the <code>Vowel</code> quark's formant tables. These are data, available in <code>Vowel.sc</code>.</p>
+<h3 id="front-end-adapters">Front-end adapters<a class="headerlink" href="#front-end-adapters" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Tidal:</strong> UDP socket on 57120. Decode with <code>OscBundle.from_datagram</code> (<code>osc.py:379</code>). Keep the timetag.</p>
+</li>
+<li>
+<p><strong>vortex:</strong> a <code>BaseStream</code> subclass that calls nanodirt's <code>play(event, timestamp, cps, cycle, delta)</code> directly. No OSC, no UDP, no pyliblo3 on the output path. vortex timestamps are <code>liblo.time()</code> seconds (<code>stream.py</code>), which convert to an OSC timetag.</p>
+</li>
+<li>
+<p><strong>Strudel:</strong> either keep the Node bridge and use the UDP path, or accept its WebSocket JSON (<code>{address, args, timestamp}</code>, timestamp in ms) on port 8080. The second needs a WebSocket library; the stdlib has none.</p>
+</li>
+</ul>
+<h3 id="phases">Phases<a class="headerlink" href="#phases" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Samples, event model, the <code>gain</code>/<code>pan</code>/<code>speed</code>/<code>begin</code>/<code>end</code>/<code>cut</code>/<code>unit</code> fields, and <code>lpf</code>/<code>hpf</code>/<code>bpf</code>. This covers most drum-pattern code.</p>
+</li>
+<li>
+<p>Orbits and global effects (<code>room</code>, <code>size</code>, <code>dry</code>, <code>delay*</code>).</p>
+</li>
+<li>
+<p>Handshake and control buses. Before this, Tidal plays but logs "Waiting for SuperDirt".</p>
+</li>
+<li>
+<p>Remaining modules, <code>vowel</code>, and the 25 core-only <code>super*</code> synths.</p>
+</li>
+<li>
+<p>The 7 sc3-plugins synths. This needs sc3-plugins binaries in the engine, so it may never ship by default.</p>
+</li>
+</ol>
+<h3 id="parity-testing">Parity testing<a class="headerlink" href="#parity-testing" title="Permanent link">&para;</a></h3>
+<p>Option 1 is the oracle. Send the same timestamped <code>/dirt/play</code> bundle to SuperDirt-on-nanosynth and to nanodirt, record both with <code>Server.record</code>, and compare. SuperDirt has no non-real-time mode, so the comparison is real-time and needs tolerances for start-time jitter.</p>
+<h3 id="risks_1">Risks<a class="headerlink" href="#risks_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Licence.</strong> SuperDirt is GPL-2.0-or-later (<code>LICENSE</code>; <code>SuperDirt.sc</code> header), vortex GPL-3.0-or-later, Strudel AGPL-3, and the Vowel quark LGPL-2.1. Translating SuperDirt's SynthDefs and classes produces a derivative work under SuperDirt's GPL; nanodirt takes the "or later" option and is GPL-3.0-or-later, which vortex also requires. Put nanodirt in its own GPL-3 package that depends on nanosynth, rather than in the MIT package. Writing from behaviour alone is possible, but slower and gives worse parity.</p>
+</li>
+<li>
+<p><strong>Parity drift.</strong> SuperDirt changes; nanodirt follows by hand. Pin a SuperDirt revision and record it.</p>
+</li>
+<li>
+<p><strong>Python on the event path.</strong> Per event: decode, look up the sample, build the bundle, <code>world_send_packet</code>. About 100 events/s for dense Tidal code (16 events per cycle, 12 orbits, 0.5 cps). Unlikely to matter (inference; benchmark).</p>
+</li>
+<li>
+<p><strong>GIL contention</strong> with vortex's <code>LinkClock</code> thread in the same process. A late send makes an event late, not early. The engine's audio is unaffected.</p>
+</li>
+</ul>
+<h2 id="option-3-uzudirt">Option 3: uzu/dirt<a class="headerlink" href="#option-3-uzudirt" title="Permanent link">&para;</a></h2>
+<p>Dirt accepts <code>/dirt/play</code> on UDP 7771 and has a library form, <code>libdirt</code> (GPL-3). It covers samples with a fixed effect chain only: 32 fields (<code>dirt.h</code>, <code>DIRT_FIELDS</code>), no synths, no <code>note</code>, no orbits, no reverb.</p>
+<p>All three front ends can reach it:</p>
+<ul>
+<li>
+<p><strong>Tidal:</strong> <code>dirtTarget</code> (port 7771, positional <code>/play</code>, 0.02 s latency), or <code>superdirtTarget</code> with the port changed.</p>
+</li>
+<li>
+<p><strong>Strudel:</strong> the bridge takes a <code>port</code> field per message.</p>
+</li>
+<li>
+<p><strong>vortex:</strong> <code>SuperDirtStream(port=7771)</code>.</p>
+</li>
+</ul>
+<p>The result is a different instrument from what these users' code was written for. Melodic and effect-heavy patterns lose their pitch, synths and reverb, and the level scale differs (see "What the front ends send").</p>
+<h3 id="3a-separate-process">3a. Separate process<a class="headerlink" href="#3a-separate-process" title="Permanent link">&para;</a></h3>
+<p><code>dirt -o portaudio -s &lt;Dirt-Samples&gt;</code>, with nanosynth running alongside.</p>
+<ul>
+<li>
+<p>No code needed.</p>
+</li>
+<li>
+<p>Two audio clients on one device. CoreAudio mixes them. Linux needs JACK or PulseAudio/PipeWire.</p>
+</li>
+<li>
+<p>No shared buses and two clocks.</p>
+</li>
+</ul>
+<h3 id="3b-libdirt-as-an-scsynth-plugin">3b. libdirt as an scsynth plugin<a class="headerlink" href="#3b-libdirt-as-an-scsynth-plugin" title="Permanent link">&para;</a></h3>
+<p>A <code>DirtOut.ar(numChannels)</code> UGen starts libdirt with no audio backend. It calls <code>dirt_dequeue(now)</code> and <code>dirt_audio(out, now)</code> once per sample, the loop <code>libdirt-example.c</code> uses. Events arrive through libdirt's own OSC server (port 7771, liblo) or a <code>/cmd</code> plugin command.</p>
+<p>Constraints:</p>
+<ul>
+<li>
+<p>One instance per process: libdirt keeps global state.</p>
+</li>
+<li>
+<p><code>sample_rate</code> must equal the engine's.</p>
+</li>
+<li>
+<p><code>now</code> must come from the audio clock. A plugin sees block counts, not NTP time (inference from <code>SC_InterfaceTable.h</code>).</p>
+</li>
+<li>
+<p><code>dirt_audio</code> takes a lock unless built <code>NOLOCK=1</code>. The sample loader's worker threads allocate memory.</p>
+</li>
+</ul>
+<h3 id="remaining-use">Remaining use<a class="headerlink" href="#remaining-use" title="Permanent link">&para;</a></h3>
+<p>libdirt renders offline. It can serve as an oracle for the fields where Dirt and SuperDirt agree, but not for levels, pitch or effect order.</p>
+<h2 id="recommendation">Recommendation<a class="headerlink" href="#recommendation" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Option 1 now.</strong> Add <code>Options.client_id</code> and document the setup. It gives full compatibility for all three front ends at small cost, and it becomes nanodirt's parity oracle.</p>
+</li>
+<li>
+<p><strong>Option 2 in phases, as a separate GPL-3 package</strong> (decided; repo <code>nanodirt</code>). Start with phase 1 and the vortex adapter. vortex users get the most from it: Python only, one process, no OSC.</p>
+</li>
+<li>
+<p><strong>Drop Option 3 as a target.</strong> Keep 3a in user docs as a zero-setup sample player.</p>
+</li>
+<li>
+<p><strong>Revise <code>dirt-parameter-mapping.md</code></strong> to name SuperDirt as the reference, keeping its analysis of the fields Dirt and SuperDirt share.</p>
+</li>
+</ol>
+<h2 id="open-questions">Open questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Decided 2026-10-15: nanodirt is a separate GPL-3 package; sc3-plugins go into the nanosynth wheel; front-end questions moved to nanodirt <code>docs/dev/integration.md</code>.</p>
+</li>
+<li>
+<p>Footprint: which machines are in scope? Option 1 keeps sclang; only Option 2 removes it.</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
